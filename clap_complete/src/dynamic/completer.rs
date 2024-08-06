@@ -54,6 +54,7 @@ pub fn complete(
     let mut current_cmd = &*cmd;
     let mut pos_index = 1;
     let mut is_escaped = false;
+    let mut allow_hyphen = false;
     let mut state = ParseState::ValueDone;
     while let Some(arg) = raw_args.next(&mut cursor) {
         if cursor == target_cursor {
@@ -76,6 +77,15 @@ pub fn complete(
         } else if arg.is_escape() {
             is_escaped = true;
             state = ParseState::ValueDone;
+        } else if allow_hyphen {
+            match state {
+                ParseState::ValueDone | ParseState::Pos(..) => {
+                    (state, pos_index) =
+                        parse_positional(current_cmd, pos_index, is_escaped, state);
+                }
+                ParseState::Opt((ref opt, count)) => state = parse_opt(opt, count),
+            };
+            allow_hyphen = false;
         } else if let Some((flag, value)) = arg.to_long() {
             if let Ok(flag) = flag {
                 let opt = current_cmd.get_arguments().find(|a| {
@@ -87,6 +97,7 @@ pub fn complete(
                     });
                     is_find.unwrap_or(false)
                 });
+                allow_hyphen = opt.map(|o| o.is_allow_hyphen_values_set()).unwrap_or(false);
                 state = match opt.map(|o| o.get_action()) {
                     Some(clap::ArgAction::Set) | Some(clap::ArgAction::Append) => {
                         if value.is_some() {
@@ -113,6 +124,7 @@ pub fn complete(
             let (_, takes_value_opt, mut short) = parse_shortflags(current_cmd, short);
             match takes_value_opt {
                 Some(opt) => {
+                    allow_hyphen = opt.is_allow_hyphen_values_set();
                     state = match short.next_value_os() {
                         Some(_) => ParseState::ValueDone,
                         None => ParseState::Opt((opt, 1)),
@@ -128,20 +140,7 @@ pub fn complete(
                     (state, pos_index) =
                         parse_positional(current_cmd, pos_index, is_escaped, state);
                 }
-
-                ParseState::Opt((ref opt, count)) => match opt.get_num_args() {
-                    Some(range) => {
-                        let max = range.max_values();
-                        if count < max {
-                            state = ParseState::Opt((opt.clone(), count + 1));
-                        } else {
-                            state = ParseState::ValueDone;
-                        }
-                    }
-                    None => {
-                        state = ParseState::ValueDone;
-                    }
-                },
+                ParseState::Opt((ref opt, count)) => state = parse_opt(opt, count),
             }
         }
     }
@@ -652,6 +651,21 @@ fn parse_positional<'a>(
             "This branch won't be hit, 
             because ParseState::Opt should not be seen as a positional argument and passed to this function."
         ),
+    }
+}
+
+/// Parse optional flag argument. Return new state
+fn parse_opt(arg: &clap::Arg, count: usize) -> ParseState<'_> {
+    match arg.get_num_args() {
+        Some(range) => {
+            let max = range.max_values();
+            if count < max {
+                ParseState::Opt((arg, count + 1))
+            } else {
+                ParseState::ValueDone
+            }
+        }
+        None => ParseState::ValueDone,
     }
 }
 
