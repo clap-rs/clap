@@ -981,6 +981,161 @@ a_pos,c_pos"
     );
 }
 
+#[test]
+fn suggest_allow_hyhpen() {
+    let mut cmd = Command::new("exhaustive")
+        .arg(
+            clap::Arg::new("format")
+                .long("format")
+                .short('F')
+                .allow_hyphen_values(true)
+                .value_parser(["--json", "--toml", "--yaml"]),
+        )
+        .arg(clap::Arg::new("json").long("json"));
+
+    assert_data_eq!(complete!(cmd, "--format --j[TAB]"), snapbox::str!["--json"]);
+    assert_data_eq!(complete!(cmd, "-F --j[TAB]"), snapbox::str!["--json"]);
+    assert_data_eq!(complete!(cmd, "--format --t[TAB]"), snapbox::str!["--toml"]);
+    assert_data_eq!(complete!(cmd, "-F --t[TAB]"), snapbox::str!["--toml"]);
+
+    assert_data_eq!(
+        complete!(cmd, "--format --[TAB]"),
+        snapbox::str![
+            "--json
+--toml
+--yaml"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-F --[TAB]"),
+        snapbox::str![
+            "--json
+--toml
+--yaml"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--format --json --j[TAB]"),
+        snapbox::str![""]
+    );
+
+    assert_data_eq!(complete!(cmd, "-F --json --j[TAB]"), snapbox::str![""]);
+}
+
+#[test]
+fn suggest_positional_long_allow_hyhpen() {
+    let mut cmd = Command::new("exhaustive")
+        .arg(
+            clap::Arg::new("format")
+                .long("format")
+                .short('F')
+                .allow_hyphen_values(true)
+                .value_parser(["--json", "--toml", "--yaml"]),
+        )
+        .arg(
+            clap::Arg::new("positional_a")
+                .value_parser(["--pos_a"])
+                .index(1)
+                .allow_hyphen_values(true),
+        )
+        .arg(
+            clap::Arg::new("positional_b")
+                .index(2)
+                .value_parser(["pos_b"]),
+        );
+
+    assert_data_eq!(
+        complete!(cmd, "--format --json --pos[TAB]"),
+        snapbox::str!["--pos_a"]
+    );
+    assert_data_eq!(
+        complete!(cmd, "-F --json --pos[TAB]"),
+        snapbox::str!["--pos_a"]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--format --json --pos_a [TAB]"),
+        snapbox::str![
+            "--format
+--help	Print help
+-F
+-h	Print help
+--pos_a"
+        ]
+    );
+    assert_data_eq!(
+        complete!(cmd, "-F --json --pos_a [TAB]"),
+        snapbox::str![
+            "--format
+--help	Print help
+-F
+-h	Print help
+--pos_a"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--format --json --pos_a p[TAB]"),
+        snapbox::str![""]
+    );
+    assert_data_eq!(
+        complete!(cmd, "-F --json --pos_a p[TAB]"),
+        snapbox::str![""]
+    );
+}
+
+#[test]
+fn suggest_positional_short_allow_hyhpen() {
+    let mut cmd = Command::new("exhaustive")
+        .arg(
+            clap::Arg::new("format")
+                .long("format")
+                .short('F')
+                .allow_hyphen_values(true)
+                .value_parser(["--json", "--toml", "--yaml"]),
+        )
+        .arg(
+            clap::Arg::new("positional_a")
+                .value_parser(["-a"])
+                .index(1)
+                .allow_hyphen_values(true),
+        )
+        .arg(
+            clap::Arg::new("positional_b")
+                .index(2)
+                .value_parser(["pos_b"]),
+        );
+
+    assert_data_eq!(
+        complete!(cmd, "--format --json -a [TAB]"),
+        snapbox::str![
+            "--format
+--help	Print help
+-F
+-h	Print help
+-a"
+        ]
+    );
+    assert_data_eq!(
+        complete!(cmd, "-F --json -a [TAB]"),
+        snapbox::str![
+            "--format
+--help	Print help
+-F
+-h	Print help
+-a"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--format --json -a p[TAB]"),
+        snapbox::str![""]
+    );
+    assert_data_eq!(complete!(cmd, "-F --json -a p[TAB]"), snapbox::str![""]);
+}
+
 fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>) -> String {
     let input = args.as_ref();
     let mut args = vec![std::ffi::OsString::from(cmd.get_name())];
