@@ -1545,11 +1545,8 @@ impl Arg {
 
     /// Allow grouping of multiple values via a delimiter.
     ///
-    /// i.e. should `--option=val1,val2,val3` be parsed as three values (`val1`, `val2`,
-    /// and `val3`) or as a single value (`val1,val2,val3`). Defaults to using `,` (comma) as the
-    /// value delimiter for all arguments that accept values (options and positional arguments)
-    ///
-    /// **NOTE:** implicitly sets [`Arg::action(ArgAction::Set)`]
+    /// i.e. allow values (`val1,val2,val3`) to be parsed as three values (`val1`, `val2`,
+    /// and `val3`) instead of one value (`val1,val2,val3`).
     ///
     /// # Examples
     ///
