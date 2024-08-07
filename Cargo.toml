@@ -168,7 +168,7 @@ string = ["clap_builder/string"]  # Allow runtime generated strings
 
 # In-work features
 unstable-v5 = ["clap_builder/unstable-v5", "clap_derive?/unstable-v5", "deprecated"]
-unstable-ext = []
+unstable-ext = ["clap_builder/unstable-ext"]
 unstable-styles = ["clap_builder/unstable-styles"]  # deprecated
 
 [lib]
