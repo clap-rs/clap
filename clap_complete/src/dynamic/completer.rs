@@ -198,7 +198,7 @@ fn complete_arg(
                                             comp.get_content().to_string_lossy()
                                         ))
                                         .help(comp.get_help().cloned())
-                                        .visible(comp.is_visible())
+                                        .hide(comp.is_hide_set())
                                     }),
                             );
                         }
@@ -241,7 +241,6 @@ fn complete_arg(
                                 comp.get_content().to_string_lossy()
                             ))
                             .help(comp.get_help().cloned())
-                            .visible(true)
                         }),
                 );
             } else if let Some(short) = arg.to_short() {
@@ -271,7 +270,7 @@ fn complete_arg(
                                         comp.get_content().to_string_lossy()
                                     ))
                                     .help(comp.get_help().cloned())
-                                    .visible(comp.is_visible())
+                                    .hide(comp.is_hide_set())
                                 }),
                         );
                     } else {
@@ -283,7 +282,7 @@ fn complete_arg(
                                     comp.get_content().to_string_lossy()
                                 ))
                                 .help(comp.get_help().cloned())
-                                .visible(comp.is_visible())
+                                .hide(comp.is_hide_set())
                             },
                         ));
                     }
@@ -324,8 +323,8 @@ fn complete_arg(
             }
         }
     }
-    if completions.iter().any(|a| a.is_visible()) {
-        completions.retain(|a| a.is_visible());
+    if completions.iter().any(|a| !a.is_hide_set()) {
+        completions.retain(|a| !a.is_hide_set());
     }
 
     Ok(completions)
@@ -346,7 +345,7 @@ fn complete_arg_value(
                 name.starts_with(value).then(|| {
                     CompletionCandidate::new(OsString::from(name))
                         .help(p.get_help().cloned())
-                        .visible(!p.is_hide_set())
+                        .hide(p.is_hide_set())
                 })
             }));
         }
@@ -428,20 +427,14 @@ fn complete_path(
             let path = entry.path();
             let mut suggestion = pathdiff::diff_paths(&path, current_dir).unwrap_or(path);
             suggestion.push(""); // Ensure trailing `/`
-            completions.push(
-                CompletionCandidate::new(suggestion.as_os_str().to_owned())
-                    .help(None)
-                    .visible(true),
-            );
+            completions
+                .push(CompletionCandidate::new(suggestion.as_os_str().to_owned()).help(None));
         } else {
             let path = entry.path();
             if is_wanted(&path) {
                 let suggestion = pathdiff::diff_paths(&path, current_dir).unwrap_or(path);
-                completions.push(
-                    CompletionCandidate::new(suggestion.as_os_str().to_owned())
-                        .help(None)
-                        .visible(true),
-                );
+                completions
+                    .push(CompletionCandidate::new(suggestion.as_os_str().to_owned()).help(None));
             }
         }
     }
@@ -476,7 +469,7 @@ fn longs_and_visible_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
                 longs.into_iter().map(|s| {
                     CompletionCandidate::new(format!("--{}", s))
                         .help(a.get_help().cloned())
-                        .visible(!a.is_hide_set())
+                        .hide(a.is_hide_set())
                 })
             })
         })
@@ -494,7 +487,7 @@ fn hidden_longs_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
                 longs.into_iter().map(|s| {
                     CompletionCandidate::new(format!("--{}", s))
                         .help(a.get_help().cloned())
-                        .visible(false)
+                        .hide(true)
                 })
             })
         })
@@ -513,7 +506,7 @@ fn shorts_and_visible_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
                 shorts.into_iter().map(|s| {
                     CompletionCandidate::new(s.to_string())
                         .help(a.get_help().cloned())
-                        .visible(!a.is_hide_set())
+                        .hide(a.is_hide_set())
                 })
             })
         })
@@ -546,12 +539,12 @@ fn subcommands(p: &clap::Command) -> Vec<CompletionCandidate> {
                 .map(|s| {
                     CompletionCandidate::new(s.to_string())
                         .help(sc.get_about().cloned())
-                        .visible(!sc.is_hide_set())
+                        .hide(sc.is_hide_set())
                 })
                 .chain(sc.get_aliases().map(|s| {
                     CompletionCandidate::new(s.to_string())
                         .help(sc.get_about().cloned())
-                        .visible(false)
+                        .hide(true)
                 }))
         })
         .collect()
@@ -667,8 +660,8 @@ pub struct CompletionCandidate {
     /// Help message with a completion candidate
     help: Option<StyledStr>,
 
-    /// Whether the completion candidate is visible
-    visible: bool,
+    /// Whether the completion candidate is hidden
+    hidden: bool,
 }
 
 impl CompletionCandidate {
@@ -688,8 +681,8 @@ impl CompletionCandidate {
     }
 
     /// Set the visibility of the completion candidate
-    pub fn visible(mut self, visible: bool) -> Self {
-        self.visible = visible;
+    pub fn hide(mut self, hidden: bool) -> Self {
+        self.hidden = hidden;
         self
     }
 
@@ -704,7 +697,7 @@ impl CompletionCandidate {
     }
 
     /// Get the visibility of the completion candidate
-    pub fn is_visible(&self) -> bool {
-        self.visible
+    pub fn is_hide_set(&self) -> bool {
+        self.hidden
     }
 }
