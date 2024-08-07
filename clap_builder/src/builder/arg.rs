@@ -875,14 +875,17 @@ impl Arg {
 
     /// Extend [`Arg`] with [`ArgExt`] data
     #[cfg(feature = "unstable-ext")]
-    pub fn add<T: ArgExt + Extension>(&mut self, tagged: T) -> bool {
-        self.ext.set(tagged)
+    #[allow(clippy::should_implement_trait)]
+    pub fn add<T: ArgExt + Extension>(mut self, tagged: T) -> Self {
+        self.ext.set(tagged);
+        self
     }
 
     /// Remove an [`ArgExt`]
     #[cfg(feature = "unstable-ext")]
-    pub fn remove<T: ArgExt + Extension>(&mut self) -> Option<T> {
-        self.ext.remove::<T>()
+    pub fn remove<T: ArgExt + Extension>(mut self) -> Self {
+        self.ext.remove::<T>();
+        self
     }
 }
 
