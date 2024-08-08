@@ -191,15 +191,7 @@ fn complete_arg(
                             completions.extend(
                                 complete_arg_value(value.to_str().ok_or(value), arg, current_dir)
                                     .into_iter()
-                                    .map(|comp| {
-                                        CompletionCandidate::new(format!(
-                                            "--{}={}",
-                                            flag,
-                                            comp.get_content().to_string_lossy()
-                                        ))
-                                        .help(comp.get_help().cloned())
-                                        .visible(comp.is_visible())
-                                    }),
+                                    .map(|comp| comp.add_prefix(format!("--{}=", flag))),
                             );
                         }
                     } else {
@@ -233,16 +225,7 @@ fn complete_arg(
                 completions.extend(
                     shorts_and_visible_aliases(cmd)
                         .into_iter()
-                        // HACK: Need better `OsStr` manipulation
-                        .map(|comp| {
-                            CompletionCandidate::new(format!(
-                                "{}{}",
-                                dash_or_arg,
-                                comp.get_content().to_string_lossy()
-                            ))
-                            .help(comp.get_help().cloned())
-                            .visible(true)
-                        }),
+                        .map(|comp| comp.add_prefix(dash_or_arg.to_string())),
                 );
             } else if let Some(short) = arg.to_short() {
                 if !short.is_negative_number() {
@@ -264,27 +247,16 @@ fn complete_arg(
                             complete_arg_value(value.to_str().ok_or(value), opt, current_dir)
                                 .into_iter()
                                 .map(|comp| {
-                                    CompletionCandidate::new(format!(
-                                        "-{}{}{}",
+                                    comp.add_prefix(format!(
+                                        "-{}{}",
                                         leading_flags.to_string_lossy(),
-                                        if has_equal { "=" } else { "" },
-                                        comp.get_content().to_string_lossy()
+                                        if has_equal { "=" } else { "" }
                                     ))
-                                    .help(comp.get_help().cloned())
-                                    .visible(comp.is_visible())
                                 }),
                         );
                     } else {
                         completions.extend(shorts_and_visible_aliases(cmd).into_iter().map(
-                            |comp| {
-                                CompletionCandidate::new(format!(
-                                    "-{}{}",
-                                    leading_flags.to_string_lossy(),
-                                    comp.get_content().to_string_lossy()
-                                ))
-                                .help(comp.get_help().cloned())
-                                .visible(comp.is_visible())
-                            },
+                            |comp| comp.add_prefix(format!("-{}", leading_flags.to_string_lossy())),
                         ));
                     }
                 }
@@ -339,6 +311,23 @@ fn complete_arg_value(
     let mut values = Vec::new();
     debug!("complete_arg_value: arg={arg:?}, value={value:?}");
 
+    let (prefix, value) = match arg.get_value_delimiter() {
+        Some(delimiter) => match value {
+            Ok(value_os) => match value_os.rfind(delimiter) {
+                Some(pos) => {
+                    // SAFETY: `pos + delimiter.len_utf8()` is guaranteed to be within the bounds of `value_os`
+                    // `pos` is the first byte index of the last match of delimiter
+                    // `delimiter.len_utf8()` is the length of the delimiter in bytes
+                    let (prefix, value) = value_os.split_at(pos + delimiter.len_utf8());
+                    (Some(prefix), Ok(value))
+                }
+                None => (None, Ok(value_os)),
+            },
+            Err(value_os) => (None, Err(value_os)),
+        },
+        None => (None, value),
+    };
+
     if let Some(possible_values) = possible_values(arg) {
         if let Ok(value) = value {
             values.extend(possible_values.into_iter().filter_map(|p| {
@@ -389,6 +378,12 @@ fn complete_arg_value(
         values.sort();
     }
 
+    if let Some(prefix) = prefix {
+        values = values
+            .into_iter()
+            .map(|comp| comp.add_prefix(prefix))
+            .collect();
+    }
     values
 }
 
@@ -706,5 +701,14 @@ impl CompletionCandidate {
     /// Get the visibility of the completion candidate
     pub fn is_visible(&self) -> bool {
         self.visible
+    }
+
+    /// Add a prefix to the content of completion candidate
+    pub fn add_prefix(mut self, prefix: impl Into<OsString>) -> Self {
+        let suffix = self.content;
+        let mut content = prefix.into();
+        content.push(&suffix);
+        self.content = content;
+        self
     }
 }
