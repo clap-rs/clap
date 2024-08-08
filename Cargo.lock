@@ -413,6 +413,7 @@ name = "clap"
 version = "4.5.13"
 dependencies = [
  "automod",
+ "clap-cargo",
  "clap_builder 4.5.13",
  "clap_derive",
  "humantime",
@@ -421,6 +422,15 @@ dependencies = [
  "snapbox",
  "trybuild",
  "trycmd",
+]
+
+[[package]]
+name = "clap-cargo"
+version = "0.14.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "23b2ea69cefa96b848b73ad516ad1d59a195cdf9263087d977f648a818c8b43e"
+dependencies = [
+ "anstyle",
 ]
 
 [[package]]
@@ -1432,7 +1442,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e310b3a6b5907f99202fcdb4960ff45b93735d7c7d96b760fcff8db2dc0e103d"
 dependencies = [
  "cfg-if",
- "windows-targets 0.48.5",
+ "windows-targets 0.52.6",
 ]
 
 [[package]]

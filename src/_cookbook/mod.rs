@@ -15,6 +15,7 @@
 //! - Topics:
 //!   - Subcommands
 //!   - Cargo plugins
+//!   - custom terminal [styles][crate::Command::styles] (colors)
 //!
 //! find-like interface: [builder][find]
 //! - Topics:
