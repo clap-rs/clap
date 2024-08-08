@@ -187,6 +187,7 @@ humantime = "2.1.0"
 snapbox = "0.6.16"
 shlex = "1.3.0"
 automod = "1.0.14"
+clap-cargo = { version = "0.14.1", default-features = false }
 
 [[example]]
 name = "demo"
@@ -194,11 +195,11 @@ required-features = ["derive"]
 
 [[example]]
 name = "cargo-example"
-required-features = ["cargo"]
+required-features = ["cargo", "color"]
 
 [[example]]
 name = "cargo-example-derive"
-required-features = ["derive"]
+required-features = ["derive", "color"]
 
 [[example]]
 name = "escaped-positional"
