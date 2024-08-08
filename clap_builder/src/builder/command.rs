@@ -1199,13 +1199,13 @@ impl Command {
     /// ```no_run
     /// # use clap_builder as clap;
     /// # use clap::{Command, ColorChoice, builder::styling};
-    /// let styles = styling::Styles::styled()
-    ///     .header(styling::AnsiColor::Green.on_default() | styling::Effects::BOLD)
-    ///     .usage(styling::AnsiColor::Green.on_default() | styling::Effects::BOLD)
-    ///     .literal(styling::AnsiColor::Blue.on_default() | styling::Effects::BOLD)
+    /// const STYLES: styling::Styles = styling::Styles::styled()
+    ///     .header(styling::AnsiColor::Green.on_default().bold())
+    ///     .usage(styling::AnsiColor::Green.on_default().bold())
+    ///     .literal(styling::AnsiColor::Blue.on_default().bold())
     ///     .placeholder(styling::AnsiColor::Cyan.on_default());
     /// Command::new("myprog")
-    ///     .styles(styles)
+    ///     .styles(STYLES)
     ///     .get_matches();
     /// ```
     #[cfg(feature = "color")]
