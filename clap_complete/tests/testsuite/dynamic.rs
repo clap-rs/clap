@@ -717,6 +717,52 @@ pos_c"
     );
 }
 
+#[test]
+fn suggest_allow_hyhpen() {
+    let mut cmd = Command::new("exhaustive")
+        .arg(
+            clap::Arg::new("format")
+                .long("format")
+                .short('F')
+                .allow_hyphen_values(true)
+                .value_parser(["--json", "--toml", "--yaml"]),
+        )
+        .arg(clap::Arg::new("json").long("json"));
+
+    assert_data_eq!(complete!(cmd, "--format --j[TAB]"), snapbox::str!["--json"]);
+    assert_data_eq!(complete!(cmd, "-F --j[TAB]"), snapbox::str!["--json"]);
+    assert_data_eq!(complete!(cmd, "--format --t[TAB]"), snapbox::str!["--toml"]);
+    assert_data_eq!(complete!(cmd, "-F --t[TAB]"), snapbox::str!["--toml"]);
+
+    assert_data_eq!(
+        complete!(cmd, "--format --[TAB]"),
+        snapbox::str![
+            "--json
+--toml
+--yaml"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-F --[TAB]"),
+        snapbox::str![
+            "--json
+--toml
+--yaml"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--format --json --j[TAB]"),
+        snapbox::str!["--json"]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-F --json --j[TAB]"),
+        snapbox::str!["--json"]
+    );
+}
+
 fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>) -> String {
     let input = args.as_ref();
     let mut args = vec![std::ffi::OsString::from(cmd.get_name())];
