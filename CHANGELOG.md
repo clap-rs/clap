@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(unstable-ext)* Added `Arg::add` for attaching arbitrary state, like completion hints, to `Arg` without `Arg` knowing about it
+
 ## [4.5.13] - 2024-07-31
 
 ### Fixes

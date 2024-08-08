@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(dynamic)* Added `ArgValueCompleter` for custom completions
+
+### Compatibility
+
+- *(dynamic)* `CompletionCandidate::visible` was renamed to `CompletionCandidate::hide`
+
 ## [4.5.12] - 2024-07-31
 
 #### Features
