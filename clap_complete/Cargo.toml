@@ -57,7 +57,7 @@ required-features = ["unstable-dynamic"]
 [features]
 default = []
 unstable-doc = ["unstable-dynamic"] # for docs.rs
-unstable-dynamic = ["dep:clap_lex", "dep:shlex", "dep:unicode-xid", "clap/derive", "dep:is_executable", "dep:pathdiff"]
+unstable-dynamic = ["dep:clap_lex", "dep:shlex", "dep:unicode-xid", "clap/derive", "dep:is_executable", "dep:pathdiff", "clap/unstable-ext"]
 debug = ["clap/debug"]
 
 [lints]
