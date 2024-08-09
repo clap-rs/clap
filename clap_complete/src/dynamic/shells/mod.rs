@@ -15,8 +15,6 @@ pub use zsh::*;
 use std::ffi::OsString;
 use std::io::Write as _;
 
-use crate::dynamic::Completer as _;
-
 /// A subcommand definition to `flatten` into your CLI
 ///
 /// This provides a one-stop solution for integrating completions into your CLI
@@ -161,4 +159,26 @@ impl CompleteCommand {
 
         Ok(())
     }
+}
+
+/// Shell-specific completions
+pub trait ShellCompleter {
+    /// The recommended file name for the registration code
+    fn file_name(&self, name: &str) -> String;
+    /// Register for completions
+    fn write_registration(
+        &self,
+        name: &str,
+        bin: &str,
+        completer: &str,
+        buf: &mut dyn std::io::Write,
+    ) -> Result<(), std::io::Error>;
+    /// Complete the given command
+    fn write_complete(
+        &self,
+        cmd: &mut clap::Command,
+        args: Vec<OsString>,
+        current_dir: Option<&std::path::Path>,
+        buf: &mut dyn std::io::Write,
+    ) -> Result<(), std::io::Error>;
 }

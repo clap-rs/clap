@@ -408,7 +408,7 @@ fn complete_custom_arg_value(
     debug!("complete_custom_arg_value: completer={completer:?}, value={value:?}");
 
     let mut values = Vec::new();
-    let custom_arg_values = completer.completions();
+    let custom_arg_values = completer.candidates();
     values.extend(custom_arg_values);
 
     values.retain(|comp| comp.get_content().starts_with(&value.to_string_lossy()));

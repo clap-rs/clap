@@ -597,7 +597,7 @@ fn suggest_custom_arg_value() {
     struct MyCustomCompleter {}
 
     impl CustomCompleter for MyCustomCompleter {
-        fn completions(&self) -> Vec<CompletionCandidate> {
+        fn candidates(&self) -> Vec<CompletionCandidate> {
             vec![
                 CompletionCandidate::new("custom1"),
                 CompletionCandidate::new("custom2"),

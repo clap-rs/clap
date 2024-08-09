@@ -34,9 +34,11 @@ impl ArgValueCompleter {
         Self(Arc::new(completer))
     }
 
+    /// All potential candidates for an argument.
+    ///
     /// See [`CompletionCandidate`] for more information.
-    pub fn completions(&self) -> Vec<CompletionCandidate> {
-        self.0.completions()
+    pub fn candidates(&self) -> Vec<CompletionCandidate> {
+        self.0.candidates()
     }
 }
 
@@ -55,14 +57,14 @@ pub trait CustomCompleter: Send + Sync {
     /// All potential candidates for an argument.
     ///
     /// See [`CompletionCandidate`] for more information.
-    fn completions(&self) -> Vec<CompletionCandidate>;
+    fn candidates(&self) -> Vec<CompletionCandidate>;
 }
 
 impl<F> CustomCompleter for F
 where
     F: Fn() -> Vec<CompletionCandidate> + Send + Sync,
 {
-    fn completions(&self) -> Vec<CompletionCandidate> {
+    fn candidates(&self) -> Vec<CompletionCandidate> {
         self()
     }
 }
