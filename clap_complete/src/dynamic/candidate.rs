@@ -3,19 +3,14 @@ use std::ffi::OsString;
 
 use clap::builder::StyledStr;
 
-/// A completion candidate definition
+/// A shell-agnostic completion candidate
 ///
-/// This makes it easier to add more fields to completion candidate,
-/// rather than using `(OsString, Option<StyledStr>)` or `(String, Option<StyledStr>)` to represent a completion candidate
+/// [`ShellCompleter`][crate::dynamic::shells::ShellCompleter] will adapt what it can to the
+/// current shell.
 #[derive(Default, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct CompletionCandidate {
-    /// Main completion candidate content
     content: OsString,
-
-    /// Help message with a completion candidate
     help: Option<StyledStr>,
-
-    /// Whether the completion candidate is hidden
     hidden: bool,
 }
 
@@ -36,11 +31,28 @@ impl CompletionCandidate {
     }
 
     /// Set the visibility of the completion candidate
+    ///
+    /// Only shown when no there is no visible candidate for completing the current argument.
     pub fn hide(mut self, hidden: bool) -> Self {
         self.hidden = hidden;
         self
     }
 
+    /// Add a prefix to the content of completion candidate
+    ///
+    /// This is generally used for post-process by [`complete`][crate::dynamic::complete()] for
+    /// things like pre-pending flags, merging delimiter-separated values, etc.
+    pub fn add_prefix(mut self, prefix: impl Into<OsString>) -> Self {
+        let suffix = self.content;
+        let mut content = prefix.into();
+        content.push(&suffix);
+        self.content = content;
+        self
+    }
+}
+
+/// Reflection API
+impl CompletionCandidate {
     /// Get the content of the completion candidate
     pub fn get_content(&self) -> &OsStr {
         &self.content
@@ -54,14 +66,5 @@ impl CompletionCandidate {
     /// Get the visibility of the completion candidate
     pub fn is_hide_set(&self) -> bool {
         self.hidden
-    }
-
-    /// Add a prefix to the content of completion candidate
-    pub fn add_prefix(mut self, prefix: impl Into<OsString>) -> Self {
-        let suffix = self.content;
-        let mut content = prefix.into();
-        content.push(&suffix);
-        self.content = content;
-        self
     }
 }
