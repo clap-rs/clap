@@ -131,11 +131,11 @@ pub fn complete(
                         parse_positional(current_cmd, pos_index, is_escaped, state);
                 }
 
-                ParseState::Opt((ref opt, count)) => match opt.get_num_args() {
+                ParseState::Opt((opt, count)) => match opt.get_num_args() {
                     Some(range) => {
                         let max = range.max_values();
                         if count < max {
-                            state = ParseState::Opt((opt.clone(), count + 1));
+                            state = ParseState::Opt((opt, count + 1));
                         } else {
                             state = ParseState::ValueDone;
                         }
@@ -159,7 +159,7 @@ enum ParseState<'a> {
     /// Parsing a value done, there is no state to record.
     ValueDone,
 
-    /// Parsing a positional argument after `--`. Pos(pos_index, takes_num_args)
+    /// Parsing a positional argument after `--`. `Pos(pos_index`, `takes_num_args`)
     Pos((usize, usize)),
 
     /// Parsing a optional flag argument
@@ -605,7 +605,7 @@ fn parse_positional<'a>(
         .get_positionals()
         .find(|p| p.get_index() == Some(pos_index));
     let num_args = pos_arg
-        .and_then(|a| a.get_num_args().and_then(|r| Some(r.max_values())))
+        .and_then(|a| a.get_num_args().map(|r| r.max_values()))
         .unwrap_or(1);
 
     let update_state_with_new_positional = |pos_index| -> (ParseState<'a>, usize) {
@@ -639,7 +639,7 @@ fn parse_positional<'a>(
             }
         }
         ParseState::Opt(..) => unreachable!(
-            "This branch won't be hit, 
+            "This branch won't be hit,
             because ParseState::Opt should not be seen as a positional argument and passed to this function."
         ),
     }
@@ -743,16 +743,15 @@ where
 ///         CompletionCandidate::new("baz")] }))]
 ///     custom: Option<String>,
 /// }
-///    
 /// ```
 #[derive(Clone)]
 pub struct ArgValueCompleter(Arc<dyn CustomCompleter>);
 
 impl ArgValueCompleter {
     /// Create a new `ArgValueCompleter` with a custom completer
-    pub fn new<C: CustomCompleter>(completer: C) -> Self
+    pub fn new<C>(completer: C) -> Self
     where
-        C: 'static + CustomCompleter,
+        C: CustomCompleter + 'static,
     {
         Self(Arc::new(completer))
     }
