@@ -16,6 +16,8 @@ pub enum Shell {
     Zsh,
     /// Elf `SHell` (elvish)
     Elvish,
+    /// Powerful `SHell` (powershel)
+    Powershell,
 }
 
 impl Display for Shell {
@@ -43,7 +45,13 @@ impl FromStr for Shell {
 // Hand-rolled so it can work even when `derive` feature is disabled
 impl ValueEnum for Shell {
     fn value_variants<'a>() -> &'a [Self] {
-        &[Shell::Bash, Shell::Fish, Shell::Zsh, Shell::Elvish]
+        &[
+            Shell::Bash,
+            Shell::Fish,
+            Shell::Zsh,
+            Shell::Elvish,
+            Shell::Powershell,
+        ]
     }
 
     fn to_possible_value(&self) -> Option<PossibleValue> {
@@ -52,6 +60,7 @@ impl ValueEnum for Shell {
             Shell::Fish => PossibleValue::new("fish"),
             Shell::Zsh => PossibleValue::new("zsh"),
             Shell::Elvish => PossibleValue::new("elvish"),
+            Shell::Powershell => PossibleValue::new("powershell"),
         })
     }
 }
@@ -63,6 +72,7 @@ impl Shell {
             Self::Fish => &super::Fish,
             Self::Zsh => &super::Zsh,
             Self::Elvish => &super::Elvish,
+            Self::Powershell => &super::Powershell,
         }
     }
 }
