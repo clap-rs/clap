@@ -2,7 +2,7 @@
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Fish;
 
-impl crate::dynamic::shells::Completer for Fish {
+impl crate::dynamic::shells::ShellCompleter for Fish {
     fn file_name(&self, name: &str) -> String {
         format!("{name}.fish")
     }

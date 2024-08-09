@@ -57,7 +57,7 @@ impl ValueEnum for Shell {
 }
 
 impl Shell {
-    fn completer(&self) -> &dyn crate::dynamic::shells::Completer {
+    fn completer(&self) -> &dyn crate::dynamic::shells::ShellCompleter {
         match self {
             Self::Bash => &super::Bash,
             Self::Fish => &super::Fish,
@@ -67,7 +67,7 @@ impl Shell {
     }
 }
 
-impl crate::dynamic::shells::Completer for Shell {
+impl crate::dynamic::shells::ShellCompleter for Shell {
     fn file_name(&self, name: &str) -> String {
         self.completer().file_name(name)
     }

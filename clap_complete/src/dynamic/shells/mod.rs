@@ -162,7 +162,7 @@ impl CompleteCommand {
 }
 
 /// Shell-specific completions
-pub trait Completer {
+pub trait ShellCompleter {
     /// The recommended file name for the registration code
     fn file_name(&self, name: &str) -> String;
     /// Register for completions

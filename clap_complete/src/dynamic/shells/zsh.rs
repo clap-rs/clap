@@ -2,7 +2,7 @@
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Zsh;
 
-impl crate::dynamic::shells::Completer for Zsh {
+impl crate::dynamic::shells::ShellCompleter for Zsh {
     fn file_name(&self, name: &str) -> String {
         format!("{name}.zsh")
     }
