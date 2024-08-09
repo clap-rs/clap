@@ -111,33 +111,7 @@ impl CompleteCommand {
     pub fn try_complete(&self, cmd: &mut clap::Command) -> clap::error::Result<()> {
         debug!("CompleteCommand::try_complete: {self:?}");
         let CompleteCommand::Complete(args) = self;
-        if let Some(out_path) = args.register.as_deref() {
-            let mut buf = Vec::new();
-            let name = cmd.get_name();
-            let bin = cmd.get_bin_name().unwrap_or_else(|| cmd.get_name());
-            args.shell.write_registration(name, bin, bin, &mut buf)?;
-            if out_path == std::path::Path::new("-") {
-                std::io::stdout().write_all(&buf)?;
-            } else if out_path.is_dir() {
-                let out_path = out_path.join(args.shell.file_name(name));
-                std::fs::write(out_path, buf)?;
-            } else {
-                std::fs::write(out_path, buf)?;
-            }
-        } else {
-            let current_dir = std::env::current_dir().ok();
-
-            let mut buf = Vec::new();
-            args.shell.write_complete(
-                cmd,
-                args.comp_words.clone(),
-                current_dir.as_deref(),
-                &mut buf,
-            )?;
-            std::io::stdout().write_all(&buf)?;
-        }
-
-        Ok(())
+        args.try_complete(cmd)
     }
 }
 
@@ -159,6 +133,46 @@ pub struct CompleteArgs {
 
     #[arg(raw = true, hide_short_help = true, group = "complete")]
     comp_words: Vec<OsString>,
+}
+
+impl CompleteArgs {
+    /// Process the completion request
+    pub fn complete(&self, cmd: &mut clap::Command) -> std::convert::Infallible {
+        self.try_complete(cmd).unwrap_or_else(|e| e.exit());
+        std::process::exit(0)
+    }
+
+    /// Process the completion request
+    pub fn try_complete(&self, cmd: &mut clap::Command) -> clap::error::Result<()> {
+        debug!("CompleteCommand::try_complete: {self:?}");
+        if let Some(out_path) = self.register.as_deref() {
+            let mut buf = Vec::new();
+            let name = cmd.get_name();
+            let bin = cmd.get_bin_name().unwrap_or_else(|| cmd.get_name());
+            self.shell.write_registration(name, bin, bin, &mut buf)?;
+            if out_path == std::path::Path::new("-") {
+                std::io::stdout().write_all(&buf)?;
+            } else if out_path.is_dir() {
+                let out_path = out_path.join(self.shell.file_name(name));
+                std::fs::write(out_path, buf)?;
+            } else {
+                std::fs::write(out_path, buf)?;
+            }
+        } else {
+            let current_dir = std::env::current_dir().ok();
+
+            let mut buf = Vec::new();
+            self.shell.write_complete(
+                cmd,
+                self.comp_words.clone(),
+                current_dir.as_deref(),
+                &mut buf,
+            )?;
+            std::io::stdout().write_all(&buf)?;
+        }
+
+        Ok(())
+    }
 }
 
 /// Shell-specific completions
