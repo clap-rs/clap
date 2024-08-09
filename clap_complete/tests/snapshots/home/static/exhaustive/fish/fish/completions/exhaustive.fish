@@ -136,10 +136,10 @@ complete -c exhaustive -n "__fish_exhaustive_using_subcommand hint" -l email -r 
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand hint" -l global -d 'everywhere'
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand hint" -s h -l help -d 'Print help'
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand hint" -s V -l version -d 'Print version'
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand complete" -l shell -d 'Specify shell to complete for' -r -f -a "{bash\t'',elvish\t'',fish\t'',powershell\t'',zsh\t''}"
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand complete" -l register -d 'Path to write completion-registration to' -r -F
+complete -c exhaustive -n "__fish_exhaustive_using_subcommand complete" -l shell -d 'Specify shell to complete for' -r -f -a "{bash\t'',elvish\t'',fish\t'',powershell\t'',zsh\t''}"
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand complete" -l global -d 'everywhere'
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand complete" -s h -l help -d 'Print help (see more with \'--help\')'
+complete -c exhaustive -n "__fish_exhaustive_using_subcommand complete" -s h -l help -d 'Print help'
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand complete" -s V -l version -d 'Print version'
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from action quote value pacman last alias hint complete help" -f -a "action"
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from action quote value pacman last alias hint complete help" -f -a "quote"
