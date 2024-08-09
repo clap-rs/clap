@@ -12,3 +12,7 @@ pub use candidate::CompletionCandidate;
 pub use complete::complete;
 pub use custom::ArgValueCompleter;
 pub use custom::CustomCompleter;
+
+// These live in `shells` because they are tightly coupled with the `ShellCompleter`s
+pub use shells::CompleteArgs;
+pub use shells::CompleteCommand;
