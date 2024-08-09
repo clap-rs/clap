@@ -1,6 +1,11 @@
 //! Complete commands within shells
 //!
 //! For quick-start, see [`shells::CompleteCommand`]
+//!
+//! To customize completions, see
+//! - [`ValueHint`][crate::ValueHint]
+//! - [`ValueEnum`][clap::ValueEnum]
+//! - [`ArgValueCompleter`]
 
 mod candidate;
 mod complete;
