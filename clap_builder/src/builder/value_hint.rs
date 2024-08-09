@@ -8,19 +8,19 @@ use std::str::FromStr;
 ///
 /// Overview of which hints are supported by which shell:
 ///
-/// | Hint                   | zsh | fish[^1]|
-/// | ---------------------- | --- | ------- |
-/// | `AnyPath`              | Yes | Yes     |
-/// | `FilePath`             | Yes | Yes     |
-/// | `DirPath`              | Yes | Yes     |
-/// | `ExecutablePath`       | Yes | Partial |
-/// | `CommandName`          | Yes | Yes     |
-/// | `CommandString`        | Yes | Partial |
-/// | `CommandWithArguments` | Yes |         |
-/// | `Username`             | Yes | Yes     |
-/// | `Hostname`             | Yes | Yes     |
-/// | `Url`                  | Yes |         |
-/// | `EmailAddress`         | Yes |         |
+/// | Hint                   | zsh | fish[^1] | dynamic |
+/// | ---------------------- | --- | ---------|---------|
+/// | `AnyPath`              | Yes | Yes      | Yes     |
+/// | `FilePath`             | Yes | Yes      | Yes     |
+/// | `DirPath`              | Yes | Yes      | Yes     |
+/// | `ExecutablePath`       | Yes | Partial  | Yes     |
+/// | `CommandName`          | Yes | Yes      | No      |
+/// | `CommandString`        | Yes | Partial  | No      |
+/// | `CommandWithArguments` | Yes |          | No      |
+/// | `Username`             | Yes | Yes      | No      |
+/// | `Hostname`             | Yes | Yes      | No      |
+/// | `Url`                  | Yes |          | No      |
+/// | `EmailAddress`         | Yes |          | No      |
 ///
 /// [^1]: fish completions currently only support named arguments (e.g. -o or --opt), not
 ///       positional arguments.
