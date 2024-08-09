@@ -20,6 +20,69 @@ pub enum Shell {
     Powershell,
 }
 
+impl Shell {
+    /// Parse a shell from a path to the executable for the shell
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use clap_complete::shells::Shell;
+    ///
+    /// assert_eq!(Shell::from_shell_path("/bin/bash"), Some(Shell::Bash));
+    /// assert_eq!(Shell::from_shell_path("/usr/bin/zsh"), Some(Shell::Zsh));
+    /// assert_eq!(Shell::from_shell_path("/opt/my_custom_shell"), None);
+    /// ```
+    pub fn from_shell_path(path: impl AsRef<std::path::Path>) -> Option<Shell> {
+        parse_shell_from_path(path.as_ref())
+    }
+
+    /// Determine the user's current shell from the environment
+    ///
+    /// This will read the SHELL environment variable and try to determine which shell is in use
+    /// from that.
+    ///
+    /// If SHELL is not set, then on windows, it will default to powershell, and on
+    /// other operating systems it will return `None`.
+    ///
+    /// If SHELL is set, but contains a value that doesn't correspond to one of the supported shell
+    /// types, then return `None`.
+    ///
+    /// # Example:
+    ///
+    /// ```no_run
+    /// # use clap::Command;
+    /// use clap_complete::{generate, shells::Shell};
+    /// # fn build_cli() -> Command {
+    /// #     Command::new("compl")
+    /// # }
+    /// let shell = Shell::from_env();
+    /// println!("{shell:?}");
+    /// ```
+    pub fn from_env() -> Option<Shell> {
+        if let Some(env_shell) = std::env::var_os("SHELL") {
+            Shell::from_shell_path(env_shell)
+        } else if cfg!(windows) {
+            Some(Shell::Powershell)
+        } else {
+            None
+        }
+    }
+}
+
+// use a separate function to avoid having to monomorphize the entire function due
+// to from_shell_path being generic
+fn parse_shell_from_path(path: &std::path::Path) -> Option<Shell> {
+    let name = path.file_stem()?.to_str()?;
+    match name {
+        "bash" => Some(Shell::Bash),
+        "zsh" => Some(Shell::Zsh),
+        "fish" => Some(Shell::Fish),
+        "elvish" => Some(Shell::Elvish),
+        "powershell" | "powershell_ise" => Some(Shell::Powershell),
+        _ => None,
+    }
+}
+
 impl Display for Shell {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         self.to_possible_value()
