@@ -10,14 +10,14 @@ use clap::ValueEnum;
 pub enum Shell {
     /// Bourne Again `SHell` (bash)
     Bash,
+    /// Elvish shell
+    Elvish,
     /// Friendly Interactive `SHell` (fish)
     Fish,
-    /// Z shell (zsh)
-    Zsh,
-    /// Elf `SHell` (elvish)
-    Elvish,
-    /// Powerful `SHell` (powershel)
+    /// `PowerShell`
     Powershell,
+    /// Z `SHell` (zsh)
+    Zsh,
 }
 
 impl Shell {
@@ -75,10 +75,10 @@ fn parse_shell_from_path(path: &std::path::Path) -> Option<Shell> {
     let name = path.file_stem()?.to_str()?;
     match name {
         "bash" => Some(Shell::Bash),
-        "zsh" => Some(Shell::Zsh),
-        "fish" => Some(Shell::Fish),
         "elvish" => Some(Shell::Elvish),
+        "fish" => Some(Shell::Fish),
         "powershell" | "powershell_ise" => Some(Shell::Powershell),
+        "zsh" => Some(Shell::Zsh),
         _ => None,
     }
 }
@@ -110,20 +110,20 @@ impl ValueEnum for Shell {
     fn value_variants<'a>() -> &'a [Self] {
         &[
             Shell::Bash,
-            Shell::Fish,
-            Shell::Zsh,
             Shell::Elvish,
+            Shell::Fish,
             Shell::Powershell,
+            Shell::Zsh,
         ]
     }
 
     fn to_possible_value(&self) -> Option<PossibleValue> {
         Some(match self {
             Shell::Bash => PossibleValue::new("bash"),
-            Shell::Fish => PossibleValue::new("fish"),
-            Shell::Zsh => PossibleValue::new("zsh"),
             Shell::Elvish => PossibleValue::new("elvish"),
+            Shell::Fish => PossibleValue::new("fish"),
             Shell::Powershell => PossibleValue::new("powershell"),
+            Shell::Zsh => PossibleValue::new("zsh"),
         })
     }
 }
@@ -132,10 +132,10 @@ impl Shell {
     fn completer(&self) -> &dyn crate::dynamic::shells::ShellCompleter {
         match self {
             Self::Bash => &super::Bash,
-            Self::Fish => &super::Fish,
-            Self::Zsh => &super::Zsh,
             Self::Elvish => &super::Elvish,
+            Self::Fish => &super::Fish,
             Self::Powershell => &super::Powershell,
+            Self::Zsh => &super::Zsh,
         }
     }
 }
