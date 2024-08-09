@@ -161,45 +161,41 @@ impl CompleteCommand {
 ///
 /// Bash
 /// ```bash
-/// echo "source <(your_program complete --shell bash --register -)" >> ~/.bashrc
+/// echo "source <(your_program complete --shell bash)" >> ~/.bashrc
 /// ```
 ///
 /// Elvish
 /// ```elvish
-/// echo "eval (your_program complete --shell elvish --register -)" >> ~/.elvish/rc.elv
+/// echo "eval (your_program complete --shell elvish)" >> ~/.elvish/rc.elv
 /// ```
 ///
 /// Fish
 /// ```fish
-/// echo "source (your_program complete --shell fish --register - | psub)" >> ~/.config/fish/config.fish
+/// echo "source (your_program complete --shell fish | psub)" >> ~/.config/fish/config.fish
 /// ```
 ///
 /// Powershell
 /// ```powershell
-/// echo "your_program complete --shell powershell --register - | Invoke-Expression" >> $PROFILE
+/// echo "your_program complete --shell powershell | Invoke-Expression" >> $PROFILE
 /// ```
 ///
 /// Zsh
 /// ```zsh
-/// echo "source <(your_program complete --shell zsh --register -)" >> ~/.zshrc
+/// echo "source <(your_program complete --shell zsh)" >> ~/.zshrc
 /// ```
-#[derive(clap::Args)]
-#[command(arg_required_else_help = true)]
-#[command(group = clap::ArgGroup::new("complete").multiple(true).conflicts_with("register"))]
-#[allow(missing_docs)]
-#[derive(Clone, Debug)]
+#[derive(clap::Args, Clone, Debug)]
 #[command(about = None, long_about = None)]
 pub struct CompleteArgs {
+    /// Path to write completion-registration to
+    #[arg(long)]
+    register: Option<std::path::PathBuf>,
+
+    #[arg(raw = true, hide = true, conflicts_with = "register")]
+    comp_words: Option<Vec<OsString>>,
+
     /// Specify shell to complete for
     #[arg(long)]
     shell: Option<Shell>,
-
-    /// Path to write completion-registration to
-    #[arg(long, required = true)]
-    register: Option<std::path::PathBuf>,
-
-    #[arg(raw = true, hide_short_help = true, group = "complete")]
-    comp_words: Vec<OsString>,
 }
 
 impl CompleteArgs {
@@ -223,10 +219,21 @@ impl CompleteArgs {
             .or_else(|| Shell::from_env())
             .unwrap_or(Shell::Bash);
 
-        if let Some(out_path) = self.register.as_deref() {
+        if let Some(comp_words) = self.comp_words.as_ref() {
+            let current_dir = std::env::current_dir().ok();
+
             let mut buf = Vec::new();
+            shell.write_complete(cmd, comp_words.clone(), current_dir.as_deref(), &mut buf)?;
+            std::io::stdout().write_all(&buf)?;
+        } else {
+            let out_path = self
+                .register
+                .as_deref()
+                .unwrap_or(std::path::Path::new("-"));
             let name = cmd.get_name();
             let bin = cmd.get_bin_name().unwrap_or_else(|| cmd.get_name());
+
+            let mut buf = Vec::new();
             shell.write_registration(name, bin, bin, &mut buf)?;
             if out_path == std::path::Path::new("-") {
                 std::io::stdout().write_all(&buf)?;
@@ -236,17 +243,6 @@ impl CompleteArgs {
             } else {
                 std::fs::write(out_path, buf)?;
             }
-        } else {
-            let current_dir = std::env::current_dir().ok();
-
-            let mut buf = Vec::new();
-            shell.write_complete(
-                cmd,
-                self.comp_words.clone(),
-                current_dir.as_deref(),
-                &mut buf,
-            )?;
-            std::io::stdout().write_all(&buf)?;
         }
 
         Ok(())

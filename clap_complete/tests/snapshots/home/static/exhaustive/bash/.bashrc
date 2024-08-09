@@ -238,18 +238,18 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__complete)
-            opts="-h -V --shell --register --global --help --version [COMP_WORDS]..."
+            opts="-h -V --register --shell --global --help --version [COMP_WORDS]..."
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
-                --shell)
-                    COMPREPLY=($(compgen -W "bash elvish fish powershell zsh" -- "${cur}"))
-                    return 0
-                    ;;
                 --register)
                     COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --shell)
+                    COMPREPLY=($(compgen -W "bash elvish fish powershell zsh" -- "${cur}"))
                     return 0
                     ;;
                 *)
