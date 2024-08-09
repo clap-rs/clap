@@ -1,4 +1,4 @@
-/// Completion support for Bash
+/// A [`ShellCompleter`][crate::dynamic::shells::ShellCompleter] for Elvish
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Elvish;
 

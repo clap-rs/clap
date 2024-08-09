@@ -1,4 +1,4 @@
-//! Shell support
+//! Shell completion support, see [`CompleteCommand`] for more details
 
 mod bash;
 mod elvish;
@@ -15,20 +15,18 @@ pub use zsh::*;
 use std::ffi::OsString;
 use std::io::Write as _;
 
-/// A subcommand definition to `flatten` into your CLI
+/// A completion subcommand to add to your CLI
 ///
-/// This provides a one-stop solution for integrating completions into your CLI
+/// If you aren't using a subcommand, you can annotate a field with this type as `#[command(subcommand)]`.
+///
+/// If you are using subcommands, see [`CompleteArgs`].
+///
+/// **Warning:** `stdout` should not be written to before [`CompleteCommand::complete`] has had a
+/// chance to run.
 ///
 /// # Examples
 ///
-/// The following example shows how to integrate completions into your CLI and generate completions.
-///
-/// 1. Build an application with derive API.
-/// 2. Call `clap_complete::dynamic::shells::CompleteCommand::augment_subcommands` to add the `complete` subcommand into the application.
-/// 3. Call `get_matches()`, or any of the other normal methods directly after.
-///
-/// For example:
-///
+/// To integrate completions into an application without subcommands:
 /// ```no_run
 /// // src/main.rs
 /// use clap::{CommandFactory, FromArgMatches, Parser, Subcommand};
@@ -52,44 +50,38 @@ use std::io::Write as _;
 ///     let cli = Cli::parse();
 ///     if let Some(completions) = cli.complete {
 ///         completions.complete(&mut Cli::command());
-///        }
+///     }
 ///
 ///     // normal logic continues...
 /// }
 ///```
 ///
-/// # Usage for complete subcommand:
+/// To source your completions:
 ///
-/// To generate shell completion scripts and source them, we can use the following command.
+/// Bash
+/// ```bash
+/// echo "source <(your_program complete --shell bash --register -)" >> ~/.bashrc
+/// ```
 ///
-/// **NOTE**: If you have set a custom shell configuration file,
-/// please remember to modify the redirection output file in the following command.
+/// Elvish
+/// ```elvish
+/// echo "eval (your_program complete --shell elvish --register -)" >> ~/.elvish/rc.elv
+/// ```
 ///
-/// - Bash
-///     ```bash
-///     echo "source <(your_program complete --shell bash --register -)" >> ~/.bashrc
-///     ```
+/// Fish
+/// ```fish
+/// echo "source (your_program complete --shell fish --register - | psub)" >> ~/.config/fish/config.fish
+/// ```
 ///
-/// - Fish
-///     ```fish
-///     echo "source (your_program complete --shell fish --register - | psub)" >> ~/.config/fish/config.fish
-///     ```
+/// Powershell
+/// ```powershell
+/// echo "your_program complete --shell powershell --register - | Invoke-Expression" >> $PROFILE
+/// ```
 ///
-/// - Zsh
-///     ```zsh
-///     echo "source <(your_program complete --shell zsh --register -)" >> ~/.zshrc
-///     ```
-///
-/// - Elvish
-///     ```elvish
-///     echo "eval (your_program complete --shell elvish --register -)" >> ~/.elvish/rc.elv
-///     ```
-///
-/// - Powershell
-///     ```powershell
-///     echo "your_program complete --shell powershell --register - | Invoke-Expression" >> $PROFILE
-///     ```
-///
+/// Zsh
+/// ```zsh
+/// echo "source <(your_program complete --shell zsh --register -)" >> ~/.zshrc
+/// ```
 #[derive(clap::Subcommand)]
 #[allow(missing_docs)]
 #[derive(Clone, Debug)]
@@ -100,7 +92,95 @@ pub enum CompleteCommand {
     Complete(CompleteArgs),
 }
 
-/// Generally used via [`CompleteCommand`]
+impl CompleteCommand {
+    /// Process the completion request and exit
+    ///
+    /// **Warning:** `stdout` should not be written to before this has had a
+    /// chance to run.
+    pub fn complete(&self, cmd: &mut clap::Command) -> std::convert::Infallible {
+        self.try_complete(cmd).unwrap_or_else(|e| e.exit());
+        std::process::exit(0)
+    }
+
+    /// Process the completion request
+    ///
+    /// **Warning:** `stdout` should not be written to before or after this has run.
+    pub fn try_complete(&self, cmd: &mut clap::Command) -> clap::error::Result<()> {
+        debug!("CompleteCommand::try_complete: {self:?}");
+        let CompleteCommand::Complete(args) = self;
+        args.try_complete(cmd)
+    }
+}
+
+/// A completion subcommand to add to your CLI
+///
+/// If you are using subcommands, add a `Complete(CompleteArgs)` variant.
+///
+/// If you aren't using subcommands, generally you will want [`CompleteCommand`].
+///
+/// **Warning:** `stdout` should not be written to before [`CompleteArgs::complete`] has had a
+/// chance to run.
+///
+/// # Examples
+///
+/// To integrate completions into an application without subcommands:
+/// ```no_run
+/// // src/main.rs
+/// use clap::{CommandFactory, FromArgMatches, Parser, Subcommand};
+/// use clap_complete::dynamic::shells::CompleteArgs;
+///
+/// #[derive(Parser, Debug)]
+/// #[clap(name = "dynamic", about = "A dynamic command line tool")]
+/// struct Cli {
+///     #[command(subcommand)]
+///     complete: Command,
+/// }
+///
+/// #[derive(Subcommand, Debug)]
+/// enum Command {
+///     Complete(CompleteArgs),
+///     Print,
+/// }
+///
+/// fn main() {
+///     let cli = Cli::parse();
+///     match cli.complete {
+///         Command::Complete(completions) => {
+///             completions.complete(&mut Cli::command());
+///         },
+///         Command::Print => {
+///             println!("Hello world!");
+///         }
+///     }
+/// }
+///```
+///
+/// To source your completions:
+///
+/// Bash
+/// ```bash
+/// echo "source <(your_program complete --shell bash --register -)" >> ~/.bashrc
+/// ```
+///
+/// Elvish
+/// ```elvish
+/// echo "eval (your_program complete --shell elvish --register -)" >> ~/.elvish/rc.elv
+/// ```
+///
+/// Fish
+/// ```fish
+/// echo "source (your_program complete --shell fish --register - | psub)" >> ~/.config/fish/config.fish
+/// ```
+///
+/// Powershell
+/// ```powershell
+/// echo "your_program complete --shell powershell --register - | Invoke-Expression" >> $PROFILE
+/// ```
+///
+/// Zsh
+/// ```zsh
+/// echo "source <(your_program complete --shell zsh --register -)" >> ~/.zshrc
+/// ```
 #[derive(clap::Args)]
 #[command(arg_required_else_help = true)]
 #[command(group = clap::ArgGroup::new("complete").multiple(true).conflicts_with("register"))]
@@ -120,26 +200,30 @@ pub struct CompleteArgs {
     comp_words: Vec<OsString>,
 }
 
-impl CompleteCommand {
-    /// Process the completion request
+impl CompleteArgs {
+    /// Process the completion request and exit
+    ///
+    /// **Warning:** `stdout` should not be written to before this has had a
+    /// chance to run.
     pub fn complete(&self, cmd: &mut clap::Command) -> std::convert::Infallible {
         self.try_complete(cmd).unwrap_or_else(|e| e.exit());
         std::process::exit(0)
     }
 
     /// Process the completion request
+    ///
+    /// **Warning:** `stdout` should not be written to before or after this has run.
     pub fn try_complete(&self, cmd: &mut clap::Command) -> clap::error::Result<()> {
         debug!("CompleteCommand::try_complete: {self:?}");
-        let CompleteCommand::Complete(args) = self;
-        if let Some(out_path) = args.register.as_deref() {
+        if let Some(out_path) = self.register.as_deref() {
             let mut buf = Vec::new();
             let name = cmd.get_name();
             let bin = cmd.get_bin_name().unwrap_or_else(|| cmd.get_name());
-            args.shell.write_registration(name, bin, bin, &mut buf)?;
+            self.shell.write_registration(name, bin, bin, &mut buf)?;
             if out_path == std::path::Path::new("-") {
                 std::io::stdout().write_all(&buf)?;
             } else if out_path.is_dir() {
-                let out_path = out_path.join(args.shell.file_name(name));
+                let out_path = out_path.join(self.shell.file_name(name));
                 std::fs::write(out_path, buf)?;
             } else {
                 std::fs::write(out_path, buf)?;
@@ -148,9 +232,9 @@ impl CompleteCommand {
             let current_dir = std::env::current_dir().ok();
 
             let mut buf = Vec::new();
-            args.shell.write_complete(
+            self.shell.write_complete(
                 cmd,
-                args.comp_words.clone(),
+                self.comp_words.clone(),
                 current_dir.as_deref(),
                 &mut buf,
             )?;
@@ -161,11 +245,20 @@ impl CompleteCommand {
     }
 }
 
-/// Shell-specific completions
+/// Shell-integration for completions
+///
+/// This will generally be called by [`CompleteCommand`] or [`CompleteArgs`].
+///
+/// This handles adapting between the shell and [`completer`][crate::dynamic::complete()].
+/// A `ShellCompleter` can choose how much of that lives within the registration script and or
+/// lives in [`ShellCompleter::write_complete`].
 pub trait ShellCompleter {
     /// The recommended file name for the registration code
     fn file_name(&self, name: &str) -> String;
     /// Register for completions
+    ///
+    /// Write the `buf` the logic needed for calling into `<cmd> complete`, passing needed
+    /// arguments to [`ShellCompleter::write_complete`] through the environment.
     fn write_registration(
         &self,
         name: &str,
@@ -174,6 +267,11 @@ pub trait ShellCompleter {
         buf: &mut dyn std::io::Write,
     ) -> Result<(), std::io::Error>;
     /// Complete the given command
+    ///
+    /// Adapt information from arguments and [`ShellCompleter::write_registration`]-defined env
+    /// variables to what is needed for [`completer`][crate::dynamic::complete()].
+    ///
+    /// Write out the [`CompletionCandidate`][crate::dynamic::CompletionCandidate]s in a way the shell will understand.
     fn write_complete(
         &self,
         cmd: &mut clap::Command,

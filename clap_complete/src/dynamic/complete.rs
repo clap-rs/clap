@@ -6,7 +6,12 @@ use clap_lex::OsStrExt as _;
 use super::ArgValueCompleter;
 use super::CompletionCandidate;
 
-/// Complete the given command
+/// Complete the given command, shell-agnostic
+///
+/// For integration with clap and shells, see [`CompleteCommand`][crate::dynamic::shells::CompleteCommand].
+///
+/// This is generally called by a [`ShellCompleter`][crate::dynamic::shells::ShellCompleter] which
+/// handles the shell-specific logic.
 pub fn complete(
     cmd: &mut clap::Command,
     args: Vec<OsString>,

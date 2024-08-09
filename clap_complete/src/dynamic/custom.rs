@@ -5,7 +5,7 @@ use clap::builder::ArgExt;
 
 use super::CompletionCandidate;
 
-/// A wrapper for custom completer
+/// Extend [`Arg`][clap::Arg] with a [`CustomCompleter`]
 ///
 /// # Example
 ///
@@ -50,7 +50,7 @@ impl std::fmt::Debug for ArgValueCompleter {
 
 impl ArgExt for ArgValueCompleter {}
 
-/// User-provided completion candidates for an argument.
+/// User-provided completion candidates for an [`Arg`][clap::Arg], see [`ArgValueCompleter`]
 ///
 /// This is useful when predefined value hints are not enough.
 pub trait CustomCompleter: Send + Sync {
