@@ -880,13 +880,6 @@ impl Arg {
         self.ext.set(tagged);
         self
     }
-
-    /// Remove an [`ArgExt`]
-    #[cfg(feature = "unstable-ext")]
-    pub fn remove<T: ArgExt + Extension>(mut self) -> Self {
-        self.ext.remove::<T>();
-        self
-    }
 }
 
 /// # Value Handling
@@ -4239,6 +4232,12 @@ impl Arg {
     #[cfg(feature = "unstable-ext")]
     pub fn get<T: ArgExt + Extension>(&self) -> Option<&T> {
         self.ext.get::<T>()
+    }
+
+    /// Remove an [`ArgExt`]
+    #[cfg(feature = "unstable-ext")]
+    pub fn remove<T: ArgExt + Extension>(mut self) -> Option<T> {
+        self.ext.remove::<T>()
     }
 }
 
