@@ -1,6 +1,6 @@
 //! Complete commands within shells
 //!
-//! For quick-start, see [`shells::CompleteCommand`]
+//! For quick-start, see [`CompleteCommand`]
 //!
 //! To customize completions, see
 //! - [`ValueHint`][crate::ValueHint]

@@ -16,15 +16,13 @@ fn command() -> clap::Command {
                 .value_parser(["json", "yaml", "toml"]),
         )
         .args_conflicts_with_subcommands(true);
-    clap_complete::dynamic::shells::CompleteCommand::augment_subcommands(cmd)
+    clap_complete::dynamic::CompleteCommand::augment_subcommands(cmd)
 }
 
 fn main() {
     let cmd = command();
     let matches = cmd.get_matches();
-    if let Ok(completions) =
-        clap_complete::dynamic::shells::CompleteCommand::from_arg_matches(&matches)
-    {
+    if let Ok(completions) = clap_complete::dynamic::CompleteCommand::from_arg_matches(&matches) {
         completions.complete(&mut command());
     } else {
         println!("{matches:#?}");
