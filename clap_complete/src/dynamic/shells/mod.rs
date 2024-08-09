@@ -100,26 +100,6 @@ pub enum CompleteCommand {
     Complete(CompleteArgs),
 }
 
-/// Generally used via [`CompleteCommand`]
-#[derive(clap::Args)]
-#[command(arg_required_else_help = true)]
-#[command(group = clap::ArgGroup::new("complete").multiple(true).conflicts_with("register"))]
-#[allow(missing_docs)]
-#[derive(Clone, Debug)]
-#[command(about = None, long_about = None)]
-pub struct CompleteArgs {
-    /// Specify shell to complete for
-    #[arg(long)]
-    shell: Shell,
-
-    /// Path to write completion-registration to
-    #[arg(long, required = true)]
-    register: Option<std::path::PathBuf>,
-
-    #[arg(raw = true, hide_short_help = true, group = "complete")]
-    comp_words: Vec<OsString>,
-}
-
 impl CompleteCommand {
     /// Process the completion request
     pub fn complete(&self, cmd: &mut clap::Command) -> std::convert::Infallible {
@@ -159,6 +139,26 @@ impl CompleteCommand {
 
         Ok(())
     }
+}
+
+/// Generally used via [`CompleteCommand`]
+#[derive(clap::Args)]
+#[command(arg_required_else_help = true)]
+#[command(group = clap::ArgGroup::new("complete").multiple(true).conflicts_with("register"))]
+#[allow(missing_docs)]
+#[derive(Clone, Debug)]
+#[command(about = None, long_about = None)]
+pub struct CompleteArgs {
+    /// Specify shell to complete for
+    #[arg(long)]
+    shell: Shell,
+
+    /// Path to write completion-registration to
+    #[arg(long, required = true)]
+    register: Option<std::path::PathBuf>,
+
+    #[arg(raw = true, hide_short_help = true, group = "complete")]
+    comp_words: Vec<OsString>,
 }
 
 /// Shell-specific completions
