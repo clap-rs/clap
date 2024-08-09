@@ -238,7 +238,7 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__complete)
-            opts="-h -V --register --shell --global --help --version [COMP_WORDS]..."
+            opts="-h -V --register --shell --global --help --version [ARG]..."
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0

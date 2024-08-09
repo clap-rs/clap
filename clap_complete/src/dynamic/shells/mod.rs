@@ -187,14 +187,19 @@ impl CompleteCommand {
 #[command(about = None, long_about = None)]
 pub struct CompleteArgs {
     /// Path to write completion-registration to
-    #[arg(long)]
+    #[arg(long, value_name = "PATH")]
     register: Option<std::path::PathBuf>,
 
-    #[arg(raw = true, hide = true, conflicts_with = "register")]
+    #[arg(
+        raw = true,
+        value_name = "ARG",
+        hide = true,
+        conflicts_with = "register"
+    )]
     comp_words: Option<Vec<OsString>>,
 
     /// Specify shell to complete for
-    #[arg(long)]
+    #[arg(long, value_name = "NAME")]
     shell: Option<Shell>,
 }
 
