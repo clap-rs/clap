@@ -114,7 +114,7 @@ fn value_terminator() {
 #[cfg(feature = "unstable-dynamic")]
 #[test]
 fn register_minimal() {
-    use clap_complete::dynamic::Completer;
+    use clap_complete::dynamic::shells::Completer;
 
     let name = "my-app";
     let bin = name;

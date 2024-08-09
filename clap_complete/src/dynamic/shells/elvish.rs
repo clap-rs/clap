@@ -2,7 +2,7 @@
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Elvish;
 
-impl crate::dynamic::Completer for Elvish {
+impl crate::dynamic::shells::Completer for Elvish {
     fn file_name(&self, name: &str) -> String {
         format!("{name}.elv")
     }

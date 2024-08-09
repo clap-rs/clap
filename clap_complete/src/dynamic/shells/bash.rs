@@ -4,7 +4,7 @@ use unicode_xid::UnicodeXID as _;
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Bash;
 
-impl crate::dynamic::Completer for Bash {
+impl crate::dynamic::shells::Completer for Bash {
     fn file_name(&self, name: &str) -> String {
         format!("{name}.bash")
     }
