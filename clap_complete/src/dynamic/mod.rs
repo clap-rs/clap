@@ -1,6 +1,11 @@
 //! Complete commands within shells
 //!
-//! For quick-start, see [`shells::CompleteCommand`]
+//! For quick-start, see [`CompleteCommand`]
+//!
+//! To customize completions, see
+//! - [`ValueHint`][crate::ValueHint]
+//! - [`ValueEnum`][clap::ValueEnum]
+//! - [`ArgValueCompleter`]
 
 mod candidate;
 mod complete;
@@ -12,3 +17,7 @@ pub use candidate::CompletionCandidate;
 pub use complete::complete;
 pub use custom::ArgValueCompleter;
 pub use custom::CustomCompleter;
+
+// These live in `shells` because they are tightly coupled with the `ShellCompleter`s
+pub use shells::CompleteArgs;
+pub use shells::CompleteCommand;

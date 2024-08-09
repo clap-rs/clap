@@ -30,7 +30,7 @@ use std::io::Write as _;
 /// ```no_run
 /// // src/main.rs
 /// use clap::{CommandFactory, FromArgMatches, Parser, Subcommand};
-/// use clap_complete::dynamic::shells::CompleteCommand;
+/// use clap_complete::dynamic::CompleteCommand;
 ///
 /// #[derive(Parser, Debug)]
 /// #[clap(name = "dynamic", about = "A dynamic command line tool")]
@@ -127,7 +127,7 @@ impl CompleteCommand {
 /// ```no_run
 /// // src/main.rs
 /// use clap::{CommandFactory, FromArgMatches, Parser, Subcommand};
-/// use clap_complete::dynamic::shells::CompleteArgs;
+/// use clap_complete::dynamic::CompleteArgs;
 ///
 /// #[derive(Parser, Debug)]
 /// #[clap(name = "dynamic", about = "A dynamic command line tool")]
