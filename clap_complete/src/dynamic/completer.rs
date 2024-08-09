@@ -131,11 +131,11 @@ pub fn complete(
                         parse_positional(current_cmd, pos_index, is_escaped, state);
                 }
 
-                ParseState::Opt((ref opt, count)) => match opt.get_num_args() {
+                ParseState::Opt((opt, count)) => match opt.get_num_args() {
                     Some(range) => {
                         let max = range.max_values();
                         if count < max {
-                            state = ParseState::Opt((opt.clone(), count + 1));
+                            state = ParseState::Opt((opt, count + 1));
                         } else {
                             state = ParseState::ValueDone;
                         }
@@ -159,7 +159,7 @@ enum ParseState<'a> {
     /// Parsing a value done, there is no state to record.
     ValueDone,
 
-    /// Parsing a positional argument after `--`. Pos(pos_index, takes_num_args)
+    /// Parsing a positional argument after `--`. `Pos(pos_index`, `takes_num_args`)
     Pos((usize, usize)),
 
     /// Parsing a optional flag argument
@@ -193,15 +193,7 @@ fn complete_arg(
                             completions.extend(
                                 complete_arg_value(value.to_str().ok_or(value), arg, current_dir)
                                     .into_iter()
-                                    .map(|comp| {
-                                        CompletionCandidate::new(format!(
-                                            "--{}={}",
-                                            flag,
-                                            comp.get_content().to_string_lossy()
-                                        ))
-                                        .help(comp.get_help().cloned())
-                                        .hide(comp.is_hide_set())
-                                    }),
+                                    .map(|comp| comp.add_prefix(format!("--{}=", flag))),
                             );
                         }
                     } else {
@@ -235,15 +227,7 @@ fn complete_arg(
                 completions.extend(
                     shorts_and_visible_aliases(cmd)
                         .into_iter()
-                        // HACK: Need better `OsStr` manipulation
-                        .map(|comp| {
-                            CompletionCandidate::new(format!(
-                                "{}{}",
-                                dash_or_arg,
-                                comp.get_content().to_string_lossy()
-                            ))
-                            .help(comp.get_help().cloned())
-                        }),
+                        .map(|comp| comp.add_prefix(dash_or_arg.to_string())),
                 );
             } else if let Some(short) = arg.to_short() {
                 if !short.is_negative_number() {
@@ -265,27 +249,16 @@ fn complete_arg(
                             complete_arg_value(value.to_str().ok_or(value), opt, current_dir)
                                 .into_iter()
                                 .map(|comp| {
-                                    CompletionCandidate::new(format!(
-                                        "-{}{}{}",
+                                    comp.add_prefix(format!(
+                                        "-{}{}",
                                         leading_flags.to_string_lossy(),
-                                        if has_equal { "=" } else { "" },
-                                        comp.get_content().to_string_lossy()
+                                        if has_equal { "=" } else { "" }
                                     ))
-                                    .help(comp.get_help().cloned())
-                                    .hide(comp.is_hide_set())
                                 }),
                         );
                     } else {
                         completions.extend(shorts_and_visible_aliases(cmd).into_iter().map(
-                            |comp| {
-                                CompletionCandidate::new(format!(
-                                    "-{}{}",
-                                    leading_flags.to_string_lossy(),
-                                    comp.get_content().to_string_lossy()
-                                ))
-                                .help(comp.get_help().cloned())
-                                .hide(comp.is_hide_set())
-                            },
+                            |comp| comp.add_prefix(format!("-{}", leading_flags.to_string_lossy())),
                         ));
                     }
                 }
@@ -632,7 +605,7 @@ fn parse_positional<'a>(
         .get_positionals()
         .find(|p| p.get_index() == Some(pos_index));
     let num_args = pos_arg
-        .and_then(|a| a.get_num_args().and_then(|r| Some(r.max_values())))
+        .and_then(|a| a.get_num_args().map(|r| r.max_values()))
         .unwrap_or(1);
 
     let update_state_with_new_positional = |pos_index| -> (ParseState<'a>, usize) {
@@ -666,7 +639,7 @@ fn parse_positional<'a>(
             }
         }
         ParseState::Opt(..) => unreachable!(
-            "This branch won't be hit, 
+            "This branch won't be hit,
             because ParseState::Opt should not be seen as a positional argument and passed to this function."
         ),
     }
@@ -724,6 +697,15 @@ impl CompletionCandidate {
     pub fn is_hide_set(&self) -> bool {
         self.hidden
     }
+
+    /// Add a prefix to the content of completion candidate
+    pub fn add_prefix(mut self, prefix: impl Into<OsString>) -> Self {
+        let suffix = self.content;
+        let mut content = prefix.into();
+        content.push(&suffix);
+        self.content = content;
+        self
+    }
 }
 
 /// User-provided completion candidates for an argument.
@@ -761,16 +743,15 @@ where
 ///         CompletionCandidate::new("baz")] }))]
 ///     custom: Option<String>,
 /// }
-///    
 /// ```
 #[derive(Clone)]
 pub struct ArgValueCompleter(Arc<dyn CustomCompleter>);
 
 impl ArgValueCompleter {
     /// Create a new `ArgValueCompleter` with a custom completer
-    pub fn new<C: CustomCompleter>(completer: C) -> Self
+    pub fn new<C>(completer: C) -> Self
     where
-        C: 'static + CustomCompleter,
+        C: CustomCompleter + 'static,
     {
         Self(Arc::new(completer))
     }
