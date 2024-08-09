@@ -1,6 +1,6 @@
 use unicode_xid::UnicodeXID as _;
 
-/// Completion support for Bash
+/// A [`ShellCompleter`][crate::dynamic::shells::ShellCompleter] for Bash
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Bash;
 

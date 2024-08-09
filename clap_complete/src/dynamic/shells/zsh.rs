@@ -1,4 +1,4 @@
-/// Completion support for zsh
+/// A [`ShellCompleter`][crate::dynamic::shells::ShellCompleter] for zsh
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Zsh;
 

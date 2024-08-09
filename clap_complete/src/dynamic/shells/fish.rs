@@ -1,4 +1,4 @@
-/// Completion support for Fish
+/// A [`ShellCompleter`][crate::dynamic::shells::ShellCompleter] for Fish
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Fish;
 
