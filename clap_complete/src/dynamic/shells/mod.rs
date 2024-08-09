@@ -192,7 +192,7 @@ impl CompleteCommand {
 pub struct CompleteArgs {
     /// Specify shell to complete for
     #[arg(long)]
-    shell: Shell,
+    shell: Option<Shell>,
 
     /// Path to write completion-registration to
     #[arg(long, required = true)]
@@ -217,15 +217,21 @@ impl CompleteArgs {
     /// **Warning:** `stdout` should not be written to before or after this has run.
     pub fn try_complete(&self, cmd: &mut clap::Command) -> clap::error::Result<()> {
         debug!("CompleteCommand::try_complete: {self:?}");
+
+        let shell = self
+            .shell
+            .or_else(|| Shell::from_env())
+            .unwrap_or(Shell::Bash);
+
         if let Some(out_path) = self.register.as_deref() {
             let mut buf = Vec::new();
             let name = cmd.get_name();
             let bin = cmd.get_bin_name().unwrap_or_else(|| cmd.get_name());
-            self.shell.write_registration(name, bin, bin, &mut buf)?;
+            shell.write_registration(name, bin, bin, &mut buf)?;
             if out_path == std::path::Path::new("-") {
                 std::io::stdout().write_all(&buf)?;
             } else if out_path.is_dir() {
-                let out_path = out_path.join(self.shell.file_name(name));
+                let out_path = out_path.join(shell.file_name(name));
                 std::fs::write(out_path, buf)?;
             } else {
                 std::fs::write(out_path, buf)?;
@@ -234,7 +240,7 @@ impl CompleteArgs {
             let current_dir = std::env::current_dir().ok();
 
             let mut buf = Vec::new();
-            self.shell.write_complete(
+            shell.write_complete(
                 cmd,
                 self.comp_words.clone(),
                 current_dir.as_deref(),
