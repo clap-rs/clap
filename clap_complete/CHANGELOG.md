@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Compatibility
+
+- *(dynamic)* Renamed `CustomCompleter::completions` to `CustomCompleter::candidates`
+- *(dynamic)* Renamed `Completer` to `shells::ShellCompleter`
+
+### Features
+
+- *(dynamic)* Add `shells::CompleteArgs::complete`
+- *(dynamic)* Make `--register` optional
+- *(dynamic)* Make `--shell` optional
+- *(dynamic)* Add powershell support
+
+### Fixes
+
+- *(powershell)* Add missing option hyphens
+- *(dynamic)* Expose `shells::CompleteArgs` and `shells::CompleteCommand` at top-level
+- *(dynamic)* Improve help output
+
 ## [4.5.13] - 2024-08-08
 
 ### Features
