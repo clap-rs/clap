@@ -20,6 +20,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Compatiblity
+
+- *(unstable-ext)* `Arg::remove` changed return types
+
+### Fixes
+
+- *(unstable-ext)* Make `Arg::remove` return the removed item
+
 ## [4.5.14] - 2024-08-08
 
 ### Features
