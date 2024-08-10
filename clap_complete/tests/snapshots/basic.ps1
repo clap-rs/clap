@@ -21,19 +21,19 @@ Register-ArgumentCompleter -Native -CommandName 'my-app' -ScriptBlock {
 
     $completions = @(switch ($command) {
         'my-app' {
-            [CompletionResult]::new('-c', 'c', [CompletionResultType]::ParameterName, 'c')
-            [CompletionResult]::new('-v', 'v', [CompletionResultType]::ParameterName, 'v')
-            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help')
-            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help')
+            [CompletionResult]::new('-c', '-c', [CompletionResultType]::ParameterName, 'c')
+            [CompletionResult]::new('-v', '-v', [CompletionResultType]::ParameterName, 'v')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help')
             [CompletionResult]::new('test', 'test', [CompletionResultType]::ParameterValue, 'Subcommand with a second line')
             [CompletionResult]::new('help', 'help', [CompletionResultType]::ParameterValue, 'Print this message or the help of the given subcommand(s)')
             break
         }
         'my-app;test' {
-            [CompletionResult]::new('-d', 'd', [CompletionResultType]::ParameterName, 'd')
-            [CompletionResult]::new('-c', 'c', [CompletionResultType]::ParameterName, 'c')
-            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help')
-            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help')
+            [CompletionResult]::new('-d', '-d', [CompletionResultType]::ParameterName, 'd')
+            [CompletionResult]::new('-c', '-c', [CompletionResultType]::ParameterName, 'c')
+            [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help')
+            [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help')
             break
         }
         'my-app;help' {
