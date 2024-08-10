@@ -1,291 +1,192 @@
 //! Shell completion support, see [`CompleteCommand`] for more details
 
-mod bash;
-mod elvish;
-mod fish;
-mod powershell;
-mod shell;
-mod zsh;
+mod command;
 
-pub use bash::*;
-pub use elvish::*;
-pub use fish::*;
-pub use powershell::*;
-pub use shell::*;
-pub use zsh::*;
+pub use command::*;
 
-use std::ffi::OsString;
-use std::io::Write as _;
+use std::fmt::Display;
+use std::str::FromStr;
 
-/// A completion subcommand to add to your CLI
-///
-/// If you aren't using a subcommand, you can annotate a field with this type as `#[command(subcommand)]`.
-///
-/// If you are using subcommands, see [`CompleteArgs`].
-///
-/// **Warning:** `stdout` should not be written to before [`CompleteCommand::complete`] has had a
-/// chance to run.
-///
-/// # Examples
-///
-/// To integrate completions into an application without subcommands:
-/// ```no_run
-/// // src/main.rs
-/// use clap::{CommandFactory, FromArgMatches, Parser, Subcommand};
-/// use clap_complete::dynamic::CompleteCommand;
-///
-/// #[derive(Parser, Debug)]
-/// #[clap(name = "dynamic", about = "A dynamic command line tool")]
-/// struct Cli {
-///     /// The subcommand to run complete
-///     #[command(subcommand)]
-///     complete: Option<CompleteCommand>,
-///     /// Input file path
-///     #[clap(short, long, value_hint = clap::ValueHint::FilePath)]
-///     input: Option<String>,
-///     /// Output format
-///     #[clap(short = 'F', long, value_parser = ["json", "yaml", "toml"])]
-///     format: Option<String>,
-/// }
-///
-/// fn main() {
-///     let cli = Cli::parse();
-///     if let Some(completions) = cli.complete {
-///         completions.complete(&mut Cli::command());
-///     }
-///
-///     // normal logic continues...
-/// }
-///```
-///
-/// To source your completions:
-///
-/// Bash
-/// ```bash
-/// echo "source <(your_program complete --shell bash --register -)" >> ~/.bashrc
-/// ```
-///
-/// Elvish
-/// ```elvish
-/// echo "eval (your_program complete --shell elvish --register -)" >> ~/.elvish/rc.elv
-/// ```
-///
-/// Fish
-/// ```fish
-/// echo "source (your_program complete --shell fish --register - | psub)" >> ~/.config/fish/config.fish
-/// ```
-///
-/// Powershell
-/// ```powershell
-/// echo "your_program complete --shell powershell --register - | Invoke-Expression" >> $PROFILE
-/// ```
-///
-/// Zsh
-/// ```zsh
-/// echo "source <(your_program complete --shell zsh --register -)" >> ~/.zshrc
-/// ```
-#[derive(clap::Subcommand)]
-#[allow(missing_docs)]
-#[derive(Clone, Debug)]
-#[command(about = None, long_about = None)]
-pub enum CompleteCommand {
-    /// Register shell completions for this program
-    #[command(hide = true)]
-    Complete(CompleteArgs),
+use clap::builder::PossibleValue;
+use clap::ValueEnum;
+
+/// Completion support for built-in shells
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[non_exhaustive]
+pub enum Shell {
+    /// Bourne Again `SHell` (bash)
+    Bash,
+    /// Elvish shell
+    Elvish,
+    /// Friendly Interactive `SHell` (fish)
+    Fish,
+    /// `PowerShell`
+    Powershell,
+    /// Z `SHell` (zsh)
+    Zsh,
 }
 
-impl CompleteCommand {
-    /// Process the completion request and exit
+impl Shell {
+    /// Parse a shell from a path to the executable for the shell
     ///
-    /// **Warning:** `stdout` should not be written to before this has had a
-    /// chance to run.
-    pub fn complete(&self, cmd: &mut clap::Command) -> std::convert::Infallible {
-        self.try_complete(cmd).unwrap_or_else(|e| e.exit());
-        std::process::exit(0)
+    /// # Examples
+    ///
+    /// ```
+    /// use clap_complete::shells::Shell;
+    ///
+    /// assert_eq!(Shell::from_shell_path("/bin/bash"), Some(Shell::Bash));
+    /// assert_eq!(Shell::from_shell_path("/usr/bin/zsh"), Some(Shell::Zsh));
+    /// assert_eq!(Shell::from_shell_path("/opt/my_custom_shell"), None);
+    /// ```
+    pub fn from_shell_path(path: impl AsRef<std::path::Path>) -> Option<Shell> {
+        parse_shell_from_path(path.as_ref())
     }
 
-    /// Process the completion request
+    /// Determine the user's current shell from the environment
     ///
-    /// **Warning:** `stdout` should not be written to before or after this has run.
-    pub fn try_complete(&self, cmd: &mut clap::Command) -> clap::error::Result<()> {
-        debug!("CompleteCommand::try_complete: {self:?}");
-        let CompleteCommand::Complete(args) = self;
-        args.try_complete(cmd)
-    }
-}
-
-/// A completion subcommand to add to your CLI
-///
-/// If you are using subcommands, add a `Complete(CompleteArgs)` variant.
-///
-/// If you aren't using subcommands, generally you will want [`CompleteCommand`].
-///
-/// **Warning:** `stdout` should not be written to before [`CompleteArgs::complete`] has had a
-/// chance to run.
-///
-/// # Examples
-///
-/// To integrate completions into an application without subcommands:
-/// ```no_run
-/// // src/main.rs
-/// use clap::{CommandFactory, FromArgMatches, Parser, Subcommand};
-/// use clap_complete::dynamic::CompleteArgs;
-///
-/// #[derive(Parser, Debug)]
-/// #[clap(name = "dynamic", about = "A dynamic command line tool")]
-/// struct Cli {
-///     #[command(subcommand)]
-///     complete: Command,
-/// }
-///
-/// #[derive(Subcommand, Debug)]
-/// enum Command {
-///     Complete(CompleteArgs),
-///     Print,
-/// }
-///
-/// fn main() {
-///     let cli = Cli::parse();
-///     match cli.complete {
-///         Command::Complete(completions) => {
-///             completions.complete(&mut Cli::command());
-///         },
-///         Command::Print => {
-///             println!("Hello world!");
-///         }
-///     }
-/// }
-///```
-///
-/// To source your completions:
-///
-/// Bash
-/// ```bash
-/// echo "source <(your_program complete --shell bash)" >> ~/.bashrc
-/// ```
-///
-/// Elvish
-/// ```elvish
-/// echo "eval (your_program complete --shell elvish)" >> ~/.elvish/rc.elv
-/// ```
-///
-/// Fish
-/// ```fish
-/// echo "source (your_program complete --shell fish | psub)" >> ~/.config/fish/config.fish
-/// ```
-///
-/// Powershell
-/// ```powershell
-/// echo "your_program complete --shell powershell | Invoke-Expression" >> $PROFILE
-/// ```
-///
-/// Zsh
-/// ```zsh
-/// echo "source <(your_program complete --shell zsh)" >> ~/.zshrc
-/// ```
-#[derive(clap::Args, Clone, Debug)]
-#[command(about = None, long_about = None)]
-pub struct CompleteArgs {
-    /// Path to write completion-registration to
-    #[arg(long, value_name = "PATH")]
-    register: Option<std::path::PathBuf>,
-
-    #[arg(
-        raw = true,
-        value_name = "ARG",
-        hide = true,
-        conflicts_with = "register"
-    )]
-    comp_words: Option<Vec<OsString>>,
-
-    /// Specify shell to complete for
-    #[arg(long, value_name = "NAME")]
-    shell: Option<Shell>,
-}
-
-impl CompleteArgs {
-    /// Process the completion request and exit
+    /// This will read the SHELL environment variable and try to determine which shell is in use
+    /// from that.
     ///
-    /// **Warning:** `stdout` should not be written to before this has had a
-    /// chance to run.
-    pub fn complete(&self, cmd: &mut clap::Command) -> std::convert::Infallible {
-        self.try_complete(cmd).unwrap_or_else(|e| e.exit());
-        std::process::exit(0)
-    }
-
-    /// Process the completion request
+    /// If SHELL is not set, then on windows, it will default to powershell, and on
+    /// other operating systems it will return `None`.
     ///
-    /// **Warning:** `stdout` should not be written to before or after this has run.
-    pub fn try_complete(&self, cmd: &mut clap::Command) -> clap::error::Result<()> {
-        debug!("CompleteCommand::try_complete: {self:?}");
-
-        let shell = self
-            .shell
-            .or_else(|| Shell::from_env())
-            .unwrap_or(Shell::Bash);
-
-        if let Some(comp_words) = self.comp_words.as_ref() {
-            let current_dir = std::env::current_dir().ok();
-
-            let mut buf = Vec::new();
-            shell.write_complete(cmd, comp_words.clone(), current_dir.as_deref(), &mut buf)?;
-            std::io::stdout().write_all(&buf)?;
+    /// If SHELL is set, but contains a value that doesn't correspond to one of the supported shell
+    /// types, then return `None`.
+    ///
+    /// # Example:
+    ///
+    /// ```no_run
+    /// # use clap::Command;
+    /// use clap_complete::{generate, shells::Shell};
+    /// # fn build_cli() -> Command {
+    /// #     Command::new("compl")
+    /// # }
+    /// let shell = Shell::from_env();
+    /// println!("{shell:?}");
+    /// ```
+    pub fn from_env() -> Option<Shell> {
+        if let Some(env_shell) = std::env::var_os("SHELL") {
+            Shell::from_shell_path(env_shell)
+        } else if cfg!(windows) {
+            Some(Shell::Powershell)
         } else {
-            let out_path = self
-                .register
-                .as_deref()
-                .unwrap_or(std::path::Path::new("-"));
-            let name = cmd.get_name();
-            let bin = cmd.get_bin_name().unwrap_or_else(|| cmd.get_name());
+            None
+        }
+    }
+}
 
-            let mut buf = Vec::new();
-            shell.write_registration(name, bin, bin, &mut buf)?;
-            if out_path == std::path::Path::new("-") {
-                std::io::stdout().write_all(&buf)?;
-            } else if out_path.is_dir() {
-                let out_path = out_path.join(shell.file_name(name));
-                std::fs::write(out_path, buf)?;
-            } else {
-                std::fs::write(out_path, buf)?;
+// use a separate function to avoid having to monomorphize the entire function due
+// to from_shell_path being generic
+fn parse_shell_from_path(path: &std::path::Path) -> Option<Shell> {
+    let name = path.file_stem()?.to_str()?;
+    match name {
+        "bash" => Some(Shell::Bash),
+        "elvish" => Some(Shell::Elvish),
+        "fish" => Some(Shell::Fish),
+        "powershell" | "powershell_ise" => Some(Shell::Powershell),
+        "zsh" => Some(Shell::Zsh),
+        _ => None,
+    }
+}
+
+impl Display for Shell {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.to_possible_value()
+            .expect("no values are skipped")
+            .get_name()
+            .fmt(f)
+    }
+}
+
+impl FromStr for Shell {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        for variant in Self::value_variants() {
+            if variant.to_possible_value().unwrap().matches(s, false) {
+                return Ok(*variant);
             }
         }
-
-        Ok(())
+        Err(format!("invalid variant: {s}"))
     }
 }
 
-/// Shell-integration for completions
-///
-/// This will generally be called by [`CompleteCommand`] or [`CompleteArgs`].
-///
-/// This handles adapting between the shell and [`completer`][crate::dynamic::complete()].
-/// A `ShellCompleter` can choose how much of that lives within the registration script and or
-/// lives in [`ShellCompleter::write_complete`].
-pub trait ShellCompleter {
-    /// The recommended file name for the registration code
-    fn file_name(&self, name: &str) -> String;
-    /// Register for completions
-    ///
-    /// Write the `buf` the logic needed for calling into `<cmd> complete`, passing needed
-    /// arguments to [`ShellCompleter::write_complete`] through the environment.
+// Hand-rolled so it can work even when `derive` feature is disabled
+impl ValueEnum for Shell {
+    fn value_variants<'a>() -> &'a [Self] {
+        &[
+            Shell::Bash,
+            Shell::Elvish,
+            Shell::Fish,
+            Shell::Powershell,
+            Shell::Zsh,
+        ]
+    }
+
+    fn to_possible_value(&self) -> Option<PossibleValue> {
+        Some(match self {
+            Shell::Bash => PossibleValue::new("bash"),
+            Shell::Elvish => PossibleValue::new("elvish"),
+            Shell::Fish => PossibleValue::new("fish"),
+            Shell::Powershell => PossibleValue::new("powershell"),
+            Shell::Zsh => PossibleValue::new("zsh"),
+        })
+    }
+}
+
+impl Shell {
+    fn completer(&self) -> &dyn ShellCompleter {
+        match self {
+            Self::Bash => &Bash,
+            Self::Elvish => &Elvish,
+            Self::Fish => &Fish,
+            Self::Powershell => &Powershell,
+            Self::Zsh => &Zsh,
+        }
+    }
+}
+
+impl ShellCompleter for Shell {
+    fn file_name(&self, name: &str) -> String {
+        self.completer().file_name(name)
+    }
     fn write_registration(
         &self,
         name: &str,
         bin: &str,
         completer: &str,
         buf: &mut dyn std::io::Write,
-    ) -> Result<(), std::io::Error>;
-    /// Complete the given command
-    ///
-    /// Adapt information from arguments and [`ShellCompleter::write_registration`]-defined env
-    /// variables to what is needed for [`completer`][crate::dynamic::complete()].
-    ///
-    /// Write out the [`CompletionCandidate`][crate::dynamic::CompletionCandidate]s in a way the shell will understand.
+    ) -> Result<(), std::io::Error> {
+        self.completer()
+            .write_registration(name, bin, completer, buf)
+    }
     fn write_complete(
         &self,
         cmd: &mut clap::Command,
-        args: Vec<OsString>,
+        args: Vec<std::ffi::OsString>,
         current_dir: Option<&std::path::Path>,
         buf: &mut dyn std::io::Write,
-    ) -> Result<(), std::io::Error>;
+    ) -> Result<(), std::io::Error> {
+        self.completer().write_complete(cmd, args, current_dir, buf)
+    }
 }
+
+/// A [`ShellCompleter`] for Bash
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub struct Bash;
+
+/// A [`ShellCompleter`] for Elvish
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub struct Elvish;
+
+/// A [`ShellCompleter`] for Fish
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub struct Fish;
+
+/// A [`ShellCompleter`] for Powershell
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub struct Powershell;
+
+/// A [`ShellCompleter`] for zsh
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub struct Zsh;
