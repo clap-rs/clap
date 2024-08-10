@@ -317,7 +317,11 @@ _clap_complete_NAME() {
         compopt -o nospace
     fi
 }
-complete -o nospace -o bashdefault -F _clap_complete_NAME BIN
+if [[ \"${{BASH_VERSINFO[0]}}\" -eq 4 && \"${{BASH_VERSINFO[1]}}\" -ge 4 || \"${{BASH_VERSINFO[0]}}\" -gt 4 ]]; then
+    complete -o nospace -o bashdefault -o nosort -F _clap_complete_NAME BIN
+else
+    complete -o nospace -o bashdefault -F _clap_complete_NAME BIN
+fi
 "#
         .replace("NAME", &escaped_name)
         .replace("BIN", bin)
