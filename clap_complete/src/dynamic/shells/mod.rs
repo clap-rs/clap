@@ -67,8 +67,6 @@ impl Shell {
     pub fn from_env() -> Option<Shell> {
         if let Some(env_shell) = std::env::var_os("SHELL") {
             Shell::from_shell_path(env_shell)
-        } else if cfg!(windows) {
-            Some(Shell::Powershell)
         } else {
             None
         }
