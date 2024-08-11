@@ -132,18 +132,6 @@ impl ValueEnum for Shell {
     }
 }
 
-impl Shell {
-    fn completer(&self) -> &dyn CommandCompleter {
-        match self {
-            Self::Bash => &Bash,
-            Self::Elvish => &Elvish,
-            Self::Fish => &Fish,
-            Self::Powershell => &Powershell,
-            Self::Zsh => &Zsh,
-        }
-    }
-}
-
 /// A [`CommandCompleter`] for Bash
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Bash;

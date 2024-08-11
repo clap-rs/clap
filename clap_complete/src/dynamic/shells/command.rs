@@ -262,7 +262,7 @@ pub trait CommandCompleter {
 
 impl CommandCompleter for Shell {
     fn file_name(&self, name: &str) -> String {
-        self.completer().file_name(name)
+        shell_completer(self).file_name(name)
     }
     fn write_registration(
         &self,
@@ -271,8 +271,7 @@ impl CommandCompleter for Shell {
         completer: &str,
         buf: &mut dyn std::io::Write,
     ) -> Result<(), std::io::Error> {
-        self.completer()
-            .write_registration(name, bin, completer, buf)
+        shell_completer(self).write_registration(name, bin, completer, buf)
     }
     fn write_complete(
         &self,
@@ -281,7 +280,17 @@ impl CommandCompleter for Shell {
         current_dir: Option<&std::path::Path>,
         buf: &mut dyn std::io::Write,
     ) -> Result<(), std::io::Error> {
-        self.completer().write_complete(cmd, args, current_dir, buf)
+        shell_completer(self).write_complete(cmd, args, current_dir, buf)
+    }
+}
+
+fn shell_completer(shell: &Shell) -> &dyn CommandCompleter {
+    match shell {
+        Shell::Bash => &super::Bash,
+        Shell::Elvish => &super::Elvish,
+        Shell::Fish => &super::Fish,
+        Shell::Powershell => &super::Powershell,
+        Shell::Zsh => &super::Zsh,
     }
 }
 
