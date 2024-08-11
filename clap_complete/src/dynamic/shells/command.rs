@@ -260,6 +260,31 @@ pub trait CommandCompleter {
     ) -> Result<(), std::io::Error>;
 }
 
+impl CommandCompleter for Shell {
+    fn file_name(&self, name: &str) -> String {
+        self.completer().file_name(name)
+    }
+    fn write_registration(
+        &self,
+        name: &str,
+        bin: &str,
+        completer: &str,
+        buf: &mut dyn std::io::Write,
+    ) -> Result<(), std::io::Error> {
+        self.completer()
+            .write_registration(name, bin, completer, buf)
+    }
+    fn write_complete(
+        &self,
+        cmd: &mut clap::Command,
+        args: Vec<OsString>,
+        current_dir: Option<&std::path::Path>,
+        buf: &mut dyn std::io::Write,
+    ) -> Result<(), std::io::Error> {
+        self.completer().write_complete(cmd, args, current_dir, buf)
+    }
+}
+
 impl CommandCompleter for super::Bash {
     fn file_name(&self, name: &str) -> String {
         format!("{name}.bash")
