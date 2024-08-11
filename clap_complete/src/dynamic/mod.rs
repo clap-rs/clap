@@ -19,5 +19,7 @@ pub use custom::ArgValueCompleter;
 pub use custom::CustomCompleter;
 
 // These live in `shells` because they are tightly coupled with the `ShellCompleter`s
+#[cfg(feature = "unstable-command")]
 pub use shells::CompleteArgs;
+#[cfg(feature = "unstable-command")]
 pub use shells::CompleteCommand;

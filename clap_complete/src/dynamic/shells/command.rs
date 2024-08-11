@@ -76,6 +76,7 @@ use super::Shell;
 #[allow(missing_docs)]
 #[derive(Clone, Debug)]
 #[command(about = None, long_about = None)]
+#[cfg(feature = "unstable-command")]
 pub enum CompleteCommand {
     /// Register shell completions for this program
     #[command(hide = true)]
@@ -173,6 +174,7 @@ impl CompleteCommand {
 /// ```
 #[derive(clap::Args, Clone, Debug)]
 #[command(about = None, long_about = None)]
+#[cfg(feature = "unstable-command")]
 pub struct CompleteArgs {
     /// Specify shell to complete for
     #[arg(value_name = "NAME")]
@@ -231,6 +233,7 @@ impl CompleteArgs {
 /// This handles adapting between the shell and [`completer`][crate::dynamic::complete()].
 /// A `CommandCompleter` can choose how much of that lives within the registration script and or
 /// lives in [`CommandCompleter::write_complete`].
+#[cfg(feature = "unstable-command")]
 pub trait CommandCompleter {
     /// The recommended file name for the registration code
     fn file_name(&self, name: &str) -> String;

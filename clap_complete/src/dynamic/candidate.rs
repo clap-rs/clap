@@ -5,7 +5,7 @@ use clap::builder::StyledStr;
 
 /// A shell-agnostic completion candidate
 ///
-/// [`ShellCompleter`][crate::dynamic::shells::ShellCompleter] will adapt what it can to the
+/// [`Shell`][crate::dynamic::shells::Shell] will adapt what it can to the
 /// current shell.
 #[derive(Default, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct CompletionCandidate {

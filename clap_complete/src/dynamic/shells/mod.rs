@@ -1,7 +1,9 @@
 //! Shell completion support, see [`CompleteCommand`] for more details
 
+#[cfg(feature = "unstable-command")]
 mod command;
 
+#[cfg(feature = "unstable-command")]
 pub use command::*;
 
 use std::fmt::Display;
@@ -132,22 +134,22 @@ impl ValueEnum for Shell {
     }
 }
 
-/// A [`CommandCompleter`] for Bash
+/// Bash completion adapter
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Bash;
 
-/// A [`CommandCompleter`] for Elvish
+/// Elvish completion adapter
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Elvish;
 
-/// A [`CommandCompleter`] for Fish
+/// Fish completion adapter
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Fish;
 
-/// A [`CommandCompleter`] for Powershell
+/// Powershell completion adapter
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Powershell;
 
-/// A [`CommandCompleter`] for zsh
+/// Zsh completion adapter
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Zsh;

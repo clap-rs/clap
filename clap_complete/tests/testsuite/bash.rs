@@ -111,7 +111,7 @@ fn value_terminator() {
     );
 }
 
-#[cfg(feature = "unstable-dynamic")]
+#[cfg(feature = "unstable-command")]
 #[test]
 fn register_minimal() {
     use clap_complete::dynamic::shells::CommandCompleter as _;

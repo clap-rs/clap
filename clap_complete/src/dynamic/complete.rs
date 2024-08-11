@@ -10,7 +10,7 @@ use super::CompletionCandidate;
 ///
 /// For integration with clap and shells, see [`CompleteCommand`][crate::dynamic::shells::CompleteCommand].
 ///
-/// This is generally called by a [`ShellCompleter`][crate::dynamic::shells::ShellCompleter] which
+/// This is generally called by a [`Shell`][crate::dynamic::shells::Shell] which
 /// handles the shell-specific logic.
 pub fn complete(
     cmd: &mut clap::Command,
