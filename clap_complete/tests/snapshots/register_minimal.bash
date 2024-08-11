@@ -8,7 +8,7 @@ _clap_complete_my_app() {
     else
         export _CLAP_COMPLETE_SPACE=true
     fi
-    COMPREPLY=( $("my-app" complete --shell bash -- "${COMP_WORDS[@]}") )
+    COMPREPLY=( $("my-app" complete bash -- "${COMP_WORDS[@]}") )
     if [[ $? != 0 ]]; then
         unset COMPREPLY
     elif [[ $SUPPRESS_SPACE == 1 ]] && [[ "${COMPREPLY-}" =~ [=/:]$ ]]; then

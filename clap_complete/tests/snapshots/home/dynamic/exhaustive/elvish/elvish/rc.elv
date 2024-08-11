@@ -8,7 +8,7 @@ set edit:completion:arg-completer[exhaustive] = { |@words|
     set index = (- $index 1)
     set E:_CLAP_COMPLETE_INDEX = (to-string $index)
 
-    put (exhaustive complete --shell elvish -- $@words) | to-lines
+    put (exhaustive complete elvish -- $@words) | to-lines
 }
 
 

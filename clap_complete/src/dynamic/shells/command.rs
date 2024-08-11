@@ -50,27 +50,27 @@ use super::Shell;
 ///
 /// Bash
 /// ```bash
-/// echo "source <(your_program complete --shell bash --register -)" >> ~/.bashrc
+/// echo "source <(your_program complete bash --register -)" >> ~/.bashrc
 /// ```
 ///
 /// Elvish
 /// ```elvish
-/// echo "eval (your_program complete --shell elvish --register -)" >> ~/.elvish/rc.elv
+/// echo "eval (your_program complete elvish --register -)" >> ~/.elvish/rc.elv
 /// ```
 ///
 /// Fish
 /// ```fish
-/// echo "source (your_program complete --shell fish --register - | psub)" >> ~/.config/fish/config.fish
+/// echo "source (your_program complete fish --register - | psub)" >> ~/.config/fish/config.fish
 /// ```
 ///
 /// Powershell
 /// ```powershell
-/// echo "your_program complete --shell powershell --register - | Invoke-Expression" >> $PROFILE
+/// echo "your_program complete powershell --register - | Invoke-Expression" >> $PROFILE
 /// ```
 ///
 /// Zsh
 /// ```zsh
-/// echo "source <(your_program complete --shell zsh --register -)" >> ~/.zshrc
+/// echo "source <(your_program complete zsh --register -)" >> ~/.zshrc
 /// ```
 #[derive(clap::Subcommand)]
 #[allow(missing_docs)]
@@ -149,46 +149,37 @@ impl CompleteCommand {
 ///
 /// Bash
 /// ```bash
-/// echo "source <(your_program complete --shell bash)" >> ~/.bashrc
+/// echo "source <(your_program complete bash)" >> ~/.bashrc
 /// ```
 ///
 /// Elvish
 /// ```elvish
-/// echo "eval (your_program complete --shell elvish)" >> ~/.elvish/rc.elv
+/// echo "eval (your_program complete elvish)" >> ~/.elvish/rc.elv
 /// ```
 ///
 /// Fish
 /// ```fish
-/// echo "source (your_program complete --shell fish | psub)" >> ~/.config/fish/config.fish
+/// echo "source (your_program complete fish | psub)" >> ~/.config/fish/config.fish
 /// ```
 ///
 /// Powershell
 /// ```powershell
-/// echo "your_program complete --shell powershell | Invoke-Expression" >> $PROFILE
+/// echo "your_program complete powershell | Invoke-Expression" >> $PROFILE
 /// ```
 ///
 /// Zsh
 /// ```zsh
-/// echo "source <(your_program complete --shell zsh)" >> ~/.zshrc
+/// echo "source <(your_program complete zsh)" >> ~/.zshrc
 /// ```
 #[derive(clap::Args, Clone, Debug)]
 #[command(about = None, long_about = None)]
 pub struct CompleteArgs {
-    /// Path to write completion-registration to
-    #[arg(long, value_name = "PATH")]
-    register: Option<std::path::PathBuf>,
-
-    #[arg(
-        raw = true,
-        value_name = "ARG",
-        hide = true,
-        conflicts_with = "register"
-    )]
-    comp_words: Option<Vec<OsString>>,
-
     /// Specify shell to complete for
-    #[arg(long, value_name = "NAME")]
+    #[arg(value_name = "NAME")]
     shell: Option<Shell>,
+
+    #[arg(raw = true, value_name = "ARG", hide = true)]
+    comp_words: Option<Vec<OsString>>,
 }
 
 impl CompleteArgs {
@@ -219,23 +210,12 @@ impl CompleteArgs {
             shell.write_complete(cmd, comp_words.clone(), current_dir.as_deref(), &mut buf)?;
             std::io::stdout().write_all(&buf)?;
         } else {
-            let out_path = self
-                .register
-                .as_deref()
-                .unwrap_or(std::path::Path::new("-"));
             let name = cmd.get_name();
             let bin = cmd.get_bin_name().unwrap_or_else(|| cmd.get_name());
 
             let mut buf = Vec::new();
             shell.write_registration(name, bin, bin, &mut buf)?;
-            if out_path == std::path::Path::new("-") {
-                std::io::stdout().write_all(&buf)?;
-            } else if out_path.is_dir() {
-                let out_path = out_path.join(shell.file_name(name));
-                std::fs::write(out_path, buf)?;
-            } else {
-                std::fs::write(out_path, buf)?;
-            }
+            std::io::stdout().write_all(&buf)?;
         }
 
         Ok(())
@@ -310,7 +290,7 @@ _clap_complete_NAME() {
     else
         export _CLAP_COMPLETE_SPACE=true
     fi
-    COMPREPLY=( $("COMPLETER" complete --shell bash -- "${COMP_WORDS[@]}") )
+    COMPREPLY=( $("COMPLETER" complete bash -- "${COMP_WORDS[@]}") )
     if [[ $? != 0 ]]; then
         unset COMPREPLY
     elif [[ $SUPPRESS_SPACE == 1 ]] && [[ "${COMPREPLY-}" =~ [=/:]$ ]]; then
@@ -421,7 +401,7 @@ set edit:completion:arg-completer[BIN] = { |@words|
     set index = (- $index 1)
     set E:_CLAP_COMPLETE_INDEX = (to-string $index)
 
-    put (COMPLETER complete --shell elvish -- $@words) | to-lines
+    put (COMPLETER complete elvish -- $@words) | to-lines
 }
 "#
         .replace("COMPLETER", &completer)
@@ -471,7 +451,7 @@ impl ShellCompleter for super::Fish {
 
         writeln!(
             buf,
-            r#"complete -x -c {bin} -a "("'{completer}'" complete --shell fish -- (commandline --current-process --tokenize --cut-at-cursor) (commandline --current-token))""#
+            r#"complete -x -c {bin} -a "("'{completer}'" complete fish -- (commandline --current-process --tokenize --cut-at-cursor) (commandline --current-token))""#
         )
     }
     fn write_complete(
@@ -521,7 +501,7 @@ impl ShellCompleter for super::Powershell {
 Register-ArgumentCompleter -Native -CommandName {bin} -ScriptBlock {{
     param($wordToComplete, $commandAst, $cursorPosition)
 
-    $results = Invoke-Expression "&{completer} complete --shell powershell -- $($commandAst.ToString())";
+    $results = Invoke-Expression "&{completer} complete powershell -- $($commandAst.ToString())";
     $results | ForEach-Object {{
         $split = $_.Split("`t");
         $cmd = $split[0];
@@ -585,7 +565,7 @@ function _clap_dynamic_completer() {
     export _CLAP_COMPLETE_INDEX=$(expr $CURRENT - 1)
     export _CLAP_IFS=$'\n'
 
-    local completions=("${(@f)$(COMPLETER complete --shell zsh -- ${words} 2>/dev/null)}")
+    local completions=("${(@f)$(COMPLETER complete zsh -- ${words} 2>/dev/null)}")
 
     if [[ -n $completions ]]; then
         compadd -a completions

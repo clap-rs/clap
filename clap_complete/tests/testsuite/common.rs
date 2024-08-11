@@ -330,11 +330,7 @@ pub(crate) fn register_example<R: completest::RuntimeBuilder>(context: &str, nam
     let mut registration = std::process::Command::new(&bin_path);
     match context {
         "static" => registration.args([format!("--generate={shell_name}")]),
-        "dynamic" => registration.args([
-            "complete".to_owned(),
-            "--register=-".to_owned(),
-            format!("--shell={shell_name}"),
-        ]),
+        "dynamic" => registration.args(["complete", shell_name]),
         _ => unreachable!("unsupported context {}", context),
     };
     let registration = registration.output().unwrap();
