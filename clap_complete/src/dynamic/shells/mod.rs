@@ -1,7 +1,9 @@
 //! Shell completion support, see [`CompleteCommand`] for more details
 
+#[cfg(feature = "unstable-command")]
 mod command;
 
+#[cfg(feature = "unstable-command")]
 pub use command::*;
 
 use std::fmt::Display;
@@ -132,59 +134,22 @@ impl ValueEnum for Shell {
     }
 }
 
-impl Shell {
-    fn completer(&self) -> &dyn ShellCompleter {
-        match self {
-            Self::Bash => &Bash,
-            Self::Elvish => &Elvish,
-            Self::Fish => &Fish,
-            Self::Powershell => &Powershell,
-            Self::Zsh => &Zsh,
-        }
-    }
-}
-
-impl ShellCompleter for Shell {
-    fn file_name(&self, name: &str) -> String {
-        self.completer().file_name(name)
-    }
-    fn write_registration(
-        &self,
-        name: &str,
-        bin: &str,
-        completer: &str,
-        buf: &mut dyn std::io::Write,
-    ) -> Result<(), std::io::Error> {
-        self.completer()
-            .write_registration(name, bin, completer, buf)
-    }
-    fn write_complete(
-        &self,
-        cmd: &mut clap::Command,
-        args: Vec<std::ffi::OsString>,
-        current_dir: Option<&std::path::Path>,
-        buf: &mut dyn std::io::Write,
-    ) -> Result<(), std::io::Error> {
-        self.completer().write_complete(cmd, args, current_dir, buf)
-    }
-}
-
-/// A [`ShellCompleter`] for Bash
+/// Bash completion adapter
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Bash;
 
-/// A [`ShellCompleter`] for Elvish
+/// Elvish completion adapter
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Elvish;
 
-/// A [`ShellCompleter`] for Fish
+/// Fish completion adapter
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Fish;
 
-/// A [`ShellCompleter`] for Powershell
+/// Powershell completion adapter
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Powershell;
 
-/// A [`ShellCompleter`] for zsh
+/// Zsh completion adapter
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Zsh;

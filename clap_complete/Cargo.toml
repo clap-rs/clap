@@ -52,12 +52,13 @@ automod = "1.0.14"
 
 [[example]]
 name = "dynamic"
-required-features = ["unstable-dynamic"]
+required-features = ["unstable-dynamic", "unstable-command"]
 
 [features]
 default = []
-unstable-doc = ["unstable-dynamic"] # for docs.rs
-unstable-dynamic = ["dep:clap_lex", "dep:shlex", "dep:unicode-xid", "clap/derive", "dep:is_executable", "dep:pathdiff", "clap/unstable-ext"]
+unstable-doc = ["unstable-dynamic", "unstable-command"] # for docs.rs
+unstable-dynamic = ["dep:clap_lex", "dep:is_executable", "dep:pathdiff", "clap/unstable-ext"]
+unstable-command = ["unstable-dynamic", "dep:shlex", "dep:unicode-xid", "clap/derive", "dep:is_executable", "dep:pathdiff", "clap/unstable-ext"]
 debug = ["clap/debug"]
 
 [lints]

@@ -76,6 +76,7 @@ use super::Shell;
 #[allow(missing_docs)]
 #[derive(Clone, Debug)]
 #[command(about = None, long_about = None)]
+#[cfg(feature = "unstable-command")]
 pub enum CompleteCommand {
     /// Register shell completions for this program
     #[command(hide = true)]
@@ -173,6 +174,7 @@ impl CompleteCommand {
 /// ```
 #[derive(clap::Args, Clone, Debug)]
 #[command(about = None, long_about = None)]
+#[cfg(feature = "unstable-command")]
 pub struct CompleteArgs {
     /// Specify shell to complete for
     #[arg(value_name = "NAME")]
@@ -229,15 +231,16 @@ impl CompleteArgs {
 /// This will generally be called by [`CompleteCommand`] or [`CompleteArgs`].
 ///
 /// This handles adapting between the shell and [`completer`][crate::dynamic::complete()].
-/// A `ShellCompleter` can choose how much of that lives within the registration script and or
-/// lives in [`ShellCompleter::write_complete`].
-pub trait ShellCompleter {
+/// A `CommandCompleter` can choose how much of that lives within the registration script and or
+/// lives in [`CommandCompleter::write_complete`].
+#[cfg(feature = "unstable-command")]
+pub trait CommandCompleter {
     /// The recommended file name for the registration code
     fn file_name(&self, name: &str) -> String;
     /// Register for completions
     ///
     /// Write the `buf` the logic needed for calling into `<cmd> complete`, passing needed
-    /// arguments to [`ShellCompleter::write_complete`] through the environment.
+    /// arguments to [`CommandCompleter::write_complete`] through the environment.
     fn write_registration(
         &self,
         name: &str,
@@ -247,7 +250,7 @@ pub trait ShellCompleter {
     ) -> Result<(), std::io::Error>;
     /// Complete the given command
     ///
-    /// Adapt information from arguments and [`ShellCompleter::write_registration`]-defined env
+    /// Adapt information from arguments and [`CommandCompleter::write_registration`]-defined env
     /// variables to what is needed for [`completer`][crate::dynamic::complete()].
     ///
     /// Write out the [`CompletionCandidate`][crate::dynamic::CompletionCandidate]s in a way the shell will understand.
@@ -260,7 +263,41 @@ pub trait ShellCompleter {
     ) -> Result<(), std::io::Error>;
 }
 
-impl ShellCompleter for super::Bash {
+impl CommandCompleter for Shell {
+    fn file_name(&self, name: &str) -> String {
+        shell_completer(self).file_name(name)
+    }
+    fn write_registration(
+        &self,
+        name: &str,
+        bin: &str,
+        completer: &str,
+        buf: &mut dyn std::io::Write,
+    ) -> Result<(), std::io::Error> {
+        shell_completer(self).write_registration(name, bin, completer, buf)
+    }
+    fn write_complete(
+        &self,
+        cmd: &mut clap::Command,
+        args: Vec<OsString>,
+        current_dir: Option<&std::path::Path>,
+        buf: &mut dyn std::io::Write,
+    ) -> Result<(), std::io::Error> {
+        shell_completer(self).write_complete(cmd, args, current_dir, buf)
+    }
+}
+
+fn shell_completer(shell: &Shell) -> &dyn CommandCompleter {
+    match shell {
+        Shell::Bash => &super::Bash,
+        Shell::Elvish => &super::Elvish,
+        Shell::Fish => &super::Fish,
+        Shell::Powershell => &super::Powershell,
+        Shell::Zsh => &super::Zsh,
+    }
+}
+
+impl CommandCompleter for super::Bash {
     fn file_name(&self, name: &str) -> String {
         format!("{name}.bash")
     }
@@ -380,7 +417,7 @@ impl Default for CompType {
         Self::Normal
     }
 }
-impl ShellCompleter for super::Elvish {
+impl CommandCompleter for super::Elvish {
     fn file_name(&self, name: &str) -> String {
         format!("{name}.elv")
     }
@@ -436,7 +473,7 @@ set edit:completion:arg-completer[BIN] = { |@words|
     }
 }
 
-impl ShellCompleter for super::Fish {
+impl CommandCompleter for super::Fish {
     fn file_name(&self, name: &str) -> String {
         format!("{name}.fish")
     }
@@ -481,7 +518,7 @@ impl ShellCompleter for super::Fish {
     }
 }
 
-impl ShellCompleter for super::Powershell {
+impl CommandCompleter for super::Powershell {
     fn file_name(&self, name: &str) -> String {
         format!("{name}.ps1")
     }
@@ -547,7 +584,7 @@ Register-ArgumentCompleter -Native -CommandName {bin} -ScriptBlock {{
     }
 }
 
-impl ShellCompleter for super::Zsh {
+impl CommandCompleter for super::Zsh {
     fn file_name(&self, name: &str) -> String {
         format!("{name}.zsh")
     }

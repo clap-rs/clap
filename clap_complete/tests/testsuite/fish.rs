@@ -165,14 +165,14 @@ bash  (bash (shell))  fish  (fish shell)  zsh  (zsh shell)"#;
     assert_data_eq!(actual, expected);
 }
 
-#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(all(unix, feature = "unstable-command"))]
 #[test]
 fn register_dynamic() {
     common::register_example::<completest_pty::FishRuntimeBuilder>("dynamic", "exhaustive");
 }
 
 #[test]
-#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(all(unix, feature = "unstable-command"))]
 fn complete_dynamic() {
     if !common::has_command("fish") {
         return;
