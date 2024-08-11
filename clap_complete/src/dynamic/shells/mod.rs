@@ -133,7 +133,7 @@ impl ValueEnum for Shell {
 }
 
 impl Shell {
-    fn completer(&self) -> &dyn ShellCompleter {
+    fn completer(&self) -> &dyn CommandCompleter {
         match self {
             Self::Bash => &Bash,
             Self::Elvish => &Elvish,
@@ -144,7 +144,7 @@ impl Shell {
     }
 }
 
-impl ShellCompleter for Shell {
+impl CommandCompleter for Shell {
     fn file_name(&self, name: &str) -> String {
         self.completer().file_name(name)
     }
@@ -169,22 +169,22 @@ impl ShellCompleter for Shell {
     }
 }
 
-/// A [`ShellCompleter`] for Bash
+/// A [`CommandCompleter`] for Bash
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Bash;
 
-/// A [`ShellCompleter`] for Elvish
+/// A [`CommandCompleter`] for Elvish
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Elvish;
 
-/// A [`ShellCompleter`] for Fish
+/// A [`CommandCompleter`] for Fish
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Fish;
 
-/// A [`ShellCompleter`] for Powershell
+/// A [`CommandCompleter`] for Powershell
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Powershell;
 
-/// A [`ShellCompleter`] for zsh
+/// A [`CommandCompleter`] for zsh
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Zsh;

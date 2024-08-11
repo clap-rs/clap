@@ -229,15 +229,15 @@ impl CompleteArgs {
 /// This will generally be called by [`CompleteCommand`] or [`CompleteArgs`].
 ///
 /// This handles adapting between the shell and [`completer`][crate::dynamic::complete()].
-/// A `ShellCompleter` can choose how much of that lives within the registration script and or
-/// lives in [`ShellCompleter::write_complete`].
-pub trait ShellCompleter {
+/// A `CommandCompleter` can choose how much of that lives within the registration script and or
+/// lives in [`CommandCompleter::write_complete`].
+pub trait CommandCompleter {
     /// The recommended file name for the registration code
     fn file_name(&self, name: &str) -> String;
     /// Register for completions
     ///
     /// Write the `buf` the logic needed for calling into `<cmd> complete`, passing needed
-    /// arguments to [`ShellCompleter::write_complete`] through the environment.
+    /// arguments to [`CommandCompleter::write_complete`] through the environment.
     fn write_registration(
         &self,
         name: &str,
@@ -247,7 +247,7 @@ pub trait ShellCompleter {
     ) -> Result<(), std::io::Error>;
     /// Complete the given command
     ///
-    /// Adapt information from arguments and [`ShellCompleter::write_registration`]-defined env
+    /// Adapt information from arguments and [`CommandCompleter::write_registration`]-defined env
     /// variables to what is needed for [`completer`][crate::dynamic::complete()].
     ///
     /// Write out the [`CompletionCandidate`][crate::dynamic::CompletionCandidate]s in a way the shell will understand.
@@ -260,7 +260,7 @@ pub trait ShellCompleter {
     ) -> Result<(), std::io::Error>;
 }
 
-impl ShellCompleter for super::Bash {
+impl CommandCompleter for super::Bash {
     fn file_name(&self, name: &str) -> String {
         format!("{name}.bash")
     }
@@ -380,7 +380,7 @@ impl Default for CompType {
         Self::Normal
     }
 }
-impl ShellCompleter for super::Elvish {
+impl CommandCompleter for super::Elvish {
     fn file_name(&self, name: &str) -> String {
         format!("{name}.elv")
     }
@@ -436,7 +436,7 @@ set edit:completion:arg-completer[BIN] = { |@words|
     }
 }
 
-impl ShellCompleter for super::Fish {
+impl CommandCompleter for super::Fish {
     fn file_name(&self, name: &str) -> String {
         format!("{name}.fish")
     }
@@ -481,7 +481,7 @@ impl ShellCompleter for super::Fish {
     }
 }
 
-impl ShellCompleter for super::Powershell {
+impl CommandCompleter for super::Powershell {
     fn file_name(&self, name: &str) -> String {
         format!("{name}.ps1")
     }
@@ -547,7 +547,7 @@ Register-ArgumentCompleter -Native -CommandName {bin} -ScriptBlock {{
     }
 }
 
-impl ShellCompleter for super::Zsh {
+impl CommandCompleter for super::Zsh {
     fn file_name(&self, name: &str) -> String {
         format!("{name}.zsh")
     }
