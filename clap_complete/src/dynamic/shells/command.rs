@@ -198,10 +198,12 @@ impl CompleteArgs {
     pub fn try_complete(&self, cmd: &mut clap::Command) -> clap::error::Result<()> {
         debug!("CompleteCommand::try_complete: {self:?}");
 
-        let shell = self
-            .shell
-            .or_else(|| Shell::from_env())
-            .unwrap_or(Shell::Bash);
+        let shell = self.shell.or_else(|| Shell::from_env()).ok_or_else(|| {
+            std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "unknown shell, please specify the name of your shell",
+            )
+        })?;
 
         if let Some(comp_words) = self.comp_words.as_ref() {
             let current_dir = std::env::current_dir().ok();
