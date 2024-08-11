@@ -3,7 +3,7 @@ function _clap_dynamic_completer() {
     export _CLAP_COMPLETE_INDEX=$(expr $CURRENT - 1)
     export _CLAP_IFS=$'\n'
 
-    local completions=("${(@f)$(exhaustive complete --shell zsh -- ${words} 2>/dev/null)}")
+    local completions=("${(@f)$(exhaustive complete zsh -- ${words} 2>/dev/null)}")
 
     if [[ -n $completions ]]; then
         compadd -a completions

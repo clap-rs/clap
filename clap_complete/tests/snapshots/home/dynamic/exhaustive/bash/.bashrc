@@ -10,7 +10,7 @@ _clap_complete_exhaustive() {
     else
         export _CLAP_COMPLETE_SPACE=true
     fi
-    COMPREPLY=( $("exhaustive" complete --shell bash -- "${COMP_WORDS[@]}") )
+    COMPREPLY=( $("exhaustive" complete bash -- "${COMP_WORDS[@]}") )
     if [[ $? != 0 ]]; then
         unset COMPREPLY
     elif [[ $SUPPRESS_SPACE == 1 ]] && [[ "${COMPREPLY-}" =~ [=/:]$ ]]; then
