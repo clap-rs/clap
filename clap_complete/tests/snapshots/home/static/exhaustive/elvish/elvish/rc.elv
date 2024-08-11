@@ -239,7 +239,6 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
             cand --version 'Print version'
         }
         &'exhaustive;complete'= {
-            cand --register 'Path to write completion-registration to'
             cand --shell 'Specify shell to complete for'
             cand --global 'everywhere'
             cand -h 'Print help'

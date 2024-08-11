@@ -325,7 +325,6 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (complete)
 _arguments "${_arguments_options[@]}" : \
-'--register=[Path to write completion-registration to]:PATH:_files' \
 '--shell=[Specify shell to complete for]:NAME:(bash elvish fish powershell zsh)' \
 '--global[everywhere]' \
 '-h[Print help]' \

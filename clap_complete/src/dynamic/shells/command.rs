@@ -174,16 +174,7 @@ impl CompleteCommand {
 #[derive(clap::Args, Clone, Debug)]
 #[command(about = None, long_about = None)]
 pub struct CompleteArgs {
-    /// Path to write completion-registration to
-    #[arg(long, value_name = "PATH")]
-    register: Option<std::path::PathBuf>,
-
-    #[arg(
-        raw = true,
-        value_name = "ARG",
-        hide = true,
-        conflicts_with = "register"
-    )]
+    #[arg(raw = true, value_name = "ARG", hide = true)]
     comp_words: Option<Vec<OsString>>,
 
     /// Specify shell to complete for
@@ -219,23 +210,12 @@ impl CompleteArgs {
             shell.write_complete(cmd, comp_words.clone(), current_dir.as_deref(), &mut buf)?;
             std::io::stdout().write_all(&buf)?;
         } else {
-            let out_path = self
-                .register
-                .as_deref()
-                .unwrap_or(std::path::Path::new("-"));
             let name = cmd.get_name();
             let bin = cmd.get_bin_name().unwrap_or_else(|| cmd.get_name());
 
             let mut buf = Vec::new();
             shell.write_registration(name, bin, bin, &mut buf)?;
-            if out_path == std::path::Path::new("-") {
-                std::io::stdout().write_all(&buf)?;
-            } else if out_path.is_dir() {
-                let out_path = out_path.join(shell.file_name(name));
-                std::fs::write(out_path, buf)?;
-            } else {
-                std::fs::write(out_path, buf)?;
-            }
+            std::io::stdout().write_all(&buf)?;
         }
 
         Ok(())
