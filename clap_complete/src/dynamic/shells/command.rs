@@ -235,8 +235,6 @@ impl CompleteArgs {
 /// lives in [`CommandCompleter::write_complete`].
 #[cfg(feature = "unstable-command")]
 pub trait CommandCompleter {
-    /// The recommended file name for the registration code
-    fn file_name(&self, name: &str) -> String;
     /// Register for completions
     ///
     /// Write the `buf` the logic needed for calling into `<cmd> complete`, passing needed
@@ -264,9 +262,6 @@ pub trait CommandCompleter {
 }
 
 impl CommandCompleter for Shell {
-    fn file_name(&self, name: &str) -> String {
-        shell_completer(self).file_name(name)
-    }
     fn write_registration(
         &self,
         name: &str,
@@ -298,9 +293,6 @@ fn shell_completer(shell: &Shell) -> &dyn CommandCompleter {
 }
 
 impl CommandCompleter for super::Bash {
-    fn file_name(&self, name: &str) -> String {
-        format!("{name}.bash")
-    }
     fn write_registration(
         &self,
         name: &str,
@@ -418,9 +410,6 @@ impl Default for CompType {
     }
 }
 impl CommandCompleter for super::Elvish {
-    fn file_name(&self, name: &str) -> String {
-        format!("{name}.elv")
-    }
     fn write_registration(
         &self,
         _name: &str,
@@ -474,9 +463,6 @@ set edit:completion:arg-completer[BIN] = { |@words|
 }
 
 impl CommandCompleter for super::Fish {
-    fn file_name(&self, name: &str) -> String {
-        format!("{name}.fish")
-    }
     fn write_registration(
         &self,
         _name: &str,
@@ -519,10 +505,6 @@ impl CommandCompleter for super::Fish {
 }
 
 impl CommandCompleter for super::Powershell {
-    fn file_name(&self, name: &str) -> String {
-        format!("{name}.ps1")
-    }
-
     fn write_registration(
         &self,
         _name: &str,
@@ -585,9 +567,6 @@ Register-ArgumentCompleter -Native -CommandName {bin} -ScriptBlock {{
 }
 
 impl CommandCompleter for super::Zsh {
-    fn file_name(&self, name: &str) -> String {
-        format!("{name}.zsh")
-    }
     fn write_registration(
         &self,
         _name: &str,
