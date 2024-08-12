@@ -32,7 +32,7 @@ impl CompletionCandidate {
 
     /// Set the visibility of the completion candidate
     ///
-    /// Only shown when no there is no visible candidate for completing the current argument.
+    /// Only shown when there is no visible candidate for completing the current argument.
     pub fn hide(mut self, hidden: bool) -> Self {
         self.hidden = hidden;
         self
