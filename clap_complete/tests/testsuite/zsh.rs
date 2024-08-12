@@ -164,6 +164,44 @@ pacman    action  alias  value  quote  hint  last  --
 }
 
 #[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+fn register_dynamic_env() {
+    common::register_example::<completest_pty::ZshRuntimeBuilder>("dynamic-env", "exhaustive");
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+fn complete_dynamic_env() {
+    if !common::has_command("zsh") {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime =
+        common::load_runtime::<completest_pty::ZshRuntimeBuilder>("dynamic-env", "exhaustive");
+
+    let input = "exhaustive \t\t";
+    let expected = snapbox::str![[r#"
+% exhaustive
+--generate  --help      -V          action      help        last        quote       
+--global    --version   -h          alias       hint        pacman      value       
+"#]];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
+    let input = "exhaustive quote \t\t";
+    let expected = snapbox::str![[r#"
+% exhaustive quote
+--backslash        --double-quotes    --single-quotes    cmd-backslash      cmd-expansions     
+--backticks        --expansions       --version          cmd-backticks      cmd-single-quotes  
+--brackets         --global           -V                 cmd-brackets       escape-help        
+--choice           --help             -h                 cmd-double-quotes  help               
+"#]];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
+
+#[test]
 #[cfg(all(unix, feature = "unstable-command"))]
 fn register_dynamic_command() {
     common::register_example::<completest_pty::ZshRuntimeBuilder>("dynamic-command", "exhaustive");

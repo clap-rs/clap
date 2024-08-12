@@ -249,6 +249,44 @@ fn complete() {
 }
 
 #[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+fn register_dynamic_env() {
+    common::register_example::<completest_pty::BashRuntimeBuilder>("dynamic-env", "exhaustive");
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+fn complete_dynamic_env() {
+    if !common::has_command("bash") {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime =
+        common::load_runtime::<completest_pty::BashRuntimeBuilder>("dynamic-env", "exhaustive");
+
+    let input = "exhaustive \t\t";
+    let expected = snapbox::str![[r#"
+% 
+--global    --help      -h          action      help        last        quote       
+--generate  --version   -V          alias       hint        pacman      value       
+"#]];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
+    let input = "exhaustive quote \t\t";
+    let expected = snapbox::str![[r#"
+% 
+--single-quotes    --brackets         --help             cmd-backslash      cmd-expansions     
+--double-quotes    --expansions       --version          cmd-backticks      cmd-single-quotes  
+--backticks        --choice           -h                 cmd-brackets       escape-help        
+--backslash        --global           -V                 cmd-double-quotes  help               
+"#]];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
+
+#[test]
 #[cfg(all(unix, feature = "unstable-command"))]
 fn register_dynamic_command() {
     common::register_example::<completest_pty::BashRuntimeBuilder>("dynamic-command", "exhaustive");
