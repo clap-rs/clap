@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Compatibility
+
+- *(dynamic)* Moved `dynamic::shells` to `dynamic::command`
+- *(dynamic)* Guarded `dynamic::command` with `unstable-command` feature
+
+### Features
+
+- *(dynamic)* Added `env::CompleteEnv` application integration
+
 ## [4.5.14] - 2024-08-10
 
 ### Compatibility
