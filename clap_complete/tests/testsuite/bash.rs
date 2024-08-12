@@ -249,7 +249,7 @@ fn complete() {
 }
 
 #[test]
-#[cfg(unix)]
+#[cfg(all(unix, feature = "unstable-command"))]
 fn register_dynamic_completion() {
     common::register_example::<completest_pty::BashRuntimeBuilder>("dynamic", "exhaustive");
 }
