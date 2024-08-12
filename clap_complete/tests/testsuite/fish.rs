@@ -167,20 +167,20 @@ bash  (bash (shell))  fish  (fish shell)  zsh  (zsh shell)"#;
 
 #[test]
 #[cfg(all(unix, feature = "unstable-command"))]
-fn register_dynamic() {
-    common::register_example::<completest_pty::FishRuntimeBuilder>("dynamic", "exhaustive");
+fn register_dynamic_command() {
+    common::register_example::<completest_pty::FishRuntimeBuilder>("dynamic-command", "exhaustive");
 }
 
 #[test]
 #[cfg(all(unix, feature = "unstable-command"))]
-fn complete_dynamic() {
+fn complete_dynamic_command() {
     if !common::has_command("fish") {
         return;
     }
 
     let term = completest::Term::new();
     let mut runtime =
-        common::load_runtime::<completest_pty::FishRuntimeBuilder>("dynamic", "exhaustive");
+        common::load_runtime::<completest_pty::FishRuntimeBuilder>("dynamic-command", "exhaustive");
 
     let input = "exhaustive \t\t";
     let expected = snapbox::str![[r#"

@@ -250,20 +250,20 @@ fn complete() {
 
 #[test]
 #[cfg(all(unix, feature = "unstable-command"))]
-fn register_dynamic_completion() {
-    common::register_example::<completest_pty::BashRuntimeBuilder>("dynamic", "exhaustive");
+fn register_dynamic_command() {
+    common::register_example::<completest_pty::BashRuntimeBuilder>("dynamic-command", "exhaustive");
 }
 
 #[test]
 #[cfg(all(unix, feature = "unstable-command"))]
-fn complete_dynamic() {
+fn complete_dynamic_command() {
     if !common::has_command("bash") {
         return;
     }
 
     let term = completest::Term::new();
     let mut runtime =
-        common::load_runtime::<completest_pty::BashRuntimeBuilder>("dynamic", "exhaustive");
+        common::load_runtime::<completest_pty::BashRuntimeBuilder>("dynamic-command", "exhaustive");
 
     let input = "exhaustive \t\t";
     let expected = snapbox::str![[r#"
