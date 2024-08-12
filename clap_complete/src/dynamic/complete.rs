@@ -7,11 +7,6 @@ use super::ArgValueCompleter;
 use super::CompletionCandidate;
 
 /// Complete the given command, shell-agnostic
-///
-/// For integration with clap and shells, see [`CompleteCommand`][crate::dynamic::shells::CompleteCommand].
-///
-/// This is generally called by a [`Shell`][crate::dynamic::shells::Shell] which
-/// handles the shell-specific logic.
 pub fn complete(
     cmd: &mut clap::Command,
     args: Vec<OsString>,

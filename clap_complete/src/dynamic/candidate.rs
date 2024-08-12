@@ -4,9 +4,6 @@ use std::ffi::OsString;
 use clap::builder::StyledStr;
 
 /// A shell-agnostic completion candidate
-///
-/// [`Shell`][crate::dynamic::shells::Shell] will adapt what it can to the
-/// current shell.
 #[derive(Default, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct CompletionCandidate {
     content: OsString,
