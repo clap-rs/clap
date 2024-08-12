@@ -20,27 +20,27 @@
 //!
 //! Bash
 //! ```bash
-//! echo "source <(COMPLETE=bash your_program complete)" >> ~/.bashrc
+//! echo "source <(COMPLETE=bash your_program)" >> ~/.bashrc
 //! ```
 //!
 //! Elvish
 //! ```elvish
-//! echo "eval (COMPLETE=elvish your_program complete)" >> ~/.elvish/rc.elv
+//! echo "eval (COMPLETE=elvish your_program)" >> ~/.elvish/rc.elv
 //! ```
 //!
 //! Fish
 //! ```fish
-//! echo "source (COMPLETE=fish your_program complete | psub)" >> ~/.config/fish/config.fish
+//! echo "source (COMPLETE=fish your_program | psub)" >> ~/.config/fish/config.fish
 //! ```
 //!
 //! Powershell
 //! ```powershell
-//! echo "COMPLETE=powershell your_program complete | Invoke-Expression" >> $PROFILE
+//! echo "COMPLETE=powershell your_program | Invoke-Expression" >> $PROFILE
 //! ```
 //!
 //! Zsh
 //! ```zsh
-//! echo "source <(COMPLETE=zsh your_program complete)" >> ~/.zshrc
+//! echo "source <(COMPLETE=zsh your_program)" >> ~/.zshrc
 //! ```
 
 mod shells;
