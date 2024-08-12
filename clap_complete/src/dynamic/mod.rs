@@ -11,6 +11,7 @@ mod custom;
 
 #[cfg(feature = "unstable-command")]
 pub mod command;
+pub mod env;
 
 pub use candidate::CompletionCandidate;
 pub use complete::complete;
@@ -21,3 +22,4 @@ pub use custom::CustomCompleter;
 pub use command::CompleteArgs;
 #[cfg(feature = "unstable-command")]
 pub use command::CompleteCommand;
+pub use env::CompleteEnv;

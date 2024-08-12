@@ -20,6 +20,8 @@ fn command() -> clap::Command {
 }
 
 fn main() {
+    clap_complete::dynamic::CompleteEnv::with_factory(command).complete();
+
     let cmd = command();
     let matches = cmd.get_matches();
     if let Ok(completions) = clap_complete::dynamic::CompleteCommand::from_arg_matches(&matches) {

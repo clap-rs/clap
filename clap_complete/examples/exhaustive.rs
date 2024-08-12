@@ -4,6 +4,9 @@ use clap::{FromArgMatches, Subcommand};
 use clap_complete::{generate, Generator, Shell};
 
 fn main() {
+    #[cfg(feature = "unstable-dynamic")]
+    clap_complete::dynamic::CompleteEnv::with_factory(cli).complete();
+
     let matches = cli().get_matches();
     if let Some(generator) = matches.get_one::<Shell>("generate") {
         let mut cmd = cli();
