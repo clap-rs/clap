@@ -88,7 +88,7 @@
 pub use clap_builder::*;
 #[cfg(feature = "derive")]
 #[doc(hidden)]
-pub use clap_derive::{self, *};
+pub use clap_derive::{self, Args, Parser, Subcommand, ValueEnum};
 
 #[cfg(feature = "unstable-doc")]
 pub mod _cookbook;
