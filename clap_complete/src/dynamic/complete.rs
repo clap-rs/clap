@@ -33,10 +33,12 @@ pub fn complete(
     let mut current_cmd = &*cmd;
     let mut pos_index = 1;
     let mut is_escaped = false;
-    let mut state = ParseState::ValueDone;
+    let mut next_state = ParseState::ValueDone;
     while let Some(arg) = raw_args.next(&mut cursor) {
+        let current_state = next_state;
+        next_state = ParseState::ValueDone;
         if cursor == target_cursor {
-            return complete_arg(&arg, current_cmd, current_dir, pos_index, state);
+            return complete_arg(&arg, current_cmd, current_dir, pos_index, current_state);
         }
 
         debug!("complete::next: Begin parsing '{:?}'", arg.to_value_os(),);
@@ -45,16 +47,15 @@ pub fn complete(
             if let Some(next_cmd) = current_cmd.find_subcommand(value) {
                 current_cmd = next_cmd;
                 pos_index = 1;
-                state = ParseState::ValueDone;
                 continue;
             }
         }
 
         if is_escaped {
-            (state, pos_index) = parse_positional(current_cmd, pos_index, is_escaped, state);
+            (next_state, pos_index) =
+                parse_positional(current_cmd, pos_index, is_escaped, current_state);
         } else if arg.is_escape() {
             is_escaped = true;
-            state = ParseState::ValueDone;
         } else if let Some((flag, value)) = arg.to_long() {
             if let Ok(flag) = flag {
                 let opt = current_cmd.get_arguments().find(|a| {
@@ -66,61 +67,33 @@ pub fn complete(
                     });
                     is_find.unwrap_or(false)
                 });
-                state = match opt.map(|o| o.get_action()) {
-                    Some(clap::ArgAction::Set) | Some(clap::ArgAction::Append) => {
-                        if value.is_some() {
-                            ParseState::ValueDone
-                        } else {
-                            ParseState::Opt((opt.unwrap(), 1))
-                        }
-                    }
-                    Some(clap::ArgAction::SetTrue) | Some(clap::ArgAction::SetFalse) => {
-                        ParseState::ValueDone
-                    }
-                    Some(clap::ArgAction::Count) => ParseState::ValueDone,
-                    Some(clap::ArgAction::Version) => ParseState::ValueDone,
-                    Some(clap::ArgAction::Help)
-                    | Some(clap::ArgAction::HelpLong)
-                    | Some(clap::ArgAction::HelpShort) => ParseState::ValueDone,
-                    Some(_) => ParseState::ValueDone,
-                    None => ParseState::ValueDone,
-                };
-            } else {
-                state = ParseState::ValueDone;
+                if opt.map(|o| o.get_action().takes_values()).unwrap_or(false) {
+                    if value.is_none() {
+                        next_state = ParseState::Opt((opt.unwrap(), 1));
+                    };
+                }
             }
         } else if let Some(short) = arg.to_short() {
             let (_, takes_value_opt, mut short) = parse_shortflags(current_cmd, short);
-            match takes_value_opt {
-                Some(opt) => {
-                    state = match short.next_value_os() {
-                        Some(_) => ParseState::ValueDone,
-                        None => ParseState::Opt((opt, 1)),
-                    };
-                }
-                None => {
-                    state = ParseState::ValueDone;
+            if let Some(opt) = takes_value_opt {
+                if short.next_value_os().is_none() {
+                    next_state = ParseState::Opt((opt, 1));
                 }
             }
         } else {
-            match state {
+            match current_state {
                 ParseState::ValueDone | ParseState::Pos(..) => {
-                    (state, pos_index) =
-                        parse_positional(current_cmd, pos_index, is_escaped, state);
+                    (next_state, pos_index) =
+                        parse_positional(current_cmd, pos_index, is_escaped, current_state);
                 }
 
-                ParseState::Opt((opt, count)) => match opt.get_num_args() {
-                    Some(range) => {
-                        let max = range.max_values();
-                        if count < max {
-                            state = ParseState::Opt((opt, count + 1));
-                        } else {
-                            state = ParseState::ValueDone;
-                        }
+                ParseState::Opt((opt, count)) => {
+                    let range = opt.get_num_args().expect("built");
+                    let max = range.max_values();
+                    if count < max {
+                        next_state = ParseState::Opt((opt, count + 1));
                     }
-                    None => {
-                        state = ParseState::ValueDone;
-                    }
-                },
+                }
             }
         }
     }
@@ -208,7 +181,7 @@ fn complete_arg(
                 );
             } else if let Some(short) = arg.to_short() {
                 if !short.is_negative_number() {
-                    // Find the first takes_value option.
+                    // Find the first takes_values option.
                     let (leading_flags, takes_value_opt, mut short) = parse_shortflags(cmd, short);
 
                     // Clone `short` to `peek_short` to peek whether the next flag is a `=`.
@@ -226,17 +199,16 @@ fn complete_arg(
                             complete_arg_value(value.to_str().ok_or(value), opt, current_dir)
                                 .into_iter()
                                 .map(|comp| {
-                                    comp.add_prefix(format!(
-                                        "-{}{}",
-                                        leading_flags.to_string_lossy(),
-                                        if has_equal { "=" } else { "" }
-                                    ))
+                                    let sep = if has_equal { "=" } else { "" };
+                                    comp.add_prefix(format!("-{leading_flags}{sep}"))
                                 }),
                         );
                     } else {
-                        completions.extend(shorts_and_visible_aliases(cmd).into_iter().map(
-                            |comp| comp.add_prefix(format!("-{}", leading_flags.to_string_lossy())),
-                        ));
+                        completions.extend(
+                            shorts_and_visible_aliases(cmd)
+                                .into_iter()
+                                .map(|comp| comp.add_prefix(format!("-{leading_flags}"))),
+                        );
                     }
                 }
             }
@@ -290,7 +262,14 @@ fn complete_arg_value(
     let mut values = Vec::new();
     debug!("complete_arg_value: arg={arg:?}, value={value:?}");
 
-    if let Some(possible_values) = possible_values(arg) {
+    let value_os = match value {
+        Ok(value) => OsStr::new(value),
+        Err(value_os) => value_os,
+    };
+
+    if let Some(completer) = arg.get::<ArgValueCompleter>() {
+        values.extend(complete_custom_arg_value(value_os, completer));
+    } else if let Some(possible_values) = possible_values(arg) {
         if let Ok(value) = value {
             values.extend(possible_values.into_iter().filter_map(|p| {
                 let name = p.get_name();
@@ -301,17 +280,7 @@ fn complete_arg_value(
                 })
             }));
         }
-    } else if let Some(completer) = arg.get::<ArgValueCompleter>() {
-        let value_os = match value {
-            Ok(value) => OsStr::new(value),
-            Err(value_os) => value_os,
-        };
-        values.extend(complete_custom_arg_value(value_os, completer));
     } else {
-        let value_os = match value {
-            Ok(value) => OsStr::new(value),
-            Err(value_os) => value_os,
-        };
         match arg.get_value_hint() {
             clap::ValueHint::Other => {
                 // Should not complete
@@ -524,18 +493,18 @@ fn subcommands(p: &clap::Command) -> Vec<CompletionCandidate> {
         .collect()
 }
 
-/// Parse the short flags and find the first `takes_value` option.
+/// Parse the short flags and find the first `takes_values` option.
 fn parse_shortflags<'c, 's>(
     cmd: &'c clap::Command,
     mut short: clap_lex::ShortFlags<'s>,
-) -> (OsString, Option<&'c clap::Arg>, clap_lex::ShortFlags<'s>) {
+) -> (String, Option<&'c clap::Arg>, clap_lex::ShortFlags<'s>) {
     let takes_value_opt;
-    let mut leading_flags = OsString::new();
-    // Find the first takes_value option.
+    let mut leading_flags = String::new();
+    // Find the first takes_values option.
     loop {
         match short.next_flag() {
             Some(Ok(opt)) => {
-                leading_flags.push(opt.to_string());
+                leading_flags.push(opt);
                 let opt = cmd.get_arguments().find(|a| {
                     let shorts = a.get_short_and_visible_aliases();
                     let is_find = shorts.map(|v| {
@@ -545,20 +514,9 @@ fn parse_shortflags<'c, 's>(
                     });
                     is_find.unwrap_or(false)
                 });
-                match opt.map(|o| o.get_action()) {
-                    Some(clap::ArgAction::Set) | Some(clap::ArgAction::Append) => {
-                        takes_value_opt = opt;
-                        break;
-                    }
-                    Some(clap::ArgAction::SetTrue)
-                    | Some(clap::ArgAction::SetFalse)
-                    | Some(clap::ArgAction::Count)
-                    | Some(clap::ArgAction::Version)
-                    | Some(clap::ArgAction::Help)
-                    | Some(clap::ArgAction::HelpShort)
-                    | Some(clap::ArgAction::HelpLong) => (),
-                    Some(_) => (),
-                    None => (),
+                if opt.map(|o| o.get_action().takes_values()).unwrap_or(false) {
+                    takes_value_opt = opt;
+                    break;
                 }
             }
             Some(Err(_)) | None => {
