@@ -290,7 +290,13 @@ fn complete_arg_value(
     let mut values = Vec::new();
     debug!("complete_arg_value: arg={arg:?}, value={value:?}");
 
-    if let Some(possible_values) = possible_values(arg) {
+    if let Some(completer) = arg.get::<ArgValueCompleter>() {
+        let value_os = match value {
+            Ok(value) => OsStr::new(value),
+            Err(value_os) => value_os,
+        };
+        values.extend(complete_custom_arg_value(value_os, completer));
+    } else if let Some(possible_values) = possible_values(arg) {
         if let Ok(value) = value {
             values.extend(possible_values.into_iter().filter_map(|p| {
                 let name = p.get_name();
@@ -301,12 +307,6 @@ fn complete_arg_value(
                 })
             }));
         }
-    } else if let Some(completer) = arg.get::<ArgValueCompleter>() {
-        let value_os = match value {
-            Ok(value) => OsStr::new(value),
-            Err(value_os) => value_os,
-        };
-        values.extend(complete_custom_arg_value(value_os, completer));
     } else {
         let value_os = match value {
             Ok(value) => OsStr::new(value),
