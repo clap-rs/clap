@@ -226,17 +226,16 @@ fn complete_arg(
                             complete_arg_value(value.to_str().ok_or(value), opt, current_dir)
                                 .into_iter()
                                 .map(|comp| {
-                                    comp.add_prefix(format!(
-                                        "-{}{}",
-                                        leading_flags.to_string_lossy(),
-                                        if has_equal { "=" } else { "" }
-                                    ))
+                                    let sep = if has_equal { "=" } else { "" };
+                                    comp.add_prefix(format!("-{leading_flags}{sep}"))
                                 }),
                         );
                     } else {
-                        completions.extend(shorts_and_visible_aliases(cmd).into_iter().map(
-                            |comp| comp.add_prefix(format!("-{}", leading_flags.to_string_lossy())),
-                        ));
+                        completions.extend(
+                            shorts_and_visible_aliases(cmd)
+                                .into_iter()
+                                .map(|comp| comp.add_prefix(format!("-{leading_flags}"))),
+                        );
                     }
                 }
             }
@@ -525,14 +524,14 @@ fn subcommands(p: &clap::Command) -> Vec<CompletionCandidate> {
 fn parse_shortflags<'c, 's>(
     cmd: &'c clap::Command,
     mut short: clap_lex::ShortFlags<'s>,
-) -> (OsString, Option<&'c clap::Arg>, clap_lex::ShortFlags<'s>) {
+) -> (String, Option<&'c clap::Arg>, clap_lex::ShortFlags<'s>) {
     let takes_value_opt;
-    let mut leading_flags = OsString::new();
+    let mut leading_flags = String::new();
     // Find the first takes_value option.
     loop {
         match short.next_flag() {
             Some(Ok(opt)) => {
-                leading_flags.push(opt.to_string());
+                leading_flags.push(opt);
                 let opt = cmd.get_arguments().find(|a| {
                     let shorts = a.get_short_and_visible_aliases();
                     let is_find = shorts.map(|v| {
