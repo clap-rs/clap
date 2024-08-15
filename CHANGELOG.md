@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(derive)* Improve error messages when `derive` feature is missing
+
 ## [4.5.15] - 2024-08-10
 
 ### Compatiblity
