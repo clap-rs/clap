@@ -98,19 +98,15 @@ pub fn complete(
                         parse_positional(current_cmd, pos_index, is_escaped, state);
                 }
 
-                ParseState::Opt((opt, count)) => match opt.get_num_args() {
-                    Some(range) => {
-                        let max = range.max_values();
-                        if count < max {
-                            state = ParseState::Opt((opt, count + 1));
-                        } else {
-                            state = ParseState::ValueDone;
-                        }
-                    }
-                    None => {
+                ParseState::Opt((opt, count)) => {
+                    let range = opt.get_num_args().expect("built");
+                    let max = range.max_values();
+                    if count < max {
+                        state = ParseState::Opt((opt, count + 1));
+                    } else {
                         state = ParseState::ValueDone;
                     }
-                },
+                }
             }
         }
     }
