@@ -66,25 +66,15 @@ pub fn complete(
                     });
                     is_find.unwrap_or(false)
                 });
-                state = match opt.map(|o| o.get_action()) {
-                    Some(clap::ArgAction::Set) | Some(clap::ArgAction::Append) => {
-                        if value.is_some() {
-                            ParseState::ValueDone
-                        } else {
-                            ParseState::Opt((opt.unwrap(), 1))
-                        }
-                    }
-                    Some(clap::ArgAction::SetTrue) | Some(clap::ArgAction::SetFalse) => {
+                if opt.map(|o| o.get_action().takes_values()).unwrap_or(false) {
+                    state = if value.is_some() {
                         ParseState::ValueDone
-                    }
-                    Some(clap::ArgAction::Count) => ParseState::ValueDone,
-                    Some(clap::ArgAction::Version) => ParseState::ValueDone,
-                    Some(clap::ArgAction::Help)
-                    | Some(clap::ArgAction::HelpLong)
-                    | Some(clap::ArgAction::HelpShort) => ParseState::ValueDone,
-                    Some(_) => ParseState::ValueDone,
-                    None => ParseState::ValueDone,
-                };
+                    } else {
+                        ParseState::Opt((opt.unwrap(), 1))
+                    };
+                } else {
+                    state = ParseState::ValueDone;
+                }
             } else {
                 state = ParseState::ValueDone;
             }
@@ -208,7 +198,7 @@ fn complete_arg(
                 );
             } else if let Some(short) = arg.to_short() {
                 if !short.is_negative_number() {
-                    // Find the first takes_value option.
+                    // Find the first takes_values option.
                     let (leading_flags, takes_value_opt, mut short) = parse_shortflags(cmd, short);
 
                     // Clone `short` to `peek_short` to peek whether the next flag is a `=`.
@@ -520,14 +510,14 @@ fn subcommands(p: &clap::Command) -> Vec<CompletionCandidate> {
         .collect()
 }
 
-/// Parse the short flags and find the first `takes_value` option.
+/// Parse the short flags and find the first `takes_values` option.
 fn parse_shortflags<'c, 's>(
     cmd: &'c clap::Command,
     mut short: clap_lex::ShortFlags<'s>,
 ) -> (String, Option<&'c clap::Arg>, clap_lex::ShortFlags<'s>) {
     let takes_value_opt;
     let mut leading_flags = String::new();
-    // Find the first takes_value option.
+    // Find the first takes_values option.
     loop {
         match short.next_flag() {
             Some(Ok(opt)) => {
@@ -541,20 +531,9 @@ fn parse_shortflags<'c, 's>(
                     });
                     is_find.unwrap_or(false)
                 });
-                match opt.map(|o| o.get_action()) {
-                    Some(clap::ArgAction::Set) | Some(clap::ArgAction::Append) => {
-                        takes_value_opt = opt;
-                        break;
-                    }
-                    Some(clap::ArgAction::SetTrue)
-                    | Some(clap::ArgAction::SetFalse)
-                    | Some(clap::ArgAction::Count)
-                    | Some(clap::ArgAction::Version)
-                    | Some(clap::ArgAction::Help)
-                    | Some(clap::ArgAction::HelpShort)
-                    | Some(clap::ArgAction::HelpLong) => (),
-                    Some(_) => (),
-                    None => (),
+                if opt.map(|o| o.get_action().takes_values()).unwrap_or(false) {
+                    takes_value_opt = opt;
+                    break;
                 }
             }
             Some(Err(_)) | None => {
