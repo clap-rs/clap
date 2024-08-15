@@ -1018,10 +1018,13 @@ fn suggest_allow_hyhpen() {
 
     assert_data_eq!(
         complete!(cmd, "--format --json --j[TAB]"),
-        snapbox::str![""]
+        snapbox::str!["--json"]
     );
 
-    assert_data_eq!(complete!(cmd, "-F --json --j[TAB]"), snapbox::str![""]);
+    assert_data_eq!(
+        complete!(cmd, "-F --json --j[TAB]"),
+        snapbox::str!["--json"]
+    );
 }
 
 #[test]
@@ -1062,7 +1065,7 @@ fn suggest_positional_long_allow_hyhpen() {
 --help	Print help
 -F
 -h	Print help
---pos_a"
+pos_b"
         ]
     );
     assert_data_eq!(
@@ -1072,17 +1075,17 @@ fn suggest_positional_long_allow_hyhpen() {
 --help	Print help
 -F
 -h	Print help
---pos_a"
+pos_b"
         ]
     );
 
     assert_data_eq!(
         complete!(cmd, "--format --json --pos_a p[TAB]"),
-        snapbox::str![""]
+        snapbox::str!["pos_b"]
     );
     assert_data_eq!(
         complete!(cmd, "-F --json --pos_a p[TAB]"),
-        snapbox::str![""]
+        snapbox::str!["pos_b"]
     );
 }
 
@@ -1115,7 +1118,7 @@ fn suggest_positional_short_allow_hyhpen() {
 --help	Print help
 -F
 -h	Print help
--a"
+pos_b"
         ]
     );
     assert_data_eq!(
@@ -1125,15 +1128,18 @@ fn suggest_positional_short_allow_hyhpen() {
 --help	Print help
 -F
 -h	Print help
--a"
+pos_b"
         ]
     );
 
     assert_data_eq!(
         complete!(cmd, "--format --json -a p[TAB]"),
-        snapbox::str![""]
+        snapbox::str!["pos_b"]
     );
-    assert_data_eq!(complete!(cmd, "-F --json -a p[TAB]"), snapbox::str![""]);
+    assert_data_eq!(
+        complete!(cmd, "-F --json -a p[TAB]"),
+        snapbox::str!["pos_b"]
+    );
 }
 
 fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>) -> String {
