@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.18] - 2024-08-16
+
 ### Features
 
 - *(dynamic)* Complete the last value in a delimited list
@@ -348,7 +350,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.17...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.18...HEAD
+[4.5.18]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.17...clap_complete-v4.5.18
 [4.5.17]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.16...clap_complete-v4.5.17
 [4.5.16]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.15...clap_complete-v4.5.16
 [4.5.15]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.14...clap_complete-v4.5.15
