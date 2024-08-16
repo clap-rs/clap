@@ -232,7 +232,7 @@ pub struct Shells<'s>(pub &'s [&'s dyn EnvCompleter]);
 
 impl<'s> Shells<'s> {
     /// Select all of the built-in shells
-    pub fn builtins() -> Self {
+    pub const fn builtins() -> Self {
         Self(&[&Bash, &Elvish, &Fish, &Powershell, &Zsh])
     }
 
@@ -244,6 +244,11 @@ impl<'s> Shells<'s> {
     /// Collect all [`EnvCompleter::name`]s
     pub fn names(&self) -> impl Iterator<Item = &'static str> + 's {
         self.0.iter().map(|c| c.name())
+    }
+
+    /// Iterate over [`EnvCompleter`]s
+    pub fn iter(&self) -> impl Iterator<Item = &dyn EnvCompleter> {
+        self.0.iter().copied()
     }
 }
 
