@@ -20,10 +20,9 @@ impl Generator for Bash {
 
         let fn_name = bin_name.replace('-', "__");
 
-        w!(
+        write!(
             buf,
-            format!(
-                "_{name}() {{
+            "_{name}() {{
     local i cur prev opts cmd
     COMPREPLY=()
     cur=\"${{COMP_WORDS[COMP_CWORD]}}\"
@@ -66,15 +65,13 @@ else
     complete -F _{name} -o bashdefault -o default {name}
 fi
 ",
-                name = bin_name,
-                cmd = fn_name,
-                name_opts = all_options_for_path(cmd, bin_name),
-                name_opts_details = option_details_for_path(cmd, bin_name),
-                subcmds = all_subcommands(cmd, &fn_name),
-                subcmd_details = subcommand_details(cmd)
-            )
-            .as_bytes()
-        );
+            name = bin_name,
+            cmd = fn_name,
+            name_opts = all_options_for_path(cmd, bin_name),
+            name_opts_details = option_details_for_path(cmd, bin_name),
+            subcmds = all_subcommands(cmd, &fn_name),
+            subcmd_details = subcommand_details(cmd)
+        ).expect("failed to write completion file");
     }
 }
 
@@ -274,22 +271,23 @@ fn all_options_for_path(cmd: &Command, path: &str) -> String {
 
     let mut opts = String::new();
     for short in utils::shorts_and_visible_aliases(p) {
-        write!(&mut opts, "-{short} ").unwrap();
+        write!(&mut opts, "-{short} ").expect("writing to String is infallible");
     }
     for long in utils::longs_and_visible_aliases(p) {
-        write!(&mut opts, "--{long} ").unwrap();
+        write!(&mut opts, "--{long} ").expect("writing to String is infallible");
     }
     for pos in p.get_positionals() {
         if let Some(vals) = utils::possible_values(pos) {
             for value in vals {
-                write!(&mut opts, "{} ", value.get_name()).unwrap();
+                write!(&mut opts, "{} ", value.get_name())
+                    .expect("writing to String is infallible");
             }
         } else {
-            write!(&mut opts, "{pos} ").unwrap();
+            write!(&mut opts, "{pos} ").expect("writing to String is infallible");
         }
     }
     for (sc, _) in utils::subcommands(p) {
-        write!(&mut opts, "{sc} ").unwrap();
+        write!(&mut opts, "{sc} ").expect("writing to String is infallible");
     }
     opts.pop();
 

@@ -19,10 +19,9 @@ impl Generator for Zsh {
             .get_bin_name()
             .expect("crate::generate should have set the bin_name");
 
-        w!(
+        write!(
             buf,
-            format!(
-                "#compdef {name}
+            "#compdef {name}
 
 autoload -U is-at-least
 
@@ -49,13 +48,12 @@ else
     compdef _{name} {name}
 fi
 ",
-                name = bin_name,
-                initial_args = get_args_of(cmd, None),
-                subcommands = get_subcommands_of(cmd),
-                subcommand_details = subcommand_details(cmd)
-            )
-            .as_bytes()
-        );
+            name = bin_name,
+            initial_args = get_args_of(cmd, None),
+            subcommands = get_subcommands_of(cmd),
+            subcommand_details = subcommand_details(cmd)
+        )
+        .expect("failed to write completion file");
     }
 }
 

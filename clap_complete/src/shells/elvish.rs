@@ -22,7 +22,8 @@ impl Generator for Elvish {
 
         let subcommands_cases = generate_inner(cmd, "");
 
-        let result = format!(
+        write!(
+            buf,
             r#"
 use builtin;
 use str;
@@ -46,9 +47,8 @@ set edit:completion:arg-completer[{bin_name}] = {{|@words|
     $completions[$command]
 }}
 "#,
-        );
-
-        w!(buf, result.as_bytes());
+        )
+        .expect("failed to write completion file");
     }
 }
 

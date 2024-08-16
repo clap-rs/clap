@@ -42,7 +42,7 @@ impl Generator for Fish {
             needs_fn_name,
             using_fn_name,
         );
-        w!(buf, buffer.as_bytes());
+        write!(buf, "{buffer}").expect("failed to write completion file");
     }
 }
 
@@ -240,7 +240,9 @@ fn gen_subcommand_helpers(
         }
     }
     let optspecs_fn_name = format!("__fish_{bin_name}_global_optspecs");
-    let template = format!("\
+    write!(
+        buf,
+        "\
         # Print an optspec for argparse to handle cmd's options that are independent of any subcommand.\n\
         function {optspecs_fn_name}\n\
         \tstring join \\n{optspecs}\n\
@@ -264,8 +266,7 @@ fn gen_subcommand_helpers(
         \tand return 1\n\
         \tcontains -- $cmd[1] $argv\n\
         end\n\n\
-    ");
-    w!(buf, template.as_bytes());
+    ").expect("failed to write completion file");
 }
 
 fn value_completion(option: &Arg) -> String {
