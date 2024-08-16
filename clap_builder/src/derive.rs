@@ -216,15 +216,17 @@ pub trait Args: FromArgMatches + Sized {
     fn group_id() -> Option<crate::Id> {
         None
     }
-    /// Append to [`Command`] so it can instantiate `Self`.
+    /// Append to [`Command`] so it can instantiate `Self` via
+    /// [`FromArgMatches::from_arg_matches_mut`]
     ///
-    /// See also [`CommandFactory`].
+    /// See also [`CommandFactory::command`].
     fn augment_args(cmd: Command) -> Command;
-    /// Append to [`Command`] so it can update `self`.
+    /// Append to [`Command`] so it can instantiate `self` via
+    /// [`FromArgMatches::update_from_arg_matches_mut`]
     ///
     /// This is used to implement `#[command(flatten)]`
     ///
-    /// See also [`CommandFactory`].
+    /// See also [`CommandFactory::command_for_update`].
     fn augment_args_for_update(cmd: Command) -> Command;
 }
 
@@ -239,15 +241,17 @@ pub trait Args: FromArgMatches + Sized {
 ///
 /// **NOTE:** Deriving requires the `derive` feature flag
 pub trait Subcommand: FromArgMatches + Sized {
-    /// Append to [`Command`] so it can instantiate `Self`.
+    /// Append to [`Command`] so it can instantiate `Self` via
+    /// [`FromArgMatches::from_arg_matches_mut`]
     ///
-    /// See also [`CommandFactory`].
+    /// See also [`CommandFactory::command`].
     fn augment_subcommands(cmd: Command) -> Command;
-    /// Append to [`Command`] so it can update `self`.
+    /// Append to [`Command`] so it can instantiate `self` via
+    /// [`FromArgMatches::update_from_arg_matches_mut`]
     ///
     /// This is used to implement `#[command(flatten)]`
     ///
-    /// See also [`CommandFactory`].
+    /// See also [`CommandFactory::command_for_update`].
     fn augment_subcommands_for_update(cmd: Command) -> Command;
     /// Test whether `Self` can parse a specific subcommand
     fn has_subcommand(name: &str) -> bool;
