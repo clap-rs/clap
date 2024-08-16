@@ -219,6 +219,8 @@ pub trait Args: FromArgMatches + Sized {
     /// Append to [`Command`] so it can instantiate `Self` via
     /// [`FromArgMatches::from_arg_matches_mut`]
     ///
+    /// This is used to implement `#[command(flatten)]`
+    ///
     /// See also [`CommandFactory::command`].
     fn augment_args(cmd: Command) -> Command;
     /// Append to [`Command`] so it can instantiate `self` via
@@ -243,6 +245,8 @@ pub trait Args: FromArgMatches + Sized {
 pub trait Subcommand: FromArgMatches + Sized {
     /// Append to [`Command`] so it can instantiate `Self` via
     /// [`FromArgMatches::from_arg_matches_mut`]
+    ///
+    /// This is used to implement `#[command(flatten)]`
     ///
     /// See also [`CommandFactory::command`].
     fn augment_subcommands(cmd: Command) -> Command;
