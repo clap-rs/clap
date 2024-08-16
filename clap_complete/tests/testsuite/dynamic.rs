@@ -615,6 +615,164 @@ pos_c
     );
 }
 
+#[test]
+fn suggest_delimiter_values() {
+    let mut cmd = Command::new("delimiter")
+        .arg(
+            clap::Arg::new("delimiter")
+                .long("delimiter")
+                .short('D')
+                .value_parser([
+                    PossibleValue::new("comma"),
+                    PossibleValue::new("space"),
+                    PossibleValue::new("tab"),
+                ])
+                .value_delimiter(','),
+        )
+        .arg(
+            clap::Arg::new("pos")
+                .index(1)
+                .value_parser(["a_pos", "b_pos", "c_pos"])
+                .value_delimiter(','),
+        );
+
+    assert_data_eq!(
+        complete!(cmd, "--delimiter [TAB]"),
+        snapbox::str![
+            "comma
+space
+tab"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--delimiter=[TAB]"),
+        snapbox::str![
+            "--delimiter=comma
+--delimiter=space
+--delimiter=tab"
+        ]
+    );
+
+    assert_data_eq!(complete!(cmd, "--delimiter c[TAB]"), snapbox::str!["comma"]);
+
+    assert_data_eq!(
+        complete!(cmd, "--delimiter=c[TAB]"),
+        snapbox::str!["--delimiter=comma"]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--delimiter comma,[TAB]"),
+        snapbox::str![
+            "comma,comma
+comma,space
+comma,tab"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--delimiter=comma,[TAB]"),
+        snapbox::str![
+            "--delimiter=comma,comma
+--delimiter=comma,space
+--delimiter=comma,tab
+--delimiter=comma,a_pos
+--delimiter=comma,b_pos
+--delimiter=comma,c_pos"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--delimiter comma,s[TAB]"),
+        snapbox::str!["comma,space"]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--delimiter=comma,s[TAB]"),
+        snapbox::str!["--delimiter=comma,space"]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-D [TAB]"),
+        snapbox::str![
+            "comma
+space
+tab"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-D=[TAB]"),
+        snapbox::str![
+            "-D=comma
+-D=space
+-D=tab"
+        ]
+    );
+
+    assert_data_eq!(complete!(cmd, "-D c[TAB]"), snapbox::str!["comma"]);
+
+    assert_data_eq!(complete!(cmd, "-D=c[TAB]"), snapbox::str!["-D=comma"]);
+
+    assert_data_eq!(
+        complete!(cmd, "-D comma,[TAB]"),
+        snapbox::str![
+            "comma,comma
+comma,space
+comma,tab"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-D=comma,[TAB]"),
+        snapbox::str![
+            "-D=comma,comma
+-D=comma,space
+-D=comma,tab
+-D=comma,a_pos
+-D=comma,b_pos
+-D=comma,c_pos"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-D comma,s[TAB]"),
+        snapbox::str!["comma,space"]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-D=comma,s[TAB]"),
+        snapbox::str!["-D=comma,space"]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-- [TAB]"),
+        snapbox::str![
+            "--delimiter
+--help\tPrint help
+-D
+-h\tPrint help
+a_pos
+b_pos
+c_pos"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, " -- a_pos,[TAB]"),
+        snapbox::str![
+            "a_pos,a_pos
+a_pos,b_pos
+a_pos,c_pos"
+        ]
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-- a_pos,b[TAB]"),
+        snapbox::str!["a_pos,b_pos"]
+    );
+}
+
 fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>) -> String {
     let input = args.as_ref();
     let mut args = vec![std::ffi::OsString::from(cmd.get_name())];
