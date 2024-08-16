@@ -5,7 +5,7 @@ use clap_complete::{generate, Generator, Shell};
 
 fn main() {
     #[cfg(feature = "unstable-dynamic")]
-    clap_complete::dynamic::CompleteEnv::with_factory(cli).complete();
+    clap_complete::CompleteEnv::with_factory(cli).complete();
 
     let matches = cli().get_matches();
     if let Some(generator) = matches.get_one::<Shell>("generate") {
@@ -16,7 +16,7 @@ fn main() {
     }
 
     #[cfg(feature = "unstable-command")]
-    if let Ok(completions) = clap_complete::dynamic::CompleteCommand::from_arg_matches(&matches) {
+    if let Ok(completions) = clap_complete::CompleteCommand::from_arg_matches(&matches) {
         completions.complete(&mut cli());
         return;
     };
@@ -199,6 +199,6 @@ fn cli() -> clap::Command {
             ]),
         ]);
     #[cfg(feature = "unstable-command")]
-    let cli = clap_complete::dynamic::CompleteCommand::augment_subcommands(cli);
+    let cli = clap_complete::CompleteCommand::augment_subcommands(cli);
     cli
 }

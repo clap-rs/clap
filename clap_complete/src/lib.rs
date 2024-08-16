@@ -66,8 +66,26 @@ const INTERNAL_ERROR_MSG: &str = "Fatal internal error. Please consider filing a
 mod macros;
 
 pub mod aot;
+#[cfg(feature = "unstable-command")]
+pub mod command;
 #[cfg(feature = "unstable-dynamic")]
 pub mod dynamic;
+#[cfg(feature = "unstable-dynamic")]
+pub mod env;
+
+pub use clap::ValueHint;
+#[cfg(feature = "unstable-command")]
+pub use command::CompleteArgs;
+#[cfg(feature = "unstable-command")]
+pub use command::CompleteCommand;
+#[doc(inline)]
+#[cfg(feature = "unstable-dynamic")]
+pub use dynamic::ArgValueCompleter;
+#[doc(inline)]
+#[cfg(feature = "unstable-dynamic")]
+pub use dynamic::CompletionCandidate;
+#[cfg(feature = "unstable-dynamic")]
+pub use env::CompleteEnv;
 
 /// Deprecated, see [`aot`]
 pub mod generator {
@@ -93,4 +111,3 @@ pub use aot::generate_to;
 pub use aot::Generator;
 /// Deprecated, see [`aot::Shell`]
 pub use aot::Shell;
-pub use clap::ValueHint;

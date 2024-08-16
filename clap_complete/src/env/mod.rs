@@ -2,7 +2,7 @@
 //!
 //! See [`CompleteEnv`]:
 //! ```rust
-//! # use clap_complete::dynamic::CompleteEnv;
+//! # use clap_complete::CompleteEnv;
 //! fn cli() -> clap::Command {
 //!     // ...
 //! #   clap::Command::new("empty")
@@ -64,7 +64,7 @@ pub use shells::*;
 /// - Flexibility: there is no concern over it interfering with other CLI logic
 ///
 /// ```rust
-/// # use clap_complete::dynamic::CompleteEnv;
+/// # use clap_complete::CompleteEnv;
 /// fn cli() -> clap::Command {
 ///     // ...
 /// #   clap::Command::new("empty")
@@ -90,7 +90,7 @@ impl<'s, F: FnOnce() -> clap::Command> CompleteEnv<'s, F> {
     ///
     /// Builder:
     /// ```rust
-    /// # use clap_complete::dynamic::CompleteEnv;
+    /// # use clap_complete::CompleteEnv;
     /// fn cli() -> clap::Command {
     ///     // ...
     /// #   clap::Command::new("empty")
@@ -107,7 +107,7 @@ impl<'s, F: FnOnce() -> clap::Command> CompleteEnv<'s, F> {
     /// Derive:
     /// ```
     /// # use clap::Parser;
-    /// # use clap_complete::dynamic::CompleteEnv;
+    /// # use clap_complete::CompleteEnv;
     /// use clap::CommandFactory as _;
     ///
     /// #[derive(Debug, Parser)]
