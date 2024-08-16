@@ -73,6 +73,10 @@ pub trait Parser: FromArgMatches + CommandFactory + Sized {
     }
 
     /// Update from iterator, [exit][Error::exit] on error.
+    ///
+    /// Unlike [`Parser::parse`], this works with an existing instance of `self`.
+    /// The assumption is that all required fields are already provided and any [`Args`] or
+    /// [`Subcommand`]s provided by the user will modify only what is specified.
     fn update_from<I, T>(&mut self, itr: I)
     where
         I: IntoIterator<Item = T>,
