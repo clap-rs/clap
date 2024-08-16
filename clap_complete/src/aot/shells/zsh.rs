@@ -671,7 +671,7 @@ fn write_positionals_of(p: &Command) -> String {
 
 #[cfg(test)]
 mod tests {
-    use crate::shells::zsh::{escape_help, escape_value};
+    use super::{escape_help, escape_value};
 
     #[test]
     fn test_escape_value() {
