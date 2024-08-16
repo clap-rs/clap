@@ -46,6 +46,11 @@ pub use shells::*;
 
 /// A completion subcommand to add to your CLI
 ///
+/// To customize completions, see
+/// - [`ValueHint`][crate::ValueHint]
+/// - [`ValueEnum`][clap::ValueEnum]
+/// - [`ArgValueCompleter`][crate::ArgValueCompleter]
+///
 /// **Warning:** `stdout` should not be written to before [`CompleteCommand::complete`] has had a
 /// chance to run.
 ///
@@ -112,6 +117,11 @@ impl CompleteCommand {
 }
 
 /// A completion subcommand to add to your CLI
+///
+/// To customize completions, see
+/// - [`ValueHint`][crate::ValueHint]
+/// - [`ValueEnum`][clap::ValueEnum]
+/// - [`ArgValueCompleter`][crate::ArgValueCompleter]
 ///
 /// **Warning:** `stdout` should not be written to before [`CompleteArgs::complete`] has had a
 /// chance to run.

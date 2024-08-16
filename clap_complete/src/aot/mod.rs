@@ -8,6 +8,10 @@
 //! [`Shell`] is a convenience `enum` for an argument value type that implements `Generator`
 //! for each natively-supported shell type.
 //!
+//! To customize completions, see
+//! - [`ValueHint`]
+//! - [`ValueEnum`][clap::ValueEnum]
+//!
 //! ## Example
 //!
 //! ```rust,no_run

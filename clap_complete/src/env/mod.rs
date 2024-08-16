@@ -16,6 +16,11 @@
 //! }
 //! ```
 //!
+//! To customize completions, see
+//! - [`ValueHint`][crate::ValueHint]
+//! - [`ValueEnum`][clap::ValueEnum]
+//! - [`ArgValueCompleter`][crate::ArgValueCompleter]
+//!
 //! To source your completions:
 //!
 //! **WARNING:** We recommend re-sourcing your completions on upgrade.

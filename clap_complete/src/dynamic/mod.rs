@@ -1,9 +1,6 @@
-//! Complete commands within shells
+//! `clap`-native completion system
 //!
-//! To customize completions, see
-//! - [`ValueHint`][crate::ValueHint]
-//! - [`ValueEnum`][clap::ValueEnum]
-//! - [`ArgValueCompleter`]
+//! See [`complete()`]
 
 mod candidate;
 mod complete;
