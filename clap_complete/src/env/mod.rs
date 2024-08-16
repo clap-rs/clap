@@ -2,7 +2,7 @@
 //!
 //! See [`CompleteEnv`]:
 //! ```rust
-//! # use clap_complete::dynamic::CompleteEnv;
+//! # use clap_complete::CompleteEnv;
 //! fn cli() -> clap::Command {
 //!     // ...
 //! #   clap::Command::new("empty")
@@ -15,6 +15,11 @@
 //!     // ... rest of application logic
 //! }
 //! ```
+//!
+//! To customize completions, see
+//! - [`ValueHint`][crate::ValueHint]
+//! - [`ValueEnum`][clap::ValueEnum]
+//! - [`ArgValueCompleter`][crate::ArgValueCompleter]
 //!
 //! To source your completions:
 //!
@@ -63,8 +68,13 @@ pub use shells::*;
 /// - Performance: we don't need to general [`clap::Command`] twice or parse arguments
 /// - Flexibility: there is no concern over it interfering with other CLI logic
 ///
+/// **Warning:** `stdout` should not be written to before [`CompleteEnv::complete`] has had a
+/// chance to run.
+///
+/// # Examples
+///
 /// ```rust
-/// # use clap_complete::dynamic::CompleteEnv;
+/// # use clap_complete::CompleteEnv;
 /// fn cli() -> clap::Command {
 ///     // ...
 /// #   clap::Command::new("empty")
@@ -90,7 +100,7 @@ impl<'s, F: FnOnce() -> clap::Command> CompleteEnv<'s, F> {
     ///
     /// Builder:
     /// ```rust
-    /// # use clap_complete::dynamic::CompleteEnv;
+    /// # use clap_complete::CompleteEnv;
     /// fn cli() -> clap::Command {
     ///     // ...
     /// #   clap::Command::new("empty")
@@ -107,7 +117,7 @@ impl<'s, F: FnOnce() -> clap::Command> CompleteEnv<'s, F> {
     /// Derive:
     /// ```
     /// # use clap::Parser;
-    /// # use clap_complete::dynamic::CompleteEnv;
+    /// # use clap_complete::CompleteEnv;
     /// use clap::CommandFactory as _;
     ///
     /// #[derive(Debug, Parser)]

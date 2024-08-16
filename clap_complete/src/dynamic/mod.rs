@@ -1,25 +1,12 @@
-//! Complete commands within shells
+//! `clap`-native completion system
 //!
-//! To customize completions, see
-//! - [`ValueHint`][crate::ValueHint]
-//! - [`ValueEnum`][clap::ValueEnum]
-//! - [`ArgValueCompleter`]
+//! See [`complete()`]
 
 mod candidate;
 mod complete;
 mod custom;
 
-#[cfg(feature = "unstable-command")]
-pub mod command;
-pub mod env;
-
 pub use candidate::CompletionCandidate;
 pub use complete::complete;
 pub use custom::ArgValueCompleter;
 pub use custom::CustomCompleter;
-
-#[cfg(feature = "unstable-command")]
-pub use command::CompleteArgs;
-#[cfg(feature = "unstable-command")]
-pub use command::CompleteCommand;
-pub use env::CompleteEnv;

@@ -22,7 +22,8 @@ impl Generator for PowerShell {
 
         let subcommands_cases = generate_inner(cmd, "");
 
-        let result = format!(
+        write!(
+            buf,
             r#"
 using namespace System.Management.Automation
 using namespace System.Management.Automation.Language
@@ -51,9 +52,8 @@ Register-ArgumentCompleter -Native -CommandName '{bin_name}' -ScriptBlock {{
         Sort-Object -Property ListItemText
 }}
 "#
-        );
-
-        w!(buf, result.as_bytes());
+        )
+        .expect("failed to write completion file");
     }
 }
 

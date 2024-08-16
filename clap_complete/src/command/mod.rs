@@ -46,6 +46,11 @@ pub use shells::*;
 
 /// A completion subcommand to add to your CLI
 ///
+/// To customize completions, see
+/// - [`ValueHint`][crate::ValueHint]
+/// - [`ValueEnum`][clap::ValueEnum]
+/// - [`ArgValueCompleter`][crate::ArgValueCompleter]
+///
 /// **Warning:** `stdout` should not be written to before [`CompleteCommand::complete`] has had a
 /// chance to run.
 ///
@@ -55,7 +60,7 @@ pub use shells::*;
 /// ```no_run
 /// // src/main.rs
 /// use clap::{CommandFactory, FromArgMatches, Parser, Subcommand};
-/// use clap_complete::dynamic::CompleteCommand;
+/// use clap_complete::CompleteCommand;
 ///
 /// #[derive(Parser, Debug)]
 /// #[clap(name = "dynamic", about = "A dynamic command line tool")]
@@ -113,6 +118,11 @@ impl CompleteCommand {
 
 /// A completion subcommand to add to your CLI
 ///
+/// To customize completions, see
+/// - [`ValueHint`][crate::ValueHint]
+/// - [`ValueEnum`][clap::ValueEnum]
+/// - [`ArgValueCompleter`][crate::ArgValueCompleter]
+///
 /// **Warning:** `stdout` should not be written to before [`CompleteArgs::complete`] has had a
 /// chance to run.
 ///
@@ -122,7 +132,7 @@ impl CompleteCommand {
 /// ```no_run
 /// // src/main.rs
 /// use clap::{CommandFactory, FromArgMatches, Parser, Subcommand};
-/// use clap_complete::dynamic::CompleteArgs;
+/// use clap_complete::CompleteArgs;
 ///
 /// #[derive(Parser, Debug)]
 /// #[clap(name = "dynamic", about = "A dynamic command line tool")]
