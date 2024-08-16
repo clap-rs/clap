@@ -68,6 +68,11 @@ pub use shells::*;
 /// - Performance: we don't need to general [`clap::Command`] twice or parse arguments
 /// - Flexibility: there is no concern over it interfering with other CLI logic
 ///
+/// **Warning:** `stdout` should not be written to before [`CompleteEnv::complete`] has had a
+/// chance to run.
+///
+/// # Examples
+///
 /// ```rust
 /// # use clap_complete::CompleteEnv;
 /// fn cli() -> clap::Command {
