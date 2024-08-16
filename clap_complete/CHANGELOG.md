@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Compatibility
+
+- *(dynamic)* Move `command` and `env` out of `dynamic`
+
+### Fixes
+
+- *(dynamic)* Increase `ArgValueCompleter` precedence over `ValueEnum`
+- *(dynamic)* Move `command` and `env` out of `dynamic`
+- Move pre-generated completions to `aot` module
+
 ## [4.5.16] - 2024-08-12
 
 ## [4.5.15] - 2024-08-12
