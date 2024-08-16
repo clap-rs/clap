@@ -11,5 +11,6 @@ pub use complete::complete;
 pub use custom::ArgValueCandidates;
 pub use custom::ArgValueCompleter;
 pub use custom::PathCompleter;
+pub use custom::SubcommandCandidates;
 pub use custom::ValueCandidates;
 pub use custom::ValueCompleter;

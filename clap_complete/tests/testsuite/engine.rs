@@ -5,7 +5,7 @@ use std::path::Path;
 
 use clap::{builder::PossibleValue, Command};
 use clap_complete::engine::{
-    ArgValueCandidates, ArgValueCompleter, CompletionCandidate, PathCompleter,
+    ArgValueCandidates, ArgValueCompleter, CompletionCandidate, PathCompleter, SubcommandCandidates,
 };
 use snapbox::assert_data_eq;
 
@@ -1080,19 +1080,25 @@ pos_b
 #[test]
 fn suggest_external_subcommand() {
     let mut cmd = Command::new("dynamic")
+        .allow_external_subcommands(true)
+        .add(SubcommandCandidates::new(|| {
+            vec![CompletionCandidate::new("external")]
+        }))
         .arg(clap::Arg::new("positional").value_parser(["pos1", "pos2", "pos3"]));
 
     assert_data_eq!(
         complete!(cmd, " [TAB]"),
         snapbox::str![
-            "--help\tPrint help
--h\tPrint help
+            "external
 pos1
 pos2
 pos3
+--help\tPrint help
 "
         ]
     );
+
+    assert_data_eq!(complete!(cmd, "e[TAB]"), snapbox::str!["external"]);
 }
 
 #[test]
