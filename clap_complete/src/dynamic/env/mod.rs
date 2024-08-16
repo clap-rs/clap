@@ -245,6 +245,11 @@ impl<'s> Shells<'s> {
     pub fn names(&self) -> impl Iterator<Item = &'static str> + 's {
         self.0.iter().map(|c| c.name())
     }
+
+    /// Iterate over [`EnvCompleter`]s
+    pub fn iter(&self) -> impl Iterator<Item = &dyn EnvCompleter> {
+        self.0.iter().copied()
+    }
 }
 
 /// Shell-integration for completions
