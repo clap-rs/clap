@@ -1078,6 +1078,24 @@ pos_b
 }
 
 #[test]
+fn suggest_external_subcommand() {
+    let mut cmd = Command::new("dynamic")
+        .arg(clap::Arg::new("positional").value_parser(["pos1", "pos2", "pos3"]));
+
+    assert_data_eq!(
+        complete!(cmd, " [TAB]"),
+        snapbox::str![
+            "--help\tPrint help
+-h\tPrint help
+pos1
+pos2
+pos3
+"
+        ]
+    );
+}
+
+#[test]
 fn sort_and_filter() {
     let mut cmd = Command::new("exhaustive")
         .args([
