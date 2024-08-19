@@ -1,14 +1,20 @@
 
 _clap_complete_my_app() {
-    export IFS=$'/013'
-    export _CLAP_COMPLETE_INDEX=${COMP_CWORD}
-    export _CLAP_COMPLETE_COMP_TYPE=${COMP_TYPE}
+    local IFS=$'/013'
+    local _CLAP_COMPLETE_INDEX=${COMP_CWORD}
+    local _CLAP_COMPLETE_COMP_TYPE=${COMP_TYPE}
     if compopt +o nospace 2> /dev/null; then
-        export _CLAP_COMPLETE_SPACE=false
+        local _CLAP_COMPLETE_SPACE=false
     else
-        export _CLAP_COMPLETE_SPACE=true
+        local _CLAP_COMPLETE_SPACE=true
     fi
-    COMPREPLY=( $("my-app" complete bash -- "${COMP_WORDS[@]}") )
+    COMPREPLY=( $( /
+        IFS="$IFS" /
+        _CLAP_COMPLETE_INDEX="$_CLAP_COMPLETE_INDEX" /
+        _CLAP_COMPLETE_COMP_TYPE="$_CLAP_COMPLETE_COMP_TYPE" /
+        _CLAP_COMPLETE_SPACE="$_CLAP_COMPLETE_SPACE" /
+        "my-app" complete bash -- "${COMP_WORDS[@]}" /
+    ) )
     if [[ $? != 0 ]]; then
         unset COMPREPLY
     elif [[ $SUPPRESS_SPACE == 1 ]] && [[ "${COMPREPLY-}" =~ [=/:]$ ]]; then

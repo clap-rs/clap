@@ -187,15 +187,21 @@ impl CommandCompleter for Bash {
 
         let script = r#"
 _clap_complete_NAME() {
-    export IFS=$'\013'
-    export _CLAP_COMPLETE_INDEX=${COMP_CWORD}
-    export _CLAP_COMPLETE_COMP_TYPE=${COMP_TYPE}
+    local IFS=$'\013'
+    local _CLAP_COMPLETE_INDEX=${COMP_CWORD}
+    local _CLAP_COMPLETE_COMP_TYPE=${COMP_TYPE}
     if compopt +o nospace 2> /dev/null; then
-        export _CLAP_COMPLETE_SPACE=false
+        local _CLAP_COMPLETE_SPACE=false
     else
-        export _CLAP_COMPLETE_SPACE=true
+        local _CLAP_COMPLETE_SPACE=true
     fi
-    COMPREPLY=( $("COMPLETER" complete bash -- "${COMP_WORDS[@]}") )
+    COMPREPLY=( $( \
+        IFS="$IFS" \
+        _CLAP_COMPLETE_INDEX="$_CLAP_COMPLETE_INDEX" \
+        _CLAP_COMPLETE_COMP_TYPE="$_CLAP_COMPLETE_COMP_TYPE" \
+        _CLAP_COMPLETE_SPACE="$_CLAP_COMPLETE_SPACE" \
+        "COMPLETER" complete bash -- "${COMP_WORDS[@]}" \
+    ) )
     if [[ $? != 0 ]]; then
         unset COMPREPLY
     elif [[ $SUPPRESS_SPACE == 1 ]] && [[ "${COMPREPLY-}" =~ [=/:]$ ]]; then
@@ -471,10 +477,14 @@ impl CommandCompleter for Zsh {
 
         let script = r#"#compdef BIN
 function _clap_dynamic_completer() {
-    export _CLAP_COMPLETE_INDEX=$(expr $CURRENT - 1)
-    export _CLAP_IFS=$'\n'
+    local _CLAP_COMPLETE_INDEX=$(expr $CURRENT - 1)
+    local _CLAP_IFS=$'\n'
 
-    local completions=("${(@f)$(COMPLETER complete zsh -- ${words} 2>/dev/null)}")
+    local completions=("${(@f)$( \
+        _CLAP_IFS="$_CLAP_IFS" \
+        _CLAP_COMPLETE_INDEX="$_CLAP_COMPLETE_INDEX" \
+        COMPLETER complete zsh -- ${words} 2>/dev/null \
+    )}")
 
     if [[ -n $completions ]]; then
         compadd -a completions

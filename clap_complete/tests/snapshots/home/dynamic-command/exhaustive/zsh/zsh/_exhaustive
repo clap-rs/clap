@@ -1,9 +1,13 @@
 #compdef exhaustive
 function _clap_dynamic_completer() {
-    export _CLAP_COMPLETE_INDEX=$(expr $CURRENT - 1)
-    export _CLAP_IFS=$'\n'
+    local _CLAP_COMPLETE_INDEX=$(expr $CURRENT - 1)
+    local _CLAP_IFS=$'\n'
 
-    local completions=("${(@f)$(exhaustive complete zsh -- ${words} 2>/dev/null)}")
+    local completions=("${(@f)$( \
+        _CLAP_IFS="$_CLAP_IFS" \
+        _CLAP_COMPLETE_INDEX="$_CLAP_COMPLETE_INDEX" \
+        exhaustive complete zsh -- ${words} 2>/dev/null \
+    )}")
 
     if [[ -n $completions ]]; then
         compadd -a completions
