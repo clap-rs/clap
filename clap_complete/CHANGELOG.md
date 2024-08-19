@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Compatibility
+
+- *(dynamic)* Renamed `dynamic` to `engine`
+
+### Fixes
+
+- *(dynamic)* *(bash)* Don't cause a completion to make the program un-runnabe
+- *(dynamic)* *(zsh)* Don't cause a completion to make the program un-runnabe
+
 ## [4.5.18] - 2024-08-16
 
 ### Features
