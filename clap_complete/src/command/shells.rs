@@ -241,7 +241,7 @@ fi
             .ok()
             .and_then(|i| i.parse().ok());
         let ifs: Option<String> = std::env::var("IFS").ok().and_then(|i| i.parse().ok());
-        let completions = crate::dynamic::complete(cmd, args, index, current_dir)?;
+        let completions = crate::engine::complete(cmd, args, index, current_dir)?;
 
         for (i, candidate) in completions.iter().enumerate() {
             if i != 0 {
@@ -335,7 +335,7 @@ set edit:completion:arg-completer[BIN] = { |@words|
             .and_then(|i| i.parse().ok())
             .unwrap_or_default();
         let ifs: Option<String> = std::env::var("_CLAP_IFS").ok().and_then(|i| i.parse().ok());
-        let completions = crate::dynamic::complete(cmd, args, index, current_dir)?;
+        let completions = crate::engine::complete(cmd, args, index, current_dir)?;
 
         for (i, candidate) in completions.iter().enumerate() {
             if i != 0 {
@@ -376,7 +376,7 @@ impl CommandCompleter for Fish {
         buf: &mut dyn std::io::Write,
     ) -> Result<(), std::io::Error> {
         let index = args.len() - 1;
-        let completions = crate::dynamic::complete(cmd, args, index, current_dir)?;
+        let completions = crate::engine::complete(cmd, args, index, current_dir)?;
 
         for candidate in completions {
             write!(buf, "{}", candidate.get_content().to_string_lossy())?;
@@ -442,7 +442,7 @@ Register-ArgumentCompleter -Native -CommandName {bin} -ScriptBlock {{
         buf: &mut dyn std::io::Write,
     ) -> Result<(), std::io::Error> {
         let index = args.len() - 1;
-        let completions = crate::dynamic::complete(cmd, args, index, current_dir)?;
+        let completions = crate::engine::complete(cmd, args, index, current_dir)?;
 
         for candidate in completions {
             write!(buf, "{}", candidate.get_content().to_string_lossy())?;
@@ -516,7 +516,7 @@ compdef _clap_dynamic_completer BIN"#
         if args.len() == index {
             args.push("".into());
         }
-        let completions = crate::dynamic::complete(cmd, args, index, current_dir)?;
+        let completions = crate::engine::complete(cmd, args, index, current_dir)?;
 
         for (i, candidate) in completions.iter().enumerate() {
             if i != 0 {

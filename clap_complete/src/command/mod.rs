@@ -216,7 +216,7 @@ impl CompleteArgs {
 ///
 /// This will generally be called by [`CompleteCommand`] or [`CompleteArgs`].
 ///
-/// This handles adapting between the shell and [`completer`][crate::dynamic::complete()].
+/// This handles adapting between the shell and [`completer`][crate::engine::complete()].
 /// A `CommandCompleter` can choose how much of that lives within the registration script and or
 /// lives in [`CommandCompleter::write_complete`].
 pub trait CommandCompleter {
@@ -238,9 +238,9 @@ pub trait CommandCompleter {
     /// Complete the given command
     ///
     /// Adapt information from arguments and [`CommandCompleter::write_registration`]-defined env
-    /// variables to what is needed for [`completer`][crate::dynamic::complete()].
+    /// variables to what is needed for [`completer`][crate::engine::complete()].
     ///
-    /// Write out the [`CompletionCandidate`][crate::dynamic::CompletionCandidate]s in a way the shell will understand.
+    /// Write out the [`CompletionCandidate`][crate::engine::CompletionCandidate]s in a way the shell will understand.
     fn write_complete(
         &self,
         cmd: &mut clap::Command,

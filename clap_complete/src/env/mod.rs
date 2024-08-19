@@ -273,7 +273,7 @@ impl<'s> Shells<'s> {
 ///
 /// This will generally be called by [`CompleteEnv`].
 ///
-/// This handles adapting between the shell and [`completer`][crate::dynamic::complete()].
+/// This handles adapting between the shell and [`completer`][crate::engine::complete()].
 /// A `EnvCompleter` can choose how much of that lives within the registration script or
 /// lives in [`EnvCompleter::write_complete`].
 pub trait EnvCompleter {
@@ -308,9 +308,9 @@ pub trait EnvCompleter {
     /// Complete the given command
     ///
     /// Adapt information from arguments and [`EnvCompleter::write_registration`]-defined env
-    /// variables to what is needed for [`completer`][crate::dynamic::complete()].
+    /// variables to what is needed for [`completer`][crate::engine::complete()].
     ///
-    /// Write out the [`CompletionCandidate`][crate::dynamic::CompletionCandidate]s in a way the shell will understand.
+    /// Write out the [`CompletionCandidate`][crate::engine::CompletionCandidate]s in a way the shell will understand.
     fn write_complete(
         &self,
         cmd: &mut clap::Command,

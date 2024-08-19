@@ -69,7 +69,7 @@ pub mod aot;
 #[cfg(feature = "unstable-command")]
 pub mod command;
 #[cfg(feature = "unstable-dynamic")]
-pub mod dynamic;
+pub mod engine;
 #[cfg(feature = "unstable-dynamic")]
 pub mod env;
 
@@ -80,10 +80,10 @@ pub use command::CompleteArgs;
 pub use command::CompleteCommand;
 #[doc(inline)]
 #[cfg(feature = "unstable-dynamic")]
-pub use dynamic::ArgValueCompleter;
+pub use engine::ArgValueCompleter;
 #[doc(inline)]
 #[cfg(feature = "unstable-dynamic")]
-pub use dynamic::CompletionCandidate;
+pub use engine::CompletionCandidate;
 #[cfg(feature = "unstable-dynamic")]
 pub use env::CompleteEnv;
 

@@ -37,7 +37,7 @@ impl CompletionCandidate {
 
     /// Add a prefix to the content of completion candidate
     ///
-    /// This is generally used for post-process by [`complete`][crate::dynamic::complete()] for
+    /// This is generally used for post-process by [`complete`][crate::engine::complete()] for
     /// things like pre-pending flags, merging delimiter-separated values, etc.
     pub fn add_prefix(mut self, prefix: impl Into<OsString>) -> Self {
         let suffix = self.content;

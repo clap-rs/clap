@@ -4,7 +4,7 @@ use std::fs;
 use std::path::Path;
 
 use clap::{builder::PossibleValue, Command};
-use clap_complete::dynamic::{ArgValueCompleter, CompletionCandidate, CustomCompleter};
+use clap_complete::engine::{ArgValueCompleter, CompletionCandidate, CustomCompleter};
 use snapbox::assert_data_eq;
 
 macro_rules! complete {
@@ -25,11 +25,14 @@ fn suggest_subcommand_subset() {
         .subcommand(Command::new("hello-moon"))
         .subcommand(Command::new("goodbye-world"));
 
-    assert_data_eq!(complete!(cmd, "he"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "he"),
+        snapbox::str![[r#"
 hello-moon
 hello-world
 help	Print this message or the help of the given subcommand(s)
-"#]],);
+"#]],
+    );
 }
 
 #[test]
@@ -42,9 +45,15 @@ fn suggest_hidden_long_flags() {
                 .hide(true),
         );
 
-    assert_data_eq!(complete!(cmd, "--hello-world"), snapbox::str!["--hello-world-visible"]);
+    assert_data_eq!(
+        complete!(cmd, "--hello-world"),
+        snapbox::str!["--hello-world-visible"]
+    );
 
-    assert_data_eq!(complete!(cmd, "--hello-world-h"), snapbox::str!["--hello-world-hidden"]);
+    assert_data_eq!(
+        complete!(cmd, "--hello-world-h"),
+        snapbox::str!["--hello-world-hidden"]
+    );
 }
 
 #[test]
@@ -62,18 +71,27 @@ fn suggest_hidden_subcommand_and_aliases() {
                 .hide(true),
         );
 
-    assert_data_eq!(complete!(cmd, "test"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "test"),
+        snapbox::str![[r#"
 test_visible
 test_visible-alias_visible
-"#]]);
+"#]]
+    );
 
-    assert_data_eq!(complete!(cmd, "test_h"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "test_h"),
+        snapbox::str![[r#"
 test_hidden
 test_hidden-alias_hidden
 test_hidden-alias_visible
-"#]]);
+"#]]
+    );
 
-    assert_data_eq!(complete!(cmd, "test_hidden-alias_h"), snapbox::str!["test_hidden-alias_hidden"]);
+    assert_data_eq!(
+        complete!(cmd, "test_hidden-alias_h"),
+        snapbox::str!["test_hidden-alias_hidden"]
+    );
 }
 
 #[test]
@@ -95,12 +113,15 @@ fn suggest_subcommand_aliases() {
                 .alias("hidden-goodbye"),
         );
 
-    assert_data_eq!(complete!(cmd, "hello"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "hello"),
+        snapbox::str![[r#"
 hello-moon
 hello-moon-foo
 hello-world
 hello-world-foo
-"#]],);
+"#]],
+    );
 }
 
 #[test]
@@ -114,9 +135,15 @@ fn suggest_hidden_possible_value() {
         ]),
     );
 
-    assert_data_eq!(complete!(cmd, "--test=test"), snapbox::str!["--test=test-visible	Say hello to the world"]);
+    assert_data_eq!(
+        complete!(cmd, "--test=test"),
+        snapbox::str!["--test=test-visible	Say hello to the world"]
+    );
 
-    assert_data_eq!(complete!(cmd, "--test=test-h"), snapbox::str!["--test=test-hidden	Say hello to the moon"]);
+    assert_data_eq!(
+        complete!(cmd, "--test=test-h"),
+        snapbox::str!["--test=test-hidden	Say hello to the moon"]
+    );
 }
 
 #[test]
@@ -136,20 +163,32 @@ fn suggest_hidden_long_flag_aliases() {
                 .hide(true),
         );
 
-    assert_data_eq!(complete!(cmd, "--test"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "--test"),
+        snapbox::str![[r#"
 --test_visible
 --test_visible-alias_visible
-"#]]);
+"#]]
+    );
 
-    assert_data_eq!(complete!(cmd, "--test_h"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "--test_h"),
+        snapbox::str![[r#"
 --test_hidden
 --test_hidden-alias_visible
 --test_hidden-alias_hidden
-"#]]);
+"#]]
+    );
 
-    assert_data_eq!(complete!(cmd, "--test_visible-alias_h"), snapbox::str!["--test_visible-alias_hidden"]);
+    assert_data_eq!(
+        complete!(cmd, "--test_visible-alias_h"),
+        snapbox::str!["--test_visible-alias_hidden"]
+    );
 
-    assert_data_eq!(complete!(cmd, "--test_hidden-alias_h"), snapbox::str!["--test_hidden-alias_hidden"]);
+    assert_data_eq!(
+        complete!(cmd, "--test_hidden-alias_h"),
+        snapbox::str!["--test_hidden-alias_hidden"]
+    );
 }
 
 #[test]
@@ -171,11 +210,14 @@ fn suggest_long_flag_subset() {
                 .action(clap::ArgAction::Count),
         );
 
-    assert_data_eq!(complete!(cmd, "--he"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "--he"),
+        snapbox::str![[r#"
 --hello-world
 --hello-moon
 --help	Print help
-"#]],);
+"#]],
+    );
 }
 
 #[test]
@@ -187,10 +229,13 @@ fn suggest_possible_value_subset() {
         "goodbye-world".into(),
     ]));
 
-    assert_data_eq!(complete!(cmd, "hello"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "hello"),
+        snapbox::str![[r#"
 hello-world	Say hello to the world
 hello-moon
-"#]],);
+"#]],
+    );
 }
 
 #[test]
@@ -212,12 +257,15 @@ fn suggest_additional_short_flags() {
                 .action(clap::ArgAction::Count),
         );
 
-    assert_data_eq!(complete!(cmd, "-a"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "-a"),
+        snapbox::str![[r#"
 -aa
 -ab
 -ac
 -ah	Print help
-"#]],);
+"#]],
+    );
 }
 
 #[test]
@@ -230,13 +278,16 @@ fn suggest_subcommand_positional() {
         ]),
     ));
 
-    assert_data_eq!(complete!(cmd, "hello-world [TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "hello-world [TAB]"),
+        snapbox::str![[r#"
 --help	Print help (see more with '--help')
 -h	Print help (see more with '--help')
 hello-world	Say hello to the world
 hello-moon
 goodbye-world
-"#]],);
+"#]],
+    );
 }
 
 #[test]
@@ -301,17 +352,23 @@ d_dir/
         snapbox::str!["b_file"],
     );
 
-    assert_data_eq!(complete!(cmd, "--format [TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "--format [TAB]"),
+        snapbox::str![[r#"
 json
 yaml
 toml
-"#]],);
+"#]],
+    );
 
-    assert_data_eq!(complete!(cmd, "-F [TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "-F [TAB]"),
+        snapbox::str![[r#"
 json
 yaml
 toml
-"#]],);
+"#]],
+    );
 
     assert_data_eq!(complete!(cmd, "--format j[TAB]"), snapbox::str!["json"],);
 
@@ -321,13 +378,18 @@ toml
 
     assert_data_eq!(complete!(cmd, "-F t[TAB]"), snapbox::str!["toml"],);
 
-    assert_data_eq!(complete!(cmd, "-cccF [TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "-cccF [TAB]"),
+        snapbox::str![[r#"
 json
 yaml
 toml
-"#]]);
+"#]]
+    );
 
-    assert_data_eq!(complete!(cmd, "--input a_file [TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "--input a_file [TAB]"),
+        snapbox::str![[r#"
 --input
 --format
 --count
@@ -339,7 +401,8 @@ toml
 pos_a
 pos_b
 pos_c
-"#]]);
+"#]]
+    );
 
     assert_data_eq!(
         complete!(cmd, "-ci[TAB]", current_dir = Some(testdir_path)),
@@ -395,17 +458,23 @@ fn suggest_argument_multi_values() {
                 .num_args(1..=3),
         );
 
-    assert_data_eq!(complete!(cmd, "--certain-num [TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "--certain-num [TAB]"),
+        snapbox::str![[r#"
 val1
 val2
 val3
-"#]]);
+"#]]
+    );
 
-    assert_data_eq!(complete!(cmd, "--certain-num val1 [TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "--certain-num val1 [TAB]"),
+        snapbox::str![[r#"
 val1
 val2
 val3
-"#]]);
+"#]]
+    );
 
     assert_data_eq!(
         complete!(cmd, "--certain-num val1 val2 val3 [TAB]"),
@@ -419,11 +488,14 @@ val3
 "#]]
     );
 
-    assert_data_eq!(complete!(cmd, "--uncertain-num [TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "--uncertain-num [TAB]"),
+        snapbox::str![[r#"
 val1
 val2
 val3
-"#]]);
+"#]]
+    );
 
     assert_data_eq!(
         complete!(cmd, "--uncertain-num val1 [TAB]"),
@@ -452,34 +524,48 @@ val3
 "#]]
     );
 
-    assert_data_eq!(complete!(cmd, "-Y [TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "-Y [TAB]"),
+        snapbox::str![[r#"
 val1
 val2
 val3
-"#]]);
+"#]]
+    );
 
-    assert_data_eq!(complete!(cmd, "-Y val1 [TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "-Y val1 [TAB]"),
+        snapbox::str![[r#"
 val1
 val2
 val3
-"#]]);
+"#]]
+    );
 
-    assert_data_eq!(complete!(cmd, "-Y val1 val2 val3 [TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "-Y val1 val2 val3 [TAB]"),
+        snapbox::str![[r#"
 --certain-num
 --uncertain-num
 --help	Print help
 -Y
 -N
 -h	Print help
-"#]]);
+"#]]
+    );
 
-    assert_data_eq!(complete!(cmd, "-N [TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "-N [TAB]"),
+        snapbox::str![[r#"
 val1
 val2
 val3
-"#]]);
+"#]]
+    );
 
-    assert_data_eq!(complete!(cmd, "-N val1 [TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "-N val1 [TAB]"),
+        snapbox::str![[r#"
 val1
 val2
 val3
@@ -489,16 +575,20 @@ val3
 -Y
 -N
 -h	Print help
-"#]]);
+"#]]
+    );
 
-    assert_data_eq!(complete!(cmd, "-N val1 val2 val3 [TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "-N val1 val2 val3 [TAB]"),
+        snapbox::str![[r#"
 --certain-num
 --uncertain-num
 --help	Print help
 -Y
 -N
 -h	Print help
-"#]]);
+"#]]
+    );
 }
 
 #[test]
@@ -522,11 +612,14 @@ fn suggest_custom_arg_value() {
             .add::<ArgValueCompleter>(ArgValueCompleter::new(MyCustomCompleter {})),
     );
 
-    assert_data_eq!(complete!(cmd, "--custom [TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "--custom [TAB]"),
+        snapbox::str![[r#"
 custom1
 custom2
 custom3
-"#]],);
+"#]],
+    );
 }
 
 #[test]
@@ -550,19 +643,27 @@ fn suggest_multi_positional() {
                 .value_parser(["json", "yaml", "toml"]),
         );
 
-    assert_data_eq!(complete!(cmd, "pos_1 pos_a [TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "pos_1 pos_a [TAB]"),
+        snapbox::str![[r#"
 pos_a
 pos_b
 pos_c
-"#]]);
+"#]]
+    );
 
-    assert_data_eq!(complete!(cmd, "pos_1 pos_a pos_b [TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "pos_1 pos_a pos_b [TAB]"),
+        snapbox::str![[r#"
 pos_a
 pos_b
 pos_c
-"#]]);
+"#]]
+    );
 
-    assert_data_eq!(complete!(cmd, "--format json pos_1 [TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "--format json pos_1 [TAB]"),
+        snapbox::str![[r#"
 --format
 --help	Print help
 -F
@@ -570,7 +671,8 @@ pos_c
 pos_a
 pos_b
 pos_c
-"#]]);
+"#]]
+    );
 
     assert_data_eq!(
         complete!(cmd, "--format json pos_1 pos_a [TAB]"),
@@ -794,7 +896,7 @@ fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>
         arg_index = args.len() - 1;
     }
 
-    clap_complete::dynamic::complete(cmd, args, arg_index, current_dir)
+    clap_complete::engine::complete(cmd, args, arg_index, current_dir)
         .unwrap()
         .into_iter()
         .map(|candidate| {

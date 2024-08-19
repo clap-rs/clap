@@ -11,7 +11,7 @@ use super::CompletionCandidate;
 ///
 /// ```rust
 /// use clap::Parser;
-/// use clap_complete::dynamic::{ArgValueCompleter, CompletionCandidate};
+/// use clap_complete::engine::{ArgValueCompleter, CompletionCandidate};
 ///
 /// #[derive(Debug, Parser)]
 /// struct Cli {
