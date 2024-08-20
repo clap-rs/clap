@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.20] - 2024-08-20
+
 ### Compatibility
 
 - *(dynamic)* Renamed `CustomCompleter` to `ValueCandidates`
@@ -366,7 +368,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.19...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.20...HEAD
+[4.5.20]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.19...clap_complete-v4.5.20
 [4.5.19]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.18...clap_complete-v4.5.19
 [4.5.18]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.17...clap_complete-v4.5.18
 [4.5.17]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.16...clap_complete-v4.5.17
