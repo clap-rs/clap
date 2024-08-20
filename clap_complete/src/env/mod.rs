@@ -64,8 +64,8 @@ pub use shells::*;
 
 /// Environment-activated completions for your CLI
 ///
-/// Benefits over CLI a completion argument or subcommand
-/// - Performance: we don't need to general [`clap::Command`] twice or parse arguments
+/// Benefits over a CLI completion argument or subcommand
+/// - Performance: we don't need to generate [`clap::Command`] twice or parse arguments
 /// - Flexibility: there is no concern over it interfering with other CLI logic
 ///
 /// **Warning:** `stdout` should not be written to before [`CompleteEnv::complete`] has had a
