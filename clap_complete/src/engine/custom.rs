@@ -11,11 +11,11 @@ use super::CompletionCandidate;
 ///
 /// ```rust
 /// use clap::Parser;
-/// use clap_complete::engine::{ArgValueCompleter, CompletionCandidate};
+/// use clap_complete::engine::{ArgValueCandidates, CompletionCandidate};
 ///
 /// #[derive(Debug, Parser)]
 /// struct Cli {
-///     #[arg(long, add = ArgValueCompleter::new(|| { vec![
+///     #[arg(long, add = ArgValueCandidates::new(|| { vec![
 ///         CompletionCandidate::new("foo"),
 ///         CompletionCandidate::new("bar"),
 ///         CompletionCandidate::new("baz")] }))]
@@ -23,10 +23,10 @@ use super::CompletionCandidate;
 /// }
 /// ```
 #[derive(Clone)]
-pub struct ArgValueCompleter(Arc<dyn ValueCandidates>);
+pub struct ArgValueCandidates(Arc<dyn ValueCandidates>);
 
-impl ArgValueCompleter {
-    /// Create a new `ArgValueCompleter` with a custom completer
+impl ArgValueCandidates {
+    /// Create a new `ArgValueCandidates` with a custom completer
     pub fn new<C>(completer: C) -> Self
     where
         C: ValueCandidates + 'static,
@@ -42,15 +42,15 @@ impl ArgValueCompleter {
     }
 }
 
-impl std::fmt::Debug for ArgValueCompleter {
+impl std::fmt::Debug for ArgValueCandidates {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(type_name::<Self>())
     }
 }
 
-impl ArgExt for ArgValueCompleter {}
+impl ArgExt for ArgValueCandidates {}
 
-/// User-provided completion candidates for an [`Arg`][clap::Arg], see [`ArgValueCompleter`]
+/// User-provided completion candidates for an [`Arg`][clap::Arg], see [`ArgValueCandidates`]
 ///
 /// This is useful when predefined value hints are not enough.
 pub trait ValueCandidates: Send + Sync {

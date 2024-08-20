@@ -80,7 +80,7 @@ pub use command::CompleteArgs;
 pub use command::CompleteCommand;
 #[doc(inline)]
 #[cfg(feature = "unstable-dynamic")]
-pub use engine::ArgValueCompleter;
+pub use engine::ArgValueCandidates;
 #[doc(inline)]
 #[cfg(feature = "unstable-dynamic")]
 pub use engine::CompletionCandidate;

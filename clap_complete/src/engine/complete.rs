@@ -3,7 +3,7 @@ use std::ffi::OsString;
 
 use clap_lex::OsStrExt as _;
 
-use super::ArgValueCompleter;
+use super::ArgValueCandidates;
 use super::CompletionCandidate;
 
 /// Complete the given command, shell-agnostic
@@ -270,7 +270,7 @@ fn complete_arg_value(
         Err(value_os) => value_os,
     };
 
-    if let Some(completer) = arg.get::<ArgValueCompleter>() {
+    if let Some(completer) = arg.get::<ArgValueCandidates>() {
         values.extend(complete_custom_arg_value(value_os, completer));
     } else if let Some(possible_values) = possible_values(arg) {
         if let Ok(value) = value {
@@ -394,7 +394,7 @@ fn complete_path(
 
 fn complete_custom_arg_value(
     value: &OsStr,
-    completer: &ArgValueCompleter,
+    completer: &ArgValueCandidates,
 ) -> Vec<CompletionCandidate> {
     debug!("complete_custom_arg_value: completer={completer:?}, value={value:?}");
 

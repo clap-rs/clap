@@ -19,7 +19,7 @@
 //! To customize completions, see
 //! - [`ValueHint`][crate::ValueHint]
 //! - [`ValueEnum`][clap::ValueEnum]
-//! - [`ArgValueCompleter`][crate::ArgValueCompleter]
+//! - [`ArgValueCandidates`][crate::ArgValueCandidates]
 //!
 //! To source your completions:
 //!
