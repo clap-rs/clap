@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Compatibility
+
+- *(dynamic)* Renamed `CustomCompleter` to `ValueCandidates`
+- *(dynamic)* Renamed `ArgValueCompleter` to `ArgValueCandidates`
+
 ## [4.5.19] - 2024-08-19
 
 ### Compatibility
