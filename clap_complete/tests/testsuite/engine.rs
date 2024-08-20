@@ -4,7 +4,7 @@ use std::fs;
 use std::path::Path;
 
 use clap::{builder::PossibleValue, Command};
-use clap_complete::engine::{ArgValueCompleter, CompletionCandidate, CustomCompleter};
+use clap_complete::engine::{ArgValueCompleter, CompletionCandidate, ValueCandidates};
 use snapbox::assert_data_eq;
 
 macro_rules! complete {
@@ -596,7 +596,7 @@ fn suggest_custom_arg_value() {
     #[derive(Debug)]
     struct MyCustomCompleter {}
 
-    impl CustomCompleter for MyCustomCompleter {
+    impl ValueCandidates for MyCustomCompleter {
         fn candidates(&self) -> Vec<CompletionCandidate> {
             vec![
                 CompletionCandidate::new("custom1"),

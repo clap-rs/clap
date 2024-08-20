@@ -5,7 +5,7 @@ use clap::builder::ArgExt;
 
 use super::CompletionCandidate;
 
-/// Extend [`Arg`][clap::Arg] with a [`CustomCompleter`]
+/// Extend [`Arg`][clap::Arg] with a [`ValueCandidates`]
 ///
 /// # Example
 ///
@@ -23,13 +23,13 @@ use super::CompletionCandidate;
 /// }
 /// ```
 #[derive(Clone)]
-pub struct ArgValueCompleter(Arc<dyn CustomCompleter>);
+pub struct ArgValueCompleter(Arc<dyn ValueCandidates>);
 
 impl ArgValueCompleter {
     /// Create a new `ArgValueCompleter` with a custom completer
     pub fn new<C>(completer: C) -> Self
     where
-        C: CustomCompleter + 'static,
+        C: ValueCandidates + 'static,
     {
         Self(Arc::new(completer))
     }
@@ -53,14 +53,14 @@ impl ArgExt for ArgValueCompleter {}
 /// User-provided completion candidates for an [`Arg`][clap::Arg], see [`ArgValueCompleter`]
 ///
 /// This is useful when predefined value hints are not enough.
-pub trait CustomCompleter: Send + Sync {
+pub trait ValueCandidates: Send + Sync {
     /// All potential candidates for an argument.
     ///
     /// See [`CompletionCandidate`] for more information.
     fn candidates(&self) -> Vec<CompletionCandidate>;
 }
 
-impl<F> CustomCompleter for F
+impl<F> ValueCandidates for F
 where
     F: Fn() -> Vec<CompletionCandidate> + Send + Sync,
 {
