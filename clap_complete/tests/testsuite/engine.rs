@@ -4,7 +4,7 @@ use std::fs;
 use std::path::Path;
 
 use clap::{builder::PossibleValue, Command};
-use clap_complete::engine::{ArgValueCandidates, CompletionCandidate, ValueCandidates};
+use clap_complete::engine::{ArgValueCandidates, CompletionCandidate};
 use snapbox::assert_data_eq;
 
 macro_rules! complete {
@@ -577,23 +577,18 @@ d_dir/
 
 #[test]
 fn suggest_custom_arg_value() {
-    #[derive(Debug)]
-    struct MyCustomCompleter {}
-
-    impl ValueCandidates for MyCustomCompleter {
-        fn candidates(&self) -> Vec<CompletionCandidate> {
-            vec![
-                CompletionCandidate::new("custom1"),
-                CompletionCandidate::new("custom2"),
-                CompletionCandidate::new("custom3"),
-            ]
-        }
+    fn custom_completer() -> Vec<CompletionCandidate> {
+        vec![
+            CompletionCandidate::new("custom1"),
+            CompletionCandidate::new("custom2"),
+            CompletionCandidate::new("custom3"),
+        ]
     }
 
     let mut cmd = Command::new("dynamic").arg(
         clap::Arg::new("custom")
             .long("custom")
-            .add::<ArgValueCandidates>(ArgValueCandidates::new(MyCustomCompleter {})),
+            .add(ArgValueCandidates::new(custom_completer)),
     );
 
     assert_data_eq!(
