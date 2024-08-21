@@ -65,3 +65,9 @@ impl CompletionCandidate {
         self.hidden
     }
 }
+
+impl<S: Into<OsString>> From<S> for CompletionCandidate {
+    fn from(s: S) -> Self {
+        CompletionCandidate::new(s.into())
+    }
+}
