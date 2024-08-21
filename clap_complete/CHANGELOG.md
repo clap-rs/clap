@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(dynamic)* Add `ArgValueCompleter`, a more flexible `ArgValueCandidates`
+- *(dynamic)* Add `PathCompleter`, a more flexible `ValueHint::*Path`
+
+### Fixes
+
+- *(dynamic)* Sort `ValueHint::*Path` results
+- *(dynamic)* Preserve the users path for `ValueHint::*Path` results
+
 ## [4.5.20] - 2024-08-20
 
 ### Compatibility
