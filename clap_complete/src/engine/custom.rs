@@ -77,6 +77,7 @@ pub(crate) fn complete_path(
     is_wanted: &dyn Fn(&std::path::Path) -> bool,
 ) -> Vec<CompletionCandidate> {
     let mut completions = Vec::new();
+    let mut potential = Vec::new();
 
     let value_path = std::path::Path::new(value_os);
     let (prefix, current) = split_file_name(value_path);
@@ -88,7 +89,7 @@ pub(crate) fn complete_path(
             Some(current_dir) => current_dir,
             None => {
                 // Can't complete without a `current_dir`
-                return Vec::new();
+                return completions;
             }
         };
         current_dir.join(prefix)
@@ -109,15 +110,24 @@ pub(crate) fn complete_path(
         if entry.metadata().map(|m| m.is_dir()).unwrap_or(false) {
             let mut suggestion = prefix.join(raw_file_name);
             suggestion.push(""); // Ensure trailing `/`
-            completions.push(CompletionCandidate::new(suggestion.as_os_str().to_owned()));
+            let candidate = CompletionCandidate::new(suggestion.as_os_str().to_owned());
+
+            if is_wanted(&entry.path()) {
+                completions.push(candidate);
+            } else {
+                potential.push(candidate);
+            }
         } else {
-            let path = entry.path();
-            if is_wanted(&path) {
+            if is_wanted(&entry.path()) {
                 let suggestion = prefix.join(raw_file_name);
-                completions.push(CompletionCandidate::new(suggestion.as_os_str().to_owned()));
+                let candidate = CompletionCandidate::new(suggestion.as_os_str().to_owned());
+                completions.push(candidate);
             }
         }
     }
+    completions.sort();
+    potential.sort();
+    completions.extend(potential);
 
     completions
 }
