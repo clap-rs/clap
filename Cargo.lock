@@ -482,7 +482,6 @@ dependencies = [
  "completest",
  "completest-pty",
  "is_executable",
- "pathdiff",
  "shlex",
  "snapbox",
  "trycmd",

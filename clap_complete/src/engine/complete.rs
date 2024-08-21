@@ -3,7 +3,9 @@ use std::ffi::OsString;
 
 use clap_lex::OsStrExt as _;
 
+use super::custom::complete_path;
 use super::ArgValueCandidates;
+use super::ArgValueCompleter;
 use super::CompletionCandidate;
 
 /// Complete the given command, shell-agnostic
@@ -270,7 +272,9 @@ fn complete_arg_value(
         Err(value_os) => value_os,
     };
 
-    if let Some(completer) = arg.get::<ArgValueCandidates>() {
+    if let Some(completer) = arg.get::<ArgValueCompleter>() {
+        values.extend(completer.complete(value_os));
+    } else if let Some(completer) = arg.get::<ArgValueCandidates>() {
         values.extend(complete_custom_arg_value(value_os, completer));
     } else if let Some(possible_values) = possible_values(arg) {
         if let Ok(value) = value {
@@ -289,17 +293,17 @@ fn complete_arg_value(
                 // Should not complete
             }
             clap::ValueHint::Unknown | clap::ValueHint::AnyPath => {
-                values.extend(complete_path(value_os, current_dir, |_| true));
+                values.extend(complete_path(value_os, current_dir, &|_| true));
             }
             clap::ValueHint::FilePath => {
-                values.extend(complete_path(value_os, current_dir, |p| p.is_file()));
+                values.extend(complete_path(value_os, current_dir, &|p| p.is_file()));
             }
             clap::ValueHint::DirPath => {
-                values.extend(complete_path(value_os, current_dir, |p| p.is_dir()));
+                values.extend(complete_path(value_os, current_dir, &|p| p.is_dir()));
             }
             clap::ValueHint::ExecutablePath => {
                 use is_executable::IsExecutable;
-                values.extend(complete_path(value_os, current_dir, |p| p.is_executable()));
+                values.extend(complete_path(value_os, current_dir, &|p| p.is_executable()));
             }
             clap::ValueHint::CommandName
             | clap::ValueHint::CommandString
@@ -312,7 +316,7 @@ fn complete_arg_value(
             }
             _ => {
                 // Safe-ish fallback
-                values.extend(complete_path(value_os, current_dir, |_| true));
+                values.extend(complete_path(value_os, current_dir, &|_| true));
             }
         }
 
@@ -341,69 +345,14 @@ fn rsplit_delimiter<'s, 'o>(
     Some((Some(prefix), Ok(value)))
 }
 
-fn complete_path(
-    value_os: &OsStr,
-    current_dir: Option<&std::path::Path>,
-    is_wanted: impl Fn(&std::path::Path) -> bool,
-) -> Vec<CompletionCandidate> {
-    let mut completions = Vec::new();
-
-    let current_dir = match current_dir {
-        Some(current_dir) => current_dir,
-        None => {
-            // Can't complete without a `current_dir`
-            return Vec::new();
-        }
-    };
-    let (existing, prefix) = value_os
-        .split_once("\\")
-        .unwrap_or((OsStr::new(""), value_os));
-    let root = current_dir.join(existing);
-    debug!("complete_path: root={root:?}, prefix={prefix:?}");
-    let prefix = prefix.to_string_lossy();
-
-    for entry in std::fs::read_dir(&root)
-        .ok()
-        .into_iter()
-        .flatten()
-        .filter_map(Result::ok)
-    {
-        let raw_file_name = entry.file_name();
-        if !raw_file_name.starts_with(&prefix) {
-            continue;
-        }
-
-        if entry.metadata().map(|m| m.is_dir()).unwrap_or(false) {
-            let path = entry.path();
-            let mut suggestion = pathdiff::diff_paths(&path, current_dir).unwrap_or(path);
-            suggestion.push(""); // Ensure trailing `/`
-            completions
-                .push(CompletionCandidate::new(suggestion.as_os_str().to_owned()).help(None));
-        } else {
-            let path = entry.path();
-            if is_wanted(&path) {
-                let suggestion = pathdiff::diff_paths(&path, current_dir).unwrap_or(path);
-                completions
-                    .push(CompletionCandidate::new(suggestion.as_os_str().to_owned()).help(None));
-            }
-        }
-    }
-
-    completions
-}
-
 fn complete_custom_arg_value(
     value: &OsStr,
     completer: &ArgValueCandidates,
 ) -> Vec<CompletionCandidate> {
     debug!("complete_custom_arg_value: completer={completer:?}, value={value:?}");
 
-    let mut values = Vec::new();
-    let custom_arg_values = completer.candidates();
-    values.extend(custom_arg_values);
-
+    let mut values = completer.candidates();
     values.retain(|comp| comp.get_content().starts_with(&value.to_string_lossy()));
-
     values
 }
 

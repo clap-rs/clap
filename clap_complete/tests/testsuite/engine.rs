@@ -4,7 +4,9 @@ use std::fs;
 use std::path::Path;
 
 use clap::{builder::PossibleValue, Command};
-use clap_complete::engine::{ArgValueCandidates, CompletionCandidate, ValueCandidates};
+use clap_complete::engine::{
+    ArgValueCandidates, ArgValueCompleter, CompletionCandidate, PathCompleter,
+};
 use snapbox::assert_data_eq;
 
 macro_rules! complete {
@@ -294,16 +296,16 @@ goodbye-world
 fn suggest_argument_value() {
     let mut cmd = Command::new("dynamic")
         .arg(
-            clap::Arg::new("input")
-                .long("input")
-                .short('i')
-                .value_hint(clap::ValueHint::FilePath),
-        )
-        .arg(
             clap::Arg::new("format")
                 .long("format")
                 .short('F')
                 .value_parser(["json", "yaml", "toml"]),
+        )
+        .arg(
+            clap::Arg::new("stream")
+                .long("stream")
+                .short('S')
+                .value_parser(["stdout", "stderr"]),
         )
         .arg(
             clap::Arg::new("count")
@@ -313,44 +315,6 @@ fn suggest_argument_value() {
         )
         .arg(clap::Arg::new("positional").value_parser(["pos_a", "pos_b", "pos_c"]))
         .args_conflicts_with_subcommands(true);
-
-    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
-    let testdir_path = testdir.path().unwrap();
-
-    fs::write(testdir_path.join("a_file"), "").unwrap();
-    fs::write(testdir_path.join("b_file"), "").unwrap();
-    fs::create_dir_all(testdir_path.join("c_dir")).unwrap();
-    fs::create_dir_all(testdir_path.join("d_dir")).unwrap();
-
-    assert_data_eq!(
-        complete!(cmd, "--input [TAB]", current_dir = Some(testdir_path)),
-        snapbox::str![[r#"
-a_file
-b_file
-c_dir/
-d_dir/
-"#]],
-    );
-
-    assert_data_eq!(
-        complete!(cmd, "-i [TAB]", current_dir = Some(testdir_path)),
-        snapbox::str![[r#"
-a_file
-b_file
-c_dir/
-d_dir/
-"#]],
-    );
-
-    assert_data_eq!(
-        complete!(cmd, "--input a[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str!["a_file"],
-    );
-
-    assert_data_eq!(
-        complete!(cmd, "-i b[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str!["b_file"],
-    );
 
     assert_data_eq!(
         complete!(cmd, "--format [TAB]"),
@@ -388,14 +352,14 @@ toml
     );
 
     assert_data_eq!(
-        complete!(cmd, "--input a_file [TAB]"),
+        complete!(cmd, "--format toml [TAB]"),
         snapbox::str![[r#"
---input
 --format
+--stream
 --count
 --help	Print help
--i
 -F
+-S
 -c
 -h	Print help
 pos_a
@@ -405,39 +369,26 @@ pos_c
     );
 
     assert_data_eq!(
-        complete!(cmd, "-ci[TAB]", current_dir = Some(testdir_path)),
+        complete!(cmd, "-cS[TAB]"),
         snapbox::str![[r#"
--cia_file
--cib_file
--cic_dir/
--cid_dir/
+-cSstdout
+-cSstderr
 "#]]
     );
 
     assert_data_eq!(
-        complete!(cmd, "-ci=[TAB]", current_dir = Some(testdir_path)),
+        complete!(cmd, "-cS=[TAB]"),
         snapbox::str![[r#"
--ci=a_file
--ci=b_file
--ci=c_dir/
--ci=d_dir/
+-cS=stdout
+-cS=stderr
 "#]]
     );
 
-    assert_data_eq!(
-        complete!(cmd, "-ci=a[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str!["-ci=a_file"]
-    );
+    assert_data_eq!(complete!(cmd, "-cS=stdo[TAB]"), snapbox::str!["-cS=stdout"]);
 
-    assert_data_eq!(
-        complete!(cmd, "-ciF[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str![]
-    );
+    assert_data_eq!(complete!(cmd, "-cSF[TAB]"), snapbox::str![]);
 
-    assert_data_eq!(
-        complete!(cmd, "-ciF=[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str![]
-    );
+    assert_data_eq!(complete!(cmd, "-cSF=[TAB]"), snapbox::str![]);
 }
 
 #[test]
@@ -592,33 +543,153 @@ val3
 }
 
 #[test]
-fn suggest_custom_arg_value() {
-    #[derive(Debug)]
-    struct MyCustomCompleter {}
+fn suggest_value_hint_file_path() {
+    let mut cmd = Command::new("dynamic")
+        .arg(
+            clap::Arg::new("input")
+                .long("input")
+                .short('i')
+                .value_hint(clap::ValueHint::FilePath),
+        )
+        .args_conflicts_with_subcommands(true);
 
-    impl ValueCandidates for MyCustomCompleter {
-        fn candidates(&self) -> Vec<CompletionCandidate> {
-            vec![
-                CompletionCandidate::new("custom1"),
-                CompletionCandidate::new("custom2"),
-                CompletionCandidate::new("custom3"),
-            ]
-        }
+    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+    let testdir_path = testdir.path().unwrap();
+
+    fs::write(testdir_path.join("a_file"), "").unwrap();
+    fs::write(testdir_path.join("b_file"), "").unwrap();
+    fs::create_dir_all(testdir_path.join("c_dir")).unwrap();
+    fs::create_dir_all(testdir_path.join("d_dir")).unwrap();
+
+    assert_data_eq!(
+        complete!(cmd, "--input [TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![[r#"
+a_file
+b_file
+c_dir/
+d_dir/
+"#]],
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--input a[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str!["a_file"],
+    );
+}
+
+#[test]
+fn suggest_value_path_file() {
+    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+    let testdir_path = testdir.path().unwrap();
+    fs::write(testdir_path.join("a_file"), "").unwrap();
+    fs::write(testdir_path.join("b_file"), "").unwrap();
+    fs::create_dir_all(testdir_path.join("c_dir")).unwrap();
+    fs::create_dir_all(testdir_path.join("d_dir")).unwrap();
+
+    let mut cmd = Command::new("dynamic")
+        .arg(
+            clap::Arg::new("input")
+                .long("input")
+                .short('i')
+                .add(ArgValueCompleter::new(
+                    PathCompleter::file()
+                        .stdio()
+                        .current_dir(testdir_path.to_owned()),
+                )),
+        )
+        .args_conflicts_with_subcommands(true);
+
+    assert_data_eq!(
+        complete!(cmd, "--input [TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![[r#"
+a_file
+b_file
+c_dir/
+d_dir/
+-	stdio
+"#]],
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--input a[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str!["a_file"],
+    );
+}
+
+#[test]
+fn suggest_custom_arg_value() {
+    fn custom_completer() -> Vec<CompletionCandidate> {
+        vec![
+            CompletionCandidate::new("foo"),
+            CompletionCandidate::new("bar"),
+            CompletionCandidate::new("baz"),
+        ]
     }
 
     let mut cmd = Command::new("dynamic").arg(
         clap::Arg::new("custom")
             .long("custom")
-            .add::<ArgValueCandidates>(ArgValueCandidates::new(MyCustomCompleter {})),
+            .add(ArgValueCandidates::new(custom_completer)),
     );
 
     assert_data_eq!(
         complete!(cmd, "--custom [TAB]"),
         snapbox::str![[r#"
-custom1
-custom2
-custom3
+foo
+bar
+baz
 "#]],
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--custom b[TAB]"),
+        snapbox::str![[r#"
+bar
+baz
+"#]],
+    );
+}
+
+#[test]
+fn suggest_custom_arg_completer() {
+    fn custom_completer(current: &std::ffi::OsStr) -> Vec<CompletionCandidate> {
+        let mut completions = vec![];
+        let Some(current) = current.to_str() else {
+            return completions;
+        };
+
+        if "foo".starts_with(current) {
+            completions.push(CompletionCandidate::new("foo"));
+        }
+        if "bar".starts_with(current) {
+            completions.push(CompletionCandidate::new("bar"));
+        }
+        if "baz".starts_with(current) {
+            completions.push(CompletionCandidate::new("baz"));
+        }
+        completions
+    }
+
+    let mut cmd = Command::new("dynamic").arg(
+        clap::Arg::new("custom")
+            .long("custom")
+            .add(ArgValueCompleter::new(custom_completer)),
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--custom [TAB]"),
+        snapbox::str![[r#"
+foo
+bar
+baz
+"#]]
+    );
+    assert_data_eq!(
+        complete!(cmd, "--custom b[TAB]"),
+        snapbox::str![[r#"
+bar
+baz
+"#]]
     );
 }
 
