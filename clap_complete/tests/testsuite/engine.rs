@@ -579,9 +579,9 @@ d_dir/
 fn suggest_custom_arg_value() {
     fn custom_completer() -> Vec<CompletionCandidate> {
         vec![
-            CompletionCandidate::new("custom1"),
-            CompletionCandidate::new("custom2"),
-            CompletionCandidate::new("custom3"),
+            CompletionCandidate::new("foo"),
+            CompletionCandidate::new("bar"),
+            CompletionCandidate::new("baz"),
         ]
     }
 
@@ -594,9 +594,17 @@ fn suggest_custom_arg_value() {
     assert_data_eq!(
         complete!(cmd, "--custom [TAB]"),
         snapbox::str![[r#"
-custom1
-custom2
-custom3
+foo
+bar
+baz
+"#]],
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--custom b[TAB]"),
+        snapbox::str![[r#"
+bar
+baz
 "#]],
     );
 }
