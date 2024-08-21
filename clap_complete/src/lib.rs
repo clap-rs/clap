@@ -87,6 +87,8 @@ pub use engine::ArgValueCompleter;
 #[cfg(feature = "unstable-dynamic")]
 pub use engine::CompletionCandidate;
 #[cfg(feature = "unstable-dynamic")]
+pub use engine::PathCompleter;
+#[cfg(feature = "unstable-dynamic")]
 pub use env::CompleteEnv;
 
 /// Deprecated, see [`aot`]

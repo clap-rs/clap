@@ -150,6 +150,78 @@ where
     }
 }
 
+/// Complete a value as a [`std::path::Path`]
+///
+/// # Example
+///
+/// ```rust
+/// use clap::Parser;
+/// use clap_complete::engine::{ArgValueCompleter, PathCompleter};
+///
+/// #[derive(Debug, Parser)]
+/// struct Cli {
+///     #[arg(long, add = ArgValueCompleter::new(PathCompleter::file()))]
+///     custom: Option<String>,
+/// }
+/// ```
+pub struct PathCompleter {
+    current_dir: Option<std::path::PathBuf>,
+    filter: Option<Box<dyn Fn(&std::path::Path) -> bool + Send + Sync>>,
+}
+
+impl PathCompleter {
+    /// Any path is allowed
+    pub fn any() -> Self {
+        Self {
+            filter: None,
+            current_dir: None,
+        }
+    }
+
+    /// Complete only files
+    pub fn file() -> Self {
+        Self::any().filter(|p| p.is_file())
+    }
+
+    /// Complete only directories
+    pub fn dir() -> Self {
+        Self::any().filter(|p| p.is_dir())
+    }
+
+    /// Select which paths should be completed
+    pub fn filter(
+        mut self,
+        filter: impl Fn(&std::path::Path) -> bool + Send + Sync + 'static,
+    ) -> Self {
+        self.filter = Some(Box::new(filter));
+        self
+    }
+
+    /// Override [`std::env::current_dir`]
+    pub fn current_dir(mut self, path: impl Into<std::path::PathBuf>) -> Self {
+        self.current_dir = Some(path.into());
+        self
+    }
+}
+
+impl Default for PathCompleter {
+    fn default() -> Self {
+        Self::any()
+    }
+}
+
+impl ValueCompleter for PathCompleter {
+    fn complete(&self, current: &OsStr) -> Vec<CompletionCandidate> {
+        let filter = self.filter.as_deref().unwrap_or(&|_| true);
+        let mut current_dir_actual = None;
+        let current_dir = self.current_dir.as_deref().or_else(|| {
+            current_dir_actual = std::env::current_dir().ok();
+            current_dir_actual.as_deref()
+        });
+        complete_path(current, current_dir, filter)
+    }
+}
+
 pub(crate) fn complete_path(
     value_os: &OsStr,
     current_dir: Option<&std::path::Path>,
