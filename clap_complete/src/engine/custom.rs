@@ -167,6 +167,7 @@ where
 pub struct PathCompleter {
     current_dir: Option<std::path::PathBuf>,
     filter: Option<Box<dyn Fn(&std::path::Path) -> bool + Send + Sync>>,
+    stdio: bool,
 }
 
 impl PathCompleter {
@@ -175,6 +176,7 @@ impl PathCompleter {
         Self {
             filter: None,
             current_dir: None,
+            stdio: false,
         }
     }
 
@@ -186,6 +188,12 @@ impl PathCompleter {
     /// Complete only directories
     pub fn dir() -> Self {
         Self::any().filter(|p| p.is_dir())
+    }
+
+    /// Include stdio (`-`)
+    pub fn stdio(mut self) -> Self {
+        self.stdio = true;
+        self
     }
 
     /// Select which paths should be completed
@@ -218,7 +226,11 @@ impl ValueCompleter for PathCompleter {
             current_dir_actual = std::env::current_dir().ok();
             current_dir_actual.as_deref()
         });
-        complete_path(current, current_dir, filter)
+        let mut candidates = complete_path(current, current_dir, filter);
+        if self.stdio && current.is_empty() {
+            candidates.push(CompletionCandidate::new("-").help(Some("stdio".into())));
+        }
+        candidates
     }
 }
 

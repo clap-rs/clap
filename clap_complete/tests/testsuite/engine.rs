@@ -592,7 +592,9 @@ fn suggest_value_path_file() {
                 .long("input")
                 .short('i')
                 .add(ArgValueCompleter::new(
-                    PathCompleter::file().current_dir(testdir_path.to_owned()),
+                    PathCompleter::file()
+                        .stdio()
+                        .current_dir(testdir_path.to_owned()),
                 )),
         )
         .args_conflicts_with_subcommands(true);
@@ -604,6 +606,7 @@ a_file
 b_file
 c_dir/
 d_dir/
+-	stdio
 "#]],
     );
 
