@@ -290,17 +290,17 @@ fn complete_arg_value(
                 // Should not complete
             }
             clap::ValueHint::Unknown | clap::ValueHint::AnyPath => {
-                values.extend(complete_path(value_os, current_dir, |_| true));
+                values.extend(complete_path(value_os, current_dir, &|_| true));
             }
             clap::ValueHint::FilePath => {
-                values.extend(complete_path(value_os, current_dir, |p| p.is_file()));
+                values.extend(complete_path(value_os, current_dir, &|p| p.is_file()));
             }
             clap::ValueHint::DirPath => {
-                values.extend(complete_path(value_os, current_dir, |p| p.is_dir()));
+                values.extend(complete_path(value_os, current_dir, &|p| p.is_dir()));
             }
             clap::ValueHint::ExecutablePath => {
                 use is_executable::IsExecutable;
-                values.extend(complete_path(value_os, current_dir, |p| p.is_executable()));
+                values.extend(complete_path(value_os, current_dir, &|p| p.is_executable()));
             }
             clap::ValueHint::CommandName
             | clap::ValueHint::CommandString
@@ -313,7 +313,7 @@ fn complete_arg_value(
             }
             _ => {
                 // Safe-ish fallback
-                values.extend(complete_path(value_os, current_dir, |_| true));
+                values.extend(complete_path(value_os, current_dir, &|_| true));
             }
         }
 

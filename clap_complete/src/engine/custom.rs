@@ -74,7 +74,7 @@ where
 pub(crate) fn complete_path(
     value_os: &OsStr,
     current_dir: Option<&std::path::Path>,
-    is_wanted: impl Fn(&std::path::Path) -> bool,
+    is_wanted: &dyn Fn(&std::path::Path) -> bool,
 ) -> Vec<CompletionCandidate> {
     let mut completions = Vec::new();
 
