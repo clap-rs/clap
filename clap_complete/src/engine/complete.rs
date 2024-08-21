@@ -375,14 +375,12 @@ fn complete_path(
             let path = entry.path();
             let mut suggestion = pathdiff::diff_paths(&path, current_dir).unwrap_or(path);
             suggestion.push(""); // Ensure trailing `/`
-            completions
-                .push(CompletionCandidate::new(suggestion.as_os_str().to_owned()).help(None));
+            completions.push(CompletionCandidate::new(suggestion.as_os_str().to_owned()));
         } else {
             let path = entry.path();
             if is_wanted(&path) {
                 let suggestion = pathdiff::diff_paths(&path, current_dir).unwrap_or(path);
-                completions
-                    .push(CompletionCandidate::new(suggestion.as_os_str().to_owned()).help(None));
+                completions.push(CompletionCandidate::new(suggestion.as_os_str().to_owned()));
             }
         }
     }
