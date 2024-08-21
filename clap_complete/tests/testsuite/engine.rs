@@ -294,16 +294,16 @@ goodbye-world
 fn suggest_argument_value() {
     let mut cmd = Command::new("dynamic")
         .arg(
-            clap::Arg::new("input")
-                .long("input")
-                .short('i')
-                .value_hint(clap::ValueHint::FilePath),
-        )
-        .arg(
             clap::Arg::new("format")
                 .long("format")
                 .short('F')
                 .value_parser(["json", "yaml", "toml"]),
+        )
+        .arg(
+            clap::Arg::new("stream")
+                .long("stream")
+                .short('S')
+                .value_parser(["stdout", "stderr"]),
         )
         .arg(
             clap::Arg::new("count")
@@ -313,44 +313,6 @@ fn suggest_argument_value() {
         )
         .arg(clap::Arg::new("positional").value_parser(["pos_a", "pos_b", "pos_c"]))
         .args_conflicts_with_subcommands(true);
-
-    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
-    let testdir_path = testdir.path().unwrap();
-
-    fs::write(testdir_path.join("a_file"), "").unwrap();
-    fs::write(testdir_path.join("b_file"), "").unwrap();
-    fs::create_dir_all(testdir_path.join("c_dir")).unwrap();
-    fs::create_dir_all(testdir_path.join("d_dir")).unwrap();
-
-    assert_data_eq!(
-        complete!(cmd, "--input [TAB]", current_dir = Some(testdir_path)),
-        snapbox::str![[r#"
-a_file
-b_file
-c_dir/
-d_dir/
-"#]],
-    );
-
-    assert_data_eq!(
-        complete!(cmd, "-i [TAB]", current_dir = Some(testdir_path)),
-        snapbox::str![[r#"
-a_file
-b_file
-c_dir/
-d_dir/
-"#]],
-    );
-
-    assert_data_eq!(
-        complete!(cmd, "--input a[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str!["a_file"],
-    );
-
-    assert_data_eq!(
-        complete!(cmd, "-i b[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str!["b_file"],
-    );
 
     assert_data_eq!(
         complete!(cmd, "--format [TAB]"),
@@ -388,14 +350,14 @@ toml
     );
 
     assert_data_eq!(
-        complete!(cmd, "--input a_file [TAB]"),
+        complete!(cmd, "--format toml [TAB]"),
         snapbox::str![[r#"
---input
 --format
+--stream
 --count
 --help	Print help
--i
 -F
+-S
 -c
 -h	Print help
 pos_a
@@ -405,39 +367,26 @@ pos_c
     );
 
     assert_data_eq!(
-        complete!(cmd, "-ci[TAB]", current_dir = Some(testdir_path)),
+        complete!(cmd, "-cS[TAB]"),
         snapbox::str![[r#"
--cia_file
--cib_file
--cic_dir/
--cid_dir/
+-cSstdout
+-cSstderr
 "#]]
     );
 
     assert_data_eq!(
-        complete!(cmd, "-ci=[TAB]", current_dir = Some(testdir_path)),
+        complete!(cmd, "-cS=[TAB]"),
         snapbox::str![[r#"
--ci=a_file
--ci=b_file
--ci=c_dir/
--ci=d_dir/
+-cS=stdout
+-cS=stderr
 "#]]
     );
 
-    assert_data_eq!(
-        complete!(cmd, "-ci=a[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str!["-ci=a_file"]
-    );
+    assert_data_eq!(complete!(cmd, "-cS=stdo[TAB]"), snapbox::str!["-cS=stdout"]);
 
-    assert_data_eq!(
-        complete!(cmd, "-ciF[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str![]
-    );
+    assert_data_eq!(complete!(cmd, "-cSF[TAB]"), snapbox::str![]);
 
-    assert_data_eq!(
-        complete!(cmd, "-ciF=[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str![]
-    );
+    assert_data_eq!(complete!(cmd, "-cSF=[TAB]"), snapbox::str![]);
 }
 
 #[test]
@@ -588,6 +537,41 @@ val3
 -N
 -h	Print help
 "#]]
+    );
+}
+
+#[test]
+fn suggest_value_hint_file_path() {
+    let mut cmd = Command::new("dynamic")
+        .arg(
+            clap::Arg::new("input")
+                .long("input")
+                .short('i')
+                .value_hint(clap::ValueHint::FilePath),
+        )
+        .args_conflicts_with_subcommands(true);
+
+    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+    let testdir_path = testdir.path().unwrap();
+
+    fs::write(testdir_path.join("a_file"), "").unwrap();
+    fs::write(testdir_path.join("b_file"), "").unwrap();
+    fs::create_dir_all(testdir_path.join("c_dir")).unwrap();
+    fs::create_dir_all(testdir_path.join("d_dir")).unwrap();
+
+    assert_data_eq!(
+        complete!(cmd, "--input [TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![[r#"
+a_file
+b_file
+c_dir/
+d_dir/
+"#]],
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--input a[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str!["a_file"],
     );
 }
 
