@@ -5,6 +5,7 @@ use clap_lex::OsStrExt as _;
 
 use super::custom::complete_path;
 use super::ArgValueCandidates;
+use super::ArgValueCompleter;
 use super::CompletionCandidate;
 
 /// Complete the given command, shell-agnostic
@@ -271,7 +272,9 @@ fn complete_arg_value(
         Err(value_os) => value_os,
     };
 
-    if let Some(completer) = arg.get::<ArgValueCandidates>() {
+    if let Some(completer) = arg.get::<ArgValueCompleter>() {
+        values.extend(completer.complete(value_os));
+    } else if let Some(completer) = arg.get::<ArgValueCandidates>() {
         values.extend(complete_custom_arg_value(value_os, completer));
     } else if let Some(possible_values) = possible_values(arg) {
         if let Ok(value) = value {

@@ -81,6 +81,8 @@ pub use command::CompleteCommand;
 #[doc(inline)]
 #[cfg(feature = "unstable-dynamic")]
 pub use engine::ArgValueCandidates;
+#[cfg(feature = "unstable-dynamic")]
+pub use engine::ArgValueCompleter;
 #[doc(inline)]
 #[cfg(feature = "unstable-dynamic")]
 pub use engine::CompletionCandidate;

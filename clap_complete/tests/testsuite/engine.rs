@@ -4,7 +4,7 @@ use std::fs;
 use std::path::Path;
 
 use clap::{builder::PossibleValue, Command};
-use clap_complete::engine::{ArgValueCandidates, CompletionCandidate};
+use clap_complete::engine::{ArgValueCandidates, ArgValueCompleter, CompletionCandidate};
 use snapbox::assert_data_eq;
 
 macro_rules! complete {
@@ -606,6 +606,49 @@ baz
 bar
 baz
 "#]],
+    );
+}
+
+#[test]
+fn suggest_custom_arg_completer() {
+    fn custom_completer(current: &std::ffi::OsStr) -> Vec<CompletionCandidate> {
+        let mut completions = vec![];
+        let Some(current) = current.to_str() else {
+            return completions;
+        };
+
+        if "foo".starts_with(current) {
+            completions.push(CompletionCandidate::new("foo"));
+        }
+        if "bar".starts_with(current) {
+            completions.push(CompletionCandidate::new("bar"));
+        }
+        if "baz".starts_with(current) {
+            completions.push(CompletionCandidate::new("baz"));
+        }
+        completions
+    }
+
+    let mut cmd = Command::new("dynamic").arg(
+        clap::Arg::new("custom")
+            .long("custom")
+            .add(ArgValueCompleter::new(custom_completer)),
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--custom [TAB]"),
+        snapbox::str![[r#"
+foo
+bar
+baz
+"#]]
+    );
+    assert_data_eq!(
+        complete!(cmd, "--custom b[TAB]"),
+        snapbox::str![[r#"
+bar
+baz
+"#]]
     );
 }
 

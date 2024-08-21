@@ -71,6 +71,85 @@ where
     }
 }
 
+/// Extend [`Arg`][clap::Arg] with a completer
+///
+/// # Example
+///
+/// ```rust
+/// use clap::Parser;
+/// use clap_complete::engine::{ArgValueCompleter, CompletionCandidate};
+///
+/// fn custom_completer(current: &std::ffi::OsStr) -> Vec<CompletionCandidate> {
+///     let mut completions = vec![];
+///     let Some(current) = current.to_str() else {
+///         return completions;
+///     };
+///
+///     if "foo".starts_with(current) {
+///         completions.push(CompletionCandidate::new("foo"));
+///     }
+///     if "bar".starts_with(current) {
+///         completions.push(CompletionCandidate::new("bar"));
+///     }
+///     if "baz".starts_with(current) {
+///         completions.push(CompletionCandidate::new("baz"));
+///     }
+///     completions
+/// }
+///
+/// #[derive(Debug, Parser)]
+/// struct Cli {
+///     #[arg(long, add = ArgValueCompleter::new(custom_completer))]
+///     custom: Option<String>,
+/// }
+/// ```
+#[derive(Clone)]
+pub struct ArgValueCompleter(Arc<dyn ValueCompleter>);
+
+impl ArgValueCompleter {
+    /// Create a new `ArgValueCompleter` with a custom completer
+    pub fn new<C>(completer: C) -> Self
+    where
+        C: ValueCompleter + 'static,
+    {
+        Self(Arc::new(completer))
+    }
+
+    /// Candidates that match `current`
+    ///
+    /// See [`CompletionCandidate`] for more information.
+    pub fn complete(&self, current: &OsStr) -> Vec<CompletionCandidate> {
+        self.0.complete(current)
+    }
+}
+
+impl std::fmt::Debug for ArgValueCompleter {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(type_name::<Self>())
+    }
+}
+
+impl ArgExt for ArgValueCompleter {}
+
+/// User-provided completion candidates for an [`Arg`][clap::Arg], see [`ArgValueCompleter`]
+///
+/// This is useful when predefined value hints are not enough.
+pub trait ValueCompleter: Send + Sync {
+    /// All potential candidates for an argument.
+    ///
+    /// See [`CompletionCandidate`] for more information.
+    fn complete(&self, current: &OsStr) -> Vec<CompletionCandidate>;
+}
+
+impl<F> ValueCompleter for F
+where
+    F: Fn(&OsStr) -> Vec<CompletionCandidate> + Send + Sync,
+{
+    fn complete(&self, current: &OsStr) -> Vec<CompletionCandidate> {
+        self(current)
+    }
+}
+
 pub(crate) fn complete_path(
     value_os: &OsStr,
     current_dir: Option<&std::path::Path>,

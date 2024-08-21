@@ -50,6 +50,7 @@ pub use shells::*;
 /// - [`ValueHint`][crate::ValueHint]
 /// - [`ValueEnum`][clap::ValueEnum]
 /// - [`ArgValueCandidates`][crate::ArgValueCandidates]
+/// - [`ArgValueCompleter`][crate::ArgValueCompleter]
 ///
 /// **Warning:** `stdout` should not be written to before [`CompleteCommand::complete`] has had a
 /// chance to run.
@@ -122,6 +123,7 @@ impl CompleteCommand {
 /// - [`ValueHint`][crate::ValueHint]
 /// - [`ValueEnum`][clap::ValueEnum]
 /// - [`ArgValueCandidates`][crate::ArgValueCandidates]
+/// - [`ArgValueCompleter`][crate::ArgValueCompleter]
 ///
 /// **Warning:** `stdout` should not be written to before [`CompleteArgs::complete`] has had a
 /// chance to run.
