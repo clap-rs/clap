@@ -617,6 +617,40 @@ d_dir/
 }
 
 #[test]
+fn suggest_value_path_dir() {
+    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+    let testdir_path = testdir.path().unwrap();
+    fs::write(testdir_path.join("a_file"), "").unwrap();
+    fs::write(testdir_path.join("b_file"), "").unwrap();
+    fs::create_dir_all(testdir_path.join("c_dir")).unwrap();
+    fs::create_dir_all(testdir_path.join("d_dir")).unwrap();
+
+    let mut cmd = Command::new("dynamic")
+        .arg(
+            clap::Arg::new("input")
+                .long("input")
+                .short('i')
+                .add(ArgValueCompleter::new(
+                    PathCompleter::dir().current_dir(testdir_path.to_owned()),
+                )),
+        )
+        .args_conflicts_with_subcommands(true);
+
+    assert_data_eq!(
+        complete!(cmd, "--input [TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![[r#"
+c_dir/
+d_dir/
+"#]],
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--input c[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str!["c_dir/"],
+    );
+}
+
+#[test]
 fn suggest_custom_arg_value() {
     fn custom_completer() -> Vec<CompletionCandidate> {
         vec![
