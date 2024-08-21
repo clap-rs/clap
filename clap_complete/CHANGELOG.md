@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(dynamic)* Dir completions now include `.`
+
 ## [4.5.21] - 2024-08-21
 
 ### Features
