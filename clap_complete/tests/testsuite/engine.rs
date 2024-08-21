@@ -639,6 +639,7 @@ fn suggest_value_path_dir() {
     assert_data_eq!(
         complete!(cmd, "--input [TAB]", current_dir = Some(testdir_path)),
         snapbox::str![[r#"
+.
 c_dir/
 d_dir/
 "#]],

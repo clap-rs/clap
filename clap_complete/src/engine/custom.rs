@@ -259,6 +259,10 @@ pub(crate) fn complete_path(
     };
     debug!("complete_path: search_root={search_root:?}, prefix={prefix:?}");
 
+    if value_os.is_empty() && is_wanted(&search_root) {
+        completions.push(".".into());
+    }
+
     for entry in std::fs::read_dir(&search_root)
         .ok()
         .into_iter()
