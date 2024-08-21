@@ -348,38 +348,42 @@ fn complete_path(
 ) -> Vec<CompletionCandidate> {
     let mut completions = Vec::new();
 
-    let current_dir = match current_dir {
-        Some(current_dir) => current_dir,
-        None => {
-            // Can't complete without a `current_dir`
-            return Vec::new();
-        }
+    let value_path = std::path::Path::new(value_os);
+    let (prefix, current) = split_file_name(value_path);
+    let current = current.to_string_lossy();
+    let search_root = if prefix.is_absolute() {
+        prefix.to_owned()
+    } else {
+        let current_dir = match current_dir {
+            Some(current_dir) => current_dir,
+            None => {
+                // Can't complete without a `current_dir`
+                return Vec::new();
+            }
+        };
+        current_dir.join(prefix)
     };
-    let absolute = current_dir.join(value_os);
-    let (root, prefix) = split_file_name(&absolute);
-    let prefix = prefix.to_string_lossy();
-    debug!("complete_path: root={root:?}, prefix={prefix:?}");
+    debug!("complete_path: search_root={search_root:?}, prefix={prefix:?}");
 
-    for entry in std::fs::read_dir(&root)
+    for entry in std::fs::read_dir(&search_root)
         .ok()
         .into_iter()
         .flatten()
         .filter_map(Result::ok)
     {
         let raw_file_name = entry.file_name();
-        if !raw_file_name.starts_with(&prefix) {
+        if !raw_file_name.starts_with(&current) {
             continue;
         }
 
         if entry.metadata().map(|m| m.is_dir()).unwrap_or(false) {
-            let path = entry.path();
-            let mut suggestion = pathdiff::diff_paths(&path, current_dir).unwrap_or(path);
+            let mut suggestion = prefix.join(raw_file_name);
             suggestion.push(""); // Ensure trailing `/`
             completions.push(CompletionCandidate::new(suggestion.as_os_str().to_owned()));
         } else {
             let path = entry.path();
             if is_wanted(&path) {
-                let suggestion = pathdiff::diff_paths(&path, current_dir).unwrap_or(path);
+                let suggestion = prefix.join(raw_file_name);
                 completions.push(CompletionCandidate::new(suggestion.as_os_str().to_owned()));
             }
         }
@@ -401,12 +405,12 @@ fn split_file_name(path: &std::path::Path) -> (&std::path::Path, &OsStr) {
 }
 
 fn path_has_name(path: &std::path::Path) -> bool {
-    let path = path.as_os_str().as_encoded_bytes();
-    let Some(trailing) = path.last() else {
+    let path_bytes = path.as_os_str().as_encoded_bytes();
+    let Some(trailing) = path_bytes.last() else {
         return false;
     };
     let trailing = *trailing as char;
-    !std::path::is_separator(trailing)
+    !std::path::is_separator(trailing) && path.file_name().is_some()
 }
 
 fn complete_custom_arg_value(
