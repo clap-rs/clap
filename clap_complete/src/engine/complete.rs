@@ -355,12 +355,10 @@ fn complete_path(
             return Vec::new();
         }
     };
-    let (existing, prefix) = value_os
-        .split_once("\\")
-        .unwrap_or((OsStr::new(""), value_os));
-    let root = current_dir.join(existing);
-    debug!("complete_path: root={root:?}, prefix={prefix:?}");
+    let absolute = current_dir.join(value_os);
+    let (root, prefix) = split_file_name(&absolute);
     let prefix = prefix.to_string_lossy();
+    debug!("complete_path: root={root:?}, prefix={prefix:?}");
 
     for entry in std::fs::read_dir(&root)
         .ok()
@@ -390,6 +388,27 @@ fn complete_path(
     }
 
     completions
+}
+
+fn split_file_name(path: &std::path::Path) -> (&std::path::Path, &OsStr) {
+    // Workaround that `Path::new("name/").file_name()` reports `"name"`
+    if path_has_name(path) {
+        (
+            path.parent().unwrap_or_else(|| std::path::Path::new("")),
+            path.file_name().expect("not called with `..`"),
+        )
+    } else {
+        (path, Default::default())
+    }
+}
+
+fn path_has_name(path: &std::path::Path) -> bool {
+    let path = path.as_os_str().as_encoded_bytes();
+    let Some(trailing) = path.last() else {
+        return false;
+    };
+    let trailing = *trailing as char;
+    !std::path::is_separator(trailing)
 }
 
 fn complete_custom_arg_value(
