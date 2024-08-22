@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.23] - 2024-08-22
+
 ### Compatibility
 
 - *(dynamic)* Rename `CompletionCandidate::get_content` to `CompletionCandidate::get_value`
@@ -390,7 +392,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.22...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.23...HEAD
+[4.5.23]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.22...clap_complete-v4.5.23
 [4.5.22]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.21...clap_complete-v4.5.22
 [4.5.21]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.20...clap_complete-v4.5.21
 [4.5.20]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.19...clap_complete-v4.5.20
