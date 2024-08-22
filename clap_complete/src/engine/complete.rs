@@ -150,15 +150,11 @@ fn complete_arg(
                         }
                     } else {
                         completions.extend(longs_and_visible_aliases(cmd).into_iter().filter(
-                            |comp| {
-                                comp.get_content()
-                                    .starts_with(format!("--{}", flag).as_str())
-                            },
+                            |comp| comp.get_value().starts_with(format!("--{}", flag).as_str()),
                         ));
 
                         completions.extend(hidden_longs_aliases(cmd).into_iter().filter(|comp| {
-                            comp.get_content()
-                                .starts_with(format!("--{}", flag).as_str())
+                            comp.get_value().starts_with(format!("--{}", flag).as_str())
                         }));
                     }
                 }
@@ -352,7 +348,7 @@ fn complete_custom_arg_value(
     debug!("complete_custom_arg_value: completer={completer:?}, value={value:?}");
 
     let mut values = completer.candidates();
-    values.retain(|comp| comp.get_content().starts_with(&value.to_string_lossy()));
+    values.retain(|comp| comp.get_value().starts_with(&value.to_string_lossy()));
     values
 }
 
@@ -365,7 +361,7 @@ fn complete_subcommand(value: &str, cmd: &clap::Command) -> Vec<CompletionCandid
 
     let mut scs = subcommands(cmd)
         .into_iter()
-        .filter(|x| x.get_content().starts_with(value))
+        .filter(|x| x.get_value().starts_with(value))
         .collect::<Vec<_>>();
     scs.sort();
     scs.dedup();

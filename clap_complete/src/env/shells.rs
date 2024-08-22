@@ -92,7 +92,7 @@ fi
             if i != 0 {
                 write!(buf, "{}", ifs.as_deref().unwrap_or("\n"))?;
             }
-            write!(buf, "{}", candidate.get_content().to_string_lossy())?;
+            write!(buf, "{}", candidate.get_value().to_string_lossy())?;
         }
         Ok(())
     }
@@ -195,7 +195,7 @@ set edit:completion:arg-completer[BIN] = { |@words|
             if i != 0 {
                 write!(buf, "{}", ifs.as_deref().unwrap_or("\n"))?;
             }
-            write!(buf, "{}", candidate.get_content().to_string_lossy())?;
+            write!(buf, "{}", candidate.get_value().to_string_lossy())?;
         }
         Ok(())
     }
@@ -240,7 +240,7 @@ impl EnvCompleter for Fish {
         let completions = crate::engine::complete(cmd, args, index, current_dir)?;
 
         for candidate in completions {
-            write!(buf, "{}", candidate.get_content().to_string_lossy())?;
+            write!(buf, "{}", candidate.get_value().to_string_lossy())?;
             if let Some(help) = candidate.get_help() {
                 write!(
                     buf,
@@ -313,7 +313,7 @@ Register-ArgumentCompleter -Native -CommandName {bin} -ScriptBlock {{
         let completions = crate::engine::complete(cmd, args, index, current_dir)?;
 
         for candidate in completions {
-            write!(buf, "{}", candidate.get_content().to_string_lossy())?;
+            write!(buf, "{}", candidate.get_value().to_string_lossy())?;
             if let Some(help) = candidate.get_help() {
                 write!(
                     buf,
@@ -399,7 +399,7 @@ compdef _clap_dynamic_completer BIN"#
             if i != 0 {
                 write!(buf, "{}", ifs.as_deref().unwrap_or("\n"))?;
             }
-            write!(buf, "{}", candidate.get_content().to_string_lossy())?;
+            write!(buf, "{}", candidate.get_value().to_string_lossy())?;
         }
         Ok(())
     }
