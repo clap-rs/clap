@@ -6,17 +6,17 @@ use clap::builder::StyledStr;
 /// A shell-agnostic completion candidate
 #[derive(Default, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct CompletionCandidate {
-    content: OsString,
+    value: OsString,
     help: Option<StyledStr>,
     hidden: bool,
 }
 
 impl CompletionCandidate {
     /// Create a new completion candidate
-    pub fn new(content: impl Into<OsString>) -> Self {
-        let content = content.into();
+    pub fn new(value: impl Into<OsString>) -> Self {
+        let value = value.into();
         Self {
-            content,
+            value,
             ..Default::default()
         }
     }
@@ -35,24 +35,24 @@ impl CompletionCandidate {
         self
     }
 
-    /// Add a prefix to the content of completion candidate
+    /// Add a prefix to the value of completion candidate
     ///
     /// This is generally used for post-process by [`complete`][crate::engine::complete()] for
     /// things like pre-pending flags, merging delimiter-separated values, etc.
     pub fn add_prefix(mut self, prefix: impl Into<OsString>) -> Self {
-        let suffix = self.content;
-        let mut content = prefix.into();
-        content.push(&suffix);
-        self.content = content;
+        let suffix = self.value;
+        let mut value = prefix.into();
+        value.push(&suffix);
+        self.value = value;
         self
     }
 }
 
 /// Reflection API
 impl CompletionCandidate {
-    /// Get the content of the completion candidate
-    pub fn get_content(&self) -> &OsStr {
-        &self.content
+    /// Get the literal value being proposed for completion
+    pub fn get_value(&self) -> &OsStr {
+        &self.value
     }
 
     /// Get the help message of the completion candidate

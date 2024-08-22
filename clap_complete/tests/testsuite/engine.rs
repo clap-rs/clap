@@ -1006,7 +1006,7 @@ fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>
         .unwrap()
         .into_iter()
         .map(|candidate| {
-            let compl = candidate.get_content().to_str().unwrap();
+            let compl = candidate.get_value().to_str().unwrap();
             if let Some(help) = candidate.get_help() {
                 format!("{compl}\t{help}")
             } else {
