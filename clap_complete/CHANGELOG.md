@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Compatibility
+
+- *(dynamic)* Rename `CompletionCandidate::get_content` to `CompletionCandidate::get_value`
+
 ## [4.5.22] - 2024-08-21
 
 ### Fixes
