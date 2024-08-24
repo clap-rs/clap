@@ -45,7 +45,7 @@ We ask that commits are atomic, meaning they are complete and have a single resp
 PRs should tell a cohesive story, with test and refactor commits that keep the
 fix or feature commits simple and clear.
 
-Specifically, we would encouage
+Specifically, we would encourage
 - File renames be isolated into their own commit
 - Add tests in a commit before their feature or fix, showing the current behavior.
   The diff for the feature/fix commit will then show how the behavior changed,
