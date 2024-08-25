@@ -84,6 +84,7 @@ pub(crate) fn gen_for_enum(
     let mut augmentations_update = TokenStream::default();
 
     let mut constructors = TokenStream::default();
+    let mut updaters = TokenStream::default();
 
     for (item, variant) in variants.iter() {
         let Fields::Named(ref fields) = variant.fields else {
@@ -128,6 +129,23 @@ pub(crate) fn gen_for_enum(
         };
 
         constructors.extend(constructor);
+
+        let genned_updater = gen_updater(&fields, false)?;
+
+        let field_names = fields
+            .iter()
+            .map(|(field, _)| field.ident.as_ref().unwrap());
+        let updater = quote! {
+
+            if __clap_arg_matches.contains_id(#group_id) {
+                let #item_name::#variant_name { #( #field_names ),* } = self else {
+                    unreachable!();
+                };
+                #genned_updater;
+            }
+        };
+
+        updaters.extend(updater);
     }
 
     let raw_deprecated = raw_deprecated();
@@ -171,7 +189,7 @@ pub(crate) fn gen_for_enum(
 
             fn update_from_arg_matches_mut(&mut self, __clap_arg_matches: &mut clap::ArgMatches) -> ::std::result::Result<(), clap::Error> {
                 #raw_deprecated
-                // #updater
+                #updaters
                 ::std::result::Result::Ok(())
             }
         }
