@@ -18,6 +18,7 @@ use syn::{
     punctuated::Punctuated, spanned::Spanned, token::Comma, Data, DataStruct, DeriveInput, Field,
     Fields, FieldsNamed, Generics,
 };
+use syn::{DataEnum, Variant};
 
 use crate::item::{Item, Kind, Name};
 use crate::utils::{inner_type, sub_type, Sp, Ty};
@@ -51,8 +52,109 @@ pub(crate) fn derive_args(input: &DeriveInput) -> Result<TokenStream, syn::Error
                 .collect::<Result<Vec<_>, syn::Error>>()?;
             gen_for_struct(&item, ident, &input.generics, &fields)
         }
+        Data::Enum(DataEnum { ref variants, .. }) => {
+            let name = Name::Derived(ident.clone());
+            let item = Item::from_args_struct(input, name)?;
+
+            let variant_items = variants
+                .iter()
+                .map(|variant| {
+                    let item =
+                        Item::from_args_enum_variant(variant, item.casing(), item.env_casing())?;
+                    Ok((item, variant))
+                })
+                .collect::<Result<Vec<_>, syn::Error>>()?;
+
+            gen_for_enum(&item, ident, &input.generics, &variant_items)
+        }
         _ => abort_call_site!("`#[derive(Args)]` only supports non-tuple structs"),
     }
+}
+
+pub(crate) fn gen_for_enum(
+    _item: &Item,
+    item_name: &Ident,
+    generics: &Generics,
+    variants: &[(Item, &Variant)],
+) -> Result<TokenStream, syn::Error> {
+    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
+
+    let app_var = Ident::new("__clap_app", Span::call_site());
+    let mut augmentations = TokenStream::default();
+    let mut augmentations_update = TokenStream::default();
+
+    for (item, variant) in variants.iter() {
+        let Fields::Named(ref fields) = variant.fields else {
+            abort! { variant.span(),
+                "`#[derive(Args)]` only supports named enum variants if used on an enum",
+            }
+        };
+
+        let conflicts = variants
+            .iter()
+            .filter_map(|(_, v)| {
+                if v.ident == variant.ident {
+                    None
+                } else {
+                    Some(Name::Derived(v.ident.clone()))
+                }
+            })
+            .collect::<Vec<_>>();
+
+        let fields = collect_args_fields(item, fields)?;
+
+        let augmentation = gen_augment(&fields, &app_var, item, &conflicts, false)?;
+        let augmentation = quote! {
+            let #app_var = #augmentation;
+        };
+        let augmentation_update = gen_augment(&fields, &app_var, item, &conflicts, true)?;
+        let augmentation_update = quote! {
+            let #app_var = #augmentation_update;
+        };
+
+        augmentations.extend(augmentation);
+        augmentations_update.extend(augmentation_update);
+    }
+
+    Ok(quote! {
+
+        #[allow(
+            dead_code,
+            unreachable_code,
+            unused_variables,
+            unused_braces,
+            unused_qualifications,
+        )]
+        #[allow(
+            clippy::style,
+            clippy::complexity,
+            clippy::pedantic,
+            clippy::restriction,
+            clippy::perf,
+            clippy::deprecated,
+            clippy::nursery,
+            clippy::cargo,
+            clippy::suspicious_else_formatting,
+            clippy::almost_swapped,
+            clippy::redundant_locals,
+        )]
+        #[automatically_derived]
+        impl #impl_generics clap::Args for #item_name #ty_generics #where_clause {
+            fn group_id() -> Option<clap::Id> {
+                // todo: how does this interact with nested groups here
+                None
+            }
+            fn augment_args<'b>(#app_var: clap::Command) -> clap::Command {
+                #augmentations
+                #app_var
+            }
+            fn augment_args_for_update<'b>(#app_var: clap::Command) -> clap::Command {
+                #augmentations_update
+                #app_var
+            }
+        }
+
+    })
 }
 
 pub(crate) fn gen_for_struct(
@@ -75,8 +177,8 @@ pub(crate) fn gen_for_struct(
     let raw_deprecated = raw_deprecated();
 
     let app_var = Ident::new("__clap_app", Span::call_site());
-    let augmentation = gen_augment(fields, &app_var, item, false)?;
-    let augmentation_update = gen_augment(fields, &app_var, item, true)?;
+    let augmentation = gen_augment(fields, &app_var, item, &[], false)?;
+    let augmentation_update = gen_augment(fields, &app_var, item, &[], true)?;
 
     let group_id = if item.skip_group() {
         quote!(None)
@@ -170,6 +272,9 @@ pub(crate) fn gen_augment(
     fields: &[(&Field, Item)],
     app_var: &Ident,
     parent_item: &Item,
+    // when generating mutably exclusive arguments,
+    // ids of arguments that should conflict
+    conflicts: &[Name],
     override_required: bool,
 ) -> Result<TokenStream, syn::Error> {
     let mut subcommand_specified = false;
@@ -420,12 +525,25 @@ pub(crate) fn gen_augment(
 
         let group_methods = parent_item.group_methods();
 
+        let conflicts_method = if conflicts.is_empty() {
+            quote!()
+        } else {
+            let conflicts_len = conflicts.len();
+            quote! {
+                .conflicts_with_all({
+                    let conflicts: [clap::Id; #conflicts_len] = [#( clap::Id::from(#conflicts) ),* ];
+                    conflicts
+                })
+            }
+        };
+
         quote!(
             .group(
                 clap::ArgGroup::new(#group_id)
                     .multiple(true)
                     #group_methods
                     .args(#literal_group_members)
+                    #conflicts_method
             )
         )
     };
