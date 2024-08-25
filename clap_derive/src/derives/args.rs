@@ -83,12 +83,15 @@ pub(crate) fn gen_for_enum(
     let mut augmentations = TokenStream::default();
     let mut augmentations_update = TokenStream::default();
 
+    let mut constructors = TokenStream::default();
+
     for (item, variant) in variants.iter() {
         let Fields::Named(ref fields) = variant.fields else {
             abort! { variant.span(),
                 "`#[derive(Args)]` only supports named enum variants if used on an enum",
             }
         };
+        let group_id = item.group_id();
 
         let conflicts = variants
             .iter()
@@ -114,9 +117,65 @@ pub(crate) fn gen_for_enum(
 
         augmentations.extend(augmentation);
         augmentations_update.extend(augmentation_update);
+
+        let variant_name = &variant.ident;
+        let genned_constructor = gen_constructor(&fields)?;
+        let constructor = quote! {
+            if __clap_arg_matches.contains_id(#group_id) {
+                let v = #item_name::#variant_name #genned_constructor;
+                return ::std::result::Result::Ok(v)
+            }
+        };
+
+        constructors.extend(constructor);
     }
 
+    let raw_deprecated = raw_deprecated();
+
     Ok(quote! {
+        #[allow(
+            dead_code,
+            unreachable_code,
+            unused_variables,
+            unused_braces,
+            unused_qualifications,
+        )]
+        #[allow(
+            clippy::style,
+            clippy::complexity,
+            clippy::pedantic,
+            clippy::restriction,
+            clippy::perf,
+            clippy::deprecated,
+            clippy::nursery,
+            clippy::cargo,
+            clippy::suspicious_else_formatting,
+            clippy::almost_swapped,
+            clippy::redundant_locals,
+        )]
+        #[automatically_derived]
+        impl #impl_generics clap::FromArgMatches for #item_name #ty_generics #where_clause {
+            fn from_arg_matches(__clap_arg_matches: &clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
+                Self::from_arg_matches_mut(&mut __clap_arg_matches.clone())
+            }
+
+            fn from_arg_matches_mut(__clap_arg_matches: &mut clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
+                #raw_deprecated
+                #constructors
+                unreachable!()
+            }
+
+            fn update_from_arg_matches(&mut self, __clap_arg_matches: &clap::ArgMatches) -> ::std::result::Result<(), clap::Error> {
+                self.update_from_arg_matches_mut(&mut __clap_arg_matches.clone())
+            }
+
+            fn update_from_arg_matches_mut(&mut self, __clap_arg_matches: &mut clap::ArgMatches) -> ::std::result::Result<(), clap::Error> {
+                #raw_deprecated
+                // #updater
+                ::std::result::Result::Ok(())
+            }
+        }
+
 
         #[allow(
             dead_code,
