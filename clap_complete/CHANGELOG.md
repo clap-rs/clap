@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(dynamic)* Ensure a new enough `shlex` is required
+
 ## [4.5.23] - 2024-08-22
 
 ### Compatibility
