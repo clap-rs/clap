@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.24] - 2024-08-27
+
 ### Fixes
 
 - *(dynamic)* Ensure a new enough `shlex` is required
@@ -396,7 +398,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.23...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.24...HEAD
+[4.5.24]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.23...clap_complete-v4.5.24
 [4.5.23]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.22...clap_complete-v4.5.23
 [4.5.22]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.21...clap_complete-v4.5.22
 [4.5.21]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.20...clap_complete-v4.5.21
