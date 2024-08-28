@@ -37,7 +37,7 @@ clippy-%:
 	cargo clippy ${_FEATURES_${@:clippy-%=%}} ${ARGS} --all-targets -- -D warnings -A deprecated
 
 test-ui-%:
-	cargo +${STABLE} test --test derive_ui --features derive ${_FEATURES_${@:test-ui-%=%}}
+	cargo +${STABLE} test --test derive_ui --features derive,unstable-derive-ui-tests ${_FEATURES_${@:test-ui-%=%}}
 
 doc:
 	cargo doc --workspace --all-features --no-deps --document-private-items
