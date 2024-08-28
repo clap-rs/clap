@@ -1,0 +1,42 @@
+error[E0599]: the method `value_parser` exists for reference `&&&&&&_AutoValueParser<Custom>`, but its trait bounds were not satisfied
+ --> tests/derive_ui/value_parser_unsupported.rs:5:5
+  |
+5 |     foo: Custom,
+  |     ^^^ method cannot be called on `&&&&&&_AutoValueParser<Custom>` due to unsatisfied trait bounds
+...
+9 | struct Custom;
+  | ------------- doesn't satisfy 7 bounds
+  |
+ ::: clap_builder/src/builder/value_parser.rs
+  |
+  | pub struct _AutoValueParser<T>(std::marker::PhantomData<T>);
+  | ------------------------------ doesn't satisfy `_: _ValueParserViaParse`
+  |
+  = note: the following trait bounds were not satisfied:
+          `Custom: ValueEnum`
+          which is required by `&&&&&_AutoValueParser<Custom>: clap::builder::via_prelude::_ValueParserViaValueEnum`
+          `Custom: ValueParserFactory`
+          which is required by `&&&&&&_AutoValueParser<Custom>: clap::builder::via_prelude::_ValueParserViaFactory`
+          `Custom: From<OsString>`
+          which is required by `&&&&_AutoValueParser<Custom>: clap::builder::via_prelude::_ValueParserViaFromOsString`
+          `Custom: From<&'s std::ffi::OsStr>`
+          which is required by `&&&_AutoValueParser<Custom>: clap::builder::via_prelude::_ValueParserViaFromOsStr`
+          `Custom: From<std::string::String>`
+          which is required by `&&_AutoValueParser<Custom>: clap::builder::via_prelude::_ValueParserViaFromString`
+          `Custom: From<&'s str>`
+          which is required by `&_AutoValueParser<Custom>: clap::builder::via_prelude::_ValueParserViaFromStr`
+          `Custom: FromStr`
+          which is required by `_AutoValueParser<Custom>: clap::builder::via_prelude::_ValueParserViaParse`
+note: the traits `From`, `FromStr`, `ValueEnum`,  and `ValueParserFactory` must be implemented
+ --> clap_builder/src/builder/value_parser.rs
+  |
+  | pub trait ValueParserFactory {
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+ ::: clap_builder/src/derive.rs
+  |
+  | pub trait ValueEnum: Sized + Clone {
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ --> $RUST/core/src/convert/mod.rs
+ --> $RUST/core/src/str/traits.rs
+  = note: this error originates in the macro `clap::value_parser` (in Nightly builds, run with -Z macro-backtrace for more info)
