@@ -41,7 +41,7 @@ pub use resettable::Resettable;
 pub use styled_str::StyledStr;
 pub use styling::Styles;
 pub use value_hint::ValueHint;
-pub use value_parser::_InferValueParserFor;
+pub use value_parser::_infer_ValueParser_for;
 pub use value_parser::impl_prelude;
 pub use value_parser::BoolValueParser;
 pub use value_parser::BoolishValueParser;
