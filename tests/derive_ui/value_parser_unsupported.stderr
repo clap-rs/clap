@@ -1,32 +1,32 @@
-error[E0599]: the method `value_parser` exists for reference `&&&&&&_AutoValueParser<Custom>`, but its trait bounds were not satisfied
+error[E0599]: the method `value_parser` exists for reference `&&&&&&_InferValueParserFor<Custom>`, but its trait bounds were not satisfied
  --> tests/derive_ui/value_parser_unsupported.rs:5:5
   |
 5 |     foo: Custom,
-  |     ^^^ method cannot be called on `&&&&&&_AutoValueParser<Custom>` due to unsatisfied trait bounds
+  |     ^^^ method cannot be called on `&&&&&&_InferValueParserFor<Custom>` due to unsatisfied trait bounds
 ...
 9 | struct Custom;
   | ------------- doesn't satisfy 7 bounds
   |
  ::: clap_builder/src/builder/value_parser.rs
   |
-  | pub struct _AutoValueParser<T>(std::marker::PhantomData<T>);
-  | ------------------------------ doesn't satisfy `_: _ValueParserViaParse`
+  | pub struct _InferValueParserFor<T>(std::marker::PhantomData<T>);
+  | ---------------------------------- doesn't satisfy `_: _ImplsStrParse`
   |
   = note: the following trait bounds were not satisfied:
           `Custom: ValueEnum`
-          which is required by `&&&&&_AutoValueParser<Custom>: clap::builder::via_prelude::_ValueParserViaValueEnum`
+          which is required by `&&&&&_InferValueParserFor<Custom>: clap::builder::impl_prelude::_ImplsValueEnum`
           `Custom: ValueParserFactory`
-          which is required by `&&&&&&_AutoValueParser<Custom>: clap::builder::via_prelude::_ValueParserViaFactory`
+          which is required by `&&&&&&_InferValueParserFor<Custom>: clap::builder::impl_prelude::_ImplsValueParserFactory`
           `Custom: From<OsString>`
-          which is required by `&&&&_AutoValueParser<Custom>: clap::builder::via_prelude::_ValueParserViaFromOsString`
+          which is required by `&&&&_InferValueParserFor<Custom>: clap::builder::impl_prelude::_ImplsFromOsString`
           `Custom: From<&'s std::ffi::OsStr>`
-          which is required by `&&&_AutoValueParser<Custom>: clap::builder::via_prelude::_ValueParserViaFromOsStr`
+          which is required by `&&&_InferValueParserFor<Custom>: clap::builder::impl_prelude::_ImplsFromOsStr`
           `Custom: From<std::string::String>`
-          which is required by `&&_AutoValueParser<Custom>: clap::builder::via_prelude::_ValueParserViaFromString`
+          which is required by `&&_InferValueParserFor<Custom>: clap::builder::impl_prelude::_ImplsFromString`
           `Custom: From<&'s str>`
-          which is required by `&_AutoValueParser<Custom>: clap::builder::via_prelude::_ValueParserViaFromStr`
+          which is required by `&_InferValueParserFor<Custom>: clap::builder::impl_prelude::_ImplsFromStr`
           `Custom: FromStr`
-          which is required by `_AutoValueParser<Custom>: clap::builder::via_prelude::_ValueParserViaParse`
+          which is required by `_InferValueParserFor<Custom>: clap::builder::impl_prelude::_ImplsStrParse`
 note: the traits `From`, `FromStr`, `ValueEnum`,  and `ValueParserFactory` must be implemented
  --> clap_builder/src/builder/value_parser.rs
   |

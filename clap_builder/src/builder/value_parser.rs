@@ -2419,9 +2419,9 @@ where
 
 #[doc(hidden)]
 #[derive(Debug)]
-pub struct _AutoValueParser<T>(std::marker::PhantomData<T>);
+pub struct _InferValueParserFor<T>(std::marker::PhantomData<T>);
 
-impl<T> _AutoValueParser<T> {
+impl<T> _InferValueParserFor<T> {
     #[doc(hidden)]
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
@@ -2437,15 +2437,15 @@ impl<T> _AutoValueParser<T> {
 pub struct _AnonymousValueParser(ValueParser);
 
 #[doc(hidden)]
-pub mod via_prelude {
+pub mod impl_prelude {
     use super::*;
 
     #[doc(hidden)]
-    pub trait _ValueParserViaFactory: private::_ValueParserViaFactorySealed {
+    pub trait _ImplsValueParserFactory: private::_ImplsValueParserFactorySealed {
         type Parser;
         fn value_parser(&self) -> Self::Parser;
     }
-    impl<P: ValueParserFactory> _ValueParserViaFactory for &&&&&&_AutoValueParser<P> {
+    impl<P: ValueParserFactory> _ImplsValueParserFactory for &&&&&&_InferValueParserFor<P> {
         type Parser = P::Parser;
         fn value_parser(&self) -> Self::Parser {
             P::value_parser()
@@ -2453,13 +2453,13 @@ pub mod via_prelude {
     }
 
     #[doc(hidden)]
-    pub trait _ValueParserViaValueEnum: private::_ValueParserViaValueEnumSealed {
+    pub trait _ImplsValueEnum: private::_ImplsValueEnumSealed {
         type Output;
 
         fn value_parser(&self) -> Self::Output;
     }
-    impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> _ValueParserViaValueEnum
-        for &&&&&_AutoValueParser<E>
+    impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> _ImplsValueEnum
+        for &&&&&_InferValueParserFor<E>
     {
         type Output = EnumValueParser<E>;
 
@@ -2469,10 +2469,10 @@ pub mod via_prelude {
     }
 
     #[doc(hidden)]
-    pub trait _ValueParserViaFromOsString: private::_ValueParserViaFromOsStringSealed {
+    pub trait _ImplsFromOsString: private::_ImplsFromOsStringSealed {
         fn value_parser(&self) -> _AnonymousValueParser;
     }
-    impl<FromOsString> _ValueParserViaFromOsString for &&&&_AutoValueParser<FromOsString>
+    impl<FromOsString> _ImplsFromOsString for &&&&_InferValueParserFor<FromOsString>
     where
         FromOsString: From<std::ffi::OsString> + std::any::Any + Clone + Send + Sync + 'static,
     {
@@ -2486,10 +2486,10 @@ pub mod via_prelude {
     }
 
     #[doc(hidden)]
-    pub trait _ValueParserViaFromOsStr: private::_ValueParserViaFromOsStrSealed {
+    pub trait _ImplsFromOsStr: private::_ImplsFromOsStrSealed {
         fn value_parser(&self) -> _AnonymousValueParser;
     }
-    impl<FromOsStr> _ValueParserViaFromOsStr for &&&_AutoValueParser<FromOsStr>
+    impl<FromOsStr> _ImplsFromOsStr for &&&_InferValueParserFor<FromOsStr>
     where
         FromOsStr:
             for<'s> From<&'s std::ffi::OsStr> + std::any::Any + Clone + Send + Sync + 'static,
@@ -2504,10 +2504,10 @@ pub mod via_prelude {
     }
 
     #[doc(hidden)]
-    pub trait _ValueParserViaFromString: private::_ValueParserViaFromStringSealed {
+    pub trait _ImplsFromString: private::_ImplsFromStringSealed {
         fn value_parser(&self) -> _AnonymousValueParser;
     }
-    impl<FromString> _ValueParserViaFromString for &&_AutoValueParser<FromString>
+    impl<FromString> _ImplsFromString for &&_InferValueParserFor<FromString>
     where
         FromString: From<String> + std::any::Any + Clone + Send + Sync + 'static,
     {
@@ -2517,10 +2517,10 @@ pub mod via_prelude {
     }
 
     #[doc(hidden)]
-    pub trait _ValueParserViaFromStr: private::_ValueParserViaFromStrSealed {
+    pub trait _ImplsFromStr: private::_ImplsFromStrSealed {
         fn value_parser(&self) -> _AnonymousValueParser;
     }
-    impl<FromStr> _ValueParserViaFromStr for &_AutoValueParser<FromStr>
+    impl<FromStr> _ImplsFromStr for &_InferValueParserFor<FromStr>
     where
         FromStr: for<'s> From<&'s str> + std::any::Any + Clone + Send + Sync + 'static,
     {
@@ -2530,10 +2530,10 @@ pub mod via_prelude {
     }
 
     #[doc(hidden)]
-    pub trait _ValueParserViaParse: private::_ValueParserViaParseSealed {
+    pub trait _ImplsStrParse: private::_ImplsStrParseSealed {
         fn value_parser(&self) -> _AnonymousValueParser;
     }
-    impl<Parse> _ValueParserViaParse for _AutoValueParser<Parse>
+    impl<Parse> _ImplsStrParse for _InferValueParserFor<Parse>
     where
         Parse: std::str::FromStr + std::any::Any + Clone + Send + Sync + 'static,
         <Parse as std::str::FromStr>::Err: Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
@@ -2601,8 +2601,8 @@ pub mod via_prelude {
 #[macro_export]
 macro_rules! value_parser {
     ($name:ty) => {{
-        use $crate::builder::via_prelude::*;
-        let auto = $crate::builder::_AutoValueParser::<$name>::new();
+        use $crate::builder::impl_prelude::*;
+        let auto = $crate::builder::_InferValueParserFor::<$name>::new();
         (&&&&&&auto).value_parser()
     }};
 }
@@ -2610,38 +2610,38 @@ macro_rules! value_parser {
 mod private {
     use super::*;
 
-    pub trait _ValueParserViaFactorySealed {}
-    impl<P: ValueParserFactory> _ValueParserViaFactorySealed for &&&&&&_AutoValueParser<P> {}
+    pub trait _ImplsValueParserFactorySealed {}
+    impl<P: ValueParserFactory> _ImplsValueParserFactorySealed for &&&&&&_InferValueParserFor<P> {}
 
-    pub trait _ValueParserViaValueEnumSealed {}
-    impl<E: crate::ValueEnum> _ValueParserViaValueEnumSealed for &&&&&_AutoValueParser<E> {}
+    pub trait _ImplsValueEnumSealed {}
+    impl<E: crate::ValueEnum> _ImplsValueEnumSealed for &&&&&_InferValueParserFor<E> {}
 
-    pub trait _ValueParserViaFromOsStringSealed {}
-    impl<FromOsString> _ValueParserViaFromOsStringSealed for &&&&_AutoValueParser<FromOsString> where
+    pub trait _ImplsFromOsStringSealed {}
+    impl<FromOsString> _ImplsFromOsStringSealed for &&&&_InferValueParserFor<FromOsString> where
         FromOsString: From<std::ffi::OsString> + std::any::Any + Send + Sync + 'static
     {
     }
 
-    pub trait _ValueParserViaFromOsStrSealed {}
-    impl<FromOsStr> _ValueParserViaFromOsStrSealed for &&&_AutoValueParser<FromOsStr> where
+    pub trait _ImplsFromOsStrSealed {}
+    impl<FromOsStr> _ImplsFromOsStrSealed for &&&_InferValueParserFor<FromOsStr> where
         FromOsStr: for<'s> From<&'s std::ffi::OsStr> + std::any::Any + Send + Sync + 'static
     {
     }
 
-    pub trait _ValueParserViaFromStringSealed {}
-    impl<FromString> _ValueParserViaFromStringSealed for &&_AutoValueParser<FromString> where
+    pub trait _ImplsFromStringSealed {}
+    impl<FromString> _ImplsFromStringSealed for &&_InferValueParserFor<FromString> where
         FromString: From<String> + std::any::Any + Send + Sync + 'static
     {
     }
 
-    pub trait _ValueParserViaFromStrSealed {}
-    impl<FromStr> _ValueParserViaFromStrSealed for &_AutoValueParser<FromStr> where
+    pub trait _ImplsFromStrSealed {}
+    impl<FromStr> _ImplsFromStrSealed for &_InferValueParserFor<FromStr> where
         FromStr: for<'s> From<&'s str> + std::any::Any + Send + Sync + 'static
     {
     }
 
-    pub trait _ValueParserViaParseSealed {}
-    impl<Parse> _ValueParserViaParseSealed for _AutoValueParser<Parse>
+    pub trait _ImplsStrParseSealed {}
+    impl<Parse> _ImplsStrParseSealed for _InferValueParserFor<Parse>
     where
         Parse: std::str::FromStr + std::any::Any + Send + Sync + 'static,
         <Parse as std::str::FromStr>::Err: Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
