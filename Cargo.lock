@@ -485,7 +485,6 @@ dependencies = [
  "shlex",
  "snapbox",
  "trycmd",
- "unicode-xid",
 ]
 
 [[package]]

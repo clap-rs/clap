@@ -323,17 +323,6 @@ _arguments "${_arguments_options[@]}" : \
 '*::command_with_args:_cmdambivalent' \
 && ret=0
 ;;
-(complete)
-_arguments "${_arguments_options[@]}" : \
-'--global[everywhere]' \
-'-h[Print help]' \
-'--help[Print help]' \
-'-V[Print version]' \
-'--version[Print version]' \
-'::shell -- Specify shell to complete for:(bash elvish fish powershell zsh)' \
-'*::comp_words:' \
-&& ret=0
-;;
 (help)
 _arguments "${_arguments_options[@]}" : \
 ":: :_exhaustive__help_commands" \
@@ -434,10 +423,6 @@ _arguments "${_arguments_options[@]}" : \
 _arguments "${_arguments_options[@]}" : \
 && ret=0
 ;;
-(complete)
-_arguments "${_arguments_options[@]}" : \
-&& ret=0
-;;
 (help)
 _arguments "${_arguments_options[@]}" : \
 && ret=0
@@ -461,7 +446,6 @@ _exhaustive_commands() {
 'last:' \
 'alias:' \
 'hint:' \
-'complete:Register shell completions for this program' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'exhaustive commands' commands "$@"
@@ -476,11 +460,6 @@ _exhaustive__alias_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive alias commands' commands "$@"
 }
-(( $+functions[_exhaustive__complete_commands] )) ||
-_exhaustive__complete_commands() {
-    local commands; commands=()
-    _describe -t commands 'exhaustive complete commands' commands "$@"
-}
 (( $+functions[_exhaustive__help_commands] )) ||
 _exhaustive__help_commands() {
     local commands; commands=(
@@ -491,7 +470,6 @@ _exhaustive__help_commands() {
 'last:' \
 'alias:' \
 'hint:' \
-'complete:Register shell completions for this program' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'exhaustive help commands' commands "$@"
@@ -505,11 +483,6 @@ _exhaustive__help__action_commands() {
 _exhaustive__help__alias_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive help alias commands' commands "$@"
-}
-(( $+functions[_exhaustive__help__complete_commands] )) ||
-_exhaustive__help__complete_commands() {
-    local commands; commands=()
-    _describe -t commands 'exhaustive help complete commands' commands "$@"
 }
 (( $+functions[_exhaustive__help__help_commands] )) ||
 _exhaustive__help__help_commands() {

@@ -35,7 +35,6 @@ complete -c exhaustive -n "__fish_exhaustive_needs_command" -f -a "pacman"
 complete -c exhaustive -n "__fish_exhaustive_needs_command" -f -a "last"
 complete -c exhaustive -n "__fish_exhaustive_needs_command" -f -a "alias"
 complete -c exhaustive -n "__fish_exhaustive_needs_command" -f -a "hint"
-complete -c exhaustive -n "__fish_exhaustive_needs_command" -f -a "complete" -d 'Register shell completions for this program'
 complete -c exhaustive -n "__fish_exhaustive_needs_command" -f -a "help" -d 'Print this message or the help of the given subcommand(s)'
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand action" -l set -d 'value' -r
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand action" -l choice -d 'enum' -r -f -a "{first\t'',second\t''}"
@@ -136,18 +135,14 @@ complete -c exhaustive -n "__fish_exhaustive_using_subcommand hint" -l email -r 
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand hint" -l global -d 'everywhere'
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand hint" -s h -l help -d 'Print help'
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand hint" -s V -l version -d 'Print version'
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand complete" -l global -d 'everywhere'
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand complete" -s h -l help -d 'Print help'
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand complete" -s V -l version -d 'Print version'
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from action quote value pacman last alias hint complete help" -f -a "action"
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from action quote value pacman last alias hint complete help" -f -a "quote"
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from action quote value pacman last alias hint complete help" -f -a "value"
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from action quote value pacman last alias hint complete help" -f -a "pacman"
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from action quote value pacman last alias hint complete help" -f -a "last"
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from action quote value pacman last alias hint complete help" -f -a "alias"
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from action quote value pacman last alias hint complete help" -f -a "hint"
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from action quote value pacman last alias hint complete help" -f -a "complete" -d 'Register shell completions for this program'
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from action quote value pacman last alias hint complete help" -f -a "help" -d 'Print this message or the help of the given subcommand(s)'
+complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from action quote value pacman last alias hint help" -f -a "action"
+complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from action quote value pacman last alias hint help" -f -a "quote"
+complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from action quote value pacman last alias hint help" -f -a "value"
+complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from action quote value pacman last alias hint help" -f -a "pacman"
+complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from action quote value pacman last alias hint help" -f -a "last"
+complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from action quote value pacman last alias hint help" -f -a "alias"
+complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from action quote value pacman last alias hint help" -f -a "hint"
+complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from action quote value pacman last alias hint help" -f -a "help" -d 'Print this message or the help of the given subcommand(s)'
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and __fish_seen_subcommand_from quote" -f -a "cmd-single-quotes" -d 'Can be \'always\', \'auto\', or \'never\''
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and __fish_seen_subcommand_from quote" -f -a "cmd-double-quotes" -d 'Can be "always", "auto", or "never"'
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and __fish_seen_subcommand_from quote" -f -a "cmd-backticks" -d 'For more information see `echo test`'

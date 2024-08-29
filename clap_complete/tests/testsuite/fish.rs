@@ -154,8 +154,8 @@ fn complete() {
     let input = "exhaustive \t";
     let expected = snapbox::str![[r#"
 % exhaustive 
-action  complete            (Register shell completions for this program)  hint  pacman  value
-alias   help  (Print this message or the help of the given subcommand(s))  last  quote   
+action  help  (Print this message or the help of the given subcommand(s))  last    quote
+alias   hint                                                               pacman  value
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -185,63 +185,6 @@ fn complete_dynamic_env() {
     let term = completest::Term::new();
     let mut runtime =
         common::load_runtime::<completest_pty::FishRuntimeBuilder>("dynamic-env", "exhaustive");
-
-    let input = "exhaustive \t\t";
-    let expected = snapbox::str![[r#"
-% exhaustive action 
-action                                                             pacman               --generate      (generate)
-alias                                                              quote                --global      (everywhere)
-help  (Print this message or the help of the given subcommand(s))  value                --help        (Print help)
-hint                                                               -h     (Print help)  --version  (Print version)
-last                                                               -V  (Print version)  
-"#]];
-    let actual = runtime.complete(input, &term).unwrap();
-    assert_data_eq!(actual, expected);
-
-    let input = "exhaustive quote \t\t";
-    let expected = snapbox::str![[r#"
-% exhaustive quote 
-cmd-backslash                                        (Avoid '/n')
-cmd-backticks              (For more information see `echo test`)
-cmd-brackets                             (List packages [filter])
-cmd-double-quotes           (Can be "always", "auto", or "never")
-cmd-expansions            (Execute the shell command with $SHELL)
-cmd-single-quotes           (Can be 'always', 'auto', or 'never')
-escape-help                                             (/tab "')
-help  (Print this message or the help of the given subcommand(s))
--h                          (Print help (see more with '--help'))
--V                                                (Print version)
---backslash                                          (Avoid '/n')
---backticks                (For more information see `echo test`)
---brackets                               (List packages [filter])
---choice                                                         
---double-quotes             (Can be "always", "auto", or "never")
---expansions              (Execute the shell command with $SHELL)
---global                                             (everywhere)
---help                      (Print help (see more with '--help'))
---single-quotes             (Can be 'always', 'auto', or 'never')
---version                                         (Print version)
-"#]];
-    let actual = runtime.complete(input, &term).unwrap();
-    assert_data_eq!(actual, expected);
-}
-
-#[test]
-#[cfg(all(unix, feature = "unstable-command"))]
-fn register_dynamic_command() {
-    common::register_example::<completest_pty::FishRuntimeBuilder>("dynamic-command", "exhaustive");
-}
-
-#[test]
-#[cfg(all(unix, feature = "unstable-command"))]
-fn complete_dynamic_command() {
-    if !common::has_command("fish") {
-        return;
-    }
-
-    let term = completest::Term::new();
-    let mut runtime =
-        common::load_runtime::<completest_pty::FishRuntimeBuilder>("dynamic-command", "exhaustive");
 
     let input = "exhaustive \t\t";
     let expected = snapbox::str![[r#"
