@@ -20,9 +20,6 @@ _exhaustive() {
             exhaustive,alias)
                 cmd="exhaustive__alias"
                 ;;
-            exhaustive,complete)
-                cmd="exhaustive__complete"
-                ;;
             exhaustive,help)
                 cmd="exhaustive__help"
                 ;;
@@ -46,9 +43,6 @@ _exhaustive() {
                 ;;
             exhaustive__help,alias)
                 cmd="exhaustive__help__alias"
-                ;;
-            exhaustive__help,complete)
-                cmd="exhaustive__help__complete"
                 ;;
             exhaustive__help,help)
                 cmd="exhaustive__help__help"
@@ -168,7 +162,7 @@ _exhaustive() {
 
     case "${cmd}" in
         exhaustive)
-            opts="-h -V --global --generate --help --version action quote value pacman last alias hint complete help"
+            opts="-h -V --global --generate --help --version action quote value pacman last alias hint help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -237,22 +231,8 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__complete)
-            opts="-h -V --global --help --version bash elvish fish powershell zsh [ARG]..."
-            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
-                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-                return 0
-            fi
-            case "${prev}" in
-                *)
-                    COMPREPLY=()
-                    ;;
-            esac
-            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-            return 0
-            ;;
         exhaustive__help)
-            opts="action quote value pacman last alias hint complete help"
+            opts="action quote value pacman last alias hint help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -280,20 +260,6 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__help__alias)
-            opts=""
-            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
-                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-                return 0
-            fi
-            case "${prev}" in
-                *)
-                    COMPREPLY=()
-                    ;;
-            esac
-            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-            return 0
-            ;;
-        exhaustive__help__complete)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )

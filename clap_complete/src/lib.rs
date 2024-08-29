@@ -66,18 +66,12 @@ const INTERNAL_ERROR_MSG: &str = "Fatal internal error. Please consider filing a
 mod macros;
 
 pub mod aot;
-#[cfg(feature = "unstable-command")]
-pub mod command;
 #[cfg(feature = "unstable-dynamic")]
 pub mod engine;
 #[cfg(feature = "unstable-dynamic")]
 pub mod env;
 
 pub use clap::ValueHint;
-#[cfg(feature = "unstable-command")]
-pub use command::CompleteArgs;
-#[cfg(feature = "unstable-command")]
-pub use command::CompleteCommand;
 #[doc(inline)]
 #[cfg(feature = "unstable-dynamic")]
 pub use engine::ArgValueCandidates;

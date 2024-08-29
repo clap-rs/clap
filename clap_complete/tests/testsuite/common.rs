@@ -321,7 +321,6 @@ pub(crate) fn register_example<R: completest::RuntimeBuilder>(context: &str, nam
             // Unconditionally include to avoid completion file tests failing based on the how
             // `cargo test` is invoked
             "--features=unstable-dynamic",
-            "--features=unstable-command",
         ],
     )
     .unwrap();
@@ -381,7 +380,6 @@ where
             // Unconditionally include to avoid completion file tests failing based on the how
             // `cargo test` is invoked
             "--features=unstable-dynamic",
-            "--features=unstable-command",
         ],
     )
     .unwrap();

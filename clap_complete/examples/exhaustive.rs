@@ -1,6 +1,4 @@
 use clap::builder::PossibleValue;
-#[cfg(feature = "unstable-command")]
-use clap::{FromArgMatches, Subcommand};
 use clap_complete::{generate, Generator, Shell};
 
 fn main() {
@@ -15,12 +13,6 @@ fn main() {
         return;
     }
 
-    #[cfg(feature = "unstable-command")]
-    if let Ok(completions) = clap_complete::CompleteCommand::from_arg_matches(&matches) {
-        completions.complete(&mut cli());
-        return;
-    };
-
     println!("{:?}", matches);
 }
 
@@ -30,7 +22,7 @@ fn print_completions<G: Generator>(gen: G, cmd: &mut clap::Command) {
 
 #[allow(clippy::let_and_return)]
 fn cli() -> clap::Command {
-    let cli = clap::Command::new("exhaustive")
+    clap::Command::new("exhaustive")
         .version("3.0")
         .propagate_version(true)
         .args([
@@ -197,8 +189,5 @@ fn cli() -> clap::Command {
                     .long("email")
                     .value_hint(clap::ValueHint::EmailAddress),
             ]),
-        ]);
-    #[cfg(feature = "unstable-command")]
-    let cli = clap_complete::CompleteCommand::augment_subcommands(cli);
-    cli
+        ])
 }

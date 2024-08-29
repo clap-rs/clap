@@ -163,7 +163,6 @@ fn complete() {
 -h             Print help                                               
 action         action                                                   
 alias          alias                                                    
-complete       Register shell completions for this program              
 help           Print this message or the help of the given subcommand(s)
 hint           hint                                                     
 last           last                                                     
@@ -191,51 +190,6 @@ fn complete_dynamic_env() {
     let term = completest::Term::new();
     let mut runtime =
         common::load_runtime::<completest_pty::ElvishRuntimeBuilder>("dynamic-env", "exhaustive");
-
-    let input = "exhaustive \t";
-    let expected = snapbox::str![[r#"
-% exhaustive --generate
- COMPLETING argument  
---generate  --help     -V  action  help  last    quote
---global    --version  -h  alias   hint  pacman  value
-"#]];
-    let actual = runtime.complete(input, &term).unwrap();
-    assert_data_eq!(actual, expected);
-
-    let input = "exhaustive quote \t";
-    let expected = snapbox::str![[r#"
-% exhaustive quote --backslash
- COMPLETING argument  
---backslash  --double-quotes  --single-quotes  cmd-backslash      cmd-expansions   
---backticks  --expansions     --version        cmd-backticks      cmd-single-quotes
---brackets   --global         -V               cmd-brackets       escape-help      
---choice     --help           -h               cmd-double-quotes  help             
-"#]];
-    let actual = runtime.complete(input, &term).unwrap();
-    assert_data_eq!(actual, expected);
-}
-
-#[test]
-#[cfg(all(unix, feature = "unstable-command"))]
-fn register_dynamic_command() {
-    common::register_example::<completest_pty::ElvishRuntimeBuilder>(
-        "dynamic-command",
-        "exhaustive",
-    );
-}
-
-#[test]
-#[cfg(all(unix, feature = "unstable-command"))]
-fn complete_dynamic_command() {
-    if !common::has_command("elvish") {
-        return;
-    }
-
-    let term = completest::Term::new();
-    let mut runtime = common::load_runtime::<completest_pty::ElvishRuntimeBuilder>(
-        "dynamic-command",
-        "exhaustive",
-    );
 
     let input = "exhaustive \t";
     let expected = snapbox::str![[r#"
