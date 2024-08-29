@@ -171,15 +171,17 @@ fn complete() {
         common::load_runtime::<completest_pty::BashRuntimeBuilder>("static", "exhaustive");
 
     let input = "exhaustive \t\t";
-    let expected = r#"% 
+    let expected = snapbox::str![[r#"
+% 
 -h          --global    --help      action      value       last        hint        help        
--V          --generate  --version   quote       pacman      alias       complete    "#;
+-V          --generate  --version   quote       pacman      alias       complete    
+"#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
     // Issue 5239 (https://github.com/clap-rs/clap/issues/5239)
     let input = "exhaustive hint --file test\t";
-    let expected = "exhaustive hint --file test     % exhaustive hint --file tests/";
+    let expected = snapbox::str!["exhaustive hint --file test     % exhaustive hint --file tests/"];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
