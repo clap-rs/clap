@@ -58,14 +58,12 @@ pub fn complete(
                 parse_positional(current_cmd, pos_index, is_escaped, current_state);
         } else if arg.is_escape() {
             is_escaped = true;
-        } else if let Some((flag, value)) = arg.to_long() {
-            if let ParseState::Opt((opt, count)) = current_state {
-                if opt.is_allow_hyphen_values_set() {
-                    next_state = parse_opt(opt, count);
-                    continue;
-                }
+        } else if opt_allows_hyphen(&current_state, &arg) {
+            match current_state {
+                ParseState::Opt((opt, count)) => next_state = parse_opt_value(opt, count),
+                _ => unreachable!("else branch is only reachable in Opt state"),
             }
-
+        } else if let Some((flag, value)) = arg.to_long() {
             if let Ok(flag) = flag {
                 let opt = current_cmd.get_arguments().find(|a| {
                     let longs = a.get_long_and_visible_aliases();
@@ -87,13 +85,6 @@ pub fn complete(
                 }
             }
         } else if let Some(short) = arg.to_short() {
-            if let ParseState::Opt((opt, count)) = current_state {
-                if opt.is_allow_hyphen_values_set() {
-                    next_state = parse_opt(opt, count);
-                    continue;
-                }
-            }
-
             let (_, takes_value_opt, mut short) = parse_shortflags(current_cmd, short);
             if let Some(opt) = takes_value_opt {
                 if short.next_value_os().is_none() {
@@ -109,7 +100,7 @@ pub fn complete(
                     (next_state, pos_index) =
                         parse_positional(current_cmd, pos_index, is_escaped, current_state);
                 }
-                ParseState::Opt((opt, count)) => next_state = parse_opt(opt, count),
+                ParseState::Opt((opt, count)) => next_state = parse_opt_value(opt, count),
             }
         }
     }
@@ -562,7 +553,7 @@ fn parse_positional<'a>(
 }
 
 /// Parse optional flag argument. Return new state
-fn parse_opt(opt: &clap::Arg, count: usize) -> ParseState<'_> {
+fn parse_opt_value(opt: &clap::Arg, count: usize) -> ParseState<'_> {
     let range = opt.get_num_args().expect("built");
     let max = range.max_values();
     if count < max {
@@ -577,4 +568,15 @@ fn pos_allows_hyphen(cmd: &clap::Command, pos_index: usize) -> bool {
         .find(|a| a.get_index() == Some(pos_index))
         .map(|p| p.is_allow_hyphen_values_set())
         .unwrap_or(false)
+}
+
+fn opt_allows_hyphen(state: &ParseState<'_>, arg: &clap_lex::ParsedArg<'_>) -> bool {
+    let val = arg.to_value_os();
+    if val.starts_with("-") {
+        if let ParseState::Opt((opt, _)) = state {
+            return opt.is_allow_hyphen_values_set();
+        }
+    }
+
+    false
 }
