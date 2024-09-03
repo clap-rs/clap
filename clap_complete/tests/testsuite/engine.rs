@@ -982,7 +982,7 @@ a_pos,c_pos"
 }
 
 #[test]
-fn suggest_allow_hyhpen() {
+fn suggest_allow_hyphen() {
     let mut cmd = Command::new("exhaustive")
         .arg(
             clap::Arg::new("format")
@@ -1028,7 +1028,7 @@ fn suggest_allow_hyhpen() {
 }
 
 #[test]
-fn suggest_positional_long_allow_hyhpen() {
+fn suggest_positional_long_allow_hyphen() {
     let mut cmd = Command::new("exhaustive")
         .arg(
             clap::Arg::new("format")
@@ -1090,7 +1090,7 @@ pos_b"
 }
 
 #[test]
-fn suggest_positional_short_allow_hyhpen() {
+fn suggest_positional_short_allow_hyphen() {
     let mut cmd = Command::new("exhaustive")
         .arg(
             clap::Arg::new("format")
