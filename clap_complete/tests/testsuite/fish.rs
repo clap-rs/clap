@@ -237,3 +237,28 @@ help  (Print this message or the help of the given subcommand(s))
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+fn complete_dynamic_env_option_value() {
+    if !common::has_command("fish") {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime =
+        common::load_runtime::<completest_pty::FishRuntimeBuilder>("dynamic-env", "exhaustive");
+
+    let input = "exhaustive action --choice=\t\t";
+    let expected = snapbox::str![[r#"
+% exhaustive action --choice=first 
+--choice=first  --choice=second
+"#]];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
+    let input = "exhaustive action --choice=f\t";
+    let expected = snapbox::str!["% exhaustive action --choice=first "];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
