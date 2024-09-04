@@ -45,7 +45,8 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (quote)
 _arguments "${_arguments_options[@]}" : \
-'--choice=[]: :((bash\:"bash (shell)"
+'--choice=[]: :((another\ shell\:"something with a space"
+bash\:"bash (shell)"
 fish\:"fish shell"
 zsh\:"zsh shell"))' \
 '--single-quotes[Can be '\''always'\'', '\''auto'\'', or '\''never'\'']' \

@@ -86,6 +86,7 @@ fn cli() -> clap::Command {
                         .long("choice")
                         .action(clap::ArgAction::Set)
                         .value_parser(clap::builder::PossibleValuesParser::new([
+                            PossibleValue::new("another shell").help("something with a space"),
                             PossibleValue::new("bash").help("bash (shell)"),
                             PossibleValue::new("fish").help("fish shell"),
                             PossibleValue::new("zsh").help("zsh shell"),

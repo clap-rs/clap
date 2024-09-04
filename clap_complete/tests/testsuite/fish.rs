@@ -164,7 +164,7 @@ alias   hint                                                               pacma
     let actual = runtime.complete(input, &term).unwrap();
     let expected = snapbox::str![[r#"
 % exhaustive quote --choice 
-bash  (bash (shell))  fish  (fish shell)  zsh  (zsh shell)
+another shell  (something with a space)  bash  (bash (shell))  fish  (fish shell)  zsh  (zsh shell)
 "#]];
     assert_data_eq!(actual, expected);
 }
@@ -259,6 +259,31 @@ fn complete_dynamic_env_option_value() {
 
     let input = "exhaustive action --choice=f\t";
     let expected = snapbox::str!["% exhaustive action --choice=first "];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+fn complete_dynamic_env_quoted_value() {
+    if !common::has_command("fish") {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime =
+        common::load_runtime::<completest_pty::FishRuntimeBuilder>("dynamic-env", "exhaustive");
+
+    let input = "exhaustive quote --choice \t\t";
+    let expected = snapbox::str![[r#"
+% exhaustive quote --choice another/ shell 
+another shell  (something with a space)  bash  (bash (shell))  fish  (fish shell)  zsh  (zsh shell)
+"#]];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
+    let input = "exhaustive quote --choice an\t";
+    let expected = snapbox::str!["% exhaustive quote --choice another/ shell "];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }

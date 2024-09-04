@@ -255,3 +255,33 @@ fn complete_dynamic_env_option_value() {
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+fn complete_dynamic_env_quoted_value() {
+    if !common::has_command("elvish") {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime =
+        common::load_runtime::<completest_pty::ElvishRuntimeBuilder>("dynamic-env", "exhaustive");
+
+    let input = "exhaustive quote --choice \t";
+    let expected = snapbox::str![[r#"
+% exhaustive quote --choice 'another shell'
+ COMPLETING argument  
+another shell  bash  fish  zsh
+"#]];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
+    let input = "exhaustive quote --choice an\t";
+    let expected = snapbox::str![[r#"
+% exhaustive quote --choice 'another shell'
+ COMPLETING argument  
+another shell
+"#]];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}

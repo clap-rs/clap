@@ -303,3 +303,29 @@ fn complete_dynamic_env_option_value() {
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+fn complete_dynamic_env_quoted_value() {
+    if !common::has_command("bash") {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime =
+        common::load_runtime::<completest_pty::BashRuntimeBuilder>("dynamic-env", "exhaustive");
+
+    let input = "exhaustive quote --choice \t\t";
+    let expected = snapbox::str![[r#"
+% 
+another shell  bash           fish           zsh            
+"#]];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
+    let input = "exhaustive quote --choice an\t";
+    let expected =
+        snapbox::str!["exhaustive quote --choice an    % exhaustive quote --choice another shell "];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}

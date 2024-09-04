@@ -728,7 +728,7 @@ _exhaustive() {
             fi
             case "${prev}" in
                 --choice)
-                    COMPREPLY=($(compgen -W "bash fish zsh" -- "${cur}"))
+                    COMPREPLY=($(compgen -W "another shell bash fish zsh" -- "${cur}"))
                     return 0
                     ;;
                 *)
