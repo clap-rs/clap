@@ -142,7 +142,7 @@ fn register_completion() {
 
 #[test]
 #[cfg(unix)]
-fn complete() {
+fn complete_static_toplevel() {
     if !common::has_command("elvish") {
         return;
     }
@@ -182,7 +182,7 @@ fn register_dynamic_env() {
 
 #[test]
 #[cfg(all(unix, feature = "unstable-dynamic"))]
-fn complete_dynamic_env() {
+fn complete_dynamic_env_toplevel() {
     if !common::has_command("elvish") {
         return;
     }
@@ -200,6 +200,18 @@ fn complete_dynamic_env() {
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+fn complete_dynamic_env_quoted_help() {
+    if !common::has_command("elvish") {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime =
+        common::load_runtime::<completest_pty::ElvishRuntimeBuilder>("dynamic-env", "exhaustive");
 
     let input = "exhaustive quote \t";
     let expected = snapbox::str![[r#"

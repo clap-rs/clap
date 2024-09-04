@@ -170,7 +170,7 @@ fn register_dynamic_env() {
 
 #[test]
 #[cfg(all(unix, feature = "unstable-dynamic"))]
-fn complete_dynamic_env() {
+fn complete_dynamic_env_toplevel() {
     if !common::has_command("zsh") {
         return;
     }
@@ -187,6 +187,18 @@ fn complete_dynamic_env() {
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+fn complete_dynamic_env_quoted_help() {
+    if !common::has_command("zsh") {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime =
+        common::load_runtime::<completest_pty::ZshRuntimeBuilder>("dynamic-env", "exhaustive");
 
     let input = "exhaustive quote \t\t";
     let expected = snapbox::str![[r#"
