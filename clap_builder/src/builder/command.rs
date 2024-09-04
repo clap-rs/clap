@@ -4578,8 +4578,9 @@ impl Command {
             })
             .collect::<Vec<_>>()
             .join("|");
+        let placeholder = self.get_styles().get_placeholder();
         let mut styled = StyledStr::new();
-        write!(&mut styled, "<{g_string}>").unwrap();
+        write!(&mut styled, "{placeholder}<{g_string}>{placeholder:#}").unwrap();
         styled
     }
 }
