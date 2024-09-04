@@ -2,6 +2,11 @@ use snapbox::assert_data_eq;
 
 use crate::common;
 
+#[cfg(unix)]
+const CMD: &str = "bash";
+#[cfg(unix)]
+type RuntimeBuilder = completest_pty::BashRuntimeBuilder;
+
 #[test]
 fn basic() {
     let name = "my-app";
@@ -138,19 +143,18 @@ fn subcommand_last() {
 #[test]
 #[cfg(unix)]
 fn register_completion() {
-    common::register_example::<completest_pty::BashRuntimeBuilder>("static", "exhaustive");
+    common::register_example::<RuntimeBuilder>("static", "exhaustive");
 }
 
 #[test]
 #[cfg(unix)]
 fn complete() {
-    if !common::has_command("bash") {
+    if !common::has_command(CMD) {
         return;
     }
 
     let term = completest::Term::new();
-    let mut runtime =
-        common::load_runtime::<completest_pty::BashRuntimeBuilder>("static", "exhaustive");
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("static", "exhaustive");
 
     let input = "exhaustive \t\t";
     let expected = snapbox::str![[r#"
@@ -235,19 +239,18 @@ fn complete() {
 #[test]
 #[cfg(all(unix, feature = "unstable-dynamic"))]
 fn register_dynamic_env() {
-    common::register_example::<completest_pty::BashRuntimeBuilder>("dynamic-env", "exhaustive");
+    common::register_example::<RuntimeBuilder>("dynamic-env", "exhaustive");
 }
 
 #[test]
 #[cfg(all(unix, feature = "unstable-dynamic"))]
 fn complete_dynamic_env_toplevel() {
-    if !common::has_command("bash") {
+    if !common::has_command(CMD) {
         return;
     }
 
     let term = completest::Term::new();
-    let mut runtime =
-        common::load_runtime::<completest_pty::BashRuntimeBuilder>("dynamic-env", "exhaustive");
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
     let input = "exhaustive \t\t";
     let expected = snapbox::str![[r#"
@@ -262,13 +265,12 @@ fn complete_dynamic_env_toplevel() {
 #[test]
 #[cfg(all(unix, feature = "unstable-dynamic"))]
 fn complete_dynamic_env_quoted_help() {
-    if !common::has_command("bash") {
+    if !common::has_command(CMD) {
         return;
     }
 
     let term = completest::Term::new();
-    let mut runtime =
-        common::load_runtime::<completest_pty::BashRuntimeBuilder>("dynamic-env", "exhaustive");
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
     let input = "exhaustive quote \t\t";
     let expected = snapbox::str![[r#"
@@ -285,13 +287,12 @@ fn complete_dynamic_env_quoted_help() {
 #[test]
 #[cfg(all(unix, feature = "unstable-dynamic"))]
 fn complete_dynamic_env_option_value() {
-    if !common::has_command("bash") {
+    if !common::has_command(CMD) {
         return;
     }
 
     let term = completest::Term::new();
-    let mut runtime =
-        common::load_runtime::<completest_pty::BashRuntimeBuilder>("dynamic-env", "exhaustive");
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
     let input = "exhaustive action --choice=\t\t";
     let expected = snapbox::str!["% "];
@@ -307,13 +308,12 @@ fn complete_dynamic_env_option_value() {
 #[test]
 #[cfg(all(unix, feature = "unstable-dynamic"))]
 fn complete_dynamic_env_quoted_value() {
-    if !common::has_command("bash") {
+    if !common::has_command(CMD) {
         return;
     }
 
     let term = completest::Term::new();
-    let mut runtime =
-        common::load_runtime::<completest_pty::BashRuntimeBuilder>("dynamic-env", "exhaustive");
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
     let input = "exhaustive quote --choice \t\t";
     let expected = snapbox::str![[r#"
