@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Compatibility
+
+- *(dynamic)* Removed `CompleteCommand`
+
+### Fixes
+
+- *(dynamic)* Take over ordering of Fish completions
+
 ## [4.5.24] - 2024-08-27
 
 ### Fixes
