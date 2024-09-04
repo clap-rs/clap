@@ -601,9 +601,9 @@ dependencies = [
 
 [[package]]
 name = "completest-pty"
-version = "0.5.4"
+version = "0.5.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "641f8ea301379c034f4d0b82f243b03dd4f6946c882aa914d47c45060482fb25"
+checksum = "fbd2f22a999db122bd2861c504aa363bbacaa32ebea29edf6924ee6cfe044313"
 dependencies = [
  "completest",
  "ptyprocess",
