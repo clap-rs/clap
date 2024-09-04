@@ -362,6 +362,7 @@ function _clap_dynamic_completer() {
         COMPLETER -- ${words} 2>/dev/null \
     )}")
 
+    zstyle ":completion:${curcontext}:*" group-name ''
     if [[ -n $completions ]]; then
         compadd -a completions
     fi
