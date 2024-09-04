@@ -226,7 +226,7 @@ impl EnvCompleter for Fish {
 
         writeln!(
             buf,
-            r#"complete -x -c {bin} -a "({var}=fish "'{completer}'" -- (commandline --current-process --tokenize --cut-at-cursor) (commandline --current-token))""#
+            r#"complete --exclusive --command {bin} --arguments "({var}=fish "'{completer}'" -- (commandline --current-process --tokenize --cut-at-cursor) (commandline --current-token))""#
         )
     }
     fn write_complete(
