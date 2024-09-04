@@ -2,6 +2,11 @@ use snapbox::assert_data_eq;
 
 use crate::common;
 
+#[cfg(unix)]
+const CMD: &str = "zsh";
+#[cfg(unix)]
+type RuntimeBuilder = completest_pty::ZshRuntimeBuilder;
+
 #[test]
 fn basic() {
     let name = "my-app";
@@ -138,19 +143,18 @@ fn subcommand_last() {
 #[test]
 #[cfg(unix)]
 fn register_completion() {
-    common::register_example::<completest_pty::ZshRuntimeBuilder>("static", "exhaustive");
+    common::register_example::<RuntimeBuilder>("static", "exhaustive");
 }
 
 #[test]
 #[cfg(unix)]
 fn complete() {
-    if !common::has_command("zsh") {
+    if !common::has_command(CMD) {
         return;
     }
 
     let term = completest::Term::new();
-    let mut runtime =
-        common::load_runtime::<completest_pty::ZshRuntimeBuilder>("static", "exhaustive");
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("static", "exhaustive");
 
     let input = "exhaustive \t";
     let expected = snapbox::str![[r#"
@@ -165,19 +169,18 @@ pacman  action  alias  value  quote  hint  last  --
 #[test]
 #[cfg(all(unix, feature = "unstable-dynamic"))]
 fn register_dynamic_env() {
-    common::register_example::<completest_pty::ZshRuntimeBuilder>("dynamic-env", "exhaustive");
+    common::register_example::<RuntimeBuilder>("dynamic-env", "exhaustive");
 }
 
 #[test]
 #[cfg(all(unix, feature = "unstable-dynamic"))]
 fn complete_dynamic_env_toplevel() {
-    if !common::has_command("zsh") {
+    if !common::has_command(CMD) {
         return;
     }
 
     let term = completest::Term::new();
-    let mut runtime =
-        common::load_runtime::<completest_pty::ZshRuntimeBuilder>("dynamic-env", "exhaustive");
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
     let input = "exhaustive \t\t";
     let expected = snapbox::str![[r#"
@@ -192,13 +195,12 @@ fn complete_dynamic_env_toplevel() {
 #[test]
 #[cfg(all(unix, feature = "unstable-dynamic"))]
 fn complete_dynamic_env_quoted_help() {
-    if !common::has_command("zsh") {
+    if !common::has_command(CMD) {
         return;
     }
 
     let term = completest::Term::new();
-    let mut runtime =
-        common::load_runtime::<completest_pty::ZshRuntimeBuilder>("dynamic-env", "exhaustive");
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
     let input = "exhaustive quote \t\t";
     let expected = snapbox::str![[r#"
@@ -208,6 +210,54 @@ fn complete_dynamic_env_quoted_help() {
 --brackets         --global           -V                 cmd-brackets       escape-help        
 --choice           --help             -h                 cmd-double-quotes  help               
 "#]];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+fn complete_dynamic_env_option_value() {
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+
+    let input = "exhaustive action --choice=\t\t";
+    let expected = snapbox::str![[r#"
+% exhaustive action --choice=
+--choice=first   --choice=second
+"#]];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
+    let input = "exhaustive action --choice=f\t\t";
+    let expected = snapbox::str!["% exhaustive action --choice=first "];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+fn complete_dynamic_env_quoted_value() {
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+
+    let input = "exhaustive quote --choice \t\t";
+    let expected = snapbox::str![[r#"
+% exhaustive quote --choice
+another/ shell  bash            fish            zsh
+"#]];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
+    let input = "exhaustive quote --choice an\t\t";
+    let expected = snapbox::str!["% exhaustive quote --choice another/ shell "];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
