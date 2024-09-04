@@ -20,6 +20,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(help)* Style required argument groups
+- *(derive)* Improve error messages when unsupported fields are used
+
 ## [4.5.16] - 2024-08-15
 
 ### Fixes
