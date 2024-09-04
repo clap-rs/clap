@@ -527,7 +527,7 @@ fn try_help(styled: &mut StyledStr, styles: &Styles, help: Option<&str>) {
 }
 
 #[cfg(feature = "error-context")]
-fn did_you_mean(styled: &mut StyledStr, styles: &Styles, context: &str, valid: &ContextValue) {
+fn did_you_mean(styled: &mut StyledStr, styles: &Styles, context: &str, possibles: &ContextValue) {
     use std::fmt::Write as _;
 
     let _ = write!(
@@ -536,26 +536,26 @@ fn did_you_mean(styled: &mut StyledStr, styles: &Styles, context: &str, valid: &
         styles.get_valid().render(),
         styles.get_valid().render_reset()
     );
-    if let ContextValue::String(valid) = valid {
+    if let ContextValue::String(possible) = possibles {
         let _ = write!(
             styled,
-            " a similar {context} exists: '{}{valid}{}'",
+            " a similar {context} exists: '{}{possible}{}'",
             styles.get_valid().render(),
             styles.get_valid().render_reset()
         );
-    } else if let ContextValue::Strings(valid) = valid {
-        if valid.len() == 1 {
+    } else if let ContextValue::Strings(possibles) = possibles {
+        if possibles.len() == 1 {
             let _ = write!(styled, " a similar {context} exists: ",);
         } else {
             let _ = write!(styled, " some similar {context}s exist: ",);
         }
-        for (i, valid) in valid.iter().enumerate() {
+        for (i, possible) in possibles.iter().enumerate() {
             if i != 0 {
                 styled.push_str(", ");
             }
             let _ = write!(
                 styled,
-                "'{}{valid}{}'",
+                "'{}{possible}{}'",
                 styles.get_valid().render(),
                 styles.get_valid().render_reset()
             );
