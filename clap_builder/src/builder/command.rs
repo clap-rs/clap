@@ -4561,6 +4561,8 @@ impl Command {
     }
 
     pub(crate) fn format_group(&self, g: &Id) -> StyledStr {
+        use std::fmt::Write as _;
+
         let g_string = self
             .unroll_args_in_group(g)
             .iter()
@@ -4577,9 +4579,7 @@ impl Command {
             .collect::<Vec<_>>()
             .join("|");
         let mut styled = StyledStr::new();
-        styled.push_str("<");
-        styled.push_string(g_string);
-        styled.push_str(">");
+        write!(&mut styled, "<{g_string}>").unwrap();
         styled
     }
 }
