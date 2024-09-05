@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(dynamic)* `allow_hyphen_values` support
+
 ## [4.5.25] - 2024-09-04
 
 ### Compatibility
