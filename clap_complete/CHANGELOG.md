@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.26] - 2024-09-05
+
 ### Features
 
 - *(dynamic)* `allow_hyphen_values` support
@@ -412,7 +414,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.25...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.26...HEAD
+[4.5.26]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.25...clap_complete-v4.5.26
 [4.5.25]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.24...clap_complete-v4.5.25
 [4.5.24]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.23...clap_complete-v4.5.24
 [4.5.23]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.22...clap_complete-v4.5.23
