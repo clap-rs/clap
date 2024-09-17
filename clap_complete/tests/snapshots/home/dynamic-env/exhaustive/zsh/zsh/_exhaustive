@@ -1,5 +1,5 @@
 #compdef exhaustive
-function _clap_dynamic_completer() {
+function _clap_dynamic_completer_exhaustive() {
     local _CLAP_COMPLETE_INDEX=$(expr $CURRENT - 1)
     local _CLAP_IFS=$'\n'
 
@@ -15,4 +15,4 @@ function _clap_dynamic_completer() {
     fi
 }
 
-compdef _clap_dynamic_completer exhaustive
+compdef _clap_dynamic_completer_exhaustive exhaustive
