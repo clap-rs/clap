@@ -23,8 +23,6 @@ impl EnvCompleter for Bash {
         buf: &mut dyn std::io::Write,
     ) -> Result<(), std::io::Error> {
         let escaped_name = name.replace('-', "_");
-        let mut upper_name = escaped_name.clone();
-        upper_name.make_ascii_uppercase();
 
         let completer =
             shlex::try_quote(completer).unwrap_or(std::borrow::Cow::Borrowed(completer));
@@ -61,7 +59,6 @@ fi
         .replace("NAME", &escaped_name)
         .replace("BIN", bin)
         .replace("COMPLETER", &completer)
-        .replace("UPPER", &upper_name)
         .replace("VAR", var);
 
         writeln!(buf, "{script}")?;
@@ -341,17 +338,18 @@ impl EnvCompleter for Zsh {
     fn write_registration(
         &self,
         var: &str,
-        _name: &str,
+        name: &str,
         bin: &str,
         completer: &str,
         buf: &mut dyn std::io::Write,
     ) -> Result<(), std::io::Error> {
+        let escaped_name = name.replace('-', "_");
         let bin = shlex::try_quote(bin).unwrap_or(std::borrow::Cow::Borrowed(bin));
         let completer =
             shlex::try_quote(completer).unwrap_or(std::borrow::Cow::Borrowed(completer));
 
         let script = r#"#compdef BIN
-function _clap_dynamic_completer() {
+function _clap_dynamic_completer_NAME() {
     local _CLAP_COMPLETE_INDEX=$(expr $CURRENT - 1)
     local _CLAP_IFS=$'\n'
 
@@ -367,7 +365,8 @@ function _clap_dynamic_completer() {
     fi
 }
 
-compdef _clap_dynamic_completer BIN"#
+compdef _clap_dynamic_completer_NAME BIN"#
+            .replace("NAME", &escaped_name)
             .replace("COMPLETER", &completer)
             .replace("BIN", &bin)
             .replace("VAR", var);

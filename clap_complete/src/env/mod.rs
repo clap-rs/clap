@@ -295,6 +295,11 @@ pub trait EnvCompleter {
     /// Write the `buf` the logic needed for calling into `<VAR>=<shell> <cmd> --`, passing needed
     /// arguments to [`EnvCompleter::write_complete`] through the environment.
     ///
+    /// - `var`: see [`CompleteEnv::var`]
+    /// - `name`: an identifier to use in the script
+    /// - `bin`: the binary being completed
+    /// - `completer`: the command to run to generate completions
+    ///
     /// **WARNING:** There are no stability guarantees between the call to
     /// [`EnvCompleter::write_complete`] that this generates and actually calling [`EnvCompleter::write_complete`].
     /// Caching the results of this call may result in invalid or no completions to be generated.
