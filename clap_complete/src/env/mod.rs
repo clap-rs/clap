@@ -91,6 +91,8 @@ pub use shells::*;
 pub struct CompleteEnv<'s, F> {
     factory: F,
     var: &'static str,
+    bin: Option<String>,
+    completer: Option<String>,
     shells: Shells<'s>,
 }
 
@@ -137,6 +139,8 @@ impl<'s, F: FnOnce() -> clap::Command> CompleteEnv<'s, F> {
         Self {
             factory,
             var: "COMPLETE",
+            bin: None,
+            completer: None,
             shells: Shells::builtins(),
         }
     }
@@ -144,6 +148,22 @@ impl<'s, F: FnOnce() -> clap::Command> CompleteEnv<'s, F> {
     /// Override the environment variable used for enabling completions
     pub fn var(mut self, var: &'static str) -> Self {
         self.var = var;
+        self
+    }
+
+    /// Override the name of the binary to complete
+    ///
+    /// Default: `Command::get_bin_name`
+    pub fn bin(mut self, bin: impl Into<String>) -> Self {
+        self.bin = Some(bin.into());
+        self
+    }
+
+    /// Override the binary to call to get completions
+    ///
+    /// Default: `args_os()[0]`
+    pub fn completer(mut self, completer: impl Into<String>) -> Self {
+        self.completer = Some(completer.into());
         self
     }
 
@@ -222,6 +242,7 @@ impl<'s, F: FnOnce() -> clap::Command> CompleteEnv<'s, F> {
         let mut cmd = (self.factory)();
         cmd.build();
 
+        let completer = args.remove(0);
         let escape_index = args
             .iter()
             .position(|a| *a == "--")
@@ -230,10 +251,25 @@ impl<'s, F: FnOnce() -> clap::Command> CompleteEnv<'s, F> {
         args.drain(0..escape_index);
         if args.is_empty() {
             let name = cmd.get_name();
-            let bin = cmd.get_bin_name().unwrap_or_else(|| cmd.get_name());
+            let bin = self
+                .bin
+                .as_deref()
+                .or_else(|| cmd.get_bin_name())
+                .unwrap_or_else(|| cmd.get_name());
+            let completer = if let Some(completer) = self.completer.as_deref() {
+                completer.to_owned()
+            } else {
+                let mut completer = std::path::PathBuf::from(completer);
+                if let Some(current_dir) = current_dir.as_deref() {
+                    if 1 < completer.components().count() {
+                        completer = current_dir.join(completer);
+                    }
+                }
+                completer.to_string_lossy().into_owned()
+            };
 
             let mut buf = Vec::new();
-            shell.write_registration(self.var, name, bin, bin, &mut buf)?;
+            shell.write_registration(self.var, name, bin, &completer, &mut buf)?;
             std::io::stdout().write_all(&buf)?;
         } else {
             let mut buf = Vec::new();
@@ -297,8 +333,8 @@ pub trait EnvCompleter {
     ///
     /// - `var`: see [`CompleteEnv::var`]
     /// - `name`: an identifier to use in the script
-    /// - `bin`: the binary being completed
-    /// - `completer`: the command to run to generate completions
+    /// - `bin`: see [`CompleteEnv::bin`]
+    /// - `completer`: see [`CompleteEnv::completer`]
     ///
     /// **WARNING:** There are no stability guarantees between the call to
     /// [`EnvCompleter::write_complete`] that this generates and actually calling [`EnvCompleter::write_complete`].
