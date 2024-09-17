@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Compatibility
+
+- *(dynamic)* The binary called when completing is now `std::env::args_os()[0]`, rather than `Command::name`
+
+### Features
+
+- *(dynamic)* Allow overriding the binary being completed and the binary being called for completions
+
+### Fixes
+
+- *(dynamic)* By default, remove wrappers around a binary when calling for completions
+
 ## [4.5.27] - 2024-09-17
 
 ### Fixes
