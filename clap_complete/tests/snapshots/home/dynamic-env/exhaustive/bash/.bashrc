@@ -11,7 +11,7 @@ _clap_complete_exhaustive() {
         local _CLAP_COMPLETE_SPACE=true
     fi
     COMPREPLY=( $( \
-        IFS="$IFS" \
+        _CLAP_IFS="$IFS" \
         _CLAP_COMPLETE_INDEX="$_CLAP_COMPLETE_INDEX" \
         _CLAP_COMPLETE_COMP_TYPE="$_CLAP_COMPLETE_COMP_TYPE" \
         COMPLETE="bash" \
