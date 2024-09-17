@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(dynamic)* Fix completions for bash for at least some users
+
 ## [4.5.26] - 2024-09-05
 
 ### Features
