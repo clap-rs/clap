@@ -40,7 +40,7 @@ _clap_complete_NAME() {
         local _CLAP_COMPLETE_SPACE=true
     fi
     COMPREPLY=( $( \
-        IFS="$IFS" \
+        _CLAP_IFS="$IFS" \
         _CLAP_COMPLETE_INDEX="$_CLAP_COMPLETE_INDEX" \
         _CLAP_COMPLETE_COMP_TYPE="$_CLAP_COMPLETE_COMP_TYPE" \
         VAR="bash" \
@@ -85,7 +85,7 @@ fi
         let _space: Option<bool> = std::env::var("_CLAP_COMPLETE_SPACE")
             .ok()
             .and_then(|i| i.parse().ok());
-        let ifs: Option<String> = std::env::var("IFS").ok().and_then(|i| i.parse().ok());
+        let ifs: Option<String> = std::env::var("_CLAP_IFS").ok().and_then(|i| i.parse().ok());
         let completions = crate::engine::complete(cmd, args, index, current_dir)?;
 
         for (i, candidate) in completions.iter().enumerate() {
