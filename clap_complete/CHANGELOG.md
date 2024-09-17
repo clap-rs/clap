@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.28] - 2024-09-17
+
 ### Compatibility
 
 - *(dynamic)* The binary called when completing is now `std::env::args_os()[0]`, rather than `Command::name`
@@ -432,7 +434,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.27...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.28...HEAD
+[4.5.28]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.27...clap_complete-v4.5.28
 [4.5.27]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.26...clap_complete-v4.5.27
 [4.5.26]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.25...clap_complete-v4.5.26
 [4.5.25]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.24...clap_complete-v4.5.25
