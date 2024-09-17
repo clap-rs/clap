@@ -161,7 +161,7 @@ impl<'s, F: FnOnce() -> clap::Command> CompleteEnv<'s, F> {
 
     /// Override the binary to call to get completions
     ///
-    /// Default: `Command::get_bin_name`
+    /// Default: `args_os()[0]`
     pub fn completer(mut self, completer: impl Into<String>) -> Self {
         self.completer = Some(completer.into());
         self
@@ -242,6 +242,7 @@ impl<'s, F: FnOnce() -> clap::Command> CompleteEnv<'s, F> {
         let mut cmd = (self.factory)();
         cmd.build();
 
+        let completer = args.remove(0);
         let escape_index = args
             .iter()
             .position(|a| *a == "--")
@@ -255,14 +256,20 @@ impl<'s, F: FnOnce() -> clap::Command> CompleteEnv<'s, F> {
                 .as_deref()
                 .or_else(|| cmd.get_bin_name())
                 .unwrap_or_else(|| cmd.get_name());
-            let completer = self
-                .completer
-                .as_deref()
-                .or_else(|| cmd.get_bin_name())
-                .unwrap_or_else(|| cmd.get_name());
+            let completer = if let Some(completer) = self.completer.as_deref() {
+                completer.to_owned()
+            } else {
+                let mut completer = std::path::PathBuf::from(completer);
+                if let Some(current_dir) = current_dir.as_deref() {
+                    if 1 < completer.components().count() {
+                        completer = current_dir.join(completer);
+                    }
+                }
+                completer.to_string_lossy().into_owned()
+            };
 
             let mut buf = Vec::new();
-            shell.write_registration(self.var, name, bin, completer, &mut buf)?;
+            shell.write_registration(self.var, name, bin, &completer, &mut buf)?;
             std::io::stdout().write_all(&buf)?;
         } else {
             let mut buf = Vec::new();
