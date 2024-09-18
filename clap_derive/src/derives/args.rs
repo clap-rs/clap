@@ -230,7 +230,7 @@ pub(crate) fn gen_augment(
                 let next_display_order = item.next_display_order();
                 let flatten_group_assert = if matches!(**ty, Ty::Option) {
                     quote_spanned! { kind.span()=>
-                        <#inner_type as clap::Args>::group_id().expect("cannot `#[flatten]` an `Option<Args>` with `#[group(skip)]");
+                        <#inner_type as clap::Args>::group_id().expect("cannot `#[flatten]` an `Option<Args>` with `#[group(skip)]`");
                     }
                 } else {
                     quote! {}
