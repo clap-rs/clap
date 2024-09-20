@@ -286,7 +286,12 @@ fn complete_arg(
             tags.push(tag);
         }
     }
-    completions.sort_by_key(|c| tags.iter().position(|t| c.get_tag() == t.as_ref()));
+    completions.sort_by_key(|c| {
+        (
+            tags.iter().position(|t| c.get_tag() == t.as_ref()),
+            c.get_display_order(),
+        )
+    });
 
     Ok(completions)
 }

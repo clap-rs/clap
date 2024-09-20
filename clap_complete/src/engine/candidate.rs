@@ -10,6 +10,7 @@ pub struct CompletionCandidate {
     help: Option<StyledStr>,
     id: Option<String>,
     tag: Option<StyledStr>,
+    display_order: Option<usize>,
     hidden: bool,
 }
 
@@ -42,6 +43,12 @@ impl CompletionCandidate {
     /// Future: these may become user-visible
     pub fn tag(mut self, tag: Option<StyledStr>) -> Self {
         self.tag = tag;
+        self
+    }
+
+    /// Sort weight within a [`CompletionCandidate::tag`]
+    pub fn display_order(mut self, order: Option<usize>) -> Self {
+        self.display_order = order;
         self
     }
 
@@ -86,6 +93,11 @@ impl CompletionCandidate {
     /// Get the grouping tag
     pub fn get_tag(&self) -> Option<&StyledStr> {
         self.tag.as_ref()
+    }
+
+    /// Get the grouping tag
+    pub fn get_display_order(&self) -> Option<usize> {
+        self.display_order
     }
 
     /// Get the visibility of the completion candidate
