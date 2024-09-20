@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.29] - 2024-09-20
+
 ### Features
 
 - *(dynamic)* Change completion order to subcommands, positional values, flags
@@ -442,7 +444,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.28...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.29...HEAD
+[4.5.29]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.28...clap_complete-v4.5.29
 [4.5.28]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.27...clap_complete-v4.5.28
 [4.5.27]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.26...clap_complete-v4.5.27
 [4.5.26]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.25...clap_complete-v4.5.26
