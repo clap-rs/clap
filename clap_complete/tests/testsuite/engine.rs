@@ -283,11 +283,11 @@ fn suggest_subcommand_positional() {
     assert_data_eq!(
         complete!(cmd, "hello-world [TAB]"),
         snapbox::str![[r#"
---help	Print help (see more with '--help')
--h	Print help (see more with '--help')
 hello-world	Say hello to the world
 hello-moon
 goodbye-world
+--help	Print help (see more with '--help')
+-h	Print help (see more with '--help')
 "#]],
     );
 }
@@ -354,6 +354,9 @@ toml
     assert_data_eq!(
         complete!(cmd, "--format toml [TAB]"),
         snapbox::str![[r#"
+pos_a
+pos_b
+pos_c
 --format
 --stream
 --count
@@ -362,9 +365,6 @@ toml
 -S
 -c
 -h	Print help
-pos_a
-pos_b
-pos_c
 "#]]
     );
 
@@ -770,13 +770,13 @@ pos_c
     assert_data_eq!(
         complete!(cmd, "--format json pos_1 [TAB]"),
         snapbox::str![[r#"
+pos_a
+pos_b
+pos_c
 --format
 --help	Print help
 -F
 -h	Print help
-pos_a
-pos_b
-pos_c
 "#]]
     );
 
@@ -844,23 +844,17 @@ fn suggest_delimiter_values() {
                 .value_delimiter(','),
         );
 
-    assert_data_eq!(
-        complete!(cmd, "--delimiter [TAB]"),
-        snapbox::str![
-            "comma
+    assert_data_eq!(complete!(cmd, "--delimiter [TAB]"), snapbox::str![[r#"
+comma
 space
-tab"
-        ]
-    );
+tab
+"#]]);
 
-    assert_data_eq!(
-        complete!(cmd, "--delimiter=[TAB]"),
-        snapbox::str![
-            "--delimiter=comma
+    assert_data_eq!(complete!(cmd, "--delimiter=[TAB]"), snapbox::str![[r#"
+--delimiter=comma
 --delimiter=space
---delimiter=tab"
-        ]
-    );
+--delimiter=tab
+"#]]);
 
     assert_data_eq!(complete!(cmd, "--delimiter c[TAB]"), snapbox::str!["comma"]);
 
@@ -869,26 +863,20 @@ tab"
         snapbox::str!["--delimiter=comma"]
     );
 
-    assert_data_eq!(
-        complete!(cmd, "--delimiter comma,[TAB]"),
-        snapbox::str![
-            "comma,comma
+    assert_data_eq!(complete!(cmd, "--delimiter comma,[TAB]"), snapbox::str![[r#"
+comma,comma
 comma,space
-comma,tab"
-        ]
-    );
+comma,tab
+"#]]);
 
-    assert_data_eq!(
-        complete!(cmd, "--delimiter=comma,[TAB]"),
-        snapbox::str![
-            "--delimiter=comma,comma
---delimiter=comma,space
---delimiter=comma,tab
+    assert_data_eq!(complete!(cmd, "--delimiter=comma,[TAB]"), snapbox::str![[r#"
 --delimiter=comma,a_pos
 --delimiter=comma,b_pos
---delimiter=comma,c_pos"
-        ]
-    );
+--delimiter=comma,c_pos
+--delimiter=comma,comma
+--delimiter=comma,space
+--delimiter=comma,tab
+"#]]);
 
     assert_data_eq!(
         complete!(cmd, "--delimiter comma,s[TAB]"),
@@ -900,48 +888,36 @@ comma,tab"
         snapbox::str!["--delimiter=comma,space"]
     );
 
-    assert_data_eq!(
-        complete!(cmd, "-D [TAB]"),
-        snapbox::str![
-            "comma
+    assert_data_eq!(complete!(cmd, "-D [TAB]"), snapbox::str![[r#"
+comma
 space
-tab"
-        ]
-    );
+tab
+"#]]);
 
-    assert_data_eq!(
-        complete!(cmd, "-D=[TAB]"),
-        snapbox::str![
-            "-D=comma
+    assert_data_eq!(complete!(cmd, "-D=[TAB]"), snapbox::str![[r#"
+-D=comma
 -D=space
--D=tab"
-        ]
-    );
+-D=tab
+"#]]);
 
     assert_data_eq!(complete!(cmd, "-D c[TAB]"), snapbox::str!["comma"]);
 
     assert_data_eq!(complete!(cmd, "-D=c[TAB]"), snapbox::str!["-D=comma"]);
 
-    assert_data_eq!(
-        complete!(cmd, "-D comma,[TAB]"),
-        snapbox::str![
-            "comma,comma
+    assert_data_eq!(complete!(cmd, "-D comma,[TAB]"), snapbox::str![[r#"
+comma,comma
 comma,space
-comma,tab"
-        ]
-    );
+comma,tab
+"#]]);
 
-    assert_data_eq!(
-        complete!(cmd, "-D=comma,[TAB]"),
-        snapbox::str![
-            "-D=comma,comma
--D=comma,space
--D=comma,tab
+    assert_data_eq!(complete!(cmd, "-D=comma,[TAB]"), snapbox::str![[r#"
 -D=comma,a_pos
 -D=comma,b_pos
--D=comma,c_pos"
-        ]
-    );
+-D=comma,c_pos
+-D=comma,comma
+-D=comma,space
+-D=comma,tab
+"#]]);
 
     assert_data_eq!(
         complete!(cmd, "-D comma,s[TAB]"),
@@ -953,27 +929,21 @@ comma,tab"
         snapbox::str!["-D=comma,space"]
     );
 
-    assert_data_eq!(
-        complete!(cmd, "-- [TAB]"),
-        snapbox::str![
-            "--delimiter
---help\tPrint help
--D
--h\tPrint help
+    assert_data_eq!(complete!(cmd, "-- [TAB]"), snapbox::str![[r#"
 a_pos
 b_pos
-c_pos"
-        ]
-    );
+c_pos
+--delimiter
+--help	Print help
+-D
+-h	Print help
+"#]]);
 
-    assert_data_eq!(
-        complete!(cmd, " -- a_pos,[TAB]"),
-        snapbox::str![
-            "a_pos,a_pos
+    assert_data_eq!(complete!(cmd, " -- a_pos,[TAB]"), snapbox::str![[r#"
+a_pos,a_pos
 a_pos,b_pos
-a_pos,c_pos"
-        ]
-    );
+a_pos,c_pos
+"#]]);
 
     assert_data_eq!(
         complete!(cmd, "-- a_pos,b[TAB]"),
@@ -998,23 +968,17 @@ fn suggest_allow_hyphen() {
     assert_data_eq!(complete!(cmd, "--format --t[TAB]"), snapbox::str!["--toml"]);
     assert_data_eq!(complete!(cmd, "-F --t[TAB]"), snapbox::str!["--toml"]);
 
-    assert_data_eq!(
-        complete!(cmd, "--format --[TAB]"),
-        snapbox::str![
-            "--json
+    assert_data_eq!(complete!(cmd, "--format --[TAB]"), snapbox::str![[r#"
+--json
 --toml
---yaml"
-        ]
-    );
+--yaml
+"#]]);
 
-    assert_data_eq!(
-        complete!(cmd, "-F --[TAB]"),
-        snapbox::str![
-            "--json
+    assert_data_eq!(complete!(cmd, "-F --[TAB]"), snapbox::str![[r#"
+--json
 --toml
---yaml"
-        ]
-    );
+--yaml
+"#]]);
 
     assert_data_eq!(
         complete!(cmd, "--format --json --j[TAB]"),
@@ -1060,24 +1024,21 @@ fn suggest_positional_long_allow_hyphen() {
 
     assert_data_eq!(
         complete!(cmd, "--format --json --pos_a [TAB]"),
-        snapbox::str![
-            "--format
+        snapbox::str![[r#"
+pos_b
+--format
 --help	Print help
 -F
 -h	Print help
-pos_b"
-        ]
+"#]]
     );
-    assert_data_eq!(
-        complete!(cmd, "-F --json --pos_a [TAB]"),
-        snapbox::str![
-            "--format
+    assert_data_eq!(complete!(cmd, "-F --json --pos_a [TAB]"), snapbox::str![[r#"
+pos_b
+--format
 --help	Print help
 -F
 -h	Print help
-pos_b"
-        ]
-    );
+"#]]);
 
     assert_data_eq!(
         complete!(cmd, "--format --json --pos_a p[TAB]"),
@@ -1111,26 +1072,20 @@ fn suggest_positional_short_allow_hyphen() {
                 .value_parser(["pos_b"]),
         );
 
-    assert_data_eq!(
-        complete!(cmd, "--format --json -a [TAB]"),
-        snapbox::str![
-            "--format
+    assert_data_eq!(complete!(cmd, "--format --json -a [TAB]"), snapbox::str![[r#"
+pos_b
+--format
 --help	Print help
 -F
 -h	Print help
-pos_b"
-        ]
-    );
-    assert_data_eq!(
-        complete!(cmd, "-F --json -a [TAB]"),
-        snapbox::str![
-            "--format
+"#]]);
+    assert_data_eq!(complete!(cmd, "-F --json -a [TAB]"), snapbox::str![[r#"
+pos_b
+--format
 --help	Print help
 -F
 -h	Print help
-pos_b"
-        ]
-    );
+"#]]);
 
     assert_data_eq!(
         complete!(cmd, "--format --json -a p[TAB]"),
@@ -1139,6 +1094,62 @@ pos_b"
     assert_data_eq!(
         complete!(cmd, "-F --json -a p[TAB]"),
         snapbox::str!["pos_b"]
+    );
+}
+
+#[test]
+fn sort_and_filter() {
+    let mut cmd = Command::new("exhaustive")
+        .args([
+            clap::Arg::new("required-flag")
+                .long("required-flag")
+                .visible_alias("required-flag2")
+                .short('r')
+                .required(true),
+            clap::Arg::new("optional-flag")
+                .long("optional-flag")
+                .visible_alias("2optional-flag")
+                .short('o'),
+            clap::Arg::new("long-flag").long("long-flag"),
+            clap::Arg::new("short-flag").short('s'),
+            clap::Arg::new("positional").value_parser(["pos-a", "pos-b", "pos-c"]),
+        ])
+        .subcommands([Command::new("sub")]);
+
+    assert_data_eq!(
+        complete!(cmd, " [TAB]"),
+        snapbox::str![[r#"
+help	Print this message or the help of the given subcommand(s)
+sub
+pos-a
+pos-b
+pos-c
+--required-flag
+--required-flag2
+--optional-flag
+--2optional-flag
+--long-flag
+--help	Print help
+-r
+-o
+-s
+-h	Print help
+"#]]
+    );
+    assert_data_eq!(
+        complete!(cmd, "-[TAB]"),
+        snapbox::str![[r#"
+--required-flag
+--required-flag2
+--optional-flag
+--2optional-flag
+--long-flag
+--help	Print help
+-r
+-o
+-s
+-h	Print help
+"#]]
     );
 }
 
