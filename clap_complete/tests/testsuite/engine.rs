@@ -283,11 +283,11 @@ fn suggest_subcommand_positional() {
     assert_data_eq!(
         complete!(cmd, "hello-world [TAB]"),
         snapbox::str![[r#"
---help	Print help (see more with '--help')
--h	Print help (see more with '--help')
 hello-world	Say hello to the world
 hello-moon
 goodbye-world
+--help	Print help (see more with '--help')
+-h	Print help (see more with '--help')
 "#]],
     );
 }
@@ -354,6 +354,9 @@ toml
     assert_data_eq!(
         complete!(cmd, "--format toml [TAB]"),
         snapbox::str![[r#"
+pos_a
+pos_b
+pos_c
 --format
 --stream
 --count
@@ -362,9 +365,6 @@ toml
 -S
 -c
 -h	Print help
-pos_a
-pos_b
-pos_c
 "#]]
     );
 
@@ -770,13 +770,13 @@ pos_c
     assert_data_eq!(
         complete!(cmd, "--format json pos_1 [TAB]"),
         snapbox::str![[r#"
+pos_a
+pos_b
+pos_c
 --format
 --help	Print help
 -F
 -h	Print help
-pos_a
-pos_b
-pos_c
 "#]]
     );
 
@@ -870,12 +870,12 @@ comma,tab
 "#]]);
 
     assert_data_eq!(complete!(cmd, "--delimiter=comma,[TAB]"), snapbox::str![[r#"
---delimiter=comma,comma
---delimiter=comma,space
---delimiter=comma,tab
 --delimiter=comma,a_pos
 --delimiter=comma,b_pos
 --delimiter=comma,c_pos
+--delimiter=comma,comma
+--delimiter=comma,space
+--delimiter=comma,tab
 "#]]);
 
     assert_data_eq!(
@@ -911,12 +911,12 @@ comma,tab
 "#]]);
 
     assert_data_eq!(complete!(cmd, "-D=comma,[TAB]"), snapbox::str![[r#"
--D=comma,comma
--D=comma,space
--D=comma,tab
 -D=comma,a_pos
 -D=comma,b_pos
 -D=comma,c_pos
+-D=comma,comma
+-D=comma,space
+-D=comma,tab
 "#]]);
 
     assert_data_eq!(
@@ -930,13 +930,13 @@ comma,tab
     );
 
     assert_data_eq!(complete!(cmd, "-- [TAB]"), snapbox::str![[r#"
+a_pos
+b_pos
+c_pos
 --delimiter
 --help	Print help
 -D
 -h	Print help
-a_pos
-b_pos
-c_pos
 "#]]);
 
     assert_data_eq!(complete!(cmd, " -- a_pos,[TAB]"), snapbox::str![[r#"
@@ -1025,19 +1025,19 @@ fn suggest_positional_long_allow_hyphen() {
     assert_data_eq!(
         complete!(cmd, "--format --json --pos_a [TAB]"),
         snapbox::str![[r#"
+pos_b
 --format
 --help	Print help
 -F
 -h	Print help
-pos_b
 "#]]
     );
     assert_data_eq!(complete!(cmd, "-F --json --pos_a [TAB]"), snapbox::str![[r#"
+pos_b
 --format
 --help	Print help
 -F
 -h	Print help
-pos_b
 "#]]);
 
     assert_data_eq!(
@@ -1073,18 +1073,18 @@ fn suggest_positional_short_allow_hyphen() {
         );
 
     assert_data_eq!(complete!(cmd, "--format --json -a [TAB]"), snapbox::str![[r#"
+pos_b
 --format
 --help	Print help
 -F
 -h	Print help
-pos_b
 "#]]);
     assert_data_eq!(complete!(cmd, "-F --json -a [TAB]"), snapbox::str![[r#"
+pos_b
 --format
 --help	Print help
 -F
 -h	Print help
-pos_b
 "#]]);
 
     assert_data_eq!(
@@ -1119,6 +1119,11 @@ fn sort_and_filter() {
     assert_data_eq!(
         complete!(cmd, " [TAB]"),
         snapbox::str![[r#"
+help	Print this message or the help of the given subcommand(s)
+sub
+pos-a
+pos-b
+pos-c
 --required-flag
 --required-flag2
 --optional-flag
@@ -1129,11 +1134,6 @@ fn sort_and_filter() {
 -o
 -s
 -h	Print help
-pos-a
-pos-b
-pos-c
-help	Print this message or the help of the given subcommand(s)
-sub
 "#]]
     );
     assert_data_eq!(

@@ -146,6 +146,17 @@ fn complete_arg(
 
     match state {
         ParseState::ValueDone => {
+            if let Ok(value) = arg.to_value() {
+                completions.extend(complete_subcommand(value, cmd));
+            }
+
+            if let Some(positional) = cmd
+                .get_positionals()
+                .find(|p| p.get_index() == Some(pos_index))
+            {
+                completions.extend(complete_arg_value(arg.to_value(), positional, current_dir));
+            }
+
             if let Some((flag, value)) = arg.to_long() {
                 if let Ok(flag) = flag {
                     if let Some(value) = value {
@@ -218,17 +229,6 @@ fn complete_arg(
                         );
                     }
                 }
-            }
-
-            if let Some(positional) = cmd
-                .get_positionals()
-                .find(|p| p.get_index() == Some(pos_index))
-            {
-                completions.extend(complete_arg_value(arg.to_value(), positional, current_dir));
-            }
-
-            if let Ok(value) = arg.to_value() {
-                completions.extend(complete_subcommand(value, cmd));
             }
         }
         ParseState::Pos(..) => {
