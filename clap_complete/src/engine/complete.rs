@@ -426,13 +426,7 @@ fn longs_and_visible_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
         .filter_map(|a| {
             a.get_long_and_visible_aliases().map(|longs| {
                 longs.into_iter().map(|s| {
-                    CompletionCandidate::new(format!("--{}", s))
-                        .help(a.get_help().cloned())
-                        .id(Some(format!("arg::{}", a.get_id())))
-                        .tag(Some(
-                            a.get_help_heading().unwrap_or("Options").to_owned().into(),
-                        ))
-                        .hide(a.is_hide_set())
+                    populate_arg_candidate(CompletionCandidate::new(format!("--{}", s)), a)
                 })
             })
         })
@@ -448,12 +442,7 @@ fn hidden_longs_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
         .filter_map(|a| {
             a.get_aliases().map(|longs| {
                 longs.into_iter().map(|s| {
-                    CompletionCandidate::new(format!("--{}", s))
-                        .help(a.get_help().cloned())
-                        .id(Some(format!("arg::{}", a.get_id())))
-                        .tag(Some(
-                            a.get_help_heading().unwrap_or("Options").to_owned().into(),
-                        ))
+                    populate_arg_candidate(CompletionCandidate::new(format!("--{}", s)), a)
                         .hide(true)
                 })
             })
@@ -471,22 +460,29 @@ fn shorts_and_visible_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
         .filter_map(|a| {
             a.get_short_and_visible_aliases().map(|shorts| {
                 shorts.into_iter().map(|s| {
-                    CompletionCandidate::new(s.to_string())
-                        .help(
-                            a.get_help()
-                                .cloned()
-                                .or_else(|| a.get_long().map(|long| format!("--{long}").into())),
-                        )
-                        .id(Some(format!("arg::{}", a.get_id())))
-                        .tag(Some(
-                            a.get_help_heading().unwrap_or("Options").to_owned().into(),
-                        ))
-                        .hide(a.is_hide_set())
+                    populate_arg_candidate(CompletionCandidate::new(s.to_string()), a).help(
+                        a.get_help()
+                            .cloned()
+                            .or_else(|| a.get_long().map(|long| format!("--{long}").into())),
+                    )
                 })
             })
         })
         .flatten()
         .collect()
+}
+
+fn populate_arg_candidate(candidate: CompletionCandidate, arg: &clap::Arg) -> CompletionCandidate {
+    candidate
+        .help(arg.get_help().cloned())
+        .id(Some(format!("arg::{}", arg.get_id())))
+        .tag(Some(
+            arg.get_help_heading()
+                .unwrap_or("Options")
+                .to_owned()
+                .into(),
+        ))
+        .hide(arg.is_hide_set())
 }
 
 /// Get the possible values for completion
@@ -511,34 +507,31 @@ fn subcommands(p: &clap::Command) -> Vec<CompletionCandidate> {
         .flat_map(|sc| {
             sc.get_name_and_visible_aliases()
                 .into_iter()
-                .map(|s| {
-                    CompletionCandidate::new(s.to_string())
-                        .help(sc.get_about().cloned())
-                        .id(Some(format!("command::{}", sc.get_name())))
-                        .tag(Some(
-                            p.get_subcommand_help_heading()
-                                .unwrap_or("Commands")
-                                .to_owned()
-                                .into(),
-                        ))
-                        .hide(sc.is_hide_set())
-                })
+                .map(|s| populate_command_candidate(CompletionCandidate::new(s.to_string()), p, sc))
                 .chain(sc.get_aliases().map(|s| {
-                    CompletionCandidate::new(s.to_string())
-                        .help(sc.get_about().cloned())
-                        .id(Some(format!("command::{}", sc.get_name())))
-                        .tag(Some(
-                            p.get_subcommand_help_heading()
-                                .unwrap_or("Commands")
-                                .to_owned()
-                                .into(),
-                        ))
+                    populate_command_candidate(CompletionCandidate::new(s.to_string()), p, sc)
                         .hide(true)
                 }))
         })
         .collect()
 }
 
+fn populate_command_candidate(
+    candidate: CompletionCandidate,
+    cmd: &clap::Command,
+    subcommand: &clap::Command,
+) -> CompletionCandidate {
+    candidate
+        .help(subcommand.get_about().cloned())
+        .id(Some(format!("command::{}", subcommand.get_name())))
+        .tag(Some(
+            cmd.get_subcommand_help_heading()
+                .unwrap_or("Commands")
+                .to_owned()
+                .into(),
+        ))
+        .hide(subcommand.is_hide_set())
+}
 /// Parse the short flags and find the first `takes_values` option.
 fn parse_shortflags<'c, 's>(
     cmd: &'c clap::Command,
