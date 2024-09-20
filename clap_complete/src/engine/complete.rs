@@ -15,6 +15,7 @@ pub fn complete(
     arg_index: usize,
     current_dir: Option<&std::path::Path>,
 ) -> Result<Vec<CompletionCandidate>, std::io::Error> {
+    debug!("complete: args={args:?}, arg_index={arg_index:?}, current_dir={current_dir:?}");
     cmd.build();
 
     let raw_args = clap_lex::RawArgs::new(args);
@@ -26,6 +27,7 @@ pub fn complete(
     );
     // As we loop, `cursor` will always be pointing to the next item
     raw_args.next_os(&mut target_cursor);
+    debug!("complete: target_cursor={target_cursor:?}");
 
     // TODO: Multicall support
     if !cmd.is_no_binary_name_set() {
@@ -39,11 +41,13 @@ pub fn complete(
     while let Some(arg) = raw_args.next(&mut cursor) {
         let current_state = next_state;
         next_state = ParseState::ValueDone;
+        debug!(
+            "complete::next: arg={:?}, current_state={current_state:?}, cursor={cursor:?}",
+            arg.to_value_os(),
+        );
         if cursor == target_cursor {
             return complete_arg(&arg, current_cmd, current_dir, pos_index, current_state);
         }
-
-        debug!("complete::next: Begin parsing '{:?}'", arg.to_value_os(),);
 
         if let Ok(value) = arg.to_value() {
             if let Some(next_cmd) = current_cmd.find_subcommand(value) {
