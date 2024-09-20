@@ -192,10 +192,9 @@ fn complete_dynamic_env_toplevel() {
     let input = "exhaustive \t\t";
     let expected = snapbox::str![[r#"
 % exhaustive action 
-action                                                             last    --global      (everywhere)
-alias                                                              pacman  --generate      (generate)
-help  (Print this message or the help of the given subcommand(s))  quote   --help        (Print help)
-hint                                                               value   --version  (Print version)
+action  pacman  hint                                                               --generate      (generate)
+quote   last    help  (Print this message or the help of the given subcommand(s))  --help        (Print help)
+value   alias   --global                                             (everywhere)  --version  (Print version)
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -214,22 +213,22 @@ fn complete_dynamic_env_quoted_help() {
     let input = "exhaustive quote \t\t";
     let expected = snapbox::str![[r#"
 % exhaustive quote 
-cmd-backslash                                        (Avoid '/n')
-cmd-backticks              (For more information see `echo test`)
-cmd-brackets                             (List packages [filter])
-cmd-double-quotes           (Can be "always", "auto", or "never")
-cmd-expansions            (Execute the shell command with $SHELL)
 cmd-single-quotes           (Can be 'always', 'auto', or 'never')
+cmd-double-quotes           (Can be "always", "auto", or "never")
+cmd-backticks              (For more information see `echo test`)
+cmd-backslash                                        (Avoid '/n')
+cmd-brackets                             (List packages [filter])
+cmd-expansions            (Execute the shell command with $SHELL)
 escape-help                                             (/tab "')
 help  (Print this message or the help of the given subcommand(s))
 --single-quotes             (Can be 'always', 'auto', or 'never')
+--global                                             (everywhere)
 --double-quotes             (Can be "always", "auto", or "never")
 --backticks                (For more information see `echo test`)
 --backslash                                          (Avoid '/n')
 --brackets                               (List packages [filter])
 --expansions              (Execute the shell command with $SHELL)
 --choice                                                         
---global                                             (everywhere)
 --help                      (Print help (see more with '--help'))
 --version                                         (Print version)
 "#]];

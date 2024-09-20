@@ -9,6 +9,8 @@ pub struct CompletionCandidate {
     value: OsString,
     help: Option<StyledStr>,
     id: Option<String>,
+    tag: Option<StyledStr>,
+    display_order: Option<usize>,
     hidden: bool,
 }
 
@@ -33,6 +35,20 @@ impl CompletionCandidate {
     /// To reduce the risk of conflicts, this should likely contain a namespace.
     pub fn id(mut self, id: Option<String>) -> Self {
         self.id = id;
+        self
+    }
+
+    /// Group candidates by tag
+    ///
+    /// Future: these may become user-visible
+    pub fn tag(mut self, tag: Option<StyledStr>) -> Self {
+        self.tag = tag;
+        self
+    }
+
+    /// Sort weight within a [`CompletionCandidate::tag`]
+    pub fn display_order(mut self, order: Option<usize>) -> Self {
+        self.display_order = order;
         self
     }
 
@@ -72,6 +88,16 @@ impl CompletionCandidate {
     /// Get the id used for de-duplicating
     pub fn get_id(&self) -> Option<&String> {
         self.id.as_ref()
+    }
+
+    /// Get the grouping tag
+    pub fn get_tag(&self) -> Option<&StyledStr> {
+        self.tag.as_ref()
+    }
+
+    /// Get the grouping tag
+    pub fn get_display_order(&self) -> Option<usize> {
+        self.display_order
     }
 
     /// Get the visibility of the completion candidate

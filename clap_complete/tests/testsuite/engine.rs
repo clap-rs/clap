@@ -30,8 +30,8 @@ fn suggest_subcommand_subset() {
     assert_data_eq!(
         complete!(cmd, "he"),
         snapbox::str![[r#"
-hello-moon
 hello-world
+hello-moon
 help	Print this message or the help of the given subcommand(s)
 "#]],
     );
@@ -105,8 +105,8 @@ fn suggest_subcommand_aliases() {
     assert_data_eq!(
         complete!(cmd, "hello"),
         snapbox::str![[r#"
-hello-moon
 hello-world
+hello-moon
 "#]],
     );
 }
@@ -1099,16 +1099,16 @@ fn sort_and_filter() {
     assert_data_eq!(
         complete!(cmd, " [TAB]"),
         snapbox::str![[r#"
-help	Print this message or the help of the given subcommand(s)
 sub
+help	Print this message or the help of the given subcommand(s)
 pos-a
 pos-b
 pos-c
 --required-flag
 --optional-flag
 --long-flag
---help	Print help
 -s
+--help	Print help
 "#]]
     );
     assert_data_eq!(
@@ -1116,9 +1116,9 @@ pos-c
         snapbox::str![[r#"
 -r	--required-flag
 -o	--optional-flag
+--long-flag
 -s
 -h	Print help
---long-flag
 "#]]
     );
     assert_data_eq!(
