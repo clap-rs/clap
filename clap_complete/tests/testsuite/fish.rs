@@ -192,11 +192,10 @@ fn complete_dynamic_env_toplevel() {
     let input = "exhaustive \t\t";
     let expected = snapbox::str![[r#"
 % exhaustive action 
-action                                                             pacman                  --help        (Print help)
-alias                                                              quote                   --version  (Print version)
-help  (Print this message or the help of the given subcommand(s))  value                   -h            (Print help)
-hint                                                               --global  (everywhere)  -V         (Print version)
-last                                                               --generate  (generate)  
+action                                                             last    --global      (everywhere)
+alias                                                              pacman  --generate      (generate)
+help  (Print this message or the help of the given subcommand(s))  quote   --help        (Print help)
+hint                                                               value   --version  (Print version)
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -215,16 +214,24 @@ fn complete_dynamic_env_quoted_help() {
     let input = "exhaustive quote \t\t";
     let expected = snapbox::str![[r#"
 % exhaustive quote 
-cmd-backslash                                        (Avoid '/n')  --backticks    (For more information see `echo test`)
-cmd-backticks              (For more information see `echo test`)  --backslash                              (Avoid '/n')
-cmd-brackets                             (List packages [filter])  --brackets                   (List packages [filter])
-cmd-double-quotes           (Can be "always", "auto", or "never")  --expansions  (Execute the shell command with $SHELL)
-cmd-expansions            (Execute the shell command with $SHELL)  --choice                                             
-cmd-single-quotes           (Can be 'always', 'auto', or 'never')  --global                                 (everywhere)
-escape-help                                             (/tab "')  --help          (Print help (see more with '--help'))
-help  (Print this message or the help of the given subcommand(s))  --version                             (Print version)
---single-quotes             (Can be 'always', 'auto', or 'never')  -h              (Print help (see more with '--help'))
---double-quotes             (Can be "always", "auto", or "never")  -V                                    (Print version)
+cmd-backslash                                        (Avoid '/n')
+cmd-backticks              (For more information see `echo test`)
+cmd-brackets                             (List packages [filter])
+cmd-double-quotes           (Can be "always", "auto", or "never")
+cmd-expansions            (Execute the shell command with $SHELL)
+cmd-single-quotes           (Can be 'always', 'auto', or 'never')
+escape-help                                             (/tab "')
+help  (Print this message or the help of the given subcommand(s))
+--single-quotes             (Can be 'always', 'auto', or 'never')
+--double-quotes             (Can be "always", "auto", or "never")
+--backticks                (For more information see `echo test`)
+--backslash                                          (Avoid '/n')
+--brackets                               (List packages [filter])
+--expansions              (Execute the shell command with $SHELL)
+--choice                                                         
+--global                                             (everywhere)
+--help                      (Print help (see more with '--help'))
+--version                                         (Print version)
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);

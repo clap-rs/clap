@@ -75,19 +75,12 @@ fn suggest_hidden_subcommand_and_aliases() {
 
     assert_data_eq!(
         complete!(cmd, "test"),
-        snapbox::str![[r#"
-test_visible
-test_visible-alias_visible
-"#]]
+        snapbox::str!["test_visible"]
     );
 
     assert_data_eq!(
         complete!(cmd, "test_h"),
-        snapbox::str![[r#"
-test_hidden
-test_hidden-alias_hidden
-test_hidden-alias_visible
-"#]]
+        snapbox::str!["test_hidden"]
     );
 
     assert_data_eq!(
@@ -119,9 +112,7 @@ fn suggest_subcommand_aliases() {
         complete!(cmd, "hello"),
         snapbox::str![[r#"
 hello-moon
-hello-moon-foo
 hello-world
-hello-world-foo
 "#]],
     );
 }
@@ -167,19 +158,12 @@ fn suggest_hidden_long_flag_aliases() {
 
     assert_data_eq!(
         complete!(cmd, "--test"),
-        snapbox::str![[r#"
---test_visible
---test_visible-alias_visible
-"#]]
+        snapbox::str!["--test_visible"]
     );
 
     assert_data_eq!(
         complete!(cmd, "--test_h"),
-        snapbox::str![[r#"
---test_hidden
---test_hidden-alias_visible
---test_hidden-alias_hidden
-"#]]
+        snapbox::str!["--test_hidden"]
     );
 
     assert_data_eq!(
@@ -287,7 +271,6 @@ hello-world	Say hello to the world
 hello-moon
 goodbye-world
 --help	Print help (see more with '--help')
--h	Print help (see more with '--help')
 "#]],
     );
 }
@@ -361,10 +344,6 @@ pos_c
 --stream
 --count
 --help	Print help
--F
--S
--c
--h	Print help
 "#]]
     );
 
@@ -433,9 +412,6 @@ val3
 --certain-num
 --uncertain-num
 --help	Print help
--Y
--N
--h	Print help
 "#]]
     );
 
@@ -457,9 +433,6 @@ val3
 --certain-num
 --uncertain-num
 --help	Print help
--Y
--N
--h	Print help
 "#]]
     );
 
@@ -469,9 +442,6 @@ val3
 --certain-num
 --uncertain-num
 --help	Print help
--Y
--N
--h	Print help
 "#]]
     );
 
@@ -499,9 +469,6 @@ val3
 --certain-num
 --uncertain-num
 --help	Print help
--Y
--N
--h	Print help
 "#]]
     );
 
@@ -523,9 +490,6 @@ val3
 --certain-num
 --uncertain-num
 --help	Print help
--Y
--N
--h	Print help
 "#]]
     );
 
@@ -535,9 +499,6 @@ val3
 --certain-num
 --uncertain-num
 --help	Print help
--Y
--N
--h	Print help
 "#]]
     );
 }
@@ -775,8 +736,6 @@ pos_b
 pos_c
 --format
 --help	Print help
--F
--h	Print help
 "#]]
     );
 
@@ -794,8 +753,6 @@ pos_c
         snapbox::str![[r#"
 --format
 --help	Print help
--F
--h	Print help
 "#]]
     );
 
@@ -935,8 +892,6 @@ b_pos
 c_pos
 --delimiter
 --help	Print help
--D
--h	Print help
 "#]]);
 
     assert_data_eq!(complete!(cmd, " -- a_pos,[TAB]"), snapbox::str![[r#"
@@ -1028,16 +983,12 @@ fn suggest_positional_long_allow_hyphen() {
 pos_b
 --format
 --help	Print help
--F
--h	Print help
 "#]]
     );
     assert_data_eq!(complete!(cmd, "-F --json --pos_a [TAB]"), snapbox::str![[r#"
 pos_b
 --format
 --help	Print help
--F
--h	Print help
 "#]]);
 
     assert_data_eq!(
@@ -1076,15 +1027,11 @@ fn suggest_positional_short_allow_hyphen() {
 pos_b
 --format
 --help	Print help
--F
--h	Print help
 "#]]);
     assert_data_eq!(complete!(cmd, "-F --json -a [TAB]"), snapbox::str![[r#"
 pos_b
 --format
 --help	Print help
--F
--h	Print help
 "#]]);
 
     assert_data_eq!(
@@ -1125,30 +1072,20 @@ pos-a
 pos-b
 pos-c
 --required-flag
---required-flag2
 --optional-flag
---2optional-flag
 --long-flag
 --help	Print help
--r
--o
 -s
--h	Print help
 "#]]
     );
     assert_data_eq!(
         complete!(cmd, "-[TAB]"),
         snapbox::str![[r#"
 --required-flag
---required-flag2
 --optional-flag
---2optional-flag
 --long-flag
 --help	Print help
--r
--o
 -s
--h	Print help
 "#]]
     );
 }

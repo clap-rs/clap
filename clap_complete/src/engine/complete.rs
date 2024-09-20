@@ -257,6 +257,14 @@ fn complete_arg(
     if completions.iter().any(|a| !a.is_hide_set()) {
         completions.retain(|a| !a.is_hide_set());
     }
+    let mut seen_ids = std::collections::HashSet::new();
+    completions.retain(move |a| {
+        if let Some(id) = a.get_id().cloned() {
+            seen_ids.insert(id)
+        } else {
+            true
+        }
+    });
 
     Ok(completions)
 }
@@ -388,6 +396,7 @@ fn longs_and_visible_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
                 longs.into_iter().map(|s| {
                     CompletionCandidate::new(format!("--{}", s))
                         .help(a.get_help().cloned())
+                        .id(Some(format!("arg::{}", a.get_id())))
                         .hide(a.is_hide_set())
                 })
             })
@@ -406,6 +415,7 @@ fn hidden_longs_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
                 longs.into_iter().map(|s| {
                     CompletionCandidate::new(format!("--{}", s))
                         .help(a.get_help().cloned())
+                        .id(Some(format!("arg::{}", a.get_id())))
                         .hide(true)
                 })
             })
@@ -425,6 +435,7 @@ fn shorts_and_visible_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
                 shorts.into_iter().map(|s| {
                     CompletionCandidate::new(s.to_string())
                         .help(a.get_help().cloned())
+                        .id(Some(format!("arg::{}", a.get_id())))
                         .hide(a.is_hide_set())
                 })
             })
@@ -458,11 +469,13 @@ fn subcommands(p: &clap::Command) -> Vec<CompletionCandidate> {
                 .map(|s| {
                     CompletionCandidate::new(s.to_string())
                         .help(sc.get_about().cloned())
+                        .id(Some(format!("command::{}", sc.get_name())))
                         .hide(sc.is_hide_set())
                 })
                 .chain(sc.get_aliases().map(|s| {
                     CompletionCandidate::new(s.to_string())
                         .help(sc.get_about().cloned())
+                        .id(Some(format!("command::{}", sc.get_name())))
                         .hide(true)
                 }))
         })
