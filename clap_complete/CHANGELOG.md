@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(dynamic)* Change completion order to subcommands, positional values, flags
+- *(dynamic)* When completing `-[TAB]`, prioritize shorts over longs
+- *(dynamic)* De-duplicate completions that have the same result (longs, shorts, aliases)
+- *(dynamic)* Group candidates from the same `CompletionCandidate::tag`
+- *(dynamic)* Sort candidates within a `CompletionCandidate::tag` by their `display_order`
+
 ## [4.5.28] - 2024-09-17
 
 ### Compatibility
