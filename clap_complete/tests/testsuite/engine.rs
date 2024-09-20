@@ -1121,6 +1121,15 @@ pos-c
 -s
 "#]]
     );
+    assert_data_eq!(
+        complete!(cmd, "--[TAB]"),
+        snapbox::str![[r#"
+--required-flag
+--optional-flag
+--long-flag
+--help	Print help
+"#]]
+    );
 }
 
 fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>) -> String {
