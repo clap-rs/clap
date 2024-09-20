@@ -257,6 +257,14 @@ fn complete_arg(
     if completions.iter().any(|a| !a.is_hide_set()) {
         completions.retain(|a| !a.is_hide_set());
     }
+    let mut seen_ids = std::collections::HashSet::new();
+    completions.retain(move |a| {
+        if let Some(id) = a.get_id().cloned() {
+            seen_ids.insert(id)
+        } else {
+            true
+        }
+    });
 
     Ok(completions)
 }

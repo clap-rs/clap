@@ -8,6 +8,7 @@ use clap::builder::StyledStr;
 pub struct CompletionCandidate {
     value: OsString,
     help: Option<StyledStr>,
+    id: Option<String>,
     hidden: bool,
 }
 
@@ -24,6 +25,14 @@ impl CompletionCandidate {
     /// Set the help message of the completion candidate
     pub fn help(mut self, help: Option<StyledStr>) -> Self {
         self.help = help;
+        self
+    }
+
+    /// Only first for a given Id is shown
+    ///
+    /// To reduce the risk of conflicts, this should likely contain a namespace.
+    pub fn id(mut self, id: Option<String>) -> Self {
+        self.id = id;
         self
     }
 
@@ -58,6 +67,11 @@ impl CompletionCandidate {
     /// Get the help message of the completion candidate
     pub fn get_help(&self) -> Option<&StyledStr> {
         self.help.as_ref()
+    }
+
+    /// Get the id used for de-duplicating
+    pub fn get_id(&self) -> Option<&String> {
+        self.id.as_ref()
     }
 
     /// Get the visibility of the completion candidate
