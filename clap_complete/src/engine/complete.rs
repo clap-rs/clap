@@ -279,6 +279,15 @@ fn complete_arg(
         }
     });
 
+    let mut tags = Vec::new();
+    for candidate in &completions {
+        let tag = candidate.get_tag().cloned();
+        if !tags.contains(&tag) {
+            tags.push(tag);
+        }
+    }
+    completions.sort_by_key(|c| tags.iter().position(|t| c.get_tag() == t.as_ref()));
+
     Ok(completions)
 }
 
