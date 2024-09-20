@@ -394,7 +394,6 @@ fn complete_subcommand(value: &str, cmd: &clap::Command) -> Vec<CompletionCandid
         .filter(|x| x.get_value().starts_with(value))
         .collect::<Vec<_>>();
     scs.sort();
-    scs.dedup();
     scs
 }
 
