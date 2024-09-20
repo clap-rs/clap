@@ -1097,6 +1097,62 @@ pos_b
     );
 }
 
+#[test]
+fn sort_and_filter() {
+    let mut cmd = Command::new("exhaustive")
+        .args([
+            clap::Arg::new("required-flag")
+                .long("required-flag")
+                .visible_alias("required-flag2")
+                .short('r')
+                .required(true),
+            clap::Arg::new("optional-flag")
+                .long("optional-flag")
+                .visible_alias("2optional-flag")
+                .short('o'),
+            clap::Arg::new("long-flag").long("long-flag"),
+            clap::Arg::new("short-flag").short('s'),
+            clap::Arg::new("positional").value_parser(["pos-a", "pos-b", "pos-c"]),
+        ])
+        .subcommands([Command::new("sub")]);
+
+    assert_data_eq!(
+        complete!(cmd, " [TAB]"),
+        snapbox::str![[r#"
+--required-flag
+--required-flag2
+--optional-flag
+--2optional-flag
+--long-flag
+--help	Print help
+-r
+-o
+-s
+-h	Print help
+pos-a
+pos-b
+pos-c
+help	Print this message or the help of the given subcommand(s)
+sub
+"#]]
+    );
+    assert_data_eq!(
+        complete!(cmd, "-[TAB]"),
+        snapbox::str![[r#"
+--required-flag
+--required-flag2
+--optional-flag
+--2optional-flag
+--long-flag
+--help	Print help
+-r
+-o
+-s
+-h	Print help
+"#]]
+    );
+}
+
 fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>) -> String {
     let input = args.as_ref();
     let mut args = vec![std::ffi::OsString::from(cmd.get_name())];
