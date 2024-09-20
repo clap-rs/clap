@@ -414,12 +414,10 @@ fn complete_subcommand(value: &str, cmd: &clap::Command) -> Vec<CompletionCandid
         value
     );
 
-    let mut scs = subcommands(cmd)
+    subcommands(cmd)
         .into_iter()
         .filter(|x| x.get_value().starts_with(value))
-        .collect::<Vec<_>>();
-    scs.sort();
-    scs
+        .collect()
 }
 
 /// Gets all the long options, their visible aliases and flags of a [`clap::Command`] with formatted `--` prefix.
@@ -487,6 +485,7 @@ fn populate_arg_candidate(candidate: CompletionCandidate, arg: &clap::Arg) -> Co
                 .to_owned()
                 .into(),
         ))
+        .display_order(Some(arg.get_display_order()))
         .hide(arg.is_hide_set())
 }
 
@@ -535,6 +534,7 @@ fn populate_command_candidate(
                 .to_owned()
                 .into(),
         ))
+        .display_order(Some(subcommand.get_display_order()))
         .hide(subcommand.is_hide_set())
 }
 /// Parse the short flags and find the first `takes_values` option.
