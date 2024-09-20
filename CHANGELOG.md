@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(builder)* Expose `Arg::get_display_order` and `Command::get_display_order`
+
 ## [4.5.17] - 2024-09-04
 
 ### Fixes
