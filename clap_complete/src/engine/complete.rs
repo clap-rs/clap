@@ -447,7 +447,11 @@ fn shorts_and_visible_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
             a.get_short_and_visible_aliases().map(|shorts| {
                 shorts.into_iter().map(|s| {
                     CompletionCandidate::new(s.to_string())
-                        .help(a.get_help().cloned())
+                        .help(
+                            a.get_help()
+                                .cloned()
+                                .or_else(|| a.get_long().map(|long| format!("--{long}").into())),
+                        )
                         .id(Some(format!("arg::{}", a.get_id())))
                         .hide(a.is_hide_set())
                 })

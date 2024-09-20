@@ -1114,8 +1114,8 @@ pos-c
     assert_data_eq!(
         complete!(cmd, "-[TAB]"),
         snapbox::str![[r#"
--r
--o
+-r	--required-flag
+-o	--optional-flag
 -s
 -h	Print help
 --long-flag
