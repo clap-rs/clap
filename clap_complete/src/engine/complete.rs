@@ -364,6 +364,17 @@ fn complete_arg_value(
             .map(|comp| comp.add_prefix(prefix))
             .collect();
     }
+    values = values
+        .into_iter()
+        .map(|comp| {
+            if comp.get_tag().is_some() {
+                comp
+            } else {
+                comp.tag(Some(arg.to_string().into()))
+            }
+        })
+        .collect();
+
     values
 }
 
@@ -418,6 +429,9 @@ fn longs_and_visible_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
                     CompletionCandidate::new(format!("--{}", s))
                         .help(a.get_help().cloned())
                         .id(Some(format!("arg::{}", a.get_id())))
+                        .tag(Some(
+                            a.get_help_heading().unwrap_or("Options").to_owned().into(),
+                        ))
                         .hide(a.is_hide_set())
                 })
             })
@@ -437,6 +451,9 @@ fn hidden_longs_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
                     CompletionCandidate::new(format!("--{}", s))
                         .help(a.get_help().cloned())
                         .id(Some(format!("arg::{}", a.get_id())))
+                        .tag(Some(
+                            a.get_help_heading().unwrap_or("Options").to_owned().into(),
+                        ))
                         .hide(true)
                 })
             })
@@ -461,6 +478,9 @@ fn shorts_and_visible_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
                                 .or_else(|| a.get_long().map(|long| format!("--{long}").into())),
                         )
                         .id(Some(format!("arg::{}", a.get_id())))
+                        .tag(Some(
+                            a.get_help_heading().unwrap_or("Options").to_owned().into(),
+                        ))
                         .hide(a.is_hide_set())
                 })
             })
@@ -495,12 +515,24 @@ fn subcommands(p: &clap::Command) -> Vec<CompletionCandidate> {
                     CompletionCandidate::new(s.to_string())
                         .help(sc.get_about().cloned())
                         .id(Some(format!("command::{}", sc.get_name())))
+                        .tag(Some(
+                            p.get_subcommand_help_heading()
+                                .unwrap_or("Commands")
+                                .to_owned()
+                                .into(),
+                        ))
                         .hide(sc.is_hide_set())
                 })
                 .chain(sc.get_aliases().map(|s| {
                     CompletionCandidate::new(s.to_string())
                         .help(sc.get_about().cloned())
                         .id(Some(format!("command::{}", sc.get_name())))
+                        .tag(Some(
+                            p.get_subcommand_help_heading()
+                                .unwrap_or("Commands")
+                                .to_owned()
+                                .into(),
+                        ))
                         .hide(true)
                 }))
         })
