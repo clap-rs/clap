@@ -157,7 +157,26 @@ fn complete_arg(
                 completions.extend(complete_arg_value(arg.to_value(), positional, current_dir));
             }
 
-            if let Some((flag, value)) = arg.to_long() {
+            if arg.is_empty() || arg.is_stdio() {
+                // HACK: Assuming knowledge of is_stdio
+                completions.extend(longs_and_visible_aliases(cmd));
+                completions.extend(hidden_longs_aliases(cmd));
+
+                let dash_or_arg = if arg.is_empty() {
+                    "-".into()
+                } else {
+                    arg.to_value_os().to_string_lossy()
+                };
+                completions.extend(
+                    shorts_and_visible_aliases(cmd)
+                        .into_iter()
+                        .map(|comp| comp.add_prefix(dash_or_arg.to_string())),
+                );
+            } else if arg.is_escape() {
+                // HACK: Assuming knowledge of is_escape
+                completions.extend(longs_and_visible_aliases(cmd));
+                completions.extend(hidden_longs_aliases(cmd));
+            } else if let Some((flag, value)) = arg.to_long() {
                 if let Ok(flag) = flag {
                     if let Some(value) = value {
                         if let Some(arg) = cmd.get_arguments().find(|a| a.get_long() == Some(flag))
@@ -172,31 +191,11 @@ fn complete_arg(
                         completions.extend(longs_and_visible_aliases(cmd).into_iter().filter(
                             |comp| comp.get_value().starts_with(format!("--{}", flag).as_str()),
                         ));
-
                         completions.extend(hidden_longs_aliases(cmd).into_iter().filter(|comp| {
                             comp.get_value().starts_with(format!("--{}", flag).as_str())
                         }));
                     }
                 }
-            } else if arg.is_escape() || arg.is_stdio() || arg.is_empty() {
-                // HACK: Assuming knowledge of is_escape / is_stdio
-                completions.extend(longs_and_visible_aliases(cmd));
-
-                completions.extend(hidden_longs_aliases(cmd));
-            }
-
-            if arg.is_empty() || arg.is_stdio() {
-                let dash_or_arg = if arg.is_empty() {
-                    "-".into()
-                } else {
-                    arg.to_value_os().to_string_lossy()
-                };
-                // HACK: Assuming knowledge of is_stdio
-                completions.extend(
-                    shorts_and_visible_aliases(cmd)
-                        .into_iter()
-                        .map(|comp| comp.add_prefix(dash_or_arg.to_string())),
-                );
             } else if let Some(short) = arg.to_short() {
                 if !short.is_negative_number() {
                     // Find the first takes_values option.
