@@ -73,15 +73,9 @@ fn suggest_hidden_subcommand_and_aliases() {
                 .hide(true),
         );
 
-    assert_data_eq!(
-        complete!(cmd, "test"),
-        snapbox::str!["test_visible"]
-    );
+    assert_data_eq!(complete!(cmd, "test"), snapbox::str!["test_visible"]);
 
-    assert_data_eq!(
-        complete!(cmd, "test_h"),
-        snapbox::str!["test_hidden"]
-    );
+    assert_data_eq!(complete!(cmd, "test_h"), snapbox::str!["test_hidden"]);
 
     assert_data_eq!(
         complete!(cmd, "test_hidden-alias_h"),
@@ -156,15 +150,9 @@ fn suggest_hidden_long_flag_aliases() {
                 .hide(true),
         );
 
-    assert_data_eq!(
-        complete!(cmd, "--test"),
-        snapbox::str!["--test_visible"]
-    );
+    assert_data_eq!(complete!(cmd, "--test"), snapbox::str!["--test_visible"]);
 
-    assert_data_eq!(
-        complete!(cmd, "--test_h"),
-        snapbox::str!["--test_hidden"]
-    );
+    assert_data_eq!(complete!(cmd, "--test_h"), snapbox::str!["--test_hidden"]);
 
     assert_data_eq!(
         complete!(cmd, "--test_visible-alias_h"),
@@ -801,17 +789,23 @@ fn suggest_delimiter_values() {
                 .value_delimiter(','),
         );
 
-    assert_data_eq!(complete!(cmd, "--delimiter [TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "--delimiter [TAB]"),
+        snapbox::str![[r#"
 comma
 space
 tab
-"#]]);
+"#]]
+    );
 
-    assert_data_eq!(complete!(cmd, "--delimiter=[TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "--delimiter=[TAB]"),
+        snapbox::str![[r#"
 --delimiter=comma
 --delimiter=space
 --delimiter=tab
-"#]]);
+"#]]
+    );
 
     assert_data_eq!(complete!(cmd, "--delimiter c[TAB]"), snapbox::str!["comma"]);
 
@@ -820,20 +814,26 @@ tab
         snapbox::str!["--delimiter=comma"]
     );
 
-    assert_data_eq!(complete!(cmd, "--delimiter comma,[TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "--delimiter comma,[TAB]"),
+        snapbox::str![[r#"
 comma,comma
 comma,space
 comma,tab
-"#]]);
+"#]]
+    );
 
-    assert_data_eq!(complete!(cmd, "--delimiter=comma,[TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "--delimiter=comma,[TAB]"),
+        snapbox::str![[r#"
 --delimiter=comma,a_pos
 --delimiter=comma,b_pos
 --delimiter=comma,c_pos
 --delimiter=comma,comma
 --delimiter=comma,space
 --delimiter=comma,tab
-"#]]);
+"#]]
+    );
 
     assert_data_eq!(
         complete!(cmd, "--delimiter comma,s[TAB]"),
@@ -845,36 +845,48 @@ comma,tab
         snapbox::str!["--delimiter=comma,space"]
     );
 
-    assert_data_eq!(complete!(cmd, "-D [TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "-D [TAB]"),
+        snapbox::str![[r#"
 comma
 space
 tab
-"#]]);
+"#]]
+    );
 
-    assert_data_eq!(complete!(cmd, "-D=[TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "-D=[TAB]"),
+        snapbox::str![[r#"
 -D=comma
 -D=space
 -D=tab
-"#]]);
+"#]]
+    );
 
     assert_data_eq!(complete!(cmd, "-D c[TAB]"), snapbox::str!["comma"]);
 
     assert_data_eq!(complete!(cmd, "-D=c[TAB]"), snapbox::str!["-D=comma"]);
 
-    assert_data_eq!(complete!(cmd, "-D comma,[TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "-D comma,[TAB]"),
+        snapbox::str![[r#"
 comma,comma
 comma,space
 comma,tab
-"#]]);
+"#]]
+    );
 
-    assert_data_eq!(complete!(cmd, "-D=comma,[TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "-D=comma,[TAB]"),
+        snapbox::str![[r#"
 -D=comma,a_pos
 -D=comma,b_pos
 -D=comma,c_pos
 -D=comma,comma
 -D=comma,space
 -D=comma,tab
-"#]]);
+"#]]
+    );
 
     assert_data_eq!(
         complete!(cmd, "-D comma,s[TAB]"),
@@ -886,19 +898,25 @@ comma,tab
         snapbox::str!["-D=comma,space"]
     );
 
-    assert_data_eq!(complete!(cmd, "-- [TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "-- [TAB]"),
+        snapbox::str![[r#"
 a_pos
 b_pos
 c_pos
 --delimiter
 --help	Print help
-"#]]);
+"#]]
+    );
 
-    assert_data_eq!(complete!(cmd, " -- a_pos,[TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, " -- a_pos,[TAB]"),
+        snapbox::str![[r#"
 a_pos,a_pos
 a_pos,b_pos
 a_pos,c_pos
-"#]]);
+"#]]
+    );
 
     assert_data_eq!(
         complete!(cmd, "-- a_pos,b[TAB]"),
@@ -923,17 +941,23 @@ fn suggest_allow_hyphen() {
     assert_data_eq!(complete!(cmd, "--format --t[TAB]"), snapbox::str!["--toml"]);
     assert_data_eq!(complete!(cmd, "-F --t[TAB]"), snapbox::str!["--toml"]);
 
-    assert_data_eq!(complete!(cmd, "--format --[TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "--format --[TAB]"),
+        snapbox::str![[r#"
 --json
 --toml
 --yaml
-"#]]);
+"#]]
+    );
 
-    assert_data_eq!(complete!(cmd, "-F --[TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "-F --[TAB]"),
+        snapbox::str![[r#"
 --json
 --toml
 --yaml
-"#]]);
+"#]]
+    );
 
     assert_data_eq!(
         complete!(cmd, "--format --json --j[TAB]"),
@@ -985,11 +1009,14 @@ pos_b
 --help	Print help
 "#]]
     );
-    assert_data_eq!(complete!(cmd, "-F --json --pos_a [TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "-F --json --pos_a [TAB]"),
+        snapbox::str![[r#"
 pos_b
 --format
 --help	Print help
-"#]]);
+"#]]
+    );
 
     assert_data_eq!(
         complete!(cmd, "--format --json --pos_a p[TAB]"),
@@ -1023,16 +1050,22 @@ fn suggest_positional_short_allow_hyphen() {
                 .value_parser(["pos_b"]),
         );
 
-    assert_data_eq!(complete!(cmd, "--format --json -a [TAB]"), snapbox::str![[r#"
+    assert_data_eq!(
+        complete!(cmd, "--format --json -a [TAB]"),
+        snapbox::str![[r#"
 pos_b
 --format
 --help	Print help
-"#]]);
-    assert_data_eq!(complete!(cmd, "-F --json -a [TAB]"), snapbox::str![[r#"
+"#]]
+    );
+    assert_data_eq!(
+        complete!(cmd, "-F --json -a [TAB]"),
+        snapbox::str![[r#"
 pos_b
 --format
 --help	Print help
-"#]]);
+"#]]
+    );
 
     assert_data_eq!(
         complete!(cmd, "--format --json -a p[TAB]"),
