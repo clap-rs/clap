@@ -157,8 +157,7 @@ fn complete_arg(
                 completions.extend(complete_arg_value(arg.to_value(), positional, current_dir));
             }
 
-            if arg.is_empty() || arg.is_stdio() {
-                // HACK: Assuming knowledge of is_stdio
+            if arg.is_empty() {
                 completions.extend(longs_and_visible_aliases(cmd));
                 completions.extend(hidden_longs_aliases(cmd));
 
@@ -172,6 +171,21 @@ fn complete_arg(
                         .into_iter()
                         .map(|comp| comp.add_prefix(dash_or_arg.to_string())),
                 );
+            } else if arg.is_stdio() {
+                // HACK: Assuming knowledge of is_stdio
+                let dash_or_arg = if arg.is_empty() {
+                    "-".into()
+                } else {
+                    arg.to_value_os().to_string_lossy()
+                };
+                completions.extend(
+                    shorts_and_visible_aliases(cmd)
+                        .into_iter()
+                        .map(|comp| comp.add_prefix(dash_or_arg.to_string())),
+                );
+
+                completions.extend(longs_and_visible_aliases(cmd));
+                completions.extend(hidden_longs_aliases(cmd));
             } else if arg.is_escape() {
                 // HACK: Assuming knowledge of is_escape
                 completions.extend(longs_and_visible_aliases(cmd));
