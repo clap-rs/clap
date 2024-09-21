@@ -38,7 +38,7 @@
 //!
 //! Elvish
 //! ```elvish
-//! echo "eval (COMPLETE=elvish your_program)" >> ~/.elvish/rc.elv
+//! echo "eval (E:COMPLETE=elvish your_program | slurp)" >> ~/.elvish/rc.elv
 //! ```
 //!
 //! Fish
