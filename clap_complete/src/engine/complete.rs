@@ -198,15 +198,15 @@ fn complete_arg(
                             completions.extend(
                                 complete_arg_value(value.to_str().ok_or(value), arg, current_dir)
                                     .into_iter()
-                                    .map(|comp| comp.add_prefix(format!("--{}=", flag))),
+                                    .map(|comp| comp.add_prefix(format!("--{flag}="))),
                             );
                         }
                     } else {
                         completions.extend(longs_and_visible_aliases(cmd).into_iter().filter(
-                            |comp| comp.get_value().starts_with(format!("--{}", flag).as_str()),
+                            |comp| comp.get_value().starts_with(format!("--{flag}").as_str()),
                         ));
                         completions.extend(hidden_longs_aliases(cmd).into_iter().filter(|comp| {
-                            comp.get_value().starts_with(format!("--{}", flag).as_str())
+                            comp.get_value().starts_with(format!("--{flag}").as_str())
                         }));
                     }
                 }
@@ -428,9 +428,9 @@ fn longs_and_visible_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
     p.get_arguments()
         .filter_map(|a| {
             a.get_long_and_visible_aliases().map(|longs| {
-                longs.into_iter().map(|s| {
-                    populate_arg_candidate(CompletionCandidate::new(format!("--{}", s)), a)
-                })
+                longs
+                    .into_iter()
+                    .map(|s| populate_arg_candidate(CompletionCandidate::new(format!("--{s}")), a))
             })
         })
         .flatten()
@@ -445,8 +445,7 @@ fn hidden_longs_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
         .filter_map(|a| {
             a.get_aliases().map(|longs| {
                 longs.into_iter().map(|s| {
-                    populate_arg_candidate(CompletionCandidate::new(format!("--{}", s)), a)
-                        .hide(true)
+                    populate_arg_candidate(CompletionCandidate::new(format!("--{s}")), a).hide(true)
                 })
             })
         })

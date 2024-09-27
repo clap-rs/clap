@@ -260,7 +260,7 @@ impl<'s, F: FnOnce() -> clap::Command> CompleteEnv<'s, F> {
                 completer.to_owned()
             } else {
                 let mut completer = std::path::PathBuf::from(completer);
-                if let Some(current_dir) = current_dir.as_deref() {
+                if let Some(current_dir) = current_dir {
                     if 1 < completer.components().count() {
                         completer = current_dir.join(completer);
                     }

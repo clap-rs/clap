@@ -77,7 +77,7 @@ fn generate_inner(p: &Command, previous_command_name: &str) -> String {
     } else {
         p.get_name_and_visible_aliases()
             .into_iter()
-            .map(|name| format!("{};{}", previous_command_name, name))
+            .map(|name| format!("{previous_command_name};{name}"))
             .collect()
     };
 
@@ -106,10 +106,9 @@ fn generate_inner(p: &Command, previous_command_name: &str) -> String {
     for command_name in &command_names {
         subcommands_cases.push_str(&format!(
             r"
-        '{}' {{{}
+        '{command_name}' {{{completions}
             break
-        }}",
-            command_name, completions
+        }}"
         ));
     }
 

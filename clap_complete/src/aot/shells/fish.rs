@@ -178,7 +178,7 @@ fn gen_fish_inner(
         for subcommand_name in subcommand.get_name_and_visible_aliases() {
             let mut template = basic_template.clone();
 
-            template.push_str(format!(" -a \"{}\"", subcommand_name).as_str());
+            template.push_str(format!(" -a \"{subcommand_name}\"").as_str());
 
             if let Some(data) = subcommand.get_about() {
                 template.push_str(format!(" -d '{}'", escape_help(data)).as_str());

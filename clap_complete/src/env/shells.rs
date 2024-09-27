@@ -121,7 +121,7 @@ impl FromStr for CompType {
             "33" => Ok(Self::Alternatives),
             "64" => Ok(Self::Unmodified),
             "37" => Ok(Self::Menu),
-            _ => Err(format!("unsupported COMP_TYPE `{}`", s)),
+            _ => Err(format!("unsupported COMP_TYPE `{s}`")),
         }
     }
 }

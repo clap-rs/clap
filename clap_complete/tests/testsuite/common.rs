@@ -429,8 +429,7 @@ pub(crate) fn has_command(command: &str) -> bool {
             // CI is expected to support all of the commands
             if is_ci() && cfg!(target_os = "linux") {
                 panic!(
-                    "expected command `{}` to be somewhere in PATH: {}",
-                    command, e
+                    "expected command `{command}` to be somewhere in PATH: {e}"
                 );
             }
             return false;
@@ -450,8 +449,7 @@ pub(crate) fn has_command(command: &str) -> bool {
     let stdout = String::from_utf8_lossy(&output.stdout);
     println!(
         "$ {command} --version
-{}",
-        stdout
+{stdout}"
     );
     if cfg!(target_os = "macos") && stdout.starts_with("GNU bash, version 3") {
         return false;
