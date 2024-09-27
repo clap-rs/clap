@@ -1,3 +1,5 @@
+#![cfg(feature = "unstable-shell-tests")]
+
 mod common;
 
 use snapbox::assert_data_eq;

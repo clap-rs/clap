@@ -1,10 +1,13 @@
+#[allow(unused_imports)]
 use snapbox::assert_data_eq;
 
 use crate::common;
 
 #[cfg(unix)]
+#[cfg(feature = "unstable-shell-tests")]
 const CMD: &str = "bash";
 #[cfg(unix)]
+#[cfg(feature = "unstable-shell-tests")]
 type RuntimeBuilder = completest_pty::BashRuntimeBuilder;
 
 #[test]
@@ -142,12 +145,14 @@ fn subcommand_last() {
 
 #[test]
 #[cfg(unix)]
+#[cfg(feature = "unstable-shell-tests")]
 fn register_completion() {
     common::register_example::<RuntimeBuilder>("static", "exhaustive");
 }
 
 #[test]
 #[cfg(unix)]
+#[cfg(feature = "unstable-shell-tests")]
 fn complete() {
     if !common::has_command(CMD) {
         return;
@@ -236,12 +241,14 @@ fn complete() {
 
 #[test]
 #[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
 fn register_dynamic_env() {
     common::register_example::<RuntimeBuilder>("dynamic-env", "exhaustive");
 }
 
 #[test]
 #[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
 fn complete_dynamic_env_toplevel() {
     if !common::has_command(CMD) {
         return;
@@ -262,6 +269,7 @@ quote       pacman      alias       help        --generate  --version
 
 #[test]
 #[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
 fn complete_dynamic_env_quoted_help() {
     if !common::has_command(CMD) {
         return;
@@ -283,6 +291,7 @@ cmd-backticks      cmd-expansions     --single-quotes    --backticks        --ex
 
 #[test]
 #[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
 fn complete_dynamic_env_option_value() {
     if !common::has_command(CMD) {
         return;
@@ -304,6 +313,7 @@ fn complete_dynamic_env_option_value() {
 
 #[test]
 #[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
 fn complete_dynamic_env_quoted_value() {
     if !common::has_command(CMD) {
         return;
