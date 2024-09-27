@@ -49,15 +49,15 @@ jobs:
           rust: "stable"
           features: "full"
         - build: minimal
-          os: ubuntu-latest
+          os: buildjet-8vcpu-ubuntu-2204
           rust: "stable"
           features: "minimal"
         - build: default
-          os: ubuntu-latest
+          os: buildjet-8vcpu-ubuntu-2204
           rust: "stable"
           features: "default"
         - build: next
-          os: ubuntu-latest
+          os: buildjet-8vcpu-ubuntu-2204
           rust: "stable"
           features: "next"
     continue-on-error: ${{ matrix.rust != 'stable' }}
