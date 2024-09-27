@@ -259,6 +259,7 @@ pub(crate) fn assert_matches(
         .eq(buf, expected);
 }
 
+#[cfg(feature = "unstable-shell-tests")]
 pub(crate) fn register_example<R: completest::RuntimeBuilder>(context: &str, name: &str) {
     use completest::Runtime as _;
 
@@ -307,6 +308,7 @@ pub(crate) fn register_example<R: completest::RuntimeBuilder>(context: &str, nam
     scratch.close().unwrap();
 }
 
+#[cfg(feature = "unstable-shell-tests")]
 pub(crate) fn load_runtime<R: completest::RuntimeBuilder>(
     context: &str,
     name: &str,
@@ -342,11 +344,13 @@ where
 }
 
 #[derive(Debug)]
+#[cfg(feature = "unstable-shell-tests")]
 struct ScratchRuntime {
     _scratch: snapbox::dir::DirRoot,
     runtime: Box<dyn completest::Runtime>,
 }
 
+#[cfg(feature = "unstable-shell-tests")]
 impl completest::Runtime for ScratchRuntime {
     fn home(&self) -> &std::path::Path {
         self.runtime.home()
@@ -366,6 +370,7 @@ impl completest::Runtime for ScratchRuntime {
     }
 }
 
+#[cfg(feature = "unstable-shell-tests")]
 pub(crate) fn has_command(command: &str) -> bool {
     let output = match std::process::Command::new(command)
         .arg("--version")
@@ -408,6 +413,7 @@ pub(crate) fn has_command(command: &str) -> bool {
 }
 
 /// Whether or not this running in a Continuous Integration environment.
+#[cfg(feature = "unstable-shell-tests")]
 fn is_ci() -> bool {
     // Consider using `tracked_env` instead of option_env! when it is stabilized.
     // `tracked_env` will handle changes, but not require rebuilding the macro

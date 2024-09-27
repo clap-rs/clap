@@ -70,9 +70,6 @@ jobs:
       with:
         toolchain: ${{ matrix.rust }}
     - uses: Swatinem/rust-cache@v2
-    - name: Install shells
-      if: runner.os == 'Linux'
-      run: sudo apt-get install -y elvish fish zsh
     - name: Build
       run: make build-${{matrix.features}}
     - name: Test
@@ -84,6 +81,35 @@ jobs:
       run: make test-minimal ARGS='--manifest-path Cargo.toml'
     - name: Test dynamic completions
       run: cargo test -p clap_complete -F unstable-dynamic
+  shell-integration:
+    name: Shell Integration
+    runs-on: buildjet-8vcpu-ubuntu-2204
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+    - uses: Swatinem/rust-cache@v2
+    - name: Install shells
+      if: runner.os == 'Linux'
+      run: sudo apt-get install -y elvish fish zsh
+    - name: clap_complete
+      run: cargo test -p clap_complete -F unstable-dynamic -F unstable-shell-tests
+  shell-integration-nu:
+    name: Nushell Integration
+    runs-on: buildjet-8vcpu-ubuntu-2204
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+    - uses: Swatinem/rust-cache@v2
+    - name: clap_complete_nu
+      run: cargo test -p clap_complete_nushell -F unstable-shell-tests
   check:
     name: Check
     runs-on: ubuntu-latest

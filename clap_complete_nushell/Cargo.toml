@@ -33,12 +33,16 @@ bench = false
 [dependencies]
 clap = { path = "../", version = "4.0.0", default-features = false, features = ["std"] }
 clap_complete = { path = "../clap_complete", version = "4.0.0" }
+completest = { version = "0.4.0", optional = true }
+completest-nu = { version = "0.4.0", optional = true }
 
 [dev-dependencies]
 snapbox = { version = "0.6.0", features = ["diff", "examples", "dir"] }
 clap = { path = "../", version = "4.0.0", default-features = false, features = ["std", "help"] }
-completest = "0.4.0"
-completest-nu = "0.4.0"
+
+[features]
+default = []
+unstable-shell-tests = ["dep:completest", "dep:completest-nu"]
 
 [lints]
 workspace = true
