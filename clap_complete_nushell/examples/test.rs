@@ -7,7 +7,7 @@ fn main() {
         let mut cmd = cli();
         generate(Nushell, &mut cmd, "test", &mut std::io::stdout());
     } else {
-        println!("{:?}", matches);
+        println!("{matches:?}");
     }
 }
 

@@ -196,7 +196,7 @@ fn option_details_for_path(cmd: &Command, path: &str) -> String {
                 if let Some(copt) = compopt {
                     v.extend([
                         r#"if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then"#.to_string(),
-                        format!("    {}", copt),
+                        format!("    {copt}"),
                         "fi".to_string(),
                     ]);
                 }
@@ -229,7 +229,7 @@ fn option_details_for_path(cmd: &Command, path: &str) -> String {
                 if let Some(copt) = compopt {
                     v.extend([
                         r#"if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then"#.to_string(),
-                        format!("    {}", copt),
+                        format!("    {copt}"),
                         "fi".to_string(),
                     ]);
                 }

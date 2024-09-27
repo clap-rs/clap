@@ -16,7 +16,7 @@ fn main() {
         return;
     }
 
-    println!("{:?}", matches);
+    println!("{matches:?}");
 }
 
 fn print_completions<G: Generator>(gen: G, cmd: &mut clap::Command) {

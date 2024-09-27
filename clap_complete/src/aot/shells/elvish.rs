@@ -72,7 +72,7 @@ fn generate_inner(p: &Command, previous_command_name: &str) -> String {
     } else {
         p.get_name_and_visible_aliases()
             .into_iter()
-            .map(|name| format!("{};{}", previous_command_name, name))
+            .map(|name| format!("{previous_command_name};{name}"))
             .collect()
     };
 

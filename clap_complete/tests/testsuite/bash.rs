@@ -193,8 +193,7 @@ fn complete() {
                 && actual.contains("b_file")
                 && actual.contains("c_dir")
                 && actual.contains("d_dir"),
-            "Actual output:\n{}",
-            actual
+            "Actual output:\n{actual}"
         );
 
         let input = format!(
@@ -207,8 +206,7 @@ fn complete() {
                 && !actual.contains("b_file")
                 && actual.contains("c_dir")
                 && actual.contains("d_dir"),
-            "Actual output:\n{}",
-            actual
+            "Actual output:\n{actual}"
         );
     }
 
