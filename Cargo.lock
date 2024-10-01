@@ -466,7 +466,7 @@ dependencies = [
  "color-print",
  "static_assertions",
  "strsim",
- "terminal_size 0.3.0",
+ "terminal_size 0.4.0",
  "unic-emoji-char",
  "unicase",
  "unicode-width",
@@ -3163,6 +3163,16 @@ checksum = "21bebf2b7c9e0a515f6e0f8c51dc0f8e4696391e6f1ff30379559f8365fb0df7"
 dependencies = [
  "rustix",
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "terminal_size"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4f599bd7ca042cfdf8f4512b277c02ba102247820f9d9d4a9f521f496751a6ef"
+dependencies = [
+ "rustix",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
