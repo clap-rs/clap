@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Compatibility
+
+- *(dynamic)* `CompleteEnv::with_factory` now takes in a `Fn` instead of a `FnOnce`
+
 ## [4.5.30] - 2024-10-02
 
 ### Fixes
