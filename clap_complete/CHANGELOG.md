@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.30] - 2024-10-02
+
 ### Fixes
 
 - *(dynamic)* Don't default to `ValueHint::AnyPath` but "no completion"
@@ -448,7 +450,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.29...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.30...HEAD
+[4.5.30]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.29...clap_complete-v4.5.30
 [4.5.29]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.28...clap_complete-v4.5.29
 [4.5.28]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.27...clap_complete-v4.5.28
 [4.5.27]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.26...clap_complete-v4.5.27
