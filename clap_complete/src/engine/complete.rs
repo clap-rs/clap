@@ -329,10 +329,10 @@ fn complete_arg_value(
         }
     } else {
         match arg.get_value_hint() {
-            clap::ValueHint::Other => {
+            clap::ValueHint::Unknown | clap::ValueHint::Other => {
                 // Should not complete
             }
-            clap::ValueHint::Unknown | clap::ValueHint::AnyPath => {
+            clap::ValueHint::AnyPath => {
                 values.extend(complete_path(value_os, current_dir, &|_| true));
             }
             clap::ValueHint::FilePath => {
