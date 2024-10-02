@@ -107,6 +107,8 @@ pub struct Command {
     external_value_parser: Option<super::ValueParser>,
     long_help_exists: bool,
     deferred: Option<fn(Command) -> Command>,
+    #[cfg(feature = "unstable-ext")]
+    ext: Extensions,
     app_ext: Extensions,
 }
 
@@ -1039,6 +1041,14 @@ impl Command {
         self._build_self(false);
 
         Usage::new(self).create_usage_with_title(&[])
+    }
+
+    /// Extend [`Command`] with [`CommandExt`] data
+    #[cfg(feature = "unstable-ext")]
+    #[allow(clippy::should_implement_trait)]
+    pub fn add<T: CommandExt + Extension>(mut self, tagged: T) -> Self {
+        self.ext.set(tagged);
+        self
     }
 }
 
@@ -3965,6 +3975,18 @@ impl Command {
     pub fn is_multicall_set(&self) -> bool {
         self.is_set(AppSettings::Multicall)
     }
+
+    /// Access an [`CommandExt`]
+    #[cfg(feature = "unstable-ext")]
+    pub fn get<T: CommandExt + Extension>(&self) -> Option<&T> {
+        self.ext.get::<T>()
+    }
+
+    /// Remove an [`CommandExt`]
+    #[cfg(feature = "unstable-ext")]
+    pub fn remove<T: CommandExt + Extension>(mut self) -> Option<T> {
+        self.ext.remove::<T>()
+    }
 }
 
 // Internally used only
@@ -4884,6 +4906,8 @@ impl Default for Command {
             external_value_parser: Default::default(),
             long_help_exists: false,
             deferred: None,
+            #[cfg(feature = "unstable-ext")]
+            ext: Default::default(),
             app_ext: Default::default(),
         }
     }
@@ -4908,6 +4932,10 @@ impl fmt::Display for Command {
         write!(f, "{}", self.name)
     }
 }
+
+/// User-provided data that can be attached to an [`Arg`]
+#[cfg(feature = "unstable-ext")]
+pub trait CommandExt: Extension {}
 
 #[allow(dead_code)] // atm dependent on features enabled
 pub(crate) trait AppExt: Extension {}
