@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(dynamic)* Don't default to `ValueHint::AnyPath` but "no completion"
+
 ## [4.5.29] - 2024-09-20
 
 ### Features
