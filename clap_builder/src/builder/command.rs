@@ -11,6 +11,7 @@ use std::path::Path;
 // Internal
 use crate::builder::app_settings::{AppFlags, AppSettings};
 use crate::builder::arg_settings::ArgSettings;
+use crate::builder::ext::Extension;
 use crate::builder::ext::Extensions;
 use crate::builder::ArgAction;
 use crate::builder::IntoResettable;
@@ -4909,7 +4910,7 @@ impl fmt::Display for Command {
 }
 
 #[allow(dead_code)] // atm dependent on features enabled
-pub(crate) trait AppExt: crate::builder::ext::Extension {}
+pub(crate) trait AppExt: Extension {}
 
 #[allow(dead_code)] // atm dependent on features enabled
 #[derive(Default, Copy, Clone, Debug)]
