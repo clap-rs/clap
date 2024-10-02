@@ -96,7 +96,7 @@ pub struct CompleteEnv<'s, F> {
     shells: Shells<'s>,
 }
 
-impl<'s, F: FnOnce() -> clap::Command> CompleteEnv<'s, F> {
+impl<'s, F: Fn() -> clap::Command> CompleteEnv<'s, F> {
     /// Complete a [`clap::Command`]
     ///
     /// # Example
@@ -174,7 +174,7 @@ impl<'s, F: FnOnce() -> clap::Command> CompleteEnv<'s, F> {
     }
 }
 
-impl<'s, F: FnOnce() -> clap::Command> CompleteEnv<'s, F> {
+impl<'s, F: Fn() -> clap::Command> CompleteEnv<'s, F> {
     /// Process the completion request and exit
     ///
     /// **Warning:** `stdout` should not be written to before this has had a
@@ -217,8 +217,34 @@ impl<'s, F: FnOnce() -> clap::Command> CompleteEnv<'s, F> {
         // completion logic.
         std::env::remove_var(self.var);
 
+        let shell = self.shell(std::path::Path::new(&name))?;
+
+        let mut cmd = (self.factory)();
+        cmd.build();
+
+        let completer = args.remove(0);
+        let escape_index = args
+            .iter()
+            .position(|a| *a == "--")
+            .map(|i| i + 1)
+            .unwrap_or(args.len());
+        args.drain(0..escape_index);
+        if args.is_empty() {
+            let mut buf = Vec::new();
+            self.write_registration(&cmd, current_dir, shell, completer, &mut buf)?;
+            std::io::stdout().write_all(&buf)?;
+        } else {
+            let mut buf = Vec::new();
+            shell.write_complete(&mut cmd, args, current_dir, &mut buf)?;
+            std::io::stdout().write_all(&buf)?;
+        }
+
+        Ok(true)
+    }
+
+    fn shell(&self, name: &std::path::Path) -> Result<&dyn EnvCompleter, std::io::Error> {
         // Strip off the parent dir in case `$SHELL` was used
-        let name = std::path::Path::new(&name).file_stem().unwrap_or(&name);
+        let name = name.file_stem().unwrap_or(name.as_os_str());
         // lossy won't match but this will delegate to unknown
         // error
         let name = name.to_string_lossy();
@@ -238,46 +264,38 @@ impl<'s, F: FnOnce() -> clap::Command> CompleteEnv<'s, F> {
                 format!("unknown shell `{name}`, expected one of {shells}"),
             )
         })?;
+        Ok(shell)
+    }
 
-        let mut cmd = (self.factory)();
-        cmd.build();
-
-        let completer = args.remove(0);
-        let escape_index = args
-            .iter()
-            .position(|a| *a == "--")
-            .map(|i| i + 1)
-            .unwrap_or(args.len());
-        args.drain(0..escape_index);
-        if args.is_empty() {
-            let name = cmd.get_name();
-            let bin = self
-                .bin
-                .as_deref()
-                .or_else(|| cmd.get_bin_name())
-                .unwrap_or_else(|| cmd.get_name());
-            let completer = if let Some(completer) = self.completer.as_deref() {
-                completer.to_owned()
-            } else {
-                let mut completer = std::path::PathBuf::from(completer);
-                if let Some(current_dir) = current_dir {
-                    if 1 < completer.components().count() {
-                        completer = current_dir.join(completer);
-                    }
-                }
-                completer.to_string_lossy().into_owned()
-            };
-
-            let mut buf = Vec::new();
-            shell.write_registration(self.var, name, bin, &completer, &mut buf)?;
-            std::io::stdout().write_all(&buf)?;
+    fn write_registration(
+        &self,
+        cmd: &clap::Command,
+        current_dir: Option<&std::path::Path>,
+        shell: &dyn EnvCompleter,
+        completer: OsString,
+        buf: &mut dyn std::io::Write,
+    ) -> Result<(), std::io::Error> {
+        let name = cmd.get_name();
+        let bin = self
+            .bin
+            .as_deref()
+            .or_else(|| cmd.get_bin_name())
+            .unwrap_or_else(|| cmd.get_name());
+        let completer = if let Some(completer) = self.completer.as_deref() {
+            completer.to_owned()
         } else {
-            let mut buf = Vec::new();
-            shell.write_complete(&mut cmd, args, current_dir, &mut buf)?;
-            std::io::stdout().write_all(&buf)?;
-        }
+            let mut completer = std::path::PathBuf::from(completer);
+            if let Some(current_dir) = current_dir {
+                if 1 < completer.components().count() {
+                    completer = current_dir.join(completer);
+                }
+            }
+            completer.to_string_lossy().into_owned()
+        };
 
-        Ok(true)
+        shell.write_registration(self.var, name, bin, &completer, buf)?;
+
+        Ok(())
     }
 }
 
