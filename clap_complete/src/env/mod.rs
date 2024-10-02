@@ -217,27 +217,7 @@ impl<'s, F: Fn() -> clap::Command> CompleteEnv<'s, F> {
         // completion logic.
         std::env::remove_var(self.var);
 
-        // Strip off the parent dir in case `$SHELL` was used
-        let name = std::path::Path::new(&name).file_stem().unwrap_or(&name);
-        // lossy won't match but this will delegate to unknown
-        // error
-        let name = name.to_string_lossy();
-
-        let shell = self.shells.completer(&name).ok_or_else(|| {
-            let shells = self
-                .shells
-                .names()
-                .enumerate()
-                .map(|(i, name)| {
-                    let prefix = if i == 0 { "" } else { ", " };
-                    format!("{prefix}`{name}`")
-                })
-                .collect::<String>();
-            std::io::Error::new(
-                std::io::ErrorKind::Other,
-                format!("unknown shell `{name}`, expected one of {shells}"),
-            )
-        })?;
+        let shell = self.shell(std::path::Path::new(&name))?;
 
         let mut cmd = (self.factory)();
         cmd.build();
@@ -278,6 +258,31 @@ impl<'s, F: Fn() -> clap::Command> CompleteEnv<'s, F> {
         }
 
         Ok(true)
+    }
+
+    fn shell(&self, name: &std::path::Path) -> Result<&dyn EnvCompleter, std::io::Error> {
+        // Strip off the parent dir in case `$SHELL` was used
+        let name = name.file_stem().unwrap_or(name.as_os_str());
+        // lossy won't match but this will delegate to unknown
+        // error
+        let name = name.to_string_lossy();
+
+        let shell = self.shells.completer(&name).ok_or_else(|| {
+            let shells = self
+                .shells
+                .names()
+                .enumerate()
+                .map(|(i, name)| {
+                    let prefix = if i == 0 { "" } else { ", " };
+                    format!("{prefix}`{name}`")
+                })
+                .collect::<String>();
+            std::io::Error::new(
+                std::io::ErrorKind::Other,
+                format!("unknown shell `{name}`, expected one of {shells}"),
+            )
+        })?;
+        Ok(shell)
     }
 }
 
