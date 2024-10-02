@@ -96,7 +96,7 @@ pub struct CompleteEnv<'s, F> {
     shells: Shells<'s>,
 }
 
-impl<'s, F: FnOnce() -> clap::Command> CompleteEnv<'s, F> {
+impl<'s, F: Fn() -> clap::Command> CompleteEnv<'s, F> {
     /// Complete a [`clap::Command`]
     ///
     /// # Example
@@ -174,7 +174,7 @@ impl<'s, F: FnOnce() -> clap::Command> CompleteEnv<'s, F> {
     }
 }
 
-impl<'s, F: FnOnce() -> clap::Command> CompleteEnv<'s, F> {
+impl<'s, F: Fn() -> clap::Command> CompleteEnv<'s, F> {
     /// Process the completion request and exit
     ///
     /// **Warning:** `stdout` should not be written to before this has had a
