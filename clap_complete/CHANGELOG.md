@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.31] - 2024-10-02
+
 ### Compatibility
 
 - *(dynamic)* `CompleteEnv::with_factory` now takes in a `Fn` instead of a `FnOnce`
@@ -454,7 +456,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.30...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.31...HEAD
+[4.5.31]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.30...clap_complete-v4.5.31
 [4.5.30]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.29...clap_complete-v4.5.30
 [4.5.29]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.28...clap_complete-v4.5.29
 [4.5.28]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.27...clap_complete-v4.5.28
