@@ -298,6 +298,23 @@ impl Man {
         roff.control("SH", ["AUTHORS"]);
         roff.text([author]);
     }
+
+    /// Render a custom section into the writer.
+    pub fn render_custom_section(
+        &self,
+        w: &mut dyn Write,
+        section: &str,
+        text: &str,
+    ) -> Result<(), std::io::Error> {
+        let mut roff = Roff::default();
+        self._render_custom_section(&mut roff, section, text);
+        roff.to_writer(w)
+    }
+
+    fn _render_custom_section(&self, roff: &mut Roff, section: &str, text: &str) {
+        roff.control("SH", [section]);
+        roff.text([roman(text)]);
+    }
 }
 
 // Does the application have a version?
