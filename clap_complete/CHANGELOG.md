@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(dynamic)* `SubcommandCandidates` support
+
 ## [4.5.32] - 2024-10-02
 
 ## [4.5.31] - 2024-10-02

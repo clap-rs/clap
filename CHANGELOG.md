@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(unstable)* Add `CommandExt`
+
 ## [4.5.19] - 2024-10-01
 
 ### Internal
