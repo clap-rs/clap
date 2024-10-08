@@ -7,6 +7,7 @@ use super::custom::complete_path;
 use super::ArgValueCandidates;
 use super::ArgValueCompleter;
 use super::CompletionCandidate;
+use super::SubcommandCandidates;
 
 /// Complete the given command, shell-agnostic
 pub fn complete(
@@ -414,10 +415,35 @@ fn complete_subcommand(value: &str, cmd: &clap::Command) -> Vec<CompletionCandid
         value
     );
 
-    subcommands(cmd)
+    let mut scs: Vec<CompletionCandidate> = subcommands(cmd)
         .into_iter()
         .filter(|x| x.get_value().starts_with(value))
-        .collect()
+        .collect();
+    if cmd.is_allow_external_subcommands_set() {
+        let external_completer = cmd.get::<SubcommandCandidates>();
+        if let Some(completer) = external_completer {
+            scs.extend(complete_external_subcommand(value, completer));
+        }
+    }
+
+    scs.sort();
+    scs.dedup();
+    scs
+}
+
+fn complete_external_subcommand(
+    value: &str,
+    completer: &SubcommandCandidates,
+) -> Vec<CompletionCandidate> {
+    debug!("complete_custom_arg_value: completer={completer:?}, value={value:?}");
+
+    let mut values = Vec::new();
+    let custom_arg_values = completer.candidates();
+    values.extend(custom_arg_values);
+
+    values.retain(|comp| comp.get_value().starts_with(value));
+
+    values
 }
 
 /// Gets all the long options, their visible aliases and flags of a [`clap::Command`] with formatted `--` prefix.

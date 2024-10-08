@@ -3,6 +3,7 @@ use std::ffi::OsStr;
 use std::sync::Arc;
 
 use clap::builder::ArgExt;
+use clap::builder::CommandExt;
 use clap_lex::OsStrExt as _;
 
 use super::CompletionCandidate;
@@ -131,7 +132,53 @@ impl std::fmt::Debug for ArgValueCandidates {
 
 impl ArgExt for ArgValueCandidates {}
 
+/// Extend [`Command`][clap::Command] with a [`ValueCandidates`]
+///
+/// # Example
+/// ```rust
+/// use clap::Parser;
+/// use clap_complete::engine::{SubcommandCandidates, CompletionCandidate};
+/// #[derive(Debug, Parser)]
+/// #[clap(name = "cli", add = SubcommandCandidates::new(|| { vec![
+///     CompletionCandidate::new("foo"),
+///     CompletionCandidate::new("bar"),
+///     CompletionCandidate::new("baz")] }))]
+/// struct Cli {
+///     #[arg(long)]
+///     input: Option<String>,
+/// }
+/// ```
+#[derive(Clone)]
+pub struct SubcommandCandidates(Arc<dyn ValueCandidates>);
+
+impl SubcommandCandidates {
+    /// Create a new `SubcommandCandidates` with a custom completer
+    pub fn new<C>(completer: C) -> Self
+    where
+        C: ValueCandidates + 'static,
+    {
+        Self(Arc::new(completer))
+    }
+
+    /// All potential candidates for an external subcommand.
+    ///
+    /// See [`CompletionCandidate`] for more information.
+    pub fn candidates(&self) -> Vec<CompletionCandidate> {
+        self.0.candidates()
+    }
+}
+
+impl std::fmt::Debug for SubcommandCandidates {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(type_name::<Self>())
+    }
+}
+
+impl CommandExt for SubcommandCandidates {}
+
 /// User-provided completion candidates for an [`Arg`][clap::Arg], see [`ArgValueCandidates`]
+///
+/// User-provided completion candidates for an [`Subcommand`][clap::Subcommand], see [`SubcommandCandidates`]
 ///
 /// This is useful when predefined value hints are not enough.
 pub trait ValueCandidates: Send + Sync {
