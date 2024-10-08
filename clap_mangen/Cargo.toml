@@ -1,6 +1,6 @@
 [package]
 name = "clap_mangen"
-version = "0.2.23"
+version = "0.2.24"
 description = "A manpage generator for clap"
 categories = ["command-line-interface"]
 keywords = [

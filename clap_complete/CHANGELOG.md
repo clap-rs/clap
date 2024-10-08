@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.33] - 2024-10-08
+
 ### Features
 
 - *(dynamic)* `SubcommandCandidates` support
@@ -462,7 +464,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.32...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.33...HEAD
+[4.5.33]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.32...clap_complete-v4.5.33
 [4.5.32]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.31...clap_complete-v4.5.32
 [4.5.31]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.30...clap_complete-v4.5.31
 [4.5.30]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.29...clap_complete-v4.5.30
