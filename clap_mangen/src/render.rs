@@ -74,7 +74,7 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
         line.push(roman(" "));
     }
 
-    if cmd.has_subcommands() {
+    if cmd.has_subcommands() && !cmd.is_flatten_help_set() {
         let (lhs, rhs) = subcommand_markers(cmd);
         line.push(roman(lhs));
         line.push(italic(
@@ -217,6 +217,71 @@ pub(crate) fn subcommands(roff: &mut Roff, cmd: &clap::Command, section: &str) {
                 roff.text([roman(line)]);
             }
         }
+    }
+}
+
+pub(crate) fn flat_subcommands(roff: &mut Roff, cmd: &clap::Command) {
+    for sub in cmd.get_subcommands().filter(|s| !s.is_hide_set()) {
+        roff.control("TP", []);
+
+        let name = sub.get_name();
+        let mut line = vec![bold(name), roman(" ")];
+
+        for opt in sub.get_arguments().filter(|i| !i.is_hide_set()) {
+            if opt.get_short() == Some('h') || opt.get_long() == Some("help") {
+                continue;
+            }
+            let (lhs, rhs) = option_markers(opt);
+            match (opt.get_short(), opt.get_long()) {
+                (Some(short), Some(long)) => {
+                    line.push(roman(lhs));
+                    line.push(bold(format!("-{short}")));
+                    line.push(roman("|"));
+                    line.push(bold(format!("--{long}",)));
+                    line.push(roman(rhs));
+                }
+                (Some(short), None) => {
+                    line.push(roman(lhs));
+                    line.push(bold(format!("-{short} ")));
+                    line.push(roman(rhs));
+                }
+                (None, Some(long)) => {
+                    line.push(roman(lhs));
+                    line.push(bold(format!("--{long}")));
+                    line.push(roman(rhs));
+                }
+                (None, None) => continue,
+            };
+
+            if matches!(opt.get_action(), ArgAction::Count) {
+                line.push(roman("..."));
+            }
+            line.push(roman(" "));
+        }
+
+        for arg in sub.get_positionals() {
+            let (lhs, rhs) = option_markers(arg);
+            line.push(roman(lhs));
+            if let Some(value) = arg.get_value_names() {
+                line.push(italic(value.join(" ")));
+            } else {
+                line.push(italic(arg.get_id().as_str()));
+            }
+            line.push(roman(rhs));
+            line.push(roman(" "));
+        }
+
+        if let Some(about) = sub.get_long_about().or_else(|| sub.get_about()) {
+            line.push(roman("\n"));
+            line.push(roman(about.to_string()));
+        }
+
+        if let Some(after_help) = sub.get_after_help() {
+            line.push(roman("\n"));
+            line.push(roman(after_help.to_string()));
+        }
+
+        roff.text(line);
     }
 }
 

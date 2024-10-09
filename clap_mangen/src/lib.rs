@@ -221,7 +221,14 @@ impl Man {
 
     fn _render_synopsis_section(&self, roff: &mut Roff) {
         roff.control("SH", ["SYNOPSIS"]);
-        render::synopsis(roff, &self.cmd);
+        if self.cmd.is_flatten_help_set() {
+            for sc in self.cmd.get_subcommands() {
+                render::synopsis(roff, sc);
+                roff.control("br", []);
+            }
+        } else {
+            render::synopsis(roff, &self.cmd);
+        }
     }
 
     /// Render the DESCRIPTION section into the writer.
@@ -251,7 +258,11 @@ impl Man {
     /// Render the SUBCOMMANDS section into the writer.
     pub fn render_subcommands_section(&self, w: &mut dyn Write) -> Result<(), std::io::Error> {
         let mut roff = Roff::default();
-        self._render_subcommands_section(&mut roff);
+        if self.cmd.is_flatten_help_set() {
+            self._render_flat_subcommands_section(&mut roff);
+        } else {
+            self._render_subcommands_section(&mut roff);
+        }
         roff.to_writer(w)
     }
 
@@ -259,6 +270,11 @@ impl Man {
         let heading = subcommand_heading(&self.cmd);
         roff.control("SH", [heading]);
         render::subcommands(roff, &self.cmd, &self.section);
+    }
+
+    fn _render_flat_subcommands_section(&self, roff: &mut Roff) {
+        roff.control("SH", ["COMMANDS"]);
+        render::flat_subcommands(roff, &self.cmd);
     }
 
     /// Render the EXTRA section into the writer.
