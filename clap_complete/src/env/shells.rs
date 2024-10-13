@@ -361,7 +361,7 @@ function _clap_dynamic_completer_NAME() {
     )}")
 
     if [[ -n $completions ]]; then
-        compadd -a completions
+        _describe 'values' completions
     fi
 }
 
@@ -398,8 +398,31 @@ compdef _clap_dynamic_completer_NAME BIN"#
             if i != 0 {
                 write!(buf, "{}", ifs.as_deref().unwrap_or("\n"))?;
             }
-            write!(buf, "{}", candidate.get_value().to_string_lossy())?;
+            write!(
+                buf,
+                "{}",
+                Self::escape_value(&candidate.get_value().to_string_lossy())
+            )?;
+            if let Some(help) = candidate.get_help() {
+                write!(
+                    buf,
+                    ":{}",
+                    Self::escape_help(help.to_string().lines().next().unwrap_or_default())
+                )?;
+            }
         }
         Ok(())
+    }
+}
+
+impl Zsh {
+    /// Escape value string
+    fn escape_value(string: &str) -> String {
+        string.replace('\\', "\\\\").replace(':', "\\:")
+    }
+
+    /// Escape help string
+    fn escape_help(string: &str) -> String {
+        string.replace('\\', "\\\\")
     }
 }
