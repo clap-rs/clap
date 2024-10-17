@@ -31,8 +31,23 @@ pub(crate) fn description(roff: &mut Roff, cmd: &clap::Command) {
 
 pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
     let name = cmd.get_bin_name().unwrap_or_else(|| cmd.get_name());
-    let mut line = vec![bold(name), roman(" ")];
+    let mut line = usage(cmd, name);
 
+    if cmd.has_subcommands() {
+        let (lhs, rhs) = subcommand_markers(cmd);
+        line.push(roman(lhs));
+        line.push(italic(
+            cmd.get_subcommand_value_name()
+                .unwrap_or_else(|| subcommand_heading(cmd))
+                .to_lowercase(),
+        ));
+        line.push(roman(rhs));
+    }
+    roff.text(line);
+}
+
+fn usage(cmd: &clap::Command, name: &str) -> Vec<Inline> {
+    let mut line = vec![bold(name), roman(" ")];
     for opt in cmd.get_arguments().filter(|i| !i.is_hide_set()) {
         let (lhs, rhs) = option_markers(opt);
         match (opt.get_short(), opt.get_long()) {
@@ -74,18 +89,7 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
         line.push(roman(" "));
     }
 
-    if cmd.has_subcommands() {
-        let (lhs, rhs) = subcommand_markers(cmd);
-        line.push(roman(lhs));
-        line.push(italic(
-            cmd.get_subcommand_value_name()
-                .unwrap_or_else(|| subcommand_heading(cmd))
-                .to_lowercase(),
-        ));
-        line.push(roman(rhs));
-    }
-
-    roff.text(line);
+    line
 }
 
 pub(crate) fn options(roff: &mut Roff, items: &[&Arg]) {
