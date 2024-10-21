@@ -32,7 +32,7 @@
       matchManagers: [
         'custom.regex',
       ],
-      matchPackageNames: [
+      matchDepNames: [
         'STABLE',
       ],
       extractVersion: '^(?<version>\\d+\\.\\d+)',  // Drop the patch version
