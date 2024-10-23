@@ -13,7 +13,7 @@ env:
   CARGO_TERM_COLOR: always
   CLICOLOR: 1
   TEMPLATE_URL: "https://github.com/epage/_rust.git"
-  TEMPLATE_BRANCH: "https://github.com/epage/_rust.git"
+  TEMPLATE_BRANCH: "main"
 
 concurrency:
   group: "${{ github.workflow }}-${{ github.ref }}"
