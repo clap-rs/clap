@@ -39,3 +39,5 @@ jobs:
       run: "git checkout -b template-update && git merge template/${{ env.TEMPLATE_BRANCH }} -m 'chore: Update from template'"
     - name: Push
       run: "gh pr create -H template-update"
+      env:
+        GH_TOKEN: ${{ github.token }}
