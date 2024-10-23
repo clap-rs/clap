@@ -23,6 +23,7 @@ jobs:
   update:
     permissions:
       security-events: write # to create PR
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
