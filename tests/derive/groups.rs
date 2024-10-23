@@ -239,3 +239,57 @@ For more information, try '--help'.
 ";
     assert_output::<Opt>("test", OUTPUT, true);
 }
+
+#[test]
+fn enum_groups_1() {
+    #[derive(Parser, Debug, PartialEq, Eq)]
+    struct Opt {
+        #[command(flatten)]
+        source: Source,
+    }
+
+    #[derive(clap::Args, Clone, Debug, PartialEq, Eq)]
+    enum Source {
+        A {
+            #[arg(short)]
+            a: bool,
+            #[arg(long)]
+            aaa: bool,
+        },
+        B {
+            #[arg(short)]
+            b: bool,
+        },
+    }
+
+    assert_eq!(
+        Opt {
+            source: Source::A {
+                a: true,
+                aaa: false,
+            }
+        },
+        Opt::try_parse_from(["test", "-a"]).unwrap()
+    );
+    assert_eq!(
+        Opt {
+            source: Source::A { a: true, aaa: true }
+        },
+        Opt::try_parse_from(["test", "-a", "--aaa"]).unwrap()
+    );
+    assert_eq!(
+        Opt {
+            source: Source::B { b: true }
+        },
+        Opt::try_parse_from(["test", "-b"]).unwrap()
+    );
+
+    assert_eq!(
+        clap::error::ErrorKind::ArgumentConflict,
+        Opt::try_parse_from(["test", "-b", "-a"])
+            .unwrap_err()
+            .kind(),
+    );
+
+    // assert_eq!(       )
+}
