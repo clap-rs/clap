@@ -21,6 +21,8 @@ concurrency:
 
 jobs:
   update:
+    permissions:
+      security-events: write # to create PR
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -30,5 +32,3 @@ jobs:
       run: "git checkout -b template-update && git merge template/${{ env.TEMPLATE_BRANCH }} -m 'chore: Update from template'"
     - name: Push
       run: "gh pr create -H template-update"
-      permissions:
-        security-events: write # to create PR
