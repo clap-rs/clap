@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(dynamic)* Show description in zsh
+
 ## [4.5.33] - 2024-10-08
 
 ### Features
