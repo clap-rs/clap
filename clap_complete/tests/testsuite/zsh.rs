@@ -192,8 +192,12 @@ fn complete_dynamic_env_toplevel() {
     let input = "exhaustive \t\t";
     let expected = snapbox::str![[r#"
 % exhaustive
---generate  --help      action      help        last        quote       
---global    --version   alias       hint        pacman      value       
+--generate  -- generate
+--global    -- everywhere
+--help      -- Print help
+--version   -- Print version
+help        -- Print this message or the help of the given subcommand(s)
+action  alias   hint    last    pacman  quote   value
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -213,9 +217,18 @@ fn complete_dynamic_env_quoted_help() {
     let input = "exhaustive quote \t\t";
     let expected = snapbox::str![[r#"
 % exhaustive quote
---backslash        --choice           --global           --version          cmd-brackets       cmd-single-quotes
---backticks        --double-quotes    --help             cmd-backslash      cmd-double-quotes  escape-help
---brackets         --expansions       --single-quotes    cmd-backticks      cmd-expansions     help
+--global                            -- everywhere                                                                     
+--help                              -- Print help (see more with '--help')                                            
+--version                           -- Print version                                                                  
+cmd-backslash      --backslash      -- Avoid '/n'                                                                     
+cmd-backticks      --backticks      -- For more information see `echo test`                                           
+cmd-brackets       --brackets       -- List packages [filter]                                                         
+cmd-double-quotes  --double-quotes  -- Can be "always", "auto", or "never"                                            
+cmd-expansions     --expansions     -- Execute the shell command with $SHELL                                          
+cmd-single-quotes  --single-quotes  -- Can be 'always', 'auto', or 'never'                                            
+escape-help                         -- /tab/t"'                                                                       
+help                                -- Print this message or the help of the given subcommand(s)                      
+--choice
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -260,7 +273,10 @@ fn complete_dynamic_env_quoted_value() {
     let input = "exhaustive quote --choice \t\t";
     let expected = snapbox::str![[r#"
 % exhaustive quote --choice
-another/ shell  bash            fish            zsh
+another shell  -- something with a space
+bash           -- bash (shell)
+fish           -- fish shell
+zsh            -- zsh shell
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);

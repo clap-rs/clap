@@ -11,7 +11,7 @@ function _clap_dynamic_completer_exhaustive() {
     )}")
 
     if [[ -n $completions ]]; then
-        compadd -a completions
+        _describe 'values' completions
     fi
 }
 
