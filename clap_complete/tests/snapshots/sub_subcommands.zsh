@@ -36,7 +36,7 @@ _my-app() {
         case $line[3] in
             (test)
 _arguments "${_arguments_options[@]}" : \
-'--case=[the case to test]: : ' \
+'--case=[the case to test]: :_default' \
 '-h[Print help]' \
 '--help[Print help]' \
 '-V[Print version]' \

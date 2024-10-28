@@ -396,10 +396,8 @@ fn value_completion(arg: &Arg) -> Option<String> {
         // NB! If you change this, please also update the table in `ValueHint` documentation.
         Some(
             match arg.get_value_hint() {
-                ValueHint::Unknown => {
-                    return None;
-                }
-                ValueHint::Other => "( )",
+                ValueHint::Unknown => "_default",
+                ValueHint::Other => "",
                 ValueHint::AnyPath => "_files",
                 ValueHint::FilePath => "_files",
                 ValueHint::DirPath => "_files -/",
