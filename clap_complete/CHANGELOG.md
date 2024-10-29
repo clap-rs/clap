@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.36] - 2024-10-29
+
 ### Fixes
 
 - *(zsh)* Change `ValueHint::Unknown` to `_default` in static completions
@@ -476,7 +478,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.35...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.36...HEAD
+[4.5.36]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.35...clap_complete-v4.5.36
 [4.5.35]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.34...clap_complete-v4.5.35
 [4.5.34]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.33...clap_complete-v4.5.34
 [4.5.33]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.32...clap_complete-v4.5.33

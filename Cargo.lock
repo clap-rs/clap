@@ -474,7 +474,7 @@ dependencies = [
 
 [[package]]
 name = "clap_complete"
-version = "4.5.35"
+version = "4.5.36"
 dependencies = [
  "automod",
  "clap 4.5.20",
