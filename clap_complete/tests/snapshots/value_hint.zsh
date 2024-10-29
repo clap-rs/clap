@@ -16,8 +16,8 @@ _my-app() {
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" : \
 '--choice=[]: :(bash fish zsh)' \
-'--unknown=[]: : ' \
-'--other=[]: :( )' \
+'--unknown=[]: :_default' \
+'--other=[]: :' \
 '-p+[]: :_files' \
 '--path=[]: :_files' \
 '-f+[]: :_files' \

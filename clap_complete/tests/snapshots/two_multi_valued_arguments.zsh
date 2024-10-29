@@ -17,7 +17,7 @@ _my-app() {
     _arguments "${_arguments_options[@]}" : \
 '-h[Print help]' \
 '--help[Print help]' \
-'*::first -- first multi-valued argument:' \
+'*::first -- first multi-valued argument:_default' \
 && ret=0
 }
 

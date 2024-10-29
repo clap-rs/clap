@@ -32,7 +32,7 @@ _exhaustive() {
         case $line[1] in
             (action)
 _arguments "${_arguments_options[@]}" : \
-'--set=[value]: : ' \
+'--set=[value]: :_default' \
 '--choice=[enum]: :(first second)' \
 '--set-true[bool]' \
 '*--count[number]' \
@@ -187,15 +187,15 @@ esac
 ;;
 (value)
 _arguments "${_arguments_options[@]}" : \
-'--delim=[]: : ' \
-'--tuple=[]: : : : ' \
-'--require-eq=[]: : ' \
+'--delim=[]: :_default' \
+'--tuple=[]: :_default: :_default' \
+'--require-eq=[]: :_default' \
 '--global[everywhere]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '-V[Print version]' \
 '--version[Print version]' \
-'*;::term:' \
+'*;::term:_default' \
 && ret=0
 ;;
 (pacman)
@@ -272,16 +272,16 @@ _arguments "${_arguments_options[@]}" : \
 '--help[Print help]' \
 '-V[Print version]' \
 '--version[Print version]' \
-'::first:' \
-'::free:' \
+'::first:_default' \
+'::free:_default' \
 && ret=0
 ;;
 (alias)
 _arguments "${_arguments_options[@]}" : \
-'-o+[cmd option]: : ' \
-'-O+[cmd option]: : ' \
-'--option=[cmd option]: : ' \
-'--opt=[cmd option]: : ' \
+'-o+[cmd option]: :_default' \
+'-O+[cmd option]: :_default' \
+'--option=[cmd option]: :_default' \
+'--opt=[cmd option]: :_default' \
 '-f[cmd flag]' \
 '-F[cmd flag]' \
 '--flag[cmd flag]' \
@@ -291,14 +291,14 @@ _arguments "${_arguments_options[@]}" : \
 '--help[Print help]' \
 '-V[Print version]' \
 '--version[Print version]' \
-'::positional:' \
+'::positional:_default' \
 && ret=0
 ;;
 (hint)
 _arguments "${_arguments_options[@]}" : \
 '--choice=[]: :(bash fish zsh)' \
-'--unknown=[]: : ' \
-'--other=[]: :( )' \
+'--unknown=[]: :_default' \
+'--other=[]: :' \
 '-p+[]: :_files' \
 '--path=[]: :_files' \
 '-f+[]: :_files' \

@@ -36,7 +36,7 @@ _my-app() {
         case $line[3] in
             (test)
 _arguments "${_arguments_options[@]}" : \
-'--case=[the case to test]: : ' \
+'--case=[the case to test]: :_default' \
 '-h[Print help]' \
 '--help[Print help]' \
 '-V[Print version]' \
@@ -45,12 +45,12 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (some_cmd)
 _arguments "${_arguments_options[@]}" : \
-'--config=[the other case to test]: : ' \
+'--config=[the other case to test]: :_default' \
 '-h[Print help]' \
 '--help[Print help]' \
 '-V[Print version]' \
 '--version[Print version]' \
-'*::path:' \
+'*::path:_default' \
 && ret=0
 ;;
 (some-cmd-with-hyphens)

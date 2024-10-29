@@ -17,7 +17,7 @@ _my-app() {
     _arguments "${_arguments_options[@]}" : \
 '-h[Print help]' \
 '--help[Print help]' \
-'::free:' \
+'::free:_default' \
 ":: :_my-app_commands" \
 "*::: :->my-app" \
 && ret=0

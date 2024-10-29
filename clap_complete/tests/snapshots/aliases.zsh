@@ -15,10 +15,10 @@ _my-app() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" : \
-'-o+[cmd option]: : ' \
-'-O+[cmd option]: : ' \
-'--option=[cmd option]: : ' \
-'--opt=[cmd option]: : ' \
+'-o+[cmd option]: :_default' \
+'-O+[cmd option]: :_default' \
+'--option=[cmd option]: :_default' \
+'--opt=[cmd option]: :_default' \
 '-f[cmd flag]' \
 '-F[cmd flag]' \
 '--flag[cmd flag]' \
@@ -27,7 +27,7 @@ _my-app() {
 '--help[Print help]' \
 '-V[Print version]' \
 '--version[Print version]' \
-'::positional:' \
+'::positional:_default' \
 && ret=0
 }
 
