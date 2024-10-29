@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(zsh)* Change `ValueHint::Unknown` to `_default` in static completions
+
 ## [4.5.35] - 2024-10-24
 
 ## [4.5.34] - 2024-10-24
