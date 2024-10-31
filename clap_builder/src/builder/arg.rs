@@ -236,7 +236,7 @@ impl Arg {
     ///        .get_matches_from(vec![
     ///             "prog", "--alias", "cool"
     ///         ]);
-    /// assert_eq!(m.get_one::<String>("test").unwrap(), "cool");
+    /// assert_eq!(m.get_one::<String>("test").map(String::as_str), Some("cool"));
     /// ```
     #[must_use]
     pub fn alias(mut self, name: impl IntoResettable<Str>) -> Self {
@@ -266,7 +266,7 @@ impl Arg {
     ///        .get_matches_from(vec![
     ///             "prog", "-e", "cool"
     ///         ]);
-    /// assert_eq!(m.get_one::<String>("test").unwrap(), "cool");
+    /// assert_eq!(m.get_one::<String>("test").map(String::as_str), Some("cool"));
     /// ```
     #[must_use]
     pub fn short_alias(mut self, name: impl IntoResettable<char>) -> Self {
@@ -356,7 +356,7 @@ impl Arg {
     ///        .get_matches_from(vec![
     ///             "prog", "--something-awesome", "coffee"
     ///         ]);
-    /// assert_eq!(m.get_one::<String>("test").unwrap(), "coffee");
+    /// assert_eq!(m.get_one::<String>("test").map(String::as_str), Some("coffee"));
     /// ```
     /// [`Command::alias`]: Arg::alias()
     #[must_use]
@@ -386,7 +386,7 @@ impl Arg {
     ///        .get_matches_from(vec![
     ///             "prog", "-t", "coffee"
     ///         ]);
-    /// assert_eq!(m.get_one::<String>("test").unwrap(), "coffee");
+    /// assert_eq!(m.get_one::<String>("test").map(String::as_str), Some("coffee"));
     /// ```
     #[must_use]
     pub fn visible_short_alias(mut self, name: impl IntoResettable<char>) -> Self {
@@ -499,7 +499,7 @@ impl Arg {
     ///     ]);
     ///
     /// assert!(m.contains_id("mode"));
-    /// assert_eq!(m.get_one::<String>("mode").unwrap(), "fast"); // notice index(1) means "first positional"
+    /// assert_eq!(m.get_one::<String>("mode").map(String::as_str), Some("fast")); // notice index(1) means "first positional"
     ///                                                           // *not* first argument
     /// ```
     /// [`Arg::short`]: Arg::short()
@@ -599,8 +599,8 @@ impl Arg {
     ///
     /// assert!(res.is_ok());
     /// let m = res.unwrap();
-    /// assert_eq!(m.get_one::<String>("third").unwrap(), "three");
-    /// assert_eq!(m.get_one::<String>("second"), None);
+    /// assert_eq!(m.get_one::<String>("third").map(String::as_str), Some("three"));
+    /// assert_eq!(m.get_one::<String>("second").map(String::as_str), None);
     /// ```
     ///
     /// Even if the positional argument marked `Last` is the only argument left to parse,
@@ -1026,7 +1026,7 @@ impl Arg {
     ///         "prog", "--mode", "fast"
     ///     ]);
     ///
-    /// assert_eq!(m.get_one::<String>("mode").unwrap(), "fast");
+    /// assert_eq!(m.get_one::<String>("mode").map(String::as_str), Some("fast"));
     /// ```
     ///
     /// Flag/option hybrid (see also [`default_missing_value`][Arg::default_missing_value])
@@ -1044,19 +1044,19 @@ impl Arg {
     ///     .get_matches_from(vec![
     ///         "prog", "--mode", "fast"
     ///     ]);
-    /// assert_eq!(m.get_one::<String>("mode").unwrap(), "fast");
+    /// assert_eq!(m.get_one::<String>("mode").map(String::as_str), Some("fast"));
     ///
     /// let m = cmd.clone()
     ///     .get_matches_from(vec![
     ///         "prog", "--mode",
     ///     ]);
-    /// assert_eq!(m.get_one::<String>("mode").unwrap(), "slow");
+    /// assert_eq!(m.get_one::<String>("mode").map(String::as_str), Some("slow"));
     ///
     /// let m = cmd.clone()
     ///     .get_matches_from(vec![
     ///         "prog",
     ///     ]);
-    /// assert_eq!(m.get_one::<String>("mode").unwrap(), "plaid");
+    /// assert_eq!(m.get_one::<String>("mode").map(String::as_str), Some("plaid"));
     /// ```
     ///
     /// Tuples
@@ -1110,7 +1110,7 @@ impl Arg {
     /// ]);
     /// let files: Vec<_> = m.get_many::<String>("file").unwrap().collect();
     /// assert_eq!(files, ["file1", "file2", "file3"]);
-    /// assert_eq!(m.get_one::<String>("word").unwrap(), "word");
+    /// assert_eq!(m.get_one::<String>("word").map(String::as_str), Some("word"));
     /// ```
     /// The problem is `clap` doesn't know when to stop parsing values for "file".
     ///
@@ -1130,7 +1130,7 @@ impl Arg {
     ///
     /// let files: Vec<_> = m.get_many::<String>("file").unwrap().collect();
     /// assert_eq!(files, ["file1", "file2", "file3"]);
-    /// assert_eq!(m.get_one::<String>("word").unwrap(), "word");
+    /// assert_eq!(m.get_one::<String>("word").map(String::as_str), Some("word"));
     /// ```
     #[inline]
     #[must_use]
@@ -1407,7 +1407,7 @@ impl Arg {
     ///         "prog", "--pattern", "-file"
     ///     ]);
     ///
-    /// assert_eq!(m.get_one::<String>("pat").unwrap(), "-file");
+    /// assert_eq!(m.get_one::<String>("pat").map(String::as_str), Some("-file"));
     /// ```
     ///
     /// Not setting `Arg::allow_hyphen_values(true)` and supplying a value which starts with a
@@ -1457,7 +1457,7 @@ impl Arg {
     ///     ]);
     /// assert!(res.is_ok());
     /// let m = res.unwrap();
-    /// assert_eq!(m.get_one::<String>("num").unwrap(), "-20");
+    /// assert_eq!(m.get_one::<String>("num").map(String::as_str), Some("-20"));
     /// ```
     #[inline]
     pub fn allow_negative_numbers(self, yes: bool) -> Self {
@@ -1608,7 +1608,7 @@ impl Arg {
     ///     ]);
     /// let cmds: Vec<_> = m.get_many::<String>("cmds").unwrap().collect();
     /// assert_eq!(&cmds, &["find", "-type", "f", "-name", "special"]);
-    /// assert_eq!(m.get_one::<String>("location").unwrap(), "/home/clap");
+    /// assert_eq!(m.get_one::<String>("location").map(String::as_str), Some("/home/clap"));
     /// ```
     /// [options]: Arg::action
     /// [positional arguments]: Arg::index()
@@ -1683,7 +1683,7 @@ impl Arg {
     ///         "prog"
     ///     ]);
     ///
-    /// assert_eq!(m.get_one::<String>("opt").unwrap(), "myval");
+    /// assert_eq!(m.get_one::<String>("opt").map(String::as_str), Some("myval"));
     /// assert!(m.contains_id("opt"));
     /// assert_eq!(m.value_source("opt"), Some(ValueSource::DefaultValue));
     /// ```
@@ -1701,7 +1701,7 @@ impl Arg {
     ///         "prog", "--myopt=non_default"
     ///     ]);
     ///
-    /// assert_eq!(m.get_one::<String>("opt").unwrap(), "non_default");
+    /// assert_eq!(m.get_one::<String>("opt").map(String::as_str), Some("non_default"));
     /// assert!(m.contains_id("opt"));
     /// assert_eq!(m.value_source("opt"), Some(ValueSource::CommandLine));
     /// ```
@@ -1790,21 +1790,21 @@ impl Arg {
     /// let m  = cli().get_matches_from(vec![
     ///         "prog"
     ///     ]);
-    /// assert_eq!(m.get_one::<String>("color").unwrap(), "auto");
+    /// assert_eq!(m.get_one::<String>("color").map(String::as_str), Some("auto"));
     /// assert_eq!(m.value_source("color"), Some(ValueSource::DefaultValue));
     ///
     /// // next, we'll provide a runtime value to override the default (as usually done).
     /// let m  = cli().get_matches_from(vec![
     ///         "prog", "--color=never"
     ///     ]);
-    /// assert_eq!(m.get_one::<String>("color").unwrap(), "never");
+    /// assert_eq!(m.get_one::<String>("color").map(String::as_str), Some("never"));
     /// assert_eq!(m.value_source("color"), Some(ValueSource::CommandLine));
     ///
     /// // finally, we will use the shortcut and only provide the argument without a value.
     /// let m  = cli().get_matches_from(vec![
     ///         "prog", "--color"
     ///     ]);
-    /// assert_eq!(m.get_one::<String>("color").unwrap(), "always");
+    /// assert_eq!(m.get_one::<String>("color").map(String::as_str), Some("always"));
     /// assert_eq!(m.value_source("color"), Some(ValueSource::CommandLine));
     /// ```
     ///
@@ -1935,7 +1935,7 @@ impl Arg {
     ///         "prog"
     ///     ]);
     ///
-    /// assert_eq!(m.get_one::<String>("flag").unwrap(), "env");
+    /// assert_eq!(m.get_one::<String>("flag").map(String::as_str), Some("env"));
     /// ```
     ///
     /// In this example, because `prog` is a flag that accepts an optional, case-insensitive
@@ -1998,7 +1998,7 @@ impl Arg {
     ///         "prog", "--flag", "opt"
     ///     ]);
     ///
-    /// assert_eq!(m.get_one::<String>("flag").unwrap(), "opt");
+    /// assert_eq!(m.get_one::<String>("flag").map(String::as_str), Some("opt"));
     /// ```
     ///
     /// In this example, we show the variable coming from the environment even with the
@@ -2021,7 +2021,7 @@ impl Arg {
     ///         "prog"
     ///     ]);
     ///
-    /// assert_eq!(m.get_one::<String>("flag").unwrap(), "env");
+    /// assert_eq!(m.get_one::<String>("flag").map(String::as_str), Some("env"));
     /// ```
     ///
     /// In this example, we show the use of multiple values in a single environment variable:
@@ -2777,7 +2777,7 @@ impl Arg {
     ///         "prog", "--flag"
     ///     ]);
     ///
-    /// assert_eq!(m.get_one::<String>("other").unwrap(), "default");
+    /// assert_eq!(m.get_one::<String>("other").map(String::as_str), Some("default"));
     /// ```
     ///
     /// Next we run the same test, but without providing `--flag`.
@@ -2815,7 +2815,7 @@ impl Arg {
     ///         "prog", "--opt", "special"
     ///     ]);
     ///
-    /// assert_eq!(m.get_one::<String>("other").unwrap(), "default");
+    /// assert_eq!(m.get_one::<String>("other").map(String::as_str), Some("default"));
     /// ```
     ///
     /// We can run the same test and provide any value *other than* `special` and we won't get a
@@ -2923,7 +2923,7 @@ impl Arg {
     ///         "prog", "--opt", "channal"
     ///     ]);
     ///
-    /// assert_eq!(m.get_one::<String>("other").unwrap(), "chan");
+    /// assert_eq!(m.get_one::<String>("other").map(String::as_str), Some("chan"));
     /// ```
     ///
     /// Next we run the same test, but without providing `--flag`.
@@ -2972,7 +2972,7 @@ impl Arg {
     ///         "prog", "--opt", "channal", "--flag"
     ///     ]);
     ///
-    /// assert_eq!(m.get_one::<String>("other").unwrap(), "default");
+    /// assert_eq!(m.get_one::<String>("other").map(String::as_str), Some("default"));
     /// ```
     /// [`Arg::action(ArgAction::Set)`]: Arg::action()
     /// [`Arg::default_value_if`]: Arg::default_value_if()
