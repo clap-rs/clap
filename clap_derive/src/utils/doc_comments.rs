@@ -94,7 +94,7 @@ fn split_paragraphs(lines: &[String]) -> Vec<String> {
             .iter()
             .enumerate()
             .find_map(|(i, s)| {
-                if is_blank(s) {
+                if is_blank(s) || (i > 0 && is_list_item(s)) {
                     Some(i)
                 } else if new_line(s) {
                     Some(i + 1)
@@ -130,6 +130,17 @@ fn is_blank(s: &str) -> bool {
 
 fn new_line(s: &str) -> bool {
     s.ends_with('\\') || s.ends_with("  ")
+}
+
+fn is_list_item(s: &str) -> bool {
+    let s = s.trim_start();
+    if s.starts_with("- ") || s.starts_with("* ") || s.starts_with("+ ") {
+        return true;
+    }
+
+    let mut chars = s.chars();
+    chars.next().map_or(false, |c| c.is_digit(10))
+        && chars.skip_while(|c| c.is_digit(10)).next() == Some('.')
 }
 
 fn merge_lines(lines: impl IntoIterator<Item = impl AsRef<str>>) -> String {
