@@ -150,3 +150,78 @@ fn merge_lines(lines: impl IntoIterator<Item = impl AsRef<str>>) -> String {
         .collect::<Vec<_>>()
         .join(" ")
 }
+
+#[cfg(test)]
+mod tests {
+    fn split_case(input: Vec<&'static str>, expected: Vec<&'static str>) {
+        let input = input.into_iter().map(str::to_owned).collect::<Vec<_>>();
+        let expected = expected.into_iter().map(str::to_owned).collect::<Vec<_>>();
+        let result = super::split_paragraphs(&input);
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn split_paragraphs() {
+        split_case(vec!["Single line"], vec!["Single line"]);
+
+        split_case(
+            vec!["First sentence.", "Second sentence."],
+            vec!["First sentence. Second sentence."],
+        );
+
+        split_case(
+            vec!["First paragraph.", "", "Second paragraph."],
+            vec!["First paragraph.", "Second paragraph."],
+        );
+
+        split_case(
+            vec!["First paragraph.  ", "Second paragraph."],
+            vec!["First paragraph.", "Second paragraph."],
+        );
+
+        split_case(
+            vec!["First paragraph.  ", "Second paragraph.  "],
+            vec!["First paragraph.", "Second paragraph."],
+        );
+
+        split_case(
+            vec!["First paragraph.  ", "Second paragraph.  ", ""],
+            vec!["First paragraph.", "Second paragraph."],
+        );
+
+        split_case(
+            vec![
+                "First paragraph.  ",
+                "Second paragraph.  ",
+                "",
+                "Third paragraph.",
+            ],
+            vec!["First paragraph.", "Second paragraph.", "Third paragraph."],
+        );
+
+        split_case(
+            vec!["First paragraph.\\", "Second paragraph."],
+            vec!["First paragraph.", "Second paragraph."],
+        );
+
+        split_case(
+            vec!["First paragraph.", "- List item 1", "- List item 2"],
+            vec!["First paragraph.", "- List item 1", "- List item 2"],
+        );
+
+        split_case(
+            vec!["First paragraph.", "* List item 1", "* List item 2"],
+            vec!["First paragraph.", "* List item 1", "* List item 2"],
+        );
+
+        split_case(
+            vec!["First paragraph.", "+ List item 1", "+ List item 2"],
+            vec!["First paragraph.", "+ List item 1", "+ List item 2"],
+        );
+
+        split_case(
+            vec!["First paragraph.", "1. List item 1", "2. List item 2"],
+            vec!["First paragraph.", "1. List item 1", "2. List item 2"],
+        );
+    }
+}
