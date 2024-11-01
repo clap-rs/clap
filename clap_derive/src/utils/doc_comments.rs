@@ -85,31 +85,41 @@ pub(crate) fn format_doc_comment(
 
 fn split_paragraphs(lines: &[String]) -> Vec<String> {
     let mut last_line = 0;
+    let mut extra_new_line = false;
     iter::from_fn(|| {
         let slice = &lines[last_line..];
         let start = slice.iter().position(|s| !is_blank(s)).unwrap_or(0);
 
+        if start > 0 {
+            extra_new_line = true;
+        }
+
         let slice = &slice[start..];
-        let len = slice
+        let (len, enl) = slice
             .iter()
             .enumerate()
             .find_map(|(i, s)| {
                 if is_blank(s) || (i > 0 && is_list_item(s)) {
-                    Some(i)
+                    Some((i, false))
                 } else if new_line(s) {
-                    Some(i + 1)
+                    Some((i + 1, true))
                 } else {
                     None
                 }
             })
-            .unwrap_or(slice.len());
+            .unwrap_or((slice.len(), false));
 
         last_line += start + len;
 
         if len != 0 {
             let r = merge_lines(&slice[..len]);
             let r = r.trim_end_matches('\\').trim_end().to_owned();
-            let r = if start > 0 { '\n'.to_string() + &r } else { r };
+            let r = if extra_new_line {
+                '\n'.to_string() + &r
+            } else {
+                r
+            };
+            extra_new_line = enl;
             Some(r)
         } else {
             None
@@ -158,7 +168,10 @@ mod tests {
         let input = input.into_iter().map(str::to_owned).collect::<Vec<_>>();
         let expected = expected.into_iter().map(str::to_owned).collect::<Vec<_>>();
         let result = super::split_paragraphs(&input);
-        assert_eq!(result, expected);
+        assert_eq!(
+            result, expected,
+            "{input:?} =>\n\t{result:?}\n\t{expected:?}"
+        );
     }
 
     #[test]
@@ -172,22 +185,22 @@ mod tests {
 
         split_case(
             vec!["First paragraph.", "", "Second paragraph."],
-            vec!["First paragraph.", "Second paragraph."],
+            vec!["First paragraph.", "\nSecond paragraph."],
         );
 
         split_case(
             vec!["First paragraph.  ", "Second paragraph."],
-            vec!["First paragraph.", "Second paragraph."],
+            vec!["First paragraph.", "\nSecond paragraph."],
         );
 
         split_case(
             vec!["First paragraph.  ", "Second paragraph.  "],
-            vec!["First paragraph.", "Second paragraph."],
+            vec!["First paragraph.", "\nSecond paragraph."],
         );
 
         split_case(
             vec!["First paragraph.  ", "Second paragraph.  ", ""],
-            vec!["First paragraph.", "Second paragraph."],
+            vec!["First paragraph.", "\nSecond paragraph."],
         );
 
         split_case(
@@ -197,12 +210,16 @@ mod tests {
                 "",
                 "Third paragraph.",
             ],
-            vec!["First paragraph.", "Second paragraph.", "Third paragraph."],
+            vec![
+                "First paragraph.",
+                "\nSecond paragraph.",
+                "\nThird paragraph.",
+            ],
         );
 
         split_case(
             vec!["First paragraph.\\", "Second paragraph."],
-            vec!["First paragraph.", "Second paragraph."],
+            vec!["First paragraph.", "\nSecond paragraph."],
         );
 
         split_case(
