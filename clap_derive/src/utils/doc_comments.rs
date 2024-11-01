@@ -139,8 +139,8 @@ fn is_list_item(s: &str) -> bool {
     }
 
     let mut chars = s.chars();
-    chars.next().map_or(false, |c| c.is_digit(10))
-        && chars.skip_while(|c| c.is_digit(10)).next() == Some('.')
+    chars.next().map(|c| c.is_ascii_digit()).unwrap_or(false)
+        && chars.find(|c| !c.is_ascii_digit()) == Some('.')
 }
 
 fn merge_lines(lines: impl IntoIterator<Item = impl AsRef<str>>) -> String {
