@@ -58,7 +58,7 @@ pub(crate) fn format_doc_comment(
         let (short, long) = if preprocess {
             let paragraphs = split_paragraphs(lines);
             let short = paragraphs[0].clone();
-            let long = paragraphs.join("\n\n");
+            let long = paragraphs.join("\n");
             (remove_period(short), long)
         } else {
             let short = lines[..first_blank].join("\n");
@@ -109,6 +109,7 @@ fn split_paragraphs(lines: &[String]) -> Vec<String> {
         if len != 0 {
             let r = merge_lines(&slice[..len]);
             let r = r.trim_end_matches('\\').trim_end().to_owned();
+            let r = if start > 0 { '\n'.to_string() + &r } else { r };
             Some(r)
         } else {
             None
@@ -222,6 +223,40 @@ mod tests {
         split_case(
             vec!["First paragraph.", "1. List item 1", "2. List item 2"],
             vec!["First paragraph.", "1. List item 1", "2. List item 2"],
+        );
+    }
+
+    #[test]
+    fn format_doc_comment() {
+        // An example from Koralix-Studios/kpkg-cli.
+        let lines = vec![
+            "Quiet mode, print as little as possible".to_owned(),
+            "".to_owned(),
+            "Levels:".to_owned(),
+            "- 0: `stderr` and `journal` enabled for `warnings` and `errors`".to_owned(),
+            "- 1: `stderr` and `journal` enabled for `errors` and disabled for `warnings`"
+                .to_owned(),
+            "- 2: `stderr` disabled for `warnings` and `errors`, `journal` enabled for `errors`"
+                .to_owned(),
+            "- 3: `stderr` and `journal` disabled for `warnings` and `errors`".to_owned(),
+        ];
+        let (short, long) = super::format_doc_comment(&lines, true, false);
+        assert_eq!(
+            short,
+            Some("Quiet mode, print as little as possible".to_owned())
+        );
+        assert_eq!(
+            long,
+            Some(
+                "Quiet mode, print as little as possible\n\
+                \n\
+                Levels:\n\
+                - 0: `stderr` and `journal` enabled for `warnings` and `errors`\n\
+                - 1: `stderr` and `journal` enabled for `errors` and disabled for `warnings`\n\
+                - 2: `stderr` disabled for `warnings` and `errors`, `journal` enabled for `errors`\n\
+                - 3: `stderr` and `journal` disabled for `warnings` and `errors`"
+                    .to_owned()
+            )
         );
     }
 }
