@@ -108,10 +108,7 @@ fn split_paragraphs(lines: &[String]) -> Vec<String> {
 
         if len != 0 {
             let r = merge_lines(&slice[..len]);
-            let r = r
-                .trim_end_matches('\\')
-                .trim_end()
-                .to_owned();
+            let r = r.trim_end_matches('\\').trim_end().to_owned();
             Some(r)
         } else {
             None
