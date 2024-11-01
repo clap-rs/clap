@@ -92,13 +92,27 @@ fn split_paragraphs(lines: &[String]) -> Vec<String> {
         let slice = &slice[start..];
         let len = slice
             .iter()
-            .position(|s| is_blank(s))
+            .enumerate()
+            .find_map(|(i, s)| {
+                if is_blank(s) {
+                    Some(i)
+                } else if new_line(s) {
+                    Some(i + 1)
+                } else {
+                    None
+                }
+            })
             .unwrap_or(slice.len());
 
         last_line += start + len;
 
         if len != 0 {
-            Some(merge_lines(&slice[..len]))
+            let r = merge_lines(&slice[..len]);
+            let r = r
+                .trim_end_matches('\\')
+                .trim_end()
+                .to_owned();
+            Some(r)
         } else {
             None
         }
@@ -115,6 +129,10 @@ fn remove_period(mut s: String) -> String {
 
 fn is_blank(s: &str) -> bool {
     s.trim().is_empty()
+}
+
+fn new_line(s: &str) -> bool {
+    s.ends_with('\\') || s.ends_with("  ")
 }
 
 fn merge_lines(lines: impl IntoIterator<Item = impl AsRef<str>>) -> String {
