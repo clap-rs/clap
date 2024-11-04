@@ -391,9 +391,7 @@ fn rsplit_delimiter<'s, 'o>(
     let delimiter = delimiter?;
     let value = value.ok()?;
     let pos = value.rfind(delimiter)?;
-    let (prefix, value) = value
-        .split_at_checked(pos + delimiter.len_utf8())
-        .expect("since delimiter was found, it is within bounds");
+    let (prefix, value) = value.split_at(pos + delimiter.len_utf8());
     Some((Some(prefix), Ok(value)))
 }
 
