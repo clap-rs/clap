@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(dynamic)* Be compatible with package's MSRV
+
 ## [4.5.36] - 2024-10-29
 
 ### Fixes
