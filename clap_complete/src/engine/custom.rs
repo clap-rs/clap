@@ -213,6 +213,7 @@ where
 /// ```
 pub struct PathCompleter {
     current_dir: Option<std::path::PathBuf>,
+    #[allow(clippy::type_complexity)]
     filter: Option<Box<dyn Fn(&std::path::Path) -> bool + Send + Sync>>,
     stdio: bool,
 }
