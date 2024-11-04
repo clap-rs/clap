@@ -250,15 +250,16 @@ impl<'s, F: Fn() -> clap::Command> CompleteEnv<'s, F> {
         let name = name.to_string_lossy();
 
         let shell = self.shells.completer(&name).ok_or_else(|| {
-            let shells = self
-                .shells
-                .names()
-                .enumerate()
-                .map(|(i, name)| {
-                    let prefix = if i == 0 { "" } else { ", " };
-                    format!("{prefix}`{name}`")
-                })
-                .collect::<String>();
+            let shells =
+                self.shells
+                    .names()
+                    .enumerate()
+                    .fold(String::new(), |mut seed, (i, name)| {
+                        use std::fmt::Write as _;
+                        let prefix = if i == 0 { "" } else { ", " };
+                        let _ = write!(&mut seed, "{prefix}`{name}`");
+                        seed
+                    });
             std::io::Error::new(
                 std::io::ErrorKind::Other,
                 format!("unknown shell `{name}`, expected one of {shells}"),
