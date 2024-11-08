@@ -35,8 +35,12 @@ impl std::ops::BitOr for AppFlags {
 
 /// Application level settings, which affect how [`Command`] operates
 ///
+/// <div class="warning">
+///
 /// **NOTE:** When these settings are used, they apply only to current command, and are *not*
 /// propagated down or up through child or parent subcommands
+///
+/// </div>
 ///
 /// [`Command`]: crate::Command
 #[derive(Debug, PartialEq, Copy, Clone)]

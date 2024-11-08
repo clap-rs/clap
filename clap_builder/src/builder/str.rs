@@ -1,7 +1,11 @@
 /// A UTF-8-encoded fixed string
 ///
+/// <div class="warning">
+///
 /// **NOTE:** To support dynamic values (i.e. `String`), enable the `string`
 /// feature
+///
+/// </div>
 #[derive(Default, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 pub struct Str {
     name: Inner,

@@ -68,8 +68,12 @@ pub trait Generator {
 
 /// Generate a completions file for a specified shell at compile-time.
 ///
+/// <div class="warning">
+///
 /// **NOTE:** to generate the file at compile time you must use a `build.rs` "Build Script" or a
 /// [`cargo-xtask`](https://github.com/matklad/cargo-xtask)
+///
+/// </div>
 ///
 /// # Examples
 ///
@@ -160,8 +164,12 @@ pub trait Generator {
 /// Assuming we compiled with debug mode, it would be somewhere similar to
 /// `<project>/target/debug/build/myapp-<hash>/out/myapp.bash`.
 ///
+/// <div class="warning">
+///
 /// **NOTE:** Please look at the individual [shells][crate::shells]
 /// to see the name of the files generated.
+///
+/// </div>
 ///
 /// Using [`ValueEnum::value_variants()`][clap::ValueEnum::value_variants] you can easily loop over
 /// all the supported shell variants to generate all the completions at once too.

@@ -75,5 +75,9 @@ For more information, try '--help'.
 
 ```
 
+<div class="warning">
+
 **NOTE:** Keep in mind that subcommands, flags, and long flags are *case sensitive*: `-Q` and `-q` are different flags/subcommands. For example, you can have both `-Q` subcommand and `-q` flag, and they will be properly disambiguated.
 Let's make a quick program to illustrate.
+
+</div>

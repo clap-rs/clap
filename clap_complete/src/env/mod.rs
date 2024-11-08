@@ -24,12 +24,16 @@
 //!
 //! To source your completions:
 //!
+//! <div class="warning">
+//!
 //! **WARNING:** We recommend re-sourcing your completions on upgrade.
 //! These completions work by generating shell code that calls into `your_program` while completing.
 //! That interface is unstable and a mismatch between the shell code and `your_program` may result
 //! in either invalid completions or no completions being generated.
 //! For this reason, we recommend generating the shell code anew on shell startup so that it is
 //! "self-correcting" on shell launch, rather than writing the generated completions to a file.
+//!
+//! </div>
 //!
 //! Bash
 //! ```bash
@@ -355,9 +359,13 @@ pub trait EnvCompleter {
     /// - `bin`: see [`CompleteEnv::bin`]
     /// - `completer`: see [`CompleteEnv::completer`]
     ///
+    /// <div class="warning">
+    ///
     /// **WARNING:** There are no stability guarantees between the call to
     /// [`EnvCompleter::write_complete`] that this generates and actually calling [`EnvCompleter::write_complete`].
     /// Caching the results of this call may result in invalid or no completions to be generated.
+    ///
+    /// </div>
     fn write_registration(
         &self,
         var: &str,

@@ -20,7 +20,11 @@ use std::ffi::OsString;
 ///
 /// See also [`Subcommand`] and [`Args`].
 ///
+/// <div class="warning">
+///
 /// **NOTE:** Deriving requires the `derive` feature flag
+///
+/// </div>
 pub trait Parser: FromArgMatches + CommandFactory + Sized {
     /// Parse from `std::env::args_os()`, [exit][Error::exit] on error.
     fn parse() -> Self {
@@ -214,7 +218,11 @@ pub trait FromArgMatches: Sized {
 ///   `Args`.
 /// - `Variant(ChildArgs)`: No attribute is used with enum variants that impl `Args`.
 ///
+/// <div class="warning">
+///
 /// **NOTE:** Deriving requires the `derive` feature flag
+///
+/// </div>
 pub trait Args: FromArgMatches + Sized {
     /// Report the [`ArgGroup::id`][crate::ArgGroup::id] for this set of arguments
     fn group_id() -> Option<crate::Id> {
@@ -245,7 +253,11 @@ pub trait Args: FromArgMatches + Sized {
 /// - `#[command(flatten)] Variant(SubCmd)`: Attribute can only be used with enum variants that impl
 ///   `Subcommand`.
 ///
+/// <div class="warning">
+///
 /// **NOTE:** Deriving requires the `derive` feature flag
+///
+/// </div>
 pub trait Subcommand: FromArgMatches + Sized {
     /// Append to [`Command`] so it can instantiate `Self` via
     /// [`FromArgMatches::from_arg_matches_mut`]
@@ -272,7 +284,11 @@ pub trait Subcommand: FromArgMatches + Sized {
 /// - Call [`EnumValueParser`][crate::builder::EnumValueParser]
 /// - Allowing using the `#[arg(default_value_t)]` attribute without implementing `Display`.
 ///
+/// <div class="warning">
+///
 /// **NOTE:** Deriving requires the `derive` feature flag
+///
+/// </div>
 pub trait ValueEnum: Sized + Clone {
     /// All possible argument values, in display order.
     fn value_variants<'a>() -> &'a [Self];

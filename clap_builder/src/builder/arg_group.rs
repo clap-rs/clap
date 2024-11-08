@@ -289,13 +289,21 @@ impl ArgGroup {
     /// This is unless conflicting with another argument.  A required group will be displayed in
     /// the usage string of the application in the format `<arg|arg2|arg3>`.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** This setting only applies to the current [`Command`] / [`Subcommand`]s, and not
     /// globally.
+    ///
+    /// </div>
+    ///
+    /// <div class="warning">
     ///
     /// **NOTE:** By default, [`ArgGroup::multiple`] is set to `false` which when combined with
     /// `ArgGroup::required(true)` states, "One and *only one* arg must be used from this group.
     /// Use of more than one arg is an error." Vice setting `ArgGroup::multiple(true)` which
     /// states, '*At least* one arg from this group must be used. Using multiple is OK."
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -335,7 +343,11 @@ impl ArgGroup {
     /// [argument requirement rules], you can name other arguments or groups that must be present
     /// when any one of the arguments from this group is used.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** The name provided may be an argument or group name
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -380,7 +392,11 @@ impl ArgGroup {
     /// [argument requirement rules], you can name other arguments or groups that must be present
     /// when one of the arguments from this group is used.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** The names provided may be an argument or group name
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -426,7 +442,11 @@ impl ArgGroup {
     /// other arguments or groups that must *not* be present when one of the arguments from this
     /// group are used.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** The name provided may be an argument, or group name
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -468,7 +488,11 @@ impl ArgGroup {
     /// Exclusion rules function just like [argument exclusion rules], you can name other arguments
     /// or groups that must *not* be present when one of the arguments from this group are used.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** The names provided may be an argument, or group name
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
