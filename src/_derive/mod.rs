@@ -126,9 +126,13 @@
 //! magic attributes documentation for details.  This allows users to access the
 //! raw behavior of an attribute via `<attr>(<value>)` syntax.
 //!
+//! <div class="warning">
+//!
 //! **NOTE:** Some attributes are inferred from [Arg Types](#arg-types) and [Doc
 //! Comments](#doc-comments).  Explicit attributes take precedence over inferred
 //! attributes.
+//!
+//! </div>
 //!
 //! ### Command Attributes
 //!
@@ -349,6 +353,8 @@
 //! }
 //! ```
 //!
+//! <div class="warning">
+//!
 //! **NOTE:** Attributes have priority over doc comments!
 //!
 //! **Top level doc comments always generate `Command::about/long_about` calls!**
@@ -356,6 +362,8 @@
 //! use the `about` / `long_about` attributes to override the calls generated from
 //! the doc comment.  To clear `long_about`, you can use
 //! `#[command(long_about = None)]`.
+//!
+//! </div>
 //!
 //! ### Pre-processing
 //!

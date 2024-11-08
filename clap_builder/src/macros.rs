@@ -79,11 +79,15 @@ macro_rules! crate_description {
 
 /// Allows you to pull the name from your Cargo.toml at compile time.
 ///
+/// <div class="warning">
+///
 /// **NOTE:** This macro extracts the name from an environment variable `CARGO_PKG_NAME`.
 /// When the crate name is set to something different from the package name,
 /// use environment variables `CARGO_CRATE_NAME` or `CARGO_BIN_NAME`.
 /// See [the Cargo Book](https://doc.rust-lang.org/cargo/reference/environment-variables.html)
 /// for more information.
+///
+/// </div>
 ///
 /// # Examples
 ///
@@ -104,12 +108,16 @@ macro_rules! crate_name {
 
 /// Allows you to build the `Command` instance from your Cargo.toml at compile time.
 ///
+/// <div class="warning">
+///
 /// **NOTE:** Changing the values in your `Cargo.toml` does not trigger a re-build automatically,
 /// and therefore won't change the generated output until you recompile.
 ///
 /// In some cases you can "trick" the compiler into triggering a rebuild when your
 /// `Cargo.toml` is changed by including this in your `src/main.rs` file
 /// `include_str!("../Cargo.toml");`
+///
+/// </div>
 ///
 /// # Examples
 ///
@@ -430,8 +438,12 @@ macro_rules! arg_impl {
 ///
 /// Allows creation of basic settings for the [`Arg`].
 ///
+/// <div class="warning">
+///
 /// **NOTE**: Not all settings may be set using the usage string method. Some properties are
 /// only available via the builder pattern.
+///
+/// </div>
 ///
 /// # Syntax
 ///
@@ -467,8 +479,12 @@ macro_rules! arg_impl {
 /// A long flag is a `--` followed by either a bare-word or a string, like `--foo` or
 /// `--"foo"`.
 ///
+/// <div class="warning">
+///
 /// **NOTE:** Dashes in the long name (e.g. `--foo-bar`) is not supported and quoting is required
 /// (e.g. `--"foo-bar"`).
+///
+/// </div>
 ///
 /// See [`Arg::long`][crate::Arg::long].
 ///

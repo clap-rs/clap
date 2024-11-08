@@ -32,9 +32,13 @@ use crate::util::AnyValueId;
 pub enum ArgAction {
     /// When encountered, store the associated value(s) in [`ArgMatches`][crate::ArgMatches]
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** If the argument has previously been seen, it will result in a
     /// [`ArgumentConflict`][crate::error::ErrorKind::ArgumentConflict] unless
     /// [`Command::args_override_self(true)`][crate::Command::args_override_self] is set.
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -87,9 +91,13 @@ pub enum ArgAction {
     /// No value is allowed. To optionally accept a value, see
     /// [`Arg::default_missing_value`][super::Arg::default_missing_value]
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** If the argument has previously been seen, it will result in a
     /// [`ArgumentConflict`][crate::error::ErrorKind::ArgumentConflict] unless
     /// [`Command::args_override_self(true)`][crate::Command::args_override_self] is set.
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -162,9 +170,13 @@ pub enum ArgAction {
     /// No value is allowed. To optionally accept a value, see
     /// [`Arg::default_missing_value`][super::Arg::default_missing_value]
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** If the argument has previously been seen, it will result in a
     /// [`ArgumentConflict`][crate::error::ErrorKind::ArgumentConflict] unless
     /// [`Command::args_override_self(true)`][crate::Command::args_override_self] is set.
+    ///
+    /// </div>
     ///
     /// # Examples
     ///

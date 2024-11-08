@@ -9,9 +9,13 @@ use crate::util::eq_ignore_case;
 ///
 /// See also [`PossibleValuesParser`][crate::builder::PossibleValuesParser]
 ///
+/// <div class="warning">
+///
 /// **NOTE:** Most likely you can use strings, rather than `PossibleValue` as it is only required
 /// to [hide] single values from help messages and shell completions or to attach [help] to
 /// possible values.
+///
+/// </div>
 ///
 /// # Examples
 ///
@@ -45,8 +49,12 @@ impl PossibleValue {
     ///
     /// The name will be used to decide whether this value was provided by the user to an argument.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** In case it is not [hidden] it will also be shown in help messages for arguments
     /// that use it as a [possible value] and have not hidden them through [`Arg::hide_possible_values(true)`].
+    ///
+    /// </div>
     ///
     /// # Examples
     ///

@@ -83,8 +83,12 @@ impl ArgMatches {
     ///
     /// Returns `None` if the option wasn't present.
     ///
+    /// <div class="warning">
+    ///
     /// *NOTE:* This will always return `Some(value)` if [`default_value`] has been set.
     /// [`ArgMatches::value_source`] can be used to check if a value is present at runtime.
+    ///
+    /// </div>
     ///
     /// # Panic
     ///
@@ -374,8 +378,12 @@ impl ArgMatches {
     ///
     /// Returns `None` if the option wasn't present.
     ///
+    /// <div class="warning">
+    ///
     /// *NOTE:* This will always return `Some(value)` if [`default_value`] has been set.
     /// [`ArgMatches::value_source`] can be used to check if a value is present at runtime.
+    ///
+    /// </div>
     ///
     /// # Panic
     ///
@@ -485,8 +493,12 @@ impl ArgMatches {
 
     /// Check if values are present for the argument or group id
     ///
+    /// <div class="warning">
+    ///
     /// *NOTE:* This will always return `true` if [`default_value`] has been set.
     /// [`ArgMatches::value_source`] can be used to check if a value is present at runtime.
+    ///
+    /// </div>
     ///
     /// # Panics
     ///
@@ -612,8 +624,12 @@ impl ArgMatches {
     ///
     /// The examples should clear this up.
     ///
+    /// <div class="warning">
+    ///
     /// *NOTE:* If an argument is allowed multiple times, this method will only give the *first*
     /// index.  See [`ArgMatches::indices_of`].
+    ///
+    /// </div>
     ///
     /// # Panics
     ///
@@ -760,8 +776,12 @@ impl ArgMatches {
     /// refer to the *values* `-o val` would therefore not represent two distinct indices, only the
     /// index for `val` would be recorded. This is by design.
     ///
+    /// <div class="warning">
+    ///
     /// *NOTE:* For more information about how clap indices compared to argv indices, see
     /// [`ArgMatches::index_of`]
+    ///
+    /// </div>
     ///
     /// # Panics
     ///

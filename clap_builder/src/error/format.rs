@@ -26,8 +26,12 @@ pub trait ErrorFormatter: Sized {
 ///
 /// No context is included.
 ///
+/// <div class="warning">
+///
 /// **NOTE:** Consider removing the `error-context` default feature if using this to remove all
 /// overhead for [`RichFormatter`].
+///
+/// </div>
 #[non_exhaustive]
 pub struct KindFormatter;
 

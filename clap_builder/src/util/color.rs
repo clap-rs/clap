@@ -6,7 +6,11 @@ use crate::derive::ValueEnum;
 pub enum ColorChoice {
     /// Enables colored output only when the output is going to a terminal or TTY.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** This is the default behavior of `clap`.
+    ///
+    /// </div>
     ///
     /// # Examples
     ///

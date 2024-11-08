@@ -98,9 +98,13 @@ impl Arg {
     /// The name is used to check whether or not the argument was used at
     /// runtime, get values, set relationships with other args, etc..
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** In the case of arguments that take values (i.e. [`Arg::action(ArgAction::Set)`])
     /// and positional arguments (i.e. those without a preceding `-` or `--`) the name will also
     /// be displayed when the user prints the usage/help information of the program.
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -188,7 +192,11 @@ impl Arg {
     /// own arguments, in which case `clap` simply will not assign those to the auto-generated
     /// `version` or `help` arguments.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** Any leading `-` characters will be stripped
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -456,18 +464,34 @@ impl Arg {
 
     /// Specifies the index of a positional argument **starting at** 1.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** The index refers to position according to **other positional argument**. It does
     /// not define position in the argument list as a whole.
+    ///
+    /// </div>
+    ///
+    /// <div class="warning">
     ///
     /// **NOTE:** You can optionally leave off the `index` method, and the index will be
     /// assigned in order of evaluation. Utilizing the `index` method allows for setting
     /// indexes out of order
     ///
+    /// </div>
+    ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** This is only meant to be used for positional arguments and shouldn't to be used
     /// with [`Arg::short`] or [`Arg::long`].
     ///
+    /// </div>
+    ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** When utilized with [`Arg::num_args(1..)`], only the **last** positional argument
     /// may be defined as having a variable number of arguments (i.e. with the highest index)
+    ///
+    /// </div>
     ///
     /// # Panics
     ///
@@ -516,13 +540,25 @@ impl Arg {
     /// This is a "var arg" and everything that follows should be captured by it, as if the user had
     /// used a `--`.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** To start the trailing "var arg" on unknown flags (and not just a positional
     /// value), set [`allow_hyphen_values`][Arg::allow_hyphen_values].  Either way, users still
     /// have the option to explicitly escape ambiguous arguments with `--`.
     ///
+    /// </div>
+    ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** [`Arg::value_delimiter`] still applies if set.
     ///
+    /// </div>
+    ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** Setting this requires [`Arg::num_args(..)`].
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -554,21 +590,41 @@ impl Arg {
     /// allows one to access this arg early using the `--` syntax. Accessing an arg early, even with
     /// the `--` syntax is otherwise not possible.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** This will change the usage string to look like `$ prog [OPTIONS] [-- <ARG>]` if
     /// `ARG` is marked as `.last(true)`.
+    ///
+    /// </div>
+    ///
+    /// <div class="warning">
     ///
     /// **NOTE:** This setting will imply [`crate::Command::dont_collapse_args_in_usage`] because failing
     /// to set this can make the usage string very confusing.
     ///
+    /// </div>
+    ///
+    /// <div class="warning">
+    ///
     /// **NOTE**: This setting only applies to positional arguments, and has no effect on OPTIONS
+    ///
+    /// </div>
+    ///
+    /// <div class="warning">
     ///
     /// **NOTE:** Setting this requires [taking values][Arg::num_args]
     ///
-    /// **CAUTION:** Using this setting *and* having child subcommands is not
+    /// </div>
+    ///
+    /// <div class="warning">
+    ///
+    /// **WARNING:** Using this setting *and* having child subcommands is not
     /// recommended with the exception of *also* using
     /// [`crate::Command::args_conflicts_with_subcommands`]
     /// (or [`crate::Command::subcommand_negates_reqs`] if the argument marked `Last` is also
     /// marked [`Arg::required`])
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -704,7 +760,11 @@ impl Arg {
     ///
     /// i.e. when using this argument, the following argument *must* be present.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** [Conflicting] rules and [override] rules take precedence over being required
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -812,10 +872,14 @@ impl Arg {
 
     /// Specifies that an argument can be matched to all child [`Subcommand`]s.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** Global arguments *only* propagate down, **not** up (to parent commands), however
     /// their values once a user uses them will be propagated back up to parents. In effect, this
     /// means one should *define* all global arguments at the top level, however it doesn't matter
     /// where the user *uses* the global argument.
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -994,6 +1058,8 @@ impl Arg {
     /// - Using an equals and no space such as `-o=value` or `--option=value`
     /// - Use a short and no space such as `-ovalue`
     ///
+    /// <div class="warning">
+    ///
     /// **WARNING:**
     ///
     /// Setting a variable number of values (e.g. `1..=10`) for an argument without
@@ -1011,6 +1077,8 @@ impl Arg {
     /// - Use a delimiter between values with [`Arg::value_delimiter`]
     /// - Require a flag occurrence per value with [`ArgAction::Append`]
     /// - Require positional arguments to appear after `--` with [`Arg::last`]
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -1155,7 +1223,11 @@ impl Arg {
     /// using, such as `FILE`, `INTERFACE`, etc. Although not required, it's somewhat convention to
     /// use all capital letters for the value name.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** implicitly sets [`Arg::action(ArgAction::Set)`]
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -1218,10 +1290,18 @@ impl Arg {
     /// using, such as `FILE`, `INTERFACE`, etc. Although not required, it's somewhat convention to
     /// use all capital letters for the value name.
     ///
-    /// **Pro Tip:** It may help to use [`Arg::next_line_help(true)`] if there are long, or
+    /// <div class="warning">
+    ///
+    /// **TIP:** It may help to use [`Arg::next_line_help(true)`] if there are long, or
     /// multiple value names in order to not throw off the help text alignment of all options.
     ///
+    /// </div>
+    ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** implicitly sets [`Arg::action(ArgAction::Set)`] and [`Arg::num_args(1..)`].
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -1273,7 +1353,11 @@ impl Arg {
     ///
     /// See [`ValueHint`] for more information.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** implicitly sets [`Arg::action(ArgAction::Set)`].
+    ///
+    /// </div>
     ///
     /// For example, to take a username as argument:
     ///
@@ -1322,9 +1406,17 @@ impl Arg {
     /// [`Arg::required_if_eq_all`] is case-insensitive.
     ///
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** Setting this requires [taking values][Arg::num_args]
     ///
+    /// </div>
+    ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** To do unicode case folding, enable the `unicode` feature flag.
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -1381,17 +1473,29 @@ impl Arg {
     ///
     /// See also [`trailing_var_arg`][Arg::trailing_var_arg].
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** Setting this requires [taking values][Arg::num_args]
+    ///
+    /// </div>
+    ///
+    /// <div class="warning">
     ///
     /// **WARNING:** Prior arguments with `allow_hyphen_values(true)` get precedence over known
     /// flags but known flags get precedence over the next possible positional argument with
     /// `allow_hyphen_values(true)`.  When combined with [`Arg::num_args(..)`],
     /// [`Arg::value_terminator`] is one way to ensure processing stops.
     ///
+    /// </div>
+    ///
+    /// <div class="warning">
+    ///
     /// **WARNING**: Take caution when using this setting combined with another argument using
     /// [`Arg::num_args`], as this becomes ambiguous `$ prog --arg -- -- val`. All
     /// three `--, --, val` will be values when the user may have thought the second `--` would
     /// constitute the normal, "Only positional args follow" idiom.
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -1443,7 +1547,11 @@ impl Arg {
     /// This is similar to [`Arg::allow_hyphen_values`] except that it only allows numbers,
     /// all other undefined leading hyphens will fail to parse.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** Setting this requires [taking values][Arg::num_args]
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -1472,7 +1580,11 @@ impl Arg {
     ///
     /// i.e. an equals between the option and associated value.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** Setting this requires [taking values][Arg::num_args]
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -1573,10 +1685,18 @@ impl Arg {
     /// argument until it reaches another valid argument, or one of the other more specific settings
     /// for multiple values is used (such as [`num_args`]).
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** This setting only applies to [options] and [positional arguments]
+    ///
+    /// </div>
+    ///
+    /// <div class="warning">
     ///
     /// **NOTE:** When the terminator is passed in on the command line, it is **not** stored as one
     /// of the values
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -1636,7 +1756,12 @@ impl Arg {
     /// may not be exactly what you are expecting and using [`Arg::trailing_var_arg`]
     /// may be more appropriate.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** Implicitly sets [`Arg::action(ArgAction::Set)`] [`Arg::num_args(1..)`],
+    ///
+    /// </div>
+    ///
     /// [`Arg::allow_hyphen_values(true)`], and [`Arg::last(true)`] when set to `true`.
     ///
     /// [`Arg::action(ArgAction::Set)`]: Arg::action()
@@ -1654,9 +1779,17 @@ impl Arg {
 
     /// Value for the argument when not present.
     ///
+    /// Like with command-line values, this will be split by [`Arg::value_delimiter`].
+    ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** If the user *does not* use this argument at runtime [`ArgMatches::contains_id`] will
     /// still return `true`. If you wish to determine whether the argument was used at runtime or
     /// not, consider [`ArgMatches::value_source`][crate::ArgMatches::value_source].
+    ///
+    /// </div>
+    ///
+    /// <div class="warning">
     ///
     /// **NOTE:** This setting is perfectly compatible with [`Arg::default_value_if`] but slightly
     /// different. `Arg::default_value` *only* takes effect when the user has not provided this arg
@@ -1666,7 +1799,7 @@ impl Arg {
     /// at runtime, nor were the conditions met for `Arg::default_value_if`, the `Arg::default_value`
     /// will be applied.
     ///
-    /// Like with command-line values, this will be split by [`Arg::value_delimiter`].
+    /// </div>
     ///
     /// # Examples
     ///
@@ -1760,12 +1893,16 @@ impl Arg {
     /// argument is a common example. By supplying a default, such as `default_missing_value("always")`,
     /// the user can quickly just add `--color` to the command line to produce the desired color output.
     ///
+    /// Like with command-line values, this will be split by [`Arg::value_delimiter`].
+    ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** using this configuration option requires the use of the
     /// [`.num_args(0..N)`][Arg::num_args] and the
     /// [`.require_equals(true)`][Arg::require_equals] configuration option. These are required in
     /// order to unambiguously determine what, if any, value was supplied for the argument.
     ///
-    /// Like with command-line values, this will be split by [`Arg::value_delimiter`].
+    /// </div>
     ///
     /// # Examples
     ///
@@ -2080,7 +2217,11 @@ impl Arg {
     ///
     /// If [`Arg::long_help`] is not specified, this message will be displayed for `--help`.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** Only `Arg::help` is used in completion script generation in order to be concise
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -2132,7 +2273,11 @@ impl Arg {
     ///
     /// If [`Arg::help`] is not specified, this message will be displayed for `-h`.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** Only [`Arg::help`] is used in completion script generation in order to be concise
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -2201,8 +2346,12 @@ impl Arg {
     ///
     /// To change, see [`Command::next_display_order`][crate::Command::next_display_order].
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** This setting is ignored for [positional arguments] which are always displayed in
     /// [index] order.
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -2271,8 +2420,12 @@ impl Arg {
     /// This can be helpful for arguments with very long or complex help messages.
     /// This can also be helpful for arguments with very long flag names, or many/long value names.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** To apply this setting to all arguments and subcommands, consider using
     /// [`crate::Command::next_line_help`]
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -2323,7 +2476,11 @@ impl Arg {
 
     /// Do not display the argument in help message.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** This does **not** hide the argument from usage strings on error
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -2370,10 +2527,14 @@ impl Arg {
     /// This is useful for args with many values, or ones which are explained elsewhere in the
     /// help text.
     ///
-    /// **NOTE:** Setting this requires [taking values][Arg::num_args]
-    ///
     /// To set this for all arguments, see
     /// [`Command::hide_possible_values`][crate::Command::hide_possible_values].
+    ///
+    /// <div class="warning">
+    ///
+    /// **NOTE:** Setting this requires [taking values][Arg::num_args]
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -2403,7 +2564,11 @@ impl Arg {
     ///
     /// This is useful when default behavior of an arg is explained elsewhere in the help text.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** Setting this requires [taking values][Arg::num_args]
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -2494,10 +2659,18 @@ impl Arg {
 
     /// Hides an argument from short help (`-h`).
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** This does **not** hide the argument from usage strings on error
+    ///
+    /// </div>
+    ///
+    /// <div class="warning">
     ///
     /// **NOTE:** Setting this option will cause next-line-help output style to be used
     /// when long help (`--help`) is called.
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -2578,10 +2751,18 @@ impl Arg {
 
     /// Hides an argument from long help (`--help`).
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** This does **not** hide the argument from usage strings on error
+    ///
+    /// </div>
+    ///
+    /// <div class="warning">
     ///
     /// **NOTE:** Setting this option will cause next-line-help output style to be used
     /// when long help (`--help`) is called.
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -2749,6 +2930,10 @@ impl Arg {
     ///
     /// If `default` is set to `None`, `default_value` will be removed.
     ///
+    /// Like with command-line values, this will be split by [`Arg::value_delimiter`].
+    ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** This setting is perfectly compatible with [`Arg::default_value`] but slightly
     /// different. `Arg::default_value` *only* takes effect when the user has not provided this arg
     /// at runtime. This setting however only takes effect when the user has not provided a value at
@@ -2756,7 +2941,7 @@ impl Arg {
     /// and `Arg::default_value_if`, and the user **did not** provide this arg at runtime, nor were
     /// the conditions met for `Arg::default_value_if`, the `Arg::default_value` will be applied.
     ///
-    /// Like with command-line values, this will be split by [`Arg::value_delimiter`].
+    /// </div>
     ///
     /// # Examples
     ///
@@ -2894,10 +3079,14 @@ impl Arg {
     ///
     /// The method takes a slice of tuples in the `(arg, predicate, default)` format.
     ///
+    /// Like with command-line values, this will be split by [`Arg::value_delimiter`].
+    ///
+    /// <div class="warning">
+    ///
     /// **NOTE**: The conditions are stored in order and evaluated in the same order. I.e. the first
     /// if multiple conditions are true, the first one found will be applied and the ultimate value.
     ///
-    /// Like with command-line values, this will be split by [`Arg::value_delimiter`].
+    /// </div>
     ///
     /// # Examples
     ///
@@ -3014,8 +3203,12 @@ impl Arg {
 
     /// Set this arg as [required] as long as the specified argument is not present at runtime.
     ///
-    /// **Pro Tip:** Using `Arg::required_unless_present` implies [`Arg::required`] and is therefore not
+    /// <div class="warning">
+    ///
+    /// **TIP:** Using `Arg::required_unless_present` implies [`Arg::required`] and is therefore not
     /// mandatory to also set.
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -3084,8 +3277,12 @@ impl Arg {
     /// * supplies the `self` arg.
     /// * supplies *all* of the `names` arguments.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** If you wish for this argument to only be required unless *any of* these args are
     /// present see [`Arg::required_unless_present_any`]
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -3163,8 +3360,12 @@ impl Arg {
     /// * supplies the `self` arg.
     /// * supplies *one or more* of the `unless` arguments.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** If you wish for this argument to be required unless *all of* these args are
     /// present see [`Arg::required_unless_present_all`]
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -3653,18 +3854,38 @@ impl Arg {
 
     /// This argument is mutually exclusive with the specified argument.
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** Conflicting rules take precedence over being required by default. Conflict rules
     /// only need to be set for one of the two arguments, they do not need to be set for each.
+    ///
+    /// </div>
+    ///
+    /// <div class="warning">
     ///
     /// **NOTE:** Defining a conflict is two-way, but does *not* need to defined for both arguments
     /// (i.e. if A conflicts with B, defining `A.conflicts_with(B)` is sufficient. You do not
     /// need to also do `B.conflicts_with(A)`)
     ///
+    /// </div>
+    ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** [`Arg::conflicts_with_all(names)`] allows specifying an argument which conflicts with more than one argument.
+    ///
+    /// </div>
+    ///
+    /// <div class="warning">
     ///
     /// **NOTE** [`Arg::exclusive(true)`] allows specifying an argument which conflicts with every other argument.
     ///
+    /// </div>
+    ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** All arguments implicitly conflict with themselves.
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -3713,14 +3934,26 @@ impl Arg {
     ///
     /// See [`Arg::conflicts_with`].
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** Conflicting rules take precedence over being required by default. Conflict rules
     /// only need to be set for one of the two arguments, they do not need to be set for each.
+    ///
+    /// </div>
+    ///
+    /// <div class="warning">
     ///
     /// **NOTE:** Defining a conflict is two-way, but does *not* need to defined for both arguments
     /// (i.e. if A conflicts with B, defining `A.conflicts_with(B)` is sufficient. You do not need
     /// need to also do `B.conflicts_with(A)`)
     ///
+    /// </div>
+    ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** [`Arg::exclusive(true)`] allows specifying an argument which conflicts with every other argument.
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -3767,10 +4000,18 @@ impl Arg {
     /// will override each other in POSIX style (whichever argument was specified at runtime
     /// **last** "wins")
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** When an argument is overridden it is essentially as if it never was used, any
     /// conflicts, requirements, etc. are evaluated **after** all "overrides" have been removed
     ///
+    /// </div>
+    ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** Overriding an argument implies they [conflict][Arg::conflicts_with`].
+    ///
+    /// </div>
     ///
     /// # Examples
     ///
@@ -3807,10 +4048,18 @@ impl Arg {
     /// i.e. this argument and the following argument will override each other in POSIX style
     /// (whichever argument was specified at runtime **last** "wins")
     ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** When an argument is overridden it is essentially as if it never was used, any
     /// conflicts, requirements, etc. are evaluated **after** all "overrides" have been removed
     ///
+    /// </div>
+    ///
+    /// <div class="warning">
+    ///
     /// **NOTE:** Overriding an argument implies they [conflict][Arg::conflicts_with_all`].
+    ///
+    /// </div>
     ///
     /// # Examples
     ///

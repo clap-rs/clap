@@ -18,7 +18,11 @@ pub fn all_subcommands(cmd: &Command) -> Vec<(String, String)> {
 
 /// Finds the subcommand [`clap::Command`] from the given [`clap::Command`] with the given path.
 ///
+/// <div class="warning">
+///
 /// **NOTE:** `path` should not contain the root `bin_name`.
+///
+/// </div>
 pub fn find_subcommand_with_path<'cmd>(p: &'cmd Command, path: Vec<&str>) -> &'cmd Command {
     let mut cmd = p;
 
