@@ -96,6 +96,27 @@ fn multiple_args_and_intermittent_arg_without_value() {
 }
 
 #[test]
+fn unexpected_argument() {
+    let cmd = Command::new("cmd")
+        .ignore_errors(true)
+        .arg(arg!(
+            -c --config [FILE] "Sets a custom config file"
+        ))
+        .arg(arg!(--"unset-flag"));
+
+    let r = cmd.try_get_matches_from(vec!["cmd", "-c", "config file", "unexpected"]);
+
+    assert!(r.is_ok(), "unexpected error: {r:?}");
+    let m = r.unwrap();
+    assert!(m.contains_id("config"));
+    assert_eq!(
+        m.get_one::<String>("config").cloned(),
+        Some("config file".to_owned())
+    );
+    assert_eq!(m.get_one::<bool>("unset-flag").copied(), None);
+}
+
+#[test]
 fn subcommand() {
     let cmd = Command::new("test")
         .ignore_errors(true)
