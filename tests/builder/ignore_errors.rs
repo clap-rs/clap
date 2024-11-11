@@ -5,7 +5,7 @@ use super::utils;
 #[test]
 fn single_short_arg_without_value() {
     let cmd = Command::new("cmd").ignore_errors(true).arg(arg!(
-        -c --config [FILE] "Sets a custom config file"
+        -c --config <FILE> "Sets a custom config file"
     ));
 
     let r = cmd.try_get_matches_from(vec!["cmd", "-c" /* missing: , "config file" */]);
@@ -18,7 +18,7 @@ fn single_short_arg_without_value() {
 #[test]
 fn single_long_arg_without_value() {
     let cmd = Command::new("cmd").ignore_errors(true).arg(arg!(
-        -c --config [FILE] "Sets a custom config file"
+        -c --config <FILE> "Sets a custom config file"
     ));
 
     let r = cmd.try_get_matches_from(vec!["cmd", "--config" /* missing: , "config file" */]);
@@ -33,10 +33,10 @@ fn multiple_args_and_final_arg_without_value() {
     let cmd = Command::new("cmd")
         .ignore_errors(true)
         .arg(arg!(
-            -c --config [FILE] "Sets a custom config file"
+            -c --config <FILE> "Sets a custom config file"
         ))
         .arg(arg!(
-            -x --stuff [FILE] "Sets a custom stuff file"
+            -x --stuff <FILE> "Sets a custom stuff file"
         ))
         .arg(arg!(f: -f "Flag").action(ArgAction::SetTrue));
 
@@ -59,10 +59,10 @@ fn multiple_args_and_intermittent_arg_without_value() {
     let cmd = Command::new("cmd")
         .ignore_errors(true)
         .arg(arg!(
-            -c --config[FILE] "Sets a custom config file"
+            -c --config <FILE> "Sets a custom config file"
         ))
         .arg(arg!(
-            -x --stuff[FILE] "Sets a custom stuff file"
+            -x --stuff <FILE> "Sets a custom stuff file"
         ))
         .arg(arg!(f: -f "Flag").action(ArgAction::SetTrue));
 
