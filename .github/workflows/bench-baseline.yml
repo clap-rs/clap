@@ -7,13 +7,16 @@ on:
   push:
     branches: master
 
-env:
-  RUNNER: buildjet-8vcpu-ubuntu-2204
-
 jobs:
   bench:
     name: Binary Size
-    runs-on: "${{ env.RUNNER}}"
+    strategy:
+      matrix:
+        build: [linux]
+        include:
+        - build: linux
+          os: buildjet-8vcpu-ubuntu-2204
+    runs-on: "${{ matrix.os }}"
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -33,7 +36,7 @@ jobs:
         bencher run \
         --project "${{ github.repository }}" \
         --branch "${{ github.ref_name }}" \
-        --testbed "${{ env.RUNNER}}" \
+        --testbed "${{ matrix.os }}" \
         --token '${{ secrets.BENCHER_API_TOKEN }}' \
         --github-actions '${{ secrets.GITHUB_TOKEN }}' \
         --adapter json \
