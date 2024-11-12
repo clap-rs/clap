@@ -12,8 +12,8 @@ pub(crate) mod features;
 pub(crate) use self::arg_matcher::ArgMatcher;
 pub(crate) use self::matches::{MatchedArg, SubCommand};
 pub(crate) use self::parser::Identifier;
+pub(crate) use self::parser::Parser;
 pub(crate) use self::parser::PendingArg;
-pub(crate) use self::parser::{ParseState, Parser};
 pub(crate) use self::validator::get_possible_values_cli;
 pub(crate) use self::validator::Validator;
 

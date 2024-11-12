@@ -440,7 +440,7 @@ impl<'cmd> Parser<'cmd> {
                 #[cfg(feature = "env")]
                 ok!(self.add_env(matcher));
                 ok!(self.add_defaults(matcher));
-                return Validator::new(self.cmd).validate(parse_state, matcher);
+                return Validator::new(self.cmd).validate(matcher);
             } else {
                 // Start error processing
                 let _ = self.resolve_pending(matcher);
@@ -478,7 +478,7 @@ impl<'cmd> Parser<'cmd> {
         #[cfg(feature = "env")]
         ok!(self.add_env(matcher));
         ok!(self.add_defaults(matcher));
-        Validator::new(self.cmd).validate(parse_state, matcher)
+        Validator::new(self.cmd).validate(matcher)
     }
 
     fn match_arg_error(

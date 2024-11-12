@@ -132,10 +132,6 @@ impl MatchedArg {
         self.vals.last().map(|x| x.len()).unwrap_or(0)
     }
 
-    pub(crate) fn all_val_groups_empty(&self) -> bool {
-        self.vals.iter().flatten().count() == 0
-    }
-
     pub(crate) fn check_explicit(&self, predicate: &ArgPredicate) -> bool {
         if self.source.map(|s| !s.is_explicit()).unwrap_or(false) {
             return false;
