@@ -10,6 +10,8 @@ on:
 jobs:
   bench:
     name: Binary Size
+    permissions:
+      checks: write
     strategy:
       matrix:
         build: [linux]
@@ -41,5 +43,3 @@ jobs:
         --github-actions '${{ secrets.GITHUB_TOKEN }}' \
         --adapter json \
         --file-size target/release/examples/git-derive
-      permissions:
-        checks: write
