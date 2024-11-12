@@ -16,6 +16,7 @@ compile_error!("`std` feature is currently required to build `clap`");
 
 pub use crate::builder::ArgAction;
 pub use crate::builder::Command;
+pub use crate::builder::CommandGroup;
 pub use crate::builder::ValueHint;
 pub use crate::builder::{Arg, ArgGroup};
 pub use crate::parser::ArgMatches;

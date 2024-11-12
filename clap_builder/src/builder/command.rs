@@ -20,6 +20,7 @@ use crate::builder::Str;
 use crate::builder::StyledStr;
 use crate::builder::Styles;
 use crate::builder::{Arg, ArgGroup, ArgPredicate};
+use crate::builder::{CommandGroup};
 use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::MKeyMap;
@@ -100,6 +101,7 @@ pub struct Command {
     args: MKeyMap,
     subcommands: Vec<Command>,
     groups: Vec<ArgGroup>,
+    command_groups: Vec<CommandGroup>,
     current_help_heading: Option<Str>,
     current_disp_ord: Option<usize>,
     subcommand_value_name: Option<Str>,
@@ -340,6 +342,25 @@ impl Command {
         self.groups.push(f(a));
         self
     }
+
+    #[must_use]
+    #[cfg_attr(debug_assertions, track_caller)]
+    pub fn mut_command_group<F>(mut self, cmd_id: impl AsRef<str>, f: F) -> Self
+    where
+        F: FnOnce(CommandGroup) -> CommandGroup,
+    {
+        let id = cmd_id.as_ref();
+        let index = self
+            .command_groups
+            .iter()
+            .position(|g| g.get_id() == id)
+            .unwrap_or_else(|| panic!("Command group `{id}` is undefined"));
+        let a = self.command_groups.remove(index);
+
+        self.command_groups.push(f(a));
+        self
+    }
+   
     /// Allows one to mutate a [`Command`] after it's been added as a subcommand.
     ///
     /// This can be useful for modifying auto-generated arguments of nested subcommands with
@@ -425,6 +446,14 @@ impl Command {
         self
     }
 
+    #[inline]
+    #[must_use]
+    pub fn command_group(mut self, group: impl Into<CommandGroup>) -> Self {
+        self.command_groups.push(group.into());
+        self
+    }
+
+
     /// Adds multiple [`ArgGroup`]s to the [`Command`] at once.
     ///
     /// # Examples
@@ -452,6 +481,15 @@ impl Command {
     pub fn groups(mut self, groups: impl IntoIterator<Item = impl Into<ArgGroup>>) -> Self {
         for g in groups {
             self = self.group(g.into());
+        }
+        self
+    }
+
+
+    #[must_use]
+    pub fn command_groups(mut self, groups: impl IntoIterator<Item = impl Into<CommandGroup>>) -> Self {
+        for g in groups {
+            self = self.command_group(g.into());
         }
         self
     }
@@ -3694,6 +3732,12 @@ impl Command {
         self.groups.iter()
     }
 
+    /// Iterate through the set of command groups.
+    #[inline]
+    pub fn get_command_groups(&self) -> impl Iterator<Item = &CommandGroup> {
+        self.command_groups.iter()
+    }
+
     /// Iterate through the set of arguments.
     #[inline]
     pub fn get_arguments(&self) -> impl Iterator<Item = &Arg> {
@@ -4138,6 +4182,22 @@ impl Command {
             }
 
             self.args._build();
+
+            for c in self.subcommands.iter_mut() {
+                // Fill in the command_groups
+                for g in &c.command_groups {
+                    if let Some(cg) = self.command_groups.iter_mut().find(|grp| grp.id == g.id) {
+                        cg.commands.push(c.name.clone());
+                    } else {
+                        let mut cg = CommandGroup::new(g.get_id().clone());
+                        cg.commands.push(c.name.clone());
+                        self.command_groups.push(cg);
+                    }
+                }
+            }
+
+
+
 
             #[allow(deprecated)]
             {
@@ -4899,6 +4959,7 @@ impl Default for Command {
             args: Default::default(),
             subcommands: Default::default(),
             groups: Default::default(),
+            command_groups: Default::default(),
             current_help_heading: Default::default(),
             current_disp_ord: Some(0),
             subcommand_value_name: Default::default(),

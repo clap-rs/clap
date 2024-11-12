@@ -1,7 +1,7 @@
 use std::ffi::OsString;
 use std::path::PathBuf;
 
-use clap::{arg, Command};
+use clap::{arg, Command, CommandGroup};
 
 fn cli() -> Command {
     Command::new("git")
@@ -30,6 +30,12 @@ fn cli() -> Command {
                         .default_missing_value("always"),
                 ),
         )
+        .command_group(CommandGroup::new("clone")
+            .help_heading("clone/diff commands")
+            .commands(&["clone", "diff"]))
+        .command_group(CommandGroup::new("add")
+            .help_heading("adding commands")
+            .commands(&["add"]))
         .subcommand(
             Command::new("push")
                 .about("pushes things")

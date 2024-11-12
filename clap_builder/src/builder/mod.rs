@@ -7,6 +7,7 @@ mod arg_group;
 mod arg_predicate;
 mod arg_settings;
 mod command;
+mod command_group;
 mod ext;
 mod os_str;
 mod possible_value;
@@ -33,6 +34,7 @@ pub use arg::ArgExt;
 pub use arg_group::ArgGroup;
 pub use arg_predicate::ArgPredicate;
 pub use command::Command;
+pub use command_group::CommandGroup;
 #[cfg(feature = "unstable-ext")]
 pub use command::CommandExt;
 pub use os_str::OsStr;

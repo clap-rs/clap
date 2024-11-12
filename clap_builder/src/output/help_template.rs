@@ -370,7 +370,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     pub(crate) fn write_all_args(&mut self) {
         debug!("HelpTemplate::write_all_args");
         use std::fmt::Write as _;
-        let header = &self.styles.get_header();
+       let header = &self.styles.get_header();
 
         let pos = self
             .cmd
@@ -401,12 +401,14 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 self.writer.push_str("\n\n");
             }
             first = false;
-            let default_help_heading = Str::from("Commands");
-            let help_heading = self
-                .cmd
-                .get_subcommand_help_heading()
-                .unwrap_or(&default_help_heading);
-            let _ = write!(self.writer, "{header}{help_heading}:{header:#}\n",);
+            if self.needs_subcmd_help_header() {
+                let default_help_heading = Str::from("Commands");
+                let help_heading = self
+                    .cmd
+                    .get_subcommand_help_heading()
+                    .unwrap_or(&default_help_heading);
+                let _ = write!(self.writer, "{header}{help_heading}:{header:#}\n",);
+            }
 
             self.write_subcommands(self.cmd);
         }
@@ -907,6 +909,37 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         }
     }
 
+#[cfg(any(feature = "usage", feature = "help"))]
+    pub(crate) fn has_visible_subcommands(&self) -> bool {
+        self.visible_subcommands()
+            .next()
+            .is_some()
+    }
+
+	//// Check if this subcommand should display help header
+	/// which will be the case if either there are subcommands and no command groups
+	/// or there are subcommands and some of them do not belong to any group
+    #[cfg(any(feature = "usage", feature = "help"))]
+    pub(crate) fn needs_subcmd_help_header(&self) -> bool {
+		self.visible_ungroupped_subcommands()
+			.next()
+			.is_some()
+    }
+
+
+    pub(crate) fn visible_subcommands(&self) -> impl Iterator<Item = &Command> {
+	    self.cmd
+            .get_subcommands()
+            .filter(|subcommand| should_show_subcommand(subcommand))
+	}
+
+
+    #[cfg(any(feature = "usage", feature = "help"))]
+    pub(crate) fn visible_ungroupped_subcommands(&self) -> impl Iterator<Item = &Command> {
+		self.visible_subcommands()
+			.filter(|sc| self.cmd.get_command_groups().filter(|cg| cg.commands.contains(sc.get_name_str())).next().is_none())
+    }
+
     /// Writes help for subcommands of a Parser Object to the wrapped stream.
     fn write_subcommands(&mut self, cmd: &Command) {
         debug!("HelpTemplate::write_subcommands");
@@ -930,20 +963,73 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 let _ = write!(styled, ", {literal}--{long}{literal:#}",);
             }
             longest = longest.max(styled.display_width());
-            ord_v.push((subcommand.get_display_order(), styled, subcommand));
+            ord_v.push((subcommand.get_display_order(), styled, subcommand, true));
         }
         ord_v.sort_by(|a, b| (a.0, &a.1).cmp(&(b.0, &b.1)));
+
+        //self.cmd.visible_ungroupped_subcommands();
+
+        let has_groups = cmd.get_command_groups().next().is_some();
+        //find subcommands that do not belong to any group
+        if has_groups {
+            for cmd_group in cmd.get_command_groups() {
+                 for cmd_name in cmd_group.commands.iter() {
+                    match ord_v.iter_mut().filter(|(_, _, sc, _)| sc.get_name() == cmd_name).next() {
+                        None => {},
+                        Some((_, _, _, ref mut show)) => {
+                             *show = false;
+                        }
+                    }
+                }
+            }
+        }
 
         debug!("HelpTemplate::write_subcommands longest = {longest}");
 
         let next_line_help = self.will_subcommands_wrap(cmd.get_subcommands(), longest);
-
-        for (i, (_, sc_str, sc)) in ord_v.into_iter().enumerate() {
-            if 0 < i {
-                self.writer.push_str("\n");
+        for (i, (_, sc_str, sc, show)) in ord_v.iter().enumerate() {
+            if *show {
+                if 0 < i {
+                    self.writer.push_str("\n");
+                }
+                self.write_subcommand(sc_str.clone(), sc, next_line_help, longest);
             }
-            self.write_subcommand(sc_str, sc, next_line_help, longest);
         }
+
+
+        if has_groups {
+            let header = &self.styles.get_header();
+
+            for cmd_group in cmd.get_command_groups() {
+                if let Some(ref heading) = cmd_group.heading {
+
+                    let _ = write!(self.writer, "{header}{heading}:{header:#}\n",);
+                };
+                let next_line_help = {
+                        let it = cmd.get_subcommands()
+                            .filter(|sc| { 
+                                let s: &Str = sc.get_name_str();
+                                cmd_group.commands.contains(&s  )
+                            });
+                self.will_subcommands_wrap(it, longest)
+                };
+                for cmd_name in cmd_group.commands.iter() {
+                    match ord_v.iter_mut().filter(|(_, sc_str, sc, _)| sc.get_name() == cmd_name).next() {
+                        None => {},
+                        Some((_, sc_str, sc, ref mut show)) => {
+                            self.write_subcommand(sc_str.clone(), sc, next_line_help, longest);
+                            //if i < 0 {
+                                self.writer.push_str("\n");
+                            //}
+
+                        }
+                    }
+                }
+            }
+
+
+        }
+
     }
 
     /// Will use next line help on writing subcommands.
