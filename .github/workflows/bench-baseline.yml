@@ -1,0 +1,42 @@
+name: Benchmark Baseline
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: master
+
+env:
+  RUNNER: buildjet-8vcpu-ubuntu-2204
+
+jobs:
+  bench:
+    name: Binary Size
+    runs-on: "${{ env.RUNNER}}"
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+    - uses: Swatinem/rust-cache@v2
+    - name: Install Bencher
+      uses: bencherdev/bencher@main
+    - name: Build
+      run: "cargo build --package clap --example git-derive -F derive --release"
+      env:
+        CARGO_PROFILE_RELEASE_STRIP: true
+    - name: Report
+      run: |
+        bencher run \
+        --project "${{ github.repository }}" \
+        --branch "${{ github.ref_name }}" \
+        --testbed "${{ env.RUNNER}}" \
+        --token '${{ secrets.BENCHER_API_TOKEN }}' \
+        --github-actions '${{ secrets.GITHUB_TOKEN }}' \
+        --adapter json \
+        --file-size target/release/examples/git-derive
+      permissions:
+        checks: write
