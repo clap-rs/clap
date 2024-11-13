@@ -94,7 +94,6 @@ fn command_group_help_output_group_with_heading() {
 Usage: clap-test [COMMAND]
 
 Test:
-
   test  Some help
   help  Print this message or the help of the given subcommand(s)
 
@@ -124,16 +123,13 @@ fn command_group_help_output_two_groups_with_headings() {
 Usage: clap-test [COMMAND]
 
 TestGroup1:
-
   test1  Some help
   test2  Some help
 
 TestGroup2:
-
   test3  Some help
   test4  Some help
   help   Print this message or the help of the given subcommand(s)
-
 
 Options:
   -h, --help     Print help
