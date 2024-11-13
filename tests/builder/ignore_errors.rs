@@ -113,7 +113,7 @@ fn unexpected_argument() {
         m.get_one::<String>("config").cloned(),
         Some("config file".to_owned())
     );
-    assert_eq!(m.get_one::<bool>("unset-flag").copied(), None);
+    assert_eq!(m.get_one::<bool>("unset-flag").copied(), Some(false));
 }
 
 #[test]

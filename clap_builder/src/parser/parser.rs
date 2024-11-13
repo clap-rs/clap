@@ -54,7 +54,14 @@ impl<'cmd> Parser<'cmd> {
     ) -> ClapResult<()> {
         debug!("Parser::get_matches_with");
 
-        ok!(self.parse(matcher, raw_args, args_cursor));
+        ok!(self.parse(matcher, raw_args, args_cursor).map_err(|err| {
+            if self.cmd.is_ignore_errors_set() {
+                #[cfg(feature = "env")]
+                let _ = self.add_env(matcher);
+                let _ = self.add_defaults(matcher);
+            }
+            err
+        }));
         ok!(self.resolve_pending(matcher));
 
         #[cfg(feature = "env")]
