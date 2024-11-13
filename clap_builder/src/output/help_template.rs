@@ -963,41 +963,28 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 let _ = write!(styled, ", {literal}--{long}{literal:#}",);
             }
             longest = longest.max(styled.display_width());
-            ord_v.push((subcommand.get_display_order(), styled, subcommand, true));
+            let no_group = self.cmd.get_command_groups().filter(|cg| cg.commands.contains(subcommand.get_name_str())).next().is_none();
+            ord_v.push((subcommand.get_display_order(), styled, subcommand, no_group));
         }
         ord_v.sort_by(|a, b| (a.0, &a.1).cmp(&(b.0, &b.1)));
 
-        //self.cmd.visible_ungroupped_subcommands();
-
-        let has_groups = cmd.get_command_groups().next().is_some();
-        //find subcommands that do not belong to any group
-        if has_groups {
-            for cmd_group in cmd.get_command_groups() {
-                 for cmd_name in cmd_group.commands.iter() {
-                    match ord_v.iter_mut().filter(|(_, _, sc, _)| sc.get_name() == cmd_name).next() {
-                        None => {},
-                        Some((_, _, _, ref mut show)) => {
-                             *show = false;
-                        }
-                    }
-                }
-            }
-        }
-
         debug!("HelpTemplate::write_subcommands longest = {longest}");
 
+        //first show commands that do not belong to any group
+        //if groups are not used, that means all visible commands
         let next_line_help = self.will_subcommands_wrap(cmd.get_subcommands(), longest);
-        for (i, (_, sc_str, sc, show)) in ord_v.iter().enumerate() {
-            if *show {
-                if 0 < i {
-                    self.writer.push_str("\n");
-                }
+        for (i, (_, sc_str, sc, no_group)) in ord_v.iter().enumerate() {
+            if *no_group {
                 self.write_subcommand(sc_str.clone(), sc, next_line_help, longest);
+                //if 0 < i {
+                    self.writer.push_str("\n");
+                //}
+
             }
         }
-
-
-        if has_groups {
+        //if groups are defined, show group header followed by all commands in group
+        if cmd.get_command_groups().next().is_some() {
+            self.writer.push_str("\n");
             let header = &self.styles.get_header();
 
             for cmd_group in cmd.get_command_groups() {
@@ -1014,9 +1001,10 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 self.will_subcommands_wrap(it, longest)
                 };
                 for cmd_name in cmd_group.commands.iter() {
-                    match ord_v.iter_mut().filter(|(_, sc_str, sc, _)| sc.get_name() == cmd_name).next() {
+                    match ord_v.iter_mut().filter(|(_, _, sc, _)| sc.get_name() == cmd_name).next() {
                         None => {},
-                        Some((_, sc_str, sc, ref mut show)) => {
+                        Some((_, sc_str, sc, _)) => {
+
                             self.write_subcommand(sc_str.clone(), sc, next_line_help, longest);
                             //if i < 0 {
                                 self.writer.push_str("\n");
@@ -1025,6 +1013,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                         }
                     }
                 }
+                self.writer.push_str("\n");
             }
 
 
