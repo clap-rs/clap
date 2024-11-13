@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(parser)* Ensure defaults are filled in on error with `ignore_errors(true)`
+
 ## [4.5.20] - 2024-10-08
 
 ### Features
