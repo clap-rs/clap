@@ -50,9 +50,36 @@ impl<'cmd> Parser<'cmd> {
         &mut self,
         matcher: &mut ArgMatcher,
         raw_args: &mut clap_lex::RawArgs,
-        mut args_cursor: clap_lex::ArgCursor,
+        args_cursor: clap_lex::ArgCursor,
     ) -> ClapResult<()> {
         debug!("Parser::get_matches_with");
+
+        ok!(self.parse(matcher, raw_args, args_cursor).map_err(|err| {
+            if self.cmd.is_ignore_errors_set() {
+                #[cfg(feature = "env")]
+                let _ = self.add_env(matcher);
+                let _ = self.add_defaults(matcher);
+            }
+            err
+        }));
+        ok!(self.resolve_pending(matcher));
+
+        #[cfg(feature = "env")]
+        ok!(self.add_env(matcher));
+        ok!(self.add_defaults(matcher));
+
+        Validator::new(self.cmd).validate(matcher)
+    }
+
+    // The actual parsing function
+    #[allow(clippy::cognitive_complexity)]
+    pub(crate) fn parse(
+        &mut self,
+        matcher: &mut ArgMatcher,
+        raw_args: &mut clap_lex::RawArgs,
+        mut args_cursor: clap_lex::ArgCursor,
+    ) -> ClapResult<()> {
+        debug!("Parser::parse");
         // Verify all positional assertions pass
 
         let mut subcmd_name: Option<String> = None;
@@ -436,11 +463,7 @@ impl<'cmd> Parser<'cmd> {
                     matches: sc_m.into_inner(),
                 });
 
-                ok!(self.resolve_pending(matcher));
-                #[cfg(feature = "env")]
-                ok!(self.add_env(matcher));
-                ok!(self.add_defaults(matcher));
-                return Validator::new(self.cmd).validate(matcher);
+                return Ok(());
             } else {
                 // Start error processing
                 let _ = self.resolve_pending(matcher);
@@ -474,11 +497,7 @@ impl<'cmd> Parser<'cmd> {
             ok!(self.parse_subcommand(&sc_name, matcher, raw_args, args_cursor, keep_state));
         }
 
-        ok!(self.resolve_pending(matcher));
-        #[cfg(feature = "env")]
-        ok!(self.add_env(matcher));
-        ok!(self.add_defaults(matcher));
-        Validator::new(self.cmd).validate(matcher)
+        Ok(())
     }
 
     fn match_arg_error(
