@@ -410,11 +410,11 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.5.20"
+version = "4.5.21"
 dependencies = [
  "automod",
  "clap-cargo",
- "clap_builder 4.5.20",
+ "clap_builder 4.5.21",
  "clap_derive",
  "humantime",
  "rustversion",
@@ -437,7 +437,7 @@ dependencies = [
 name = "clap_bench"
 version = "0.0.0"
 dependencies = [
- "clap 4.5.20",
+ "clap 4.5.21",
  "divan",
  "lazy_static",
 ]
@@ -457,12 +457,12 @@ dependencies = [
 
 [[package]]
 name = "clap_builder"
-version = "4.5.20"
+version = "4.5.21"
 dependencies = [
  "anstream",
  "anstyle",
  "backtrace",
- "clap_lex 0.7.2",
+ "clap_lex 0.7.3",
  "color-print",
  "static_assertions",
  "strsim",
@@ -474,11 +474,11 @@ dependencies = [
 
 [[package]]
 name = "clap_complete"
-version = "4.5.37"
+version = "4.5.38"
 dependencies = [
  "automod",
- "clap 4.5.20",
- "clap_lex 0.7.2",
+ "clap 4.5.21",
+ "clap_lex 0.7.3",
  "completest",
  "completest-pty",
  "is_executable",
@@ -491,7 +491,7 @@ dependencies = [
 name = "clap_complete_fig"
 version = "4.5.2"
 dependencies = [
- "clap 4.5.20",
+ "clap 4.5.21",
  "clap_complete",
  "snapbox",
 ]
@@ -500,7 +500,7 @@ dependencies = [
 name = "clap_complete_nushell"
 version = "4.5.4"
 dependencies = [
- "clap 4.5.20",
+ "clap 4.5.21",
  "clap_complete",
  "completest",
  "completest-nu",
@@ -525,7 +525,7 @@ checksum = "4b82cf0babdbd58558212896d1a4272303a57bdb245c2bf1147185fb45640e70"
 
 [[package]]
 name = "clap_lex"
-version = "0.7.2"
+version = "0.7.3"
 dependencies = [
  "automod",
 ]
@@ -535,7 +535,7 @@ name = "clap_mangen"
 version = "0.2.24"
 dependencies = [
  "automod",
- "clap 4.5.20",
+ "clap 4.5.21",
  "roff",
  "snapbox",
 ]
