@@ -108,7 +108,7 @@ pub struct Command {
     subcommand_heading: Option<Str>,
     external_value_parser: Option<super::ValueParser>,
     long_help_exists: bool,
-     deferred: Option<fn(Command) -> Command>,
+    deferred: Option<fn(Command) -> Command>,
     #[cfg(feature = "unstable-ext")]
     ext: Extensions,
     app_ext: Extensions,

@@ -370,7 +370,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
     pub(crate) fn write_all_args(&mut self) {
         debug!("HelpTemplate::write_all_args");
         use std::fmt::Write as _;
-       let header = &self.styles.get_header();
+        let header = &self.styles.get_header();
 
         let pos = self
             .cmd
@@ -909,29 +909,26 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         }
     }
 
-
-	//// Check if this subcommand should display help header
-	/// which will be the case if either there are subcommands and no command groups
-	/// or there are subcommands and some of them do not belong to any group
+    /// Check if this subcommand should display help header
+    /// which will be the case if either there are subcommands and no command groups
+    /// or there are subcommands and some of them do not belong to any group
     #[cfg(any(feature = "usage", feature = "help"))]
     pub(crate) fn needs_subcmd_help_header(&self) -> bool {
-		self.visible_ungroupped_subcommands()
-			.next()
-			.is_some()
+       self.visible_ungroupped_subcommands()
+           .next()
+           .is_some()
     }
 
-
     pub(crate) fn visible_subcommands(&self) -> impl Iterator<Item = &Command> {
-	    self.cmd
+        self.cmd
             .get_subcommands()
             .filter(|subcommand| should_show_subcommand(subcommand))
-	}
-
+    }
 
     #[cfg(any(feature = "usage", feature = "help"))]
     pub(crate) fn visible_ungroupped_subcommands(&self) -> impl Iterator<Item = &Command> {
-		self.visible_subcommands()
-			.filter(|sc| self.cmd.get_command_groups().filter(|cg| cg.commands.contains(sc.get_name_str())).next().is_none())
+        self.visible_subcommands()
+            .filter(|sc| self.cmd.get_command_groups().filter(|cg| cg.commands.contains(sc.get_name_str())).next().is_none())
     }
 
     /// Writes help for subcommands of a Parser Object to the wrapped stream.
