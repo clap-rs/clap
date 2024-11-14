@@ -2065,6 +2065,34 @@ Options:
 }
 
 #[test]
+fn display_value_terminator() {
+    let cmd = Command::new("test")
+        .author("Jaffa")
+        .about("Likes seeing the value terminator")
+        .arg(
+            Arg::new("cmd")
+                .long("cmd")
+                .action(ArgAction::Append)
+                .help("command to run")
+                .required(true)
+                .num_args(1..)
+                .value_terminator(";"),
+        );
+
+    let expected = str![[r#"
+Likes seeing the value terminator
+
+Usage: test --cmd <cmd>...
+
+Options:
+      --cmd <cmd>...  command to run
+  -h, --help          Print help
+
+"#]];
+    utils::assert_output(cmd, "test --help", expected, false);
+}
+
+#[test]
 fn custom_headers_headers() {
     let cmd = Command::new("blorp")
         .author("Will M.")
