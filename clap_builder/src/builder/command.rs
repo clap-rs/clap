@@ -108,7 +108,7 @@ pub struct Command {
     subcommand_heading: Option<Str>,
     external_value_parser: Option<super::ValueParser>,
     long_help_exists: bool,
-    deferred: Option<fn(Command) -> Command>,
+     deferred: Option<fn(Command) -> Command>,
     #[cfg(feature = "unstable-ext")]
     ext: Extensions,
     app_ext: Extensions,
@@ -343,6 +343,25 @@ impl Command {
         self
     }
 
+    /// Allows one to mutate an [`CommandGroup`] after it's been added to a [`Command`].
+    ///
+    /// # Panics
+    ///
+    /// If the argument is undefined
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, CommandGroup, arg, ArgGroup};
+    ///
+    /// Command::new("foo")
+    ///     .command_group(CommandGroup::new("bar")
+    ///          .help_heading("Bar commands")
+    ///          .command("bar")
+    ///     .mut_command_group("bar", |g| g.clear());
+    /// ```
+
     #[must_use]
     #[cfg_attr(debug_assertions, track_caller)]
     pub fn mut_command_group<F>(mut self, cmd_id: impl AsRef<str>, f: F) -> Self
@@ -446,6 +465,32 @@ impl Command {
         self
     }
 
+    /// Adds an [`CommandGroup`] to the application.
+    ///
+    /// [`CommandGroup`]s are a family of related subcommands.
+    /// By placing them in a logical group, you can display help more clearly.
+    ///
+    /// # Examples
+    ///
+    /// The following example demonstrates using an [`CommandGroup`] to group related commands
+    /// when usage help is displayed.
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, CommandGroup};
+    /// Command::new("add-pizza-ingredient")
+    ///     .subcommand(Command::new("pepperoni"))
+    ///     .subcommand(Command::new("ham"))
+    ///     .subcommand(Command::new("peppers"))
+    ///     .subcommand(Command::new("onion"))
+    ///     .command_group(CommandGroup::new("meats")
+    ///         .help_heading("Meaty ingredients")
+    ///         .commands(["pepperoni", "ham"]))
+    ///     .command_group(CommandGroup::new("veggies")
+    ///         .help_heading("Vegetables")
+    ///         .commands(["peppers", "onion"]))
+    /// # ;
+    /// ```
     #[inline]
     #[must_use]
     pub fn command_group(mut self, group: impl Into<CommandGroup>) -> Self {
@@ -485,7 +530,34 @@ impl Command {
         self
     }
 
-
+    /// Adds an [`CommandGroup`] to the application.
+    ///
+    /// [`CommandGroup`]s are a family of related subcommands.
+    /// By placing them in a logical group, you can display help more clearly.
+    ///
+    /// # Examples
+    ///
+    /// The following example demonstrates using an [`CommandGroup`] to group related commands
+    /// when usage help is displayed.
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, CommandGroup};
+    /// Command::new("add-pizza-ingredient")
+    ///     .subcommand(Command::new("pepperoni"))
+    ///     .subcommand(Command::new("ham"))
+    ///     .subcommand(Command::new("peppers"))
+    ///     .subcommand(Command::new("onion"))
+    ///     .command_groups([
+    ///         CommandGroup::new("meats")
+    ///             .help_heading("Meaty ingredients")
+    ///             .commands(["pepperoni", "ham"]),
+    ///         CommandGroup::new("veggies")
+    ///             .help_heading("Vegetables")
+    ///             .commands(["peppers", "onion"])
+    ///     ])
+    /// # ;
+    /// ```
     #[must_use]
     pub fn command_groups(mut self, groups: impl IntoIterator<Item = impl Into<CommandGroup>>) -> Self {
         for g in groups {

@@ -909,12 +909,6 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
         }
     }
 
-#[cfg(any(feature = "usage", feature = "help"))]
-    pub(crate) fn has_visible_subcommands(&self) -> bool {
-        self.visible_subcommands()
-            .next()
-            .is_some()
-    }
 
 	//// Check if this subcommand should display help header
 	/// which will be the case if either there are subcommands and no command groups
