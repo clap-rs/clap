@@ -2645,7 +2645,7 @@ impl Arg {
     /// ```
     ///
     /// If we were to run the above program with `$ CONNECT=super_secret connect --help` the
-    /// `[default: CONNECT=super_secret]` portion of the help text would be omitted.
+    /// `[env: CONNECT=super_secret]` portion of the help text would be omitted.
     #[cfg(feature = "env")]
     #[inline]
     #[must_use]
