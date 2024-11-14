@@ -103,9 +103,11 @@ pub struct Command {
     groups: Vec<ArgGroup>,
     command_groups: Vec<CommandGroup>,
     current_help_heading: Option<Str>,
+    current_subcommand_help_heading: Option<Str>,
     current_disp_ord: Option<usize>,
     subcommand_value_name: Option<Str>,
     subcommand_heading: Option<Str>,
+    subcommand_help_heading: Option<Option<Str>>,
     external_value_parser: Option<super::ValueParser>,
     long_help_exists: bool,
     deferred: Option<fn(Command) -> Command>,
@@ -600,6 +602,8 @@ impl Command {
             subcmd.disp_ord.get_or_insert(current);
             *current_disp_ord = current + 1;
         }
+        subcmd.subcommand_help_heading
+            .get_or_insert_with(|| self.current_subcommand_help_heading.clone());
         self.subcommands.push(subcmd);
         self
     }
@@ -2247,6 +2251,32 @@ impl Command {
         self
     }
 
+    /// Set the default section heading for future subcommands.
+    ///
+    /// This will be used for any subcommand that hasn't had [`Command::subcommand_help_heading`] called.
+    ///
+    /// This is useful if the default `Commands` heading is
+    /// not specific enough for one's use case.
+    ///
+    /// [`Command::subcommand`]: Command::subcommand()
+    /// [`Command::subcommand_help_heading`]: crate::Command::subcommand_help_heading()
+    #[inline]
+    #[must_use]
+    pub fn next_subcommand_help_heading(mut self, heading: impl IntoResettable<Str>) -> Self {
+        self.current_subcommand_help_heading = heading.into_resettable().into_option();
+        self
+    }
+
+    /*/// Change the starting value for assigning future display orders for args.
+    ///
+    /// This will be used for any arg that hasn't had [`Arg::display_order`] called.
+    #[inline]
+    #[must_use]
+    pub fn next_subcommand_display_order(mut self, disp_ord: impl IntoResettable<usize>) -> Self {
+        self.current_subocommand_disp_ord = disp_ord.into_resettable().into_option();
+        self
+    }*/
+
     /// Change the starting value for assigning future display orders for args.
     ///
     /// This will be used for any arg that hasn't had [`Arg::display_order`] called.
@@ -3635,6 +3665,14 @@ impl Command {
     #[inline]
     pub fn get_next_help_heading(&self) -> Option<&str> {
         self.current_help_heading.as_deref()
+    }
+
+    /// Get the custom section heading specified via [`Command::next_subcommand_help_heading`].
+    ///
+    /// [`Command::subcommand_help_heading`]: Command::subcommand_help_heading()
+    #[inline]
+    pub fn get_next_subcommand_help_heading(&self) -> Option<&str> {
+        self.current_subcommand_help_heading.as_deref()
     }
 
     /// Iterate through the *visible* aliases for this subcommand.
@@ -5033,9 +5071,12 @@ impl Default for Command {
             groups: Default::default(),
             command_groups: Default::default(),
             current_help_heading: Default::default(),
+            current_subcommand_help_heading: Default::default(),
             current_disp_ord: Some(0),
+            //current_subcommand_disp_ord: Some(0),
             subcommand_value_name: Default::default(),
             subcommand_heading: Default::default(),
+            subcommand_help_heading: Default::default(),
             external_value_parser: Default::default(),
             long_help_exists: false,
             deferred: None,

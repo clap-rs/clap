@@ -28,7 +28,7 @@ fn cli() -> Command {
                         .require_equals(true)
                         .default_value("auto")
                         .default_missing_value("always"),
-                ),
+                ).subcommand_help_heading(Some("DIFF")),
         )
         .subcommand(
             Command::new("push")

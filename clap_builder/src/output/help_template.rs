@@ -955,20 +955,28 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
             }
             longest = longest.max(styled.display_width());
             let no_group = self.cmd.get_command_groups().filter(|cg| cg.commands.contains(subcommand.get_name_str())).next().is_none();
-            ord_v.push((subcommand.get_display_order(), styled, subcommand, no_group));
+            ord_v.push((subcommand.get_display_order(), styled, subcommand, no_group, subcommand.get_subcommand_help_heading()));
         }
-        ord_v.sort_by(|a, b| (a.0, &a.1).cmp(&(b.0, &b.1)));
+        ord_v.sort_by(|a, b| (a.4, a.0, &a.1).cmp(&(b.4, b.0, &b.1)));
 
         debug!("HelpTemplate::write_subcommands longest = {longest}");
         let mut first = true;
+        let mut current_help_heading = &ord_v[0].4;
 
         //first show commands that do not belong to any group
         //if groups are not used, that means all visible commands
         let next_line_help = self.will_subcommands_wrap(cmd.get_subcommands(), longest);
-        for (i, (_, sc_str, sc, no_group)) in ord_v.iter().enumerate() {
+        for (i, (_, sc_str, sc, no_group, help_heading)) in ord_v.iter().enumerate() {
             if *no_group {
                 if 0 < i && !first {
                     self.writer.push_str("\n");
+                }
+                if current_help_heading != help_heading {
+                    if let Some(_help_heading) = help_heading {
+                        let header = &self.styles.get_header();
+                        let _ = write!(self.writer, "\n{header}{_help_heading}:{header:#}\n",);
+                    }
+
                 }
                 self.write_subcommand(sc_str.clone(), sc, next_line_help, longest);
                 first = false;
@@ -998,9 +1006,9 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 self.will_subcommands_wrap(it, longest)
                 };
                 for (j, cmd_name) in cmd_group.commands.iter().enumerate() {
-                    match ord_v.iter_mut().filter(|(_, _, sc, _)| sc.get_name() == cmd_name).next() {
+                    match ord_v.iter_mut().filter(|(_, _, sc, _, _)| sc.get_name() == cmd_name).next() {
                         None => {},
-                        Some((_, sc_str, sc, _)) => {
+                        Some((_, sc_str, sc, _, _)) => {
                             if 0 < j {
                                 self.writer.push_str("\n");
                             }
