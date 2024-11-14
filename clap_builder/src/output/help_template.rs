@@ -766,6 +766,13 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                 a.default_vals
             );
 
+            // We might need up to 4 bytes to encode an utf-8 character
+            let mut buffer = [0u8; 4];
+            let delimiter = a
+                .get_value_delimiter()
+                .unwrap_or(' ')
+                .encode_utf8(&mut buffer);
+
             let pvs = a
                 .default_vals
                 .iter()
@@ -778,9 +785,19 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                     }
                 })
                 .collect::<Vec<_>>()
-                .join(" ");
+                .join(delimiter);
 
             spec_vals.push(format!("[default: {pvs}]"));
+        }
+
+        if let Some(delimiter) = a.get_value_delimiter() {
+            debug!("HelpTemplate::spec_vals: Found delimiter...{delimiter:?}");
+            spec_vals.push(format!("[value delimiter: {delimiter:?}]"));
+        }
+
+        if let Some(terminator) = a.get_value_terminator() {
+            debug!("HelpTemplate::spec_vals: Found terminator...{terminator:?}");
+            spec_vals.push(format!("[value terminator: {terminator:?}]"));
         }
 
         let als = a

@@ -4647,6 +4647,7 @@ impl Arg {
             val_names = vec![val_name; min];
         }
 
+        let delimiter = self.get_value_delimiter().unwrap_or(' ');
         debug_assert!(self.is_takes_value_set());
         for (n, val_name) in val_names.iter().enumerate() {
             let arg_name = if self.is_positional() && (num_vals.min_values() == 0 || !required) {
@@ -4656,7 +4657,7 @@ impl Arg {
             };
 
             if n != 0 {
-                rendered.push(' ');
+                rendered.push(delimiter);
             }
             rendered.push_str(&arg_name);
         }
@@ -4668,6 +4669,11 @@ impl Arg {
         }
         if extra_values {
             rendered.push_str("...");
+        }
+
+        if let Some(terminator) = self.get_value_terminator() {
+            rendered.push(' ');
+            rendered.push_str(terminator);
         }
 
         rendered
