@@ -1828,7 +1828,7 @@ impl Default for FalseyValueParser {
     }
 }
 
-/// Parse bool-like string values, everything else is `true`
+/// Parse bool-like string values, everything else is an error
 ///
 /// See also:
 /// - [`ValueParser::bool`] for different human readable bool representations
