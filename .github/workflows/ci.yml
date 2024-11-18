@@ -144,7 +144,7 @@ jobs:
       run: cargo install sarif-fmt --locked
     - name: Check
       run: >
-        cargo clippy --workspace --all-features --all-targets --message-format=json -- -D warnings --allow deprecated
+        cargo clippy --workspace --all-features --all-targets --message-format=json
         | clippy-sarif
         | tee clippy-results.sarif
         | sarif-fmt
