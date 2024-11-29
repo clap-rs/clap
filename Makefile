@@ -10,7 +10,7 @@ ifneq (${TOOLCHAIN_TARGET},)
   ARGS+=--target ${TOOLCHAIN_TARGET}
 endif
 
-STABLE?=1.82
+STABLE?=1.83
 
 _FEATURES = minimal default wasm full debug release
 _FEATURES_minimal = --no-default-features --features "std"
