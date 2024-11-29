@@ -49,7 +49,7 @@ Specifically, we would encourage
 - File renames be isolated into their own commit
 - Add tests in a commit before their feature or fix, showing the current behavior.
   The diff for the feature/fix commit will then show how the behavior changed,
-  making it clearer to reviewrs and the community and showing people that the
+  making it clearer to reviewers and the community and showing people that the
   test is verifying the expected state.
   - e.g. [clap#5520](https://github.com/clap-rs/clap/pull/5520)
 
