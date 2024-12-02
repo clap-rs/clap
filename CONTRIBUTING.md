@@ -7,18 +7,18 @@ appreciate any level you're willing to do.
 
 Need some new functionality to help?  You can let us know by opening an
 [issue][new issue]. It's helpful to look through [all issues][all issues] in
-case its already being talked about.
+case it's already being talked about.
 
 ## Bug Reports
 
 Please let us know about what problems you run into, whether in behavior or
 ergonomics of API.  You can do this by opening an [issue][new issue]. It's
-helpful to look through [all issues][all issues] in case its already being
+helpful to look through [all issues][all issues] in case it's already being
 talked about.
 
 ## Pull Requests
 
-Looking for an idea? Check our [issues][issues]. If it's look more open ended,
+Looking for an idea? Check our [issues][issues]. If the issue looks open ended,
 it is probably best to post on the issue how you are thinking of resolving the
 issue so you can get feedback early in the process. We want you to be
 successful and it can be discouraging to find out a lot of re-work is needed.
