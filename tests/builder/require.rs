@@ -1478,3 +1478,12 @@ For more information, try '--help'.
 ";
     utils::assert_output(cmd, "test --require-first --second", EXPECTED, true);
 }
+
+#[test]
+/// This test demonstrates existing broken behavior, ideally it should panic
+fn requires_self() {
+    let result = Command::new("flag_required")
+        .arg(arg!(-f --flag "some flag").requires("flag"))
+        .try_get_matches_from(vec![""]);
+    assert!(result.is_ok());
+}
