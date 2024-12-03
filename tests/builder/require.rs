@@ -1480,10 +1480,9 @@ For more information, try '--help'.
 }
 
 #[test]
-/// This test demonstrates existing broken behavior, ideally it should panic
+#[should_panic = "Argument flag cannot require itself"]
 fn requires_self() {
-    let result = Command::new("flag_required")
+    let _result = Command::new("flag_required")
         .arg(arg!(-f --flag "some flag").requires("flag"))
         .try_get_matches_from(vec![""]);
-    assert!(result.is_ok());
 }
