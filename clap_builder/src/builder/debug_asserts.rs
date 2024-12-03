@@ -139,12 +139,12 @@ pub(crate) fn assert_app(cmd: &Command) {
         }
 
         // requires, r_if, r_unless
-        for req in &arg.requires {
+        for (_predicate, req_id) in &arg.requires {
             assert!(
-                cmd.id_exists(&req.1),
+                cmd.id_exists(req_id),
                 "Command {}: Argument or group '{}' specified in 'requires*' for '{}' does not exist",
                 cmd.get_name(),
-                req.1,
+                req_id,
                 arg.get_id(),
             );
         }
