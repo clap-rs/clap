@@ -1478,3 +1478,11 @@ For more information, try '--help'.
 ";
     utils::assert_output(cmd, "test --require-first --second", EXPECTED, true);
 }
+
+#[test]
+#[should_panic = "Argument flag cannot require itself"]
+fn requires_self() {
+    let _result = Command::new("flag_required")
+        .arg(arg!(-f --flag "some flag").requires("flag"))
+        .try_get_matches_from(vec![""]);
+}
