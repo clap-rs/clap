@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(parser)* When check `allow_negative_numbers`, allow `E` again
+
 ## [4.5.22] - 2024-12-03
 
 ### Fixes
