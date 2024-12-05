@@ -120,7 +120,7 @@ fn to_short() {
 
 #[test]
 fn is_negative_number() {
-    for number in ["-10.0", "-1", "-100", "-3.5", "-1e10", "-1.3e10"] {
+    for number in ["-10.0", "-1", "-100", "-3.5", "-1e10", "-1.3e10", "-1E10"] {
         let raw = clap_lex::RawArgs::new(["bin", number]);
         let mut cursor = raw.cursor();
         assert_eq!(raw.next_os(&mut cursor), Some(OsStr::new("bin")));
@@ -142,7 +142,9 @@ fn is_positive_number() {
 
 #[test]
 fn is_not_number() {
-    for number in ["--10.0", "-..", "-2..", "-e", "-1e", "-1e10.2", "-.2"] {
+    for number in [
+        "--10.0", "-..", "-2..", "-e", "-1e", "-1e10.2", "-.2", "-E", "-1E", "-1E10.2",
+    ] {
         let raw = clap_lex::RawArgs::new(["bin", number]);
         let mut cursor = raw.cursor();
         assert_eq!(raw.next_os(&mut cursor), Some(OsStr::new("bin")));
