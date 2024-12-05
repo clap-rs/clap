@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Support `E` in numbers, not just `e`
+
 ## [0.7.3] - 2024-11-13
 
 ## [0.7.2] - 2024-07-25
