@@ -28,7 +28,11 @@ use clap::{builder::PossibleValue, Arg, ArgAction, Command};
 use clap_complete::Generator;
 
 /// Generate Nushell complete file
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Nushell;
+
+#[cfg(feature = "unstable-dynamic")]
+pub mod dynamic;
 
 impl Generator for Nushell {
     fn file_name(&self, name: &str) -> String {
