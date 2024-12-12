@@ -561,7 +561,7 @@ impl Item {
                             only on field level\n\n= note: {note}\n\n",
 
                             note = "see \
-                                https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#magic-attributes")
+                                https://docs.rs/clap/latest/clap/_derive/index.html#arg-attributes")
                     };
 
                     let val = if let Some(expr) = &attr.value {
@@ -611,7 +611,7 @@ impl Item {
                             only on field level\n\n= note: {note}\n\n",
 
                             note = "see \
-                                https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#magic-attributes")
+                                https://docs.rs/clap/latest/clap/_derive/index.html#arg-attributes")
                     };
                     let expr = attr.value_or_abort()?;
 
@@ -622,7 +622,7 @@ impl Item {
                             "#[arg(default_values_t)] can be used only on Vec types\n\n= note: {note}\n\n",
 
                             note = "see \
-                                https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#magic-attributes")
+                                https://docs.rs/clap/latest/clap/_derive/index.html#arg-attributes")
                     }
                     let inner_type = inner_type(ty);
 
@@ -689,7 +689,7 @@ impl Item {
                             only on field level\n\n= note: {note}\n\n",
 
                             note = "see \
-                                https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#magic-attributes")
+                                https://docs.rs/clap/latest/clap/_derive/index.html#arg-attributes")
                     };
 
                     let val = if let Some(expr) = &attr.value {
@@ -739,7 +739,7 @@ impl Item {
                             only on field level\n\n= note: {note}\n\n",
 
                             note = "see \
-                                https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#magic-attributes")
+                                https://docs.rs/clap/latest/clap/_derive/index.html#arg-attributes")
                     };
                     let expr = attr.value_or_abort()?;
 
@@ -750,7 +750,7 @@ impl Item {
                             "#[arg(default_values_os_t)] can be used only on Vec types\n\n= note: {note}\n\n",
 
                             note = "see \
-                                https://github.com/clap-rs/clap/blob/master/examples/derive_ref/README.md#magic-attributes")
+                                https://docs.rs/clap/latest/clap/_derive/index.html#arg-attributes")
                     }
                     let inner_type = inner_type(ty);
 
