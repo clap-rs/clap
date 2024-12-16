@@ -132,6 +132,7 @@ fn subcommand_details(cmd: &Command) -> String {
         .collect::<Vec<_>>();
 
     scs.sort();
+    scs.dedup();
 
     subcmd_dets.extend(scs.iter().map(|sc| {
         format!(
