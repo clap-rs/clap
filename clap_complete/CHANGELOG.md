@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(bash)* For AOT completions, de-duplicate when subcommand aliases are used
+
 ## [4.5.38] - 2024-11-13
 
 ## [4.5.37] - 2024-11-04
