@@ -152,20 +152,6 @@ _my-app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my__app__some_cmd)
-            opts="-h -V --help --version sub_cmd help"
-            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
-                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-                return 0
-            fi
-            case "${prev}" in
-                *)
-                    COMPREPLY=()
-                    ;;
-            esac
-            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-            return 0
-            ;;
         my__app__some_cmd__help)
             opts="sub_cmd help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
