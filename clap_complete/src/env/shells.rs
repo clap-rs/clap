@@ -274,13 +274,25 @@ impl EnvCompleter for Powershell {
         let completer =
             shlex::try_quote(completer).unwrap_or(std::borrow::Cow::Borrowed(completer));
 
+        // `completer` may or may not be surrounded by double quotes, enclosing
+        // the expression in a here-string ensures the whole thing is
+        // interpreted as the first argument to the call operator
         writeln!(
             buf,
             r#"
 Register-ArgumentCompleter -Native -CommandName {bin} -ScriptBlock {{
     param($wordToComplete, $commandAst, $cursorPosition)
 
-    $results = Invoke-Expression "{var}=powershell &{completer} -- $($commandAst.ToString())";
+    $prev = $env:{var};
+    $env:{var} = "powershell";
+    $results = Invoke-Expression @"
+& {completer} -- $commandAst
+"@;
+    if ($null -eq $prev) {{
+        Remove-Item Env:\{var};
+    }} else {{
+        $env:{var} = $prev;
+    }}
     $results | ForEach-Object {{
         $split = $_.Split("`t");
         $cmd = $split[0];
