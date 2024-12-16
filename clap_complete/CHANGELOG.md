@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.39] - 2024-12-16
+
 ### Fixes
 
 - *(bash)* For AOT completions, de-duplicate when subcommand aliases are used
@@ -490,7 +492,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.38...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.39...HEAD
+[4.5.39]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.38...clap_complete-v4.5.39
 [4.5.38]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.37...clap_complete-v4.5.38
 [4.5.37]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.36...clap_complete-v4.5.37
 [4.5.36]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.35...clap_complete-v4.5.36
