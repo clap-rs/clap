@@ -52,7 +52,9 @@
 //!
 //! Powershell
 //! ```powershell
-//! echo "COMPLETE=powershell your_program | Invoke-Expression" >> $PROFILE
+//! $env:COMPLETE = "powershell"
+//! echo "your_program | Out-String | Invoke-Expression" >> $PROFILE
+//! Remove-Item Env:\COMPLETE
 //! ```
 //!
 //! Zsh
