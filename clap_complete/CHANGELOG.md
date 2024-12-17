@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(powershell)* Fix syntax in dynamic registration script
+
 ## [4.5.39] - 2024-12-16
 
 ### Fixes
