@@ -159,6 +159,10 @@ impl Man {
             self._render_options_section(&mut roff);
         }
 
+        if app_has_global_arguments(&self.cmd) {
+            self._render_global_options_section(&mut roff);
+        }
+
         if app_has_subcommands(&self.cmd) {
             self._render_subcommands_section(&mut roff);
         }
@@ -245,7 +249,18 @@ impl Man {
 
     fn _render_options_section(&self, roff: &mut Roff) {
         roff.control("SH", ["OPTIONS"]);
-        render::options(roff, &self.cmd);
+
+        let is_not_global = |arg: &clap::Arg| !arg.is_global_set();
+        render::options(roff, &self.cmd, is_not_global);
+        render::options_postional(roff, &self.cmd, is_not_global);
+    }
+
+    fn _render_global_options_section(&self, roff: &mut Roff) {
+        roff.control("SH", ["GLOBAL OPTIONS"]);
+
+        let is_global = |arg: &clap::Arg| arg.is_global_set();
+        render::options(roff, &self.cmd, is_global);
+        render::options_postional(roff, &self.cmd, is_global);
     }
 
     /// Render the SUBCOMMANDS section into the writer.
@@ -307,9 +322,16 @@ fn app_has_version(cmd: &clap::Command) -> bool {
         .is_some()
 }
 
-// Does the application have any command line arguments?
+// Does the application have any non-global command line arguments?
 fn app_has_arguments(cmd: &clap::Command) -> bool {
-    cmd.get_arguments().any(|i| !i.is_hide_set())
+    cmd.get_arguments()
+        .any(|i| !i.is_hide_set() && !i.is_global_set())
+}
+
+// Does the application have any global command line arguments?
+fn app_has_global_arguments(cmd: &clap::Command) -> bool {
+    cmd.get_arguments()
+        .any(|i| !i.is_hide_set() && i.is_global_set())
 }
 
 // Does the application have any subcommands?
