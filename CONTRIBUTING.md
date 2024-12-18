@@ -41,15 +41,18 @@ As a heads up, we'll be running your PR through the following gauntlet:
 Not everything can be checked automatically though.
 
 We request that the commit history gets cleaned up.
+
 We ask that commits are atomic, meaning they are complete and have a single responsibility.
-PRs should tell a cohesive story, with test and refactor commits that keep the
+A complete commit should build, pass tests, update documentation and tests, and not have dead code.
+
+PRs should tell a cohesive story, with refactor and test commits that keep the
 fix or feature commits simple and clear.
 
 Specifically, we would encourage
 - File renames be isolated into their own commit
-- Add tests in a commit before their feature or fix, showing the current behavior.
+- Add tests in a commit before their feature or fix, showing the current behavior (i.e. they should pass).
   The diff for the feature/fix commit will then show how the behavior changed,
-  making it clearer to reviewers and the community and showing people that the
+  making the commit's intent clearer to reviewers and the community, and showing people that the
   test is verifying the expected state.
   - e.g. [clap#5520](https://github.com/clap-rs/clap/pull/5520)
 
