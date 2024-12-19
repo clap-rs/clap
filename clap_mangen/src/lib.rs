@@ -258,7 +258,11 @@ impl Man {
     fn _render_subcommands_section(&self, roff: &mut Roff) {
         let heading = subcommand_heading(&self.cmd);
         roff.control("SH", [heading]);
-        render::subcommands(roff, &self.cmd, &self.section);
+        if self.cmd.is_flatten_help_set() {
+            render::flat_subcommands(roff, &self.cmd);
+        } else {
+            render::subcommands(roff, &self.cmd, &self.section);
+        }
     }
 
     /// Render the EXTRA section into the writer.
