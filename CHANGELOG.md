@@ -1639,7 +1639,7 @@ Note: All items deprecated in 3.0.0 are now hidden in the documentation. (#3458)
 
 ### Features
 
-- For very limited cases, like `cargo`, expose `ArgMatches::is_valid_arg` to avoid panicing on undefined arguments
+- For very limited cases, like `cargo`, expose `ArgMatches::is_valid_arg` to avoid panicking on undefined arguments
 
 ## [3.0.3] - 2022-01-04
 
