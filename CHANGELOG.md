@@ -489,7 +489,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Compatibility
 
 - Removed the languishing `unstable-replace` feature (open to discussion at [#2836](https://github.com/clap-rs/clap/issues/2836))
-- Removed the stablized `unstable-grouped` feature
+- Removed the stabilized `unstable-grouped` feature
 
 ### Features
 
