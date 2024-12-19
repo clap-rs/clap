@@ -1878,7 +1878,7 @@ On top of the clap 2 changes
 - Provide extra context in long help messages (`--help`) with `before_long_help` and `after_long_help` ([clap-rs/clap#1903](https://github.com/clap-rs/clap/issues/1903))
 - Detect missing help descriptions via debug asserts by enabling `AppSettings::HelpExpected`
 - Aliases for short flags ([clap-rs/clap#1896](https://github.com/clap-rs/clap/issues/1896))
-- Validate UTF-8 values, rather than panicing during `ArgMatches::value_of` thanks to `AppSettings::AllowInvalidUtf8ForExternalSubcommands` and `ArgSettings::AllowInvalidUtf8`
+- Validate UTF-8 values, rather than panicking during `ArgMatches::value_of` thanks to `AppSettings::AllowInvalidUtf8ForExternalSubcommands` and `ArgSettings::AllowInvalidUtf8`
   - Debug builds will assert when the `ArgMatches` calls do not match the UTF-8 setting.
   - See [clap-rs/clap#751](https://github.com/clap-rs/clap/issues/751)
 - `clap::PossibleValue` to allow
