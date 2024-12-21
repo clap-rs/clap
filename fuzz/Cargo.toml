@@ -1,0 +1,23 @@
+[package]
+name = "fuzz"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4.8"
+fuzzed-data-provider-rs = "0.1.1"
+clap_lex = { path = "../clap_lex/", version = "0.7.4" }
+
+# Prevent this from interfering with workspaces
+[workspace]
+
+[[bin]]
+name = "next_value_os_fuzzer"
+path = "fuzz_targets/next_value_os_fuzzer.rs"
+test = false
+doc = false
+
