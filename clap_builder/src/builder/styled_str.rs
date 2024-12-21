@@ -1,5 +1,7 @@
 #![cfg_attr(not(feature = "usage"), allow(dead_code))]
 
+use crate::{text_provider::TextProvider, util::interpolate};
+
 /// Terminal-styling container
 ///
 /// Styling may be encoded as [ANSI Escape Code](https://en.wikipedia.org/wiki/ANSI_escape_code)
@@ -27,6 +29,11 @@ impl StyledStr {
     /// Create an empty buffer
     pub const fn new() -> Self {
         Self(String::new())
+    }
+
+    /// Interpolate values into the text
+    pub fn render_text(&mut self, texts: &impl TextProvider) {
+        self.0 = interpolate(&self.0, texts);
     }
 
     /// Display using [ANSI Escape Code](https://en.wikipedia.org/wiki/ANSI_escape_code) styling

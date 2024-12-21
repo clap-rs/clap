@@ -40,6 +40,7 @@ mod derive;
 pub mod builder;
 pub mod error;
 pub mod parser;
+pub mod text_provider;
 
 mod mkeymap;
 mod output;

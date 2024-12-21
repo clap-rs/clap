@@ -13,7 +13,7 @@ use crate::util::ChildGraph;
 use crate::util::FlatSet;
 use crate::util::Id;
 
-static DEFAULT_SUB_VALUE_NAME: &str = "COMMAND";
+static DEFAULT_SUB_VALUE_NAME: &str = "{clap.default-sub-value-name}";
 const USAGE_SEP: &str = "\n       ";
 
 pub(crate) struct Usage<'cmd> {
@@ -161,7 +161,7 @@ impl Usage<'_> {
         }
 
         if used.is_empty() && self.needs_options_tag() {
-            let _ = write!(styled, "{placeholder}[OPTIONS]{placeholder:#} ",);
+            let _ = write!(styled, "{placeholder}[{{clap.usage.options}}]{placeholder:#} ",);
         }
 
         self.write_args(styled, used, !incl_reqs);

@@ -26,6 +26,7 @@ use crate::mkeymap::MKeyMap;
 use crate::output::fmt::Stream;
 use crate::output::{fmt::Colorizer, write_help, Usage};
 use crate::parser::{ArgMatcher, ArgMatches, Parser};
+use crate::text_provider::DEFAULT_TEXT_PROVIDER;
 use crate::util::ChildGraph;
 use crate::util::{color::ColorChoice, Id};
 use crate::{Error, INTERNAL_ERROR_MSG};
@@ -878,6 +879,8 @@ impl Command {
         let usage = Usage::new(self);
         write_help(&mut styled, self, &usage, false);
 
+        styled.render_text(&*DEFAULT_TEXT_PROVIDER);
+
         let c = Colorizer::new(Stream::Stdout, color).with_content(styled);
         c.print()
     }
@@ -905,7 +908,7 @@ impl Command {
         let mut styled = StyledStr::new();
         let usage = Usage::new(self);
         write_help(&mut styled, self, &usage, true);
-
+        styled.render_text(&*DEFAULT_TEXT_PROVIDER);
         let c = Colorizer::new(Stream::Stdout, color).with_content(styled);
         c.print()
     }
@@ -4729,7 +4732,7 @@ impl Command {
                     .help("Print help (see more with '--help')")
                     .long_help("Print help (see a summary with '-h')");
             } else {
-                arg = arg.help("Print help");
+                arg = arg.help("{clap.help.short-help}");
             }
             // Avoiding `arg_internal` to not be sensitive to `next_help_heading` /
             // `next_display_order`
@@ -4741,7 +4744,7 @@ impl Command {
                 .short('V')
                 .long("version")
                 .action(ArgAction::Version)
-                .help("Print version");
+                .help("{clap.version.short-help}");
             // Avoiding `arg_internal` to not be sensitive to `next_help_heading` /
             // `next_display_order`
             self.args.push(arg);
@@ -4749,7 +4752,7 @@ impl Command {
 
         if !self.is_set(AppSettings::DisableHelpSubcommand) {
             debug!("Command::_check_help_and_version: Building help subcommand");
-            let help_about = "Print this message or the help of the given subcommand(s)";
+            let help_about = "{clap.help.about}";
 
             let mut help_subcmd = if expand_help_tree {
                 // Slow code path to recursively clone all other subcommand subtrees under help
@@ -4771,7 +4774,7 @@ impl Command {
                     Arg::new("subcommand")
                         .action(ArgAction::Append)
                         .num_args(..)
-                        .value_name("COMMAND")
+                        .value_name("{clap.help.command.value-name}")
                         .help("Print help for the subcommand(s)"),
                 )
             };

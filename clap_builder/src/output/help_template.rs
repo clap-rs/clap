@@ -198,7 +198,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                     "usage-heading" => {
                         let _ = write!(
                             self.writer,
-                            "{}Usage:{}",
+                            "{}{{clap.usage.header-text}}:{}",
                             self.styles.get_usage().render(),
                             self.styles.get_usage().render_reset()
                         );
@@ -401,7 +401,7 @@ impl HelpTemplate<'_, '_> {
                 self.writer.push_str("\n\n");
             }
             first = false;
-            let default_help_heading = Str::from("Commands");
+            let default_help_heading = Str::from("{clap.commands-list-header}");
             let help_heading = self
                 .cmd
                 .get_subcommand_help_heading()
@@ -417,7 +417,7 @@ impl HelpTemplate<'_, '_> {
             }
             first = false;
             // Write positional args if any
-            let help_heading = "Arguments";
+            let help_heading = "{clap.arguments-list-header}";
             let _ = write!(self.writer, "{header}{help_heading}:{header:#}\n",);
             self.write_args(&pos, "Arguments", positional_sort_key);
         }
@@ -427,7 +427,7 @@ impl HelpTemplate<'_, '_> {
                 self.writer.push_str("\n\n");
             }
             first = false;
-            let help_heading = "Options";
+            let help_heading = "{clap.options-list-header}";
             let _ = write!(self.writer, "{header}{help_heading}:{header:#}\n",);
             self.write_args(&non_pos, "Options", option_sort_key);
         }

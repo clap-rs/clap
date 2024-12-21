@@ -6,6 +6,7 @@ pub(crate) mod flat_set;
 mod graph;
 mod id;
 mod str_to_bool;
+mod template;
 
 pub use self::id::Id;
 
@@ -18,6 +19,7 @@ pub(crate) use self::graph::ChildGraph;
 pub(crate) use self::str_to_bool::str_to_bool;
 pub(crate) use self::str_to_bool::FALSE_LITERALS;
 pub(crate) use self::str_to_bool::TRUE_LITERALS;
+pub(crate) use self::template::interpolate;
 
 pub(crate) mod color;
 

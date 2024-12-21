@@ -17,7 +17,7 @@ use std::{
 };
 
 // Internal
-use crate::builder::StyledStr;
+use crate::{builder::StyledStr, text_provider::{TextProvider, DEFAULT_TEXT_PROVIDER}};
 use crate::builder::Styles;
 use crate::output::fmt::Colorizer;
 use crate::output::fmt::Stream;
@@ -232,7 +232,7 @@ impl<F: ErrorFormatter> Error<F> {
     /// or prints to `stdout` and exits with a status of `0`.
     pub fn exit(&self) -> ! {
         // Swallow broken pipe errors
-        let _ = self.print();
+        let _ = self.print(&*DEFAULT_TEXT_PROVIDER);
         std::process::exit(self.exit_code());
     }
 
@@ -253,8 +253,10 @@ impl<F: ErrorFormatter> Error<F> {
     ///     },
     /// };
     /// ```
-    pub fn print(&self) -> io::Result<()> {
-        let style = self.formatted();
+    pub fn print(&self, texts: &impl TextProvider) -> io::Result<()> {
+        let mut style = self.formatted().into_owned();
+        style.render_text(texts);
+
         let color_when = if matches!(
             self.kind(),
             ErrorKind::DisplayHelp | ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand,
@@ -263,7 +265,8 @@ impl<F: ErrorFormatter> Error<F> {
         } else {
             self.inner.color_when
         };
-        let c = Colorizer::new(self.stream(), color_when).with_content(style.into_owned());
+        
+        let c = Colorizer::new(self.stream(), color_when).with_content(style);
         c.print()
     }
 
