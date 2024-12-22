@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 use std::process::exit;
 
-use clap::{value_parser, Arg, ArgAction, Command};
+use clap::{text_provider::DEFAULT_TEXT_PROVIDER, value_parser, Arg, ArgAction, Command};
 
 fn applet_commands() -> [Command; 2] {
     [
@@ -31,7 +31,7 @@ fn main() {
         )
         .subcommands(applet_commands());
 
-    let matches = cmd.get_matches();
+    let matches = cmd.get_matches(&*DEFAULT_TEXT_PROVIDER);
     let mut subcommand = matches.subcommand();
     if let Some(("busybox", cmd)) = subcommand {
         if cmd.contains_id("install") {

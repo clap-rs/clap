@@ -1,4 +1,4 @@
-use clap::Command;
+use clap::{text_provider::DEFAULT_TEXT_PROVIDER, Command};
 
 fn main() {
     let cmd = Command::new(env!("CARGO_CRATE_NAME"))
@@ -9,7 +9,7 @@ fn main() {
         .subcommand(Command::new("hostname").about("show hostname part of FQDN"))
         .subcommand(Command::new("dnsdomainname").about("show domain name part of FQDN"));
 
-    match cmd.get_matches().subcommand_name() {
+    match cmd.get_matches(&*DEFAULT_TEXT_PROVIDER).subcommand_name() {
         Some("hostname") => println!("www"),
         Some("dnsdomainname") => println!("example.com"),
         _ => unreachable!("parser should ensure only valid subcommand names are used"),

@@ -137,6 +137,9 @@ fn arg_required_else_help_with_default() {
     );
 }
 
+// TODO: this test fails because the error isn't actually printed, so the texts are not interpolated
+// Need to consider how to handle this case -- unless users are explicitly using the i18n feature,
+// they should not have to worry about this
 #[test]
 fn arg_required_else_help_error_message() {
     static ARG_REQUIRED_ELSE_HELP: &str = "\
@@ -158,6 +161,7 @@ Options:
                 .long("info")
                 .action(ArgAction::SetTrue),
         );
+
     utils::assert_output(
         cmd,
         "test",

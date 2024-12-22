@@ -1,6 +1,6 @@
 #![allow(elided_lifetimes_in_paths)] // needed for divan
 
-use clap::{arg, ArgMatches, Command};
+use clap::{arg, text_provider::DEFAULT_TEXT_PROVIDER, ArgMatches, Command};
 
 macro_rules! create_app {
     () => {{
@@ -48,7 +48,7 @@ fn build() -> Command {
 
 #[divan::bench(args=COMPLEX_ARGS)]
 fn startup(args: &Args) -> ArgMatches {
-    create_app!().get_matches_from(args.args())
+    create_app!().get_matches_from(args.args(), &*DEFAULT_TEXT_PROVIDER)
 }
 
 #[divan::bench]

@@ -22,7 +22,8 @@ pub(crate) fn assert_output(
 ) {
     let mut buf = Cursor::new(Vec::with_capacity(50));
     let res = l.try_get_matches_from(args.split(' ').collect::<Vec<_>>());
-    let err = res.unwrap_err();
+    let err: clap::error::Error = res.unwrap_err();
+    
     write!(&mut buf, "{err}").unwrap();
     let actual = buf.into_inner();
     let actual = String::from_utf8(actual).unwrap();

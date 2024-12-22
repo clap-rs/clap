@@ -12,16 +12,18 @@ fn build() -> Command {
 }
 
 mod startup {
+    use clap::text_provider::DEFAULT_TEXT_PROVIDER;
+
     use super::{build_cli, ArgMatches};
 
     #[divan::bench]
     fn empty() -> ArgMatches {
-        build_cli().get_matches_from([""])
+        build_cli().get_matches_from([""], &*DEFAULT_TEXT_PROVIDER)
     }
 
     #[divan::bench]
     fn sc() -> ArgMatches {
-        build_cli().get_matches_from(["rustup override add stable"])
+        build_cli().get_matches_from(["rustup override add stable"], &*DEFAULT_TEXT_PROVIDER)
     }
 }
 

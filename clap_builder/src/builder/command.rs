@@ -26,6 +26,7 @@ use crate::mkeymap::MKeyMap;
 use crate::output::fmt::Stream;
 use crate::output::{fmt::Colorizer, write_help, Usage};
 use crate::parser::{ArgMatcher, ArgMatches, Parser};
+use crate::text_provider::TextProvider;
 use crate::text_provider::DEFAULT_TEXT_PROVIDER;
 use crate::util::ChildGraph;
 use crate::util::{color::ColorChoice, Id};
@@ -610,8 +611,8 @@ impl Command {
     /// [`env::args_os`]: std::env::args_os()
     /// [`Command::try_get_matches_from_mut`]: Command::try_get_matches_from_mut()
     #[inline]
-    pub fn get_matches(self) -> ArgMatches {
-        self.get_matches_from(env::args_os())
+    pub fn get_matches(self, texts: &impl TextProvider) -> ArgMatches {
+        self.get_matches_from(env::args_os(), texts)
     }
 
     /// Parse [`env::args_os`], [exiting][Error::exit] on failure.
@@ -634,9 +635,9 @@ impl Command {
     /// ```
     /// [`env::args_os`]: std::env::args_os()
     /// [`Command::get_matches`]: Command::get_matches()
-    pub fn get_matches_mut(&mut self) -> ArgMatches {
+    pub fn get_matches_mut(&mut self, texts: &impl TextProvider) -> ArgMatches {
         self.try_get_matches_from_mut(env::args_os())
-            .unwrap_or_else(|e| e.exit())
+            .unwrap_or_else(|e| e.exit(texts))
     }
 
     /// Parse [`env::args_os`], returning a [`clap::Result`] on failure.
@@ -705,14 +706,14 @@ impl Command {
     /// [`Command::get_matches`]: Command::get_matches()
     /// [`clap::Result`]: Result
     /// [`Vec`]: std::vec::Vec
-    pub fn get_matches_from<I, T>(mut self, itr: I) -> ArgMatches
+    pub fn get_matches_from<I, T>(mut self, itr: I, texts: &impl TextProvider) -> ArgMatches
     where
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
     {
         self.try_get_matches_from_mut(itr).unwrap_or_else(|e| {
             drop(self);
-            e.exit()
+            e.exit(texts)
         })
     }
 
@@ -815,7 +816,6 @@ impl Command {
     {
         let mut raw_args = clap_lex::RawArgs::new(itr);
         let mut cursor = raw_args.cursor();
-
         if self.settings.is_set(AppSettings::Multicall) {
             if let Some(argv0) = raw_args.next_os(&mut cursor) {
                 let argv0 = Path::new(&argv0);
@@ -4281,7 +4281,9 @@ impl Command {
 
         // do the real parsing
         let mut parser = Parser::new(self);
+       
         if let Err(error) = parser.get_matches_with(&mut matcher, raw_args, args_cursor) {
+            
             if self.is_set(AppSettings::IgnoreErrors) && error.use_stderr() {
                 debug!("Command::_do_parse: ignoring error: {error}");
             } else {

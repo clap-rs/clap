@@ -1,4 +1,4 @@
-use clap::builder::PossibleValue;
+use clap::{builder::PossibleValue, text_provider::DEFAULT_TEXT_PROVIDER};
 use clap_complete::{generate, Generator, Shell};
 
 fn main() {
@@ -8,7 +8,7 @@ fn main() {
         .completer("exhaustive")
         .complete();
 
-    let matches = cli().get_matches();
+    let matches = cli().get_matches(&*DEFAULT_TEXT_PROVIDER);
     if let Some(generator) = matches.get_one::<Shell>("generate") {
         let mut cmd = cli();
         eprintln!("Generating completion file for {generator}...");

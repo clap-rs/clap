@@ -41,11 +41,13 @@ mod render_help {
 }
 
 mod startup {
+    use clap::text_provider::DEFAULT_TEXT_PROVIDER;
+
     use super::{app_short, ArgMatches};
 
     #[divan::bench]
     fn simple() -> ArgMatches {
-        app_short().get_matches_from(vec!["rg", "pat"])
+        app_short().get_matches_from(vec!["rg", "pat"], &*DEFAULT_TEXT_PROVIDER)
     }
 
     #[divan::bench]
@@ -62,7 +64,7 @@ mod startup {
             "-C5",
             "--follow",
             "-e some",
-        ])
+        ], &*DEFAULT_TEXT_PROVIDER)
     }
 
     #[divan::bench]
@@ -228,7 +230,7 @@ mod startup {
             "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
             "some", "some", "some", "some", "some", "some", "some", "some", "some", "some", "some",
             "some", "some", "some", "some", "some", "some", "some",
-        ])
+        ], &*DEFAULT_TEXT_PROVIDER)
     }
 }
 

@@ -1,4 +1,4 @@
-use clap::{Arg, ArgAction, Command};
+use clap::{text_provider::DEFAULT_TEXT_PROVIDER, Arg, ArgAction, Command};
 
 fn main() {
     let matches = Command::new("pacman")
@@ -66,7 +66,7 @@ fn main() {
                         .num_args(1..),
                 ),
         )
-        .get_matches();
+        .get_matches(&*DEFAULT_TEXT_PROVIDER);
 
     match matches.subcommand() {
         Some(("sync", sync_matches)) => {

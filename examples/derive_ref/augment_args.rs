@@ -1,4 +1,4 @@
-use clap::{arg, Args, Command, FromArgMatches as _};
+use clap::{arg, text_provider::DEFAULT_TEXT_PROVIDER, Args, Command, FromArgMatches as _};
 
 #[derive(Args, Debug)]
 struct DerivedArgs {
@@ -11,7 +11,7 @@ fn main() {
     // Augment built args with derived args
     let cli = DerivedArgs::augment_args(cli);
 
-    let matches = cli.get_matches();
+    let matches = cli.get_matches(&*DEFAULT_TEXT_PROVIDER);
     println!("Value of built: {:?}", matches.get_flag("built"));
     println!(
         "Value of derived via ArgMatches: {:?}",
@@ -21,7 +21,7 @@ fn main() {
     // Since DerivedArgs implements FromArgMatches, we can extract it from the unstructured ArgMatches.
     // This is the main benefit of using derived arguments.
     let derived_matches = DerivedArgs::from_arg_matches(&matches)
-        .map_err(|err| err.exit())
+        .map_err(|err| err.exit(&*DEFAULT_TEXT_PROVIDER))
         .unwrap();
     println!("Value of derived: {derived_matches:#?}");
 }

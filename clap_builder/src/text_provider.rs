@@ -11,7 +11,7 @@ pub trait TextProvider {
     /// Provided a key referring to a text to render in the application, retrieve the text. For
     /// internationalized applications, the internal state of the implementing type should be
     /// aware of the current locale of the application.
-    fn get(&self, key: &str) -> &str;
+    fn get(&self, key: &str) -> impl AsRef<str>;
 }
 
 /// A simple [`TextProvider`] implementation which loads Clap's default English texts.
@@ -35,7 +35,7 @@ impl Default for DefaultTextProvider {
 }
 
 impl TextProvider for DefaultTextProvider {
-    fn get(&self, key: &str) -> &str {
+    fn get(&self, key: &str) -> impl AsRef<str> {
         self.0.get(key).expect(INTERNAL_ERROR_MSG)
     }
 }

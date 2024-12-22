@@ -12,7 +12,7 @@
 //! $ . ./completion.fish
 //! $ ./target/debug/examples/completion --<TAB>
 //! ```
-use clap::{value_parser, Arg, Command, ValueHint};
+use clap::{text_provider::DEFAULT_TEXT_PROVIDER, value_parser, Arg, Command, ValueHint};
 use clap_complete::{generate, Generator, Shell};
 use std::io;
 
@@ -99,7 +99,7 @@ fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
 }
 
 fn main() {
-    let matches = build_cli().get_matches();
+    let matches = build_cli().get_matches(&*DEFAULT_TEXT_PROVIDER);
 
     if let Some(generator) = matches.get_one::<Shell>("generator") {
         let mut cmd = build_cli();

@@ -1,4 +1,4 @@
-use clap::{arg, Command};
+use clap::{arg, text_provider::DEFAULT_TEXT_PROVIDER, Command};
 
 fn main() {
     let matches = Command::new("MyApp")
@@ -6,7 +6,7 @@ fn main() {
         .about("Does awesome things")
         .arg(arg!(--two <VALUE>).required(true))
         .arg(arg!(--one <VALUE>).required(true))
-        .get_matches();
+        .get_matches(&*DEFAULT_TEXT_PROVIDER);
 
     println!(
         "two: {:?}",

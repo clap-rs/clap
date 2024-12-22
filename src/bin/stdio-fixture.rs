@@ -1,3 +1,5 @@
+use clap::text_provider::DEFAULT_TEXT_PROVIDER;
+
 fn main() {
     #[allow(unused_mut)]
     let mut cmd = clap::Command::new("stdio-fixture")
@@ -22,5 +24,5 @@ fn main() {
             .placeholder(styling::AnsiColor::Cyan.on_default());
         cmd = cmd.styles(STYLES);
     }
-    cmd.get_matches();
+    cmd.get_matches(&*DEFAULT_TEXT_PROVIDER);
 }

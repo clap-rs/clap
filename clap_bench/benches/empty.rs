@@ -1,5 +1,6 @@
 #![allow(elided_lifetimes_in_paths)] // needed for divan
 
+use clap::text_provider::DEFAULT_TEXT_PROVIDER;
 use clap::ArgMatches;
 use clap::Command;
 
@@ -16,7 +17,7 @@ fn build() -> Command {
 
 #[divan::bench]
 fn startup() -> ArgMatches {
-    create_app!().get_matches_from(vec![""])
+    create_app!().get_matches_from(vec![""], &*DEFAULT_TEXT_PROVIDER)
 }
 
 #[divan::bench]

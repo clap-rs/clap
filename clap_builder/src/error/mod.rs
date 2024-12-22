@@ -17,7 +17,6 @@ use std::{
 };
 
 // Internal
-use crate::{builder::StyledStr, text_provider::{TextProvider, DEFAULT_TEXT_PROVIDER}};
 use crate::builder::Styles;
 use crate::output::fmt::Colorizer;
 use crate::output::fmt::Stream;
@@ -25,6 +24,7 @@ use crate::parser::features::suggestions;
 use crate::util::FlatMap;
 use crate::util::{color::ColorChoice, SUCCESS_CODE, USAGE_CODE};
 use crate::Command;
+use crate::{builder::StyledStr, text_provider::TextProvider};
 
 #[cfg(feature = "error-context")]
 mod context;
@@ -230,9 +230,9 @@ impl<F: ErrorFormatter> Error<F> {
     ///
     /// Depending on the error kind, this either prints to `stderr` and exits with a status of `2`
     /// or prints to `stdout` and exits with a status of `0`.
-    pub fn exit(&self) -> ! {
+    pub fn exit(&self, texts: &impl TextProvider) -> ! {
         // Swallow broken pipe errors
-        let _ = self.print(&*DEFAULT_TEXT_PROVIDER);
+        let _ = self.print(texts);
         std::process::exit(self.exit_code());
     }
 
@@ -265,7 +265,7 @@ impl<F: ErrorFormatter> Error<F> {
         } else {
             self.inner.color_when
         };
-        
+
         let c = Colorizer::new(self.stream(), color_when).with_content(style);
         c.print()
     }

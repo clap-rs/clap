@@ -10,7 +10,7 @@ pub(crate) fn interpolate(template: &str, texts: &impl TextProvider) -> String {
 
         if let ParseState::Complete(s, e) = parse_state {
             let key = &template[s..e];
-            with_texts.push_str(texts.get(key));
+            with_texts.push_str(texts.get(key).as_ref());
         }
 
         if let ParseState::NotStarted = parse_state {

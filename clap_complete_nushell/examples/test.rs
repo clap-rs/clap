@@ -1,8 +1,9 @@
+use clap::text_provider::DEFAULT_TEXT_PROVIDER;
 use clap_complete::generate;
 use clap_complete_nushell::Nushell;
 
 fn main() {
-    let matches = cli().get_matches();
+    let matches = cli().get_matches(&*DEFAULT_TEXT_PROVIDER);
     if matches.contains_id("generate") {
         let mut cmd = cli();
         generate(Nushell, &mut cmd, "test", &mut std::io::stdout());

@@ -1,4 +1,5 @@
 use clap::error::ErrorKind;
+use clap::text_provider::DEFAULT_TEXT_PROVIDER;
 use clap::{CommandFactory, Parser};
 
 #[derive(Parser)]
@@ -47,7 +48,7 @@ fn main() {
                 ErrorKind::ArgumentConflict,
                 "Can't do relative and absolute version change",
             )
-            .exit();
+            .exit(&*DEFAULT_TEXT_PROVIDER);
         }
         ver.to_string()
     } else {
@@ -63,7 +64,7 @@ fn main() {
                     ErrorKind::ArgumentConflict,
                     "Can only modify one version field",
                 )
-                .exit();
+                .exit(&*DEFAULT_TEXT_PROVIDER);
             }
         };
         format!("{major}.{minor}.{patch}")
@@ -84,7 +85,7 @@ fn main() {
                     ErrorKind::MissingRequiredArgument,
                     "INPUT_FILE or --spec-in is required when using --config",
                 )
-                .exit()
+                .exit(&*DEFAULT_TEXT_PROVIDER)
             });
         println!("Doing work using input {input} and config {config}");
     }

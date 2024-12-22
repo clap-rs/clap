@@ -2,6 +2,7 @@
 //! macros in `clap_derive`.
 
 use crate::builder::PossibleValue;
+use crate::text_provider::{TextProvider, DEFAULT_TEXT_PROVIDER};
 use crate::{ArgMatches, Command, Error};
 
 use std::ffi::OsString;
@@ -28,15 +29,22 @@ use std::ffi::OsString;
 pub trait Parser: FromArgMatches + CommandFactory + Sized {
     /// Parse from `std::env::args_os()`, [exit][Error::exit] on error.
     fn parse() -> Self {
-        let mut matches = <Self as CommandFactory>::command().get_matches();
+        Self::parse_with_texts(&*DEFAULT_TEXT_PROVIDER)
+    }
+
+    /// Parse from `std::env::args_os()`, [exit][Error::exit] on error, but replace the default Clap [`TextProvider`] with
+    /// a custom implementation.
+    fn parse_with_texts(texts: &impl TextProvider) -> Self {
+        let mut matches = <Self as CommandFactory>::command().get_matches(texts);
         let res = <Self as FromArgMatches>::from_arg_matches_mut(&mut matches)
             .map_err(format_error::<Self>);
+    
         match res {
             Ok(s) => s,
             Err(e) => {
                 // Since this is more of a development-time error, we aren't doing as fancy of a quit
                 // as `get_matches`
-                e.exit()
+                e.exit(texts)
             }
         }
     }
@@ -48,12 +56,12 @@ pub trait Parser: FromArgMatches + CommandFactory + Sized {
     }
 
     /// Parse from iterator, [exit][Error::exit] on error.
-    fn parse_from<I, T>(itr: I) -> Self
+    fn parse_from<I, T>(itr: I, texts: &impl TextProvider) -> Self
     where
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
     {
-        let mut matches = <Self as CommandFactory>::command().get_matches_from(itr);
+        let mut matches = <Self as CommandFactory>::command().get_matches_from(itr, texts);
         let res = <Self as FromArgMatches>::from_arg_matches_mut(&mut matches)
             .map_err(format_error::<Self>);
         match res {
@@ -61,7 +69,7 @@ pub trait Parser: FromArgMatches + CommandFactory + Sized {
             Err(e) => {
                 // Since this is more of a development-time error, we aren't doing as fancy of a quit
                 // as `get_matches_from`
-                e.exit()
+                e.exit(texts)
             }
         }
     }
@@ -81,18 +89,18 @@ pub trait Parser: FromArgMatches + CommandFactory + Sized {
     /// Unlike [`Parser::parse`], this works with an existing instance of `self`.
     /// The assumption is that all required fields are already provided and any [`Args`] or
     /// [`Subcommand`]s provided by the user will modify only what is specified.
-    fn update_from<I, T>(&mut self, itr: I)
+    fn update_from<I, T>(&mut self, itr: I, texts: &impl TextProvider)
     where
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
     {
-        let mut matches = <Self as CommandFactory>::command_for_update().get_matches_from(itr);
+        let mut matches = <Self as CommandFactory>::command_for_update().get_matches_from(itr, texts);
         let res = <Self as FromArgMatches>::update_from_arg_matches_mut(self, &mut matches)
             .map_err(format_error::<Self>);
         if let Err(e) = res {
             // Since this is more of a development-time error, we aren't doing as fancy of a quit
             // as `get_matches_from`
-            e.exit()
+            e.exit(texts)
         }
     }
 
@@ -321,12 +329,12 @@ impl<T: Parser> Parser for Box<T> {
         <T as Parser>::try_parse().map(Box::new)
     }
 
-    fn parse_from<I, It>(itr: I) -> Self
+    fn parse_from<I, It>(itr: I, texts: &impl TextProvider) -> Self
     where
         I: IntoIterator<Item = It>,
         It: Into<OsString> + Clone,
     {
-        Box::new(<T as Parser>::parse_from(itr))
+        Box::new(<T as Parser>::parse_from(itr, texts))
     }
 
     fn try_parse_from<I, It>(itr: I) -> Result<Self, Error>

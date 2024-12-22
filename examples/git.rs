@@ -1,7 +1,7 @@
 use std::ffi::OsString;
 use std::path::PathBuf;
 
-use clap::{arg, Command};
+use clap::{arg, text_provider::DEFAULT_TEXT_PROVIDER, Command};
 
 fn cli() -> Command {
     Command::new("git")
@@ -58,7 +58,7 @@ fn push_args() -> Vec<clap::Arg> {
 }
 
 fn main() {
-    let matches = cli().get_matches();
+    let matches = cli().get_matches(&*DEFAULT_TEXT_PROVIDER);
 
     match matches.subcommand() {
         Some(("clone", sub_matches)) => {

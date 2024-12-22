@@ -20,21 +20,23 @@ fn build() -> Command {
 }
 
 mod startup {
+    use clap::text_provider::DEFAULT_TEXT_PROVIDER;
+
     use super::{arg, ArgMatches, Command};
 
     #[divan::bench]
     fn flag() -> ArgMatches {
-        create_app!().get_matches_from(vec!["myprog", "-f"])
+        create_app!().get_matches_from(vec!["myprog", "-f"], &*DEFAULT_TEXT_PROVIDER)
     }
 
     #[divan::bench]
     fn opt() -> ArgMatches {
-        create_app!().get_matches_from(vec!["myprog", "-o", "option1"])
+        create_app!().get_matches_from(vec!["myprog", "-o", "option1"], &*DEFAULT_TEXT_PROVIDER)
     }
 
     #[divan::bench]
     fn pos() -> ArgMatches {
-        create_app!().get_matches_from(vec!["myprog", "arg1"])
+        create_app!().get_matches_from(vec!["myprog", "arg1"], &*DEFAULT_TEXT_PROVIDER)
     }
 }
 
