@@ -189,6 +189,8 @@ snapbox = "0.6.16"
 shlex = "1.3.0"
 automod = "1.0.14"
 clap-cargo = { version = "0.14.1", default-features = false }
+rust-i18n = "3.1.2"
+serde_yml = "0.0.12"
 
 [[example]]
 name = "demo"
@@ -502,6 +504,12 @@ doc-scrape-examples = true
 [[example]]
 name = "interop_flatten_hand_args"
 path = "examples/derive_ref/flatten_hand_args.rs"
+required-features = ["derive"]
+doc-scrape-examples = true
+
+[[example]]
+name = "i18n"
+path = "examples/i18n/main.rs"
 required-features = ["derive"]
 doc-scrape-examples = true
 

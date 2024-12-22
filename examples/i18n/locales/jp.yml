@@ -1,0 +1,28 @@
+usage: 使用方法
+options: オプション
+default_sub_value_name: コマンド
+name: 名前
+file: ファイル
+test-help-text: テストを実行します
+default-help-msg: このメッセージまたは指定されたサブコマンドのヘルプを表示します
+name-help-text: 名前を入力してください
+config-help-text: 設定ファイルのパスを入力してください
+debug-help-text: デバッグモードで実行します
+print-help: ヘルプメニューを表示します
+print-version: バージョンを表示します
+command: コマンド
+commands-list-heading: コマンド
+arguments-list-heading: 引数
+options-list-heading: オプション
+
+# Clap Texts
+clap.usage.header-text: 使用方法
+clap.usage.options: オプション
+clap.help.command.value-name: コマンド
+clap.default-sub-value-name: コマンド
+clap.commands-list-header: コマンド
+clap.help.about: このメッセージまたは指定されたサブコマンドのヘルプを表示します
+clap.arguments-list-header: 引数
+clap.options-list-header: オプション
+clap.help.short-help: ヘルプを表示
+clap.version.short-help: バージョンを表示
