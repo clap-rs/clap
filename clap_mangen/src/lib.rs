@@ -244,8 +244,39 @@ impl Man {
     }
 
     fn _render_options_section(&self, roff: &mut Roff) {
-        roff.control("SH", ["OPTIONS"]);
-        render::options(roff, &self.cmd);
+        let help_headings = self
+            .cmd
+            .get_arguments()
+            .filter(|a| !a.is_hide_set())
+            .filter_map(|arg| arg.get_help_heading())
+            .fold(vec![], |mut acc, header| {
+                if !acc.contains(&header) {
+                    acc.push(header);
+                }
+
+                acc
+            });
+
+        let (args, mut args_with_heading) =
+            self.cmd
+                .get_arguments()
+                .filter(|a| !a.is_hide_set())
+                .partition::<Vec<_>, _>(|a| a.get_help_heading().is_none());
+
+        if !args.is_empty() {
+            roff.control("SH", ["OPTIONS"]);
+            render::options(roff, &args);
+        }
+
+        for heading in help_headings {
+            let args;
+            (args, args_with_heading) = args_with_heading
+                .into_iter()
+                .partition(|&a| a.get_help_heading() == Some(heading));
+
+            roff.control("SH", [heading.to_uppercase().as_str()]);
+            render::options(roff, &args);
+        }
     }
 
     /// Render the SUBCOMMANDS section into the writer.
