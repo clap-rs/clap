@@ -323,3 +323,34 @@ pub(crate) fn value_name_without_arg(name: &'static str) -> clap::Command {
             .action(clap::ArgAction::SetTrue),
     )
 }
+
+pub(crate) fn help_headings(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+        .arg(
+            clap::Arg::new("recursive")
+                .long("recursive")
+                .short('r')
+                .action(clap::ArgAction::SetTrue),
+        )
+        .next_help_heading("Conflict Options")
+        .arg(
+            clap::Arg::new("force")
+                .long("force")
+                .short('f')
+                .action(clap::ArgAction::SetTrue),
+        )
+        .next_help_heading("Hidden Options")
+        .arg(
+            clap::Arg::new("debug")
+                .long("debug")
+                .short('d')
+                .hide(true)
+                .action(clap::ArgAction::SetTrue),
+        )
+        .next_help_heading("Global Options")
+        .arg(
+            clap::Arg::new("color")
+                .global(true)
+                .value_parser(["always", "never", "auto"]),
+        )
+}

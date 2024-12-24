@@ -97,6 +97,13 @@ fn sub_subcommands_help() {
 }
 
 #[test]
+fn help_headings() {
+    let name = "my-app";
+    let cmd = common::help_headings(name);
+    common::assert_matches(snapbox::file!["../snapshots/help_headings.bash.roff"], cmd);
+}
+
+#[test]
 fn value_name_without_arg() {
     let name = "my-app";
     let cmd = common::value_name_without_arg(name);
