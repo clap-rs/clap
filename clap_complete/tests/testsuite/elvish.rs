@@ -165,13 +165,11 @@ fn complete_static_toplevel() {
 % exhaustive --generate
  COMPLETING argument  
 --generate     generate                                                 
---global       everywhere                                               
 --help         Print help                                               
---version      Print version                                            
--V             Print version                                            
 -h             Print help                                               
 action         action                                                   
 alias          alias                                                    
+global         global                                                   
 help           Print this message or the help of the given subcommand(s)
 hint           hint                                                     
 last           last                                                     
@@ -205,8 +203,8 @@ fn complete_dynamic_env_toplevel() {
     let expected = snapbox::str![[r#"
 % exhaustive --generate
  COMPLETING argument  
---generate  --help     action  help  last    quote
---global    --version  alias   hint  pacman  value
+--generate  action  global  hint  pacman  value
+--help      alias   help    last  quote 
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -227,9 +225,9 @@ fn complete_dynamic_env_quoted_help() {
     let expected = snapbox::str![[r#"
 % exhaustive quote --backslash
  COMPLETING argument  
---backslash  --choice         --global         --version      cmd-brackets       cmd-single-quotes
---backticks  --double-quotes  --help           cmd-backslash  cmd-double-quotes  escape-help      
---brackets   --expansions     --single-quotes  cmd-backticks  cmd-expansions     help             
+--backslash  --choice         --help           cmd-backticks      cmd-expansions     help
+--backticks  --double-quotes  --single-quotes  cmd-brackets       cmd-single-quotes
+--brackets   --expansions     cmd-backslash    cmd-double-quotes  escape-help      
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);

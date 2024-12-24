@@ -16,11 +16,8 @@ _exhaustive() {
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" : \
 '--generate=[generate]:SHELL:(bash elvish fish powershell zsh)' \
-'--global[everywhere]' \
 '-h[Print help]' \
 '--help[Print help]' \
-'-V[Print version]' \
-'--version[Print version]' \
 ":: :_exhaustive_commands" \
 "*::: :->exhaustive" \
 && ret=0
@@ -30,17 +27,142 @@ _exhaustive() {
         (( CURRENT += 1 ))
         curcontext="${curcontext%:*:*}:exhaustive-command-$line[1]:"
         case $line[1] in
-            (action)
+            (global)
 _arguments "${_arguments_options[@]}" : \
-'--set=[value]: :_default' \
-'--choice=[enum]: :(first second)' \
-'--set-true[bool]' \
-'*--count[number]' \
 '--global[everywhere]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '-V[Print version]' \
 '--version[Print version]' \
+":: :_exhaustive__global_commands" \
+"*::: :->global" \
+&& ret=0
+
+    case $state in
+    (global)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:exhaustive-global-command-$line[1]:"
+        case $line[1] in
+            (one)
+_arguments "${_arguments_options[@]}" : \
+'--global[everywhere]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_exhaustive__global__one_commands" \
+"*::: :->one" \
+&& ret=0
+
+    case $state in
+    (one)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:exhaustive-global-one-command-$line[1]:"
+        case $line[1] in
+            (one-one)
+_arguments "${_arguments_options[@]}" : \
+'--global[everywhere]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_exhaustive__global__one__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:exhaustive-global-one-help-command-$line[1]:"
+        case $line[1] in
+            (one-one)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(two)
+_arguments "${_arguments_options[@]}" : \
+'--global[everywhere]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_exhaustive__global__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:exhaustive-global-help-command-$line[1]:"
+        case $line[1] in
+            (one)
+_arguments "${_arguments_options[@]}" : \
+":: :_exhaustive__global__help__one_commands" \
+"*::: :->one" \
+&& ret=0
+
+    case $state in
+    (one)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:exhaustive-global-help-one-command-$line[1]:"
+        case $line[1] in
+            (one-one)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(two)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(action)
+_arguments "${_arguments_options[@]}" : \
+'--set=[value]: :_default' \
+'--choice=[enum]: :(first second)' \
+'--set-true[bool]' \
+'*--count[number]' \
+'-h[Print help]' \
+'--help[Print help]' \
 && ret=0
 ;;
 (quote)
@@ -55,11 +177,8 @@ zsh\:"zsh shell"))' \
 '--backslash[Avoid '\''\\n'\'']' \
 '--brackets[List packages \[filter\]]' \
 '--expansions[Execute the shell command with \$SHELL]' \
-'--global[everywhere]' \
 '-h[Print help (see more with '\''--help'\'')]' \
 '--help[Print help (see more with '\''--help'\'')]' \
-'-V[Print version]' \
-'--version[Print version]' \
 ":: :_exhaustive__quote_commands" \
 "*::: :->quote" \
 && ret=0
@@ -72,65 +191,44 @@ zsh\:"zsh shell"))' \
         case $line[1] in
             (cmd-single-quotes)
 _arguments "${_arguments_options[@]}" : \
-'--global[everywhere]' \
 '-h[Print help]' \
 '--help[Print help]' \
-'-V[Print version]' \
-'--version[Print version]' \
 && ret=0
 ;;
 (cmd-double-quotes)
 _arguments "${_arguments_options[@]}" : \
-'--global[everywhere]' \
 '-h[Print help]' \
 '--help[Print help]' \
-'-V[Print version]' \
-'--version[Print version]' \
 && ret=0
 ;;
 (cmd-backticks)
 _arguments "${_arguments_options[@]}" : \
-'--global[everywhere]' \
 '-h[Print help]' \
 '--help[Print help]' \
-'-V[Print version]' \
-'--version[Print version]' \
 && ret=0
 ;;
 (cmd-backslash)
 _arguments "${_arguments_options[@]}" : \
-'--global[everywhere]' \
 '-h[Print help]' \
 '--help[Print help]' \
-'-V[Print version]' \
-'--version[Print version]' \
 && ret=0
 ;;
 (cmd-brackets)
 _arguments "${_arguments_options[@]}" : \
-'--global[everywhere]' \
 '-h[Print help]' \
 '--help[Print help]' \
-'-V[Print version]' \
-'--version[Print version]' \
 && ret=0
 ;;
 (cmd-expansions)
 _arguments "${_arguments_options[@]}" : \
-'--global[everywhere]' \
 '-h[Print help]' \
 '--help[Print help]' \
-'-V[Print version]' \
-'--version[Print version]' \
 && ret=0
 ;;
 (escape-help)
 _arguments "${_arguments_options[@]}" : \
-'--global[everywhere]' \
 '-h[Print help]' \
 '--help[Print help]' \
-'-V[Print version]' \
-'--version[Print version]' \
 && ret=0
 ;;
 (help)
@@ -190,21 +288,15 @@ _arguments "${_arguments_options[@]}" : \
 '--delim=[]: :_default' \
 '--tuple=[]: :_default: :_default' \
 '--require-eq=[]: :_default' \
-'--global[everywhere]' \
 '-h[Print help]' \
 '--help[Print help]' \
-'-V[Print version]' \
-'--version[Print version]' \
 '*;::term:_default' \
 && ret=0
 ;;
 (pacman)
 _arguments "${_arguments_options[@]}" : \
-'--global[everywhere]' \
 '-h[Print help]' \
 '--help[Print help]' \
-'-V[Print version]' \
-'--version[Print version]' \
 ":: :_exhaustive__pacman_commands" \
 "*::: :->pacman" \
 && ret=0
@@ -217,20 +309,14 @@ _arguments "${_arguments_options[@]}" : \
         case $line[1] in
             (one)
 _arguments "${_arguments_options[@]}" : \
-'--global[everywhere]' \
 '-h[Print help]' \
 '--help[Print help]' \
-'-V[Print version]' \
-'--version[Print version]' \
 && ret=0
 ;;
 (two)
 _arguments "${_arguments_options[@]}" : \
-'--global[everywhere]' \
 '-h[Print help]' \
 '--help[Print help]' \
-'-V[Print version]' \
-'--version[Print version]' \
 && ret=0
 ;;
 (help)
@@ -267,11 +353,8 @@ esac
 ;;
 (last)
 _arguments "${_arguments_options[@]}" : \
-'--global[everywhere]' \
 '-h[Print help]' \
 '--help[Print help]' \
-'-V[Print version]' \
-'--version[Print version]' \
 '::first:_default' \
 '::free:_default' \
 && ret=0
@@ -286,11 +369,8 @@ _arguments "${_arguments_options[@]}" : \
 '-F[cmd flag]' \
 '--flag[cmd flag]' \
 '--flg[cmd flag]' \
-'--global[everywhere]' \
 '-h[Print help]' \
 '--help[Print help]' \
-'-V[Print version]' \
-'--version[Print version]' \
 '::positional:_default' \
 && ret=0
 ;;
@@ -316,11 +396,8 @@ _arguments "${_arguments_options[@]}" : \
 '--host=[]: :_hosts' \
 '--url=[]: :_urls' \
 '--email=[]: :_email_addresses' \
-'--global[everywhere]' \
 '-h[Print help]' \
 '--help[Print help]' \
-'-V[Print version]' \
-'--version[Print version]' \
 '*::command_with_args:_cmdambivalent' \
 && ret=0
 ;;
@@ -336,7 +413,47 @@ _arguments "${_arguments_options[@]}" : \
         (( CURRENT += 1 ))
         curcontext="${curcontext%:*:*}:exhaustive-help-command-$line[1]:"
         case $line[1] in
-            (action)
+            (global)
+_arguments "${_arguments_options[@]}" : \
+":: :_exhaustive__help__global_commands" \
+"*::: :->global" \
+&& ret=0
+
+    case $state in
+    (global)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:exhaustive-help-global-command-$line[1]:"
+        case $line[1] in
+            (one)
+_arguments "${_arguments_options[@]}" : \
+":: :_exhaustive__help__global__one_commands" \
+"*::: :->one" \
+&& ret=0
+
+    case $state in
+    (one)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:exhaustive-help-global-one-command-$line[1]:"
+        case $line[1] in
+            (one-one)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(two)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(action)
 _arguments "${_arguments_options[@]}" : \
 && ret=0
 ;;
@@ -440,6 +557,7 @@ esac
 (( $+functions[_exhaustive_commands] )) ||
 _exhaustive_commands() {
     local commands; commands=(
+'global:' \
 'action:' \
 'quote:' \
 'value:' \
@@ -461,9 +579,86 @@ _exhaustive__alias_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive alias commands' commands "$@"
 }
+(( $+functions[_exhaustive__global_commands] )) ||
+_exhaustive__global_commands() {
+    local commands; commands=(
+'one:' \
+'two:' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'exhaustive global commands' commands "$@"
+}
+(( $+functions[_exhaustive__global__help_commands] )) ||
+_exhaustive__global__help_commands() {
+    local commands; commands=(
+'one:' \
+'two:' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'exhaustive global help commands' commands "$@"
+}
+(( $+functions[_exhaustive__global__help__help_commands] )) ||
+_exhaustive__global__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'exhaustive global help help commands' commands "$@"
+}
+(( $+functions[_exhaustive__global__help__one_commands] )) ||
+_exhaustive__global__help__one_commands() {
+    local commands; commands=(
+'one-one:' \
+    )
+    _describe -t commands 'exhaustive global help one commands' commands "$@"
+}
+(( $+functions[_exhaustive__global__help__one__one-one_commands] )) ||
+_exhaustive__global__help__one__one-one_commands() {
+    local commands; commands=()
+    _describe -t commands 'exhaustive global help one one-one commands' commands "$@"
+}
+(( $+functions[_exhaustive__global__help__two_commands] )) ||
+_exhaustive__global__help__two_commands() {
+    local commands; commands=()
+    _describe -t commands 'exhaustive global help two commands' commands "$@"
+}
+(( $+functions[_exhaustive__global__one_commands] )) ||
+_exhaustive__global__one_commands() {
+    local commands; commands=(
+'one-one:' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'exhaustive global one commands' commands "$@"
+}
+(( $+functions[_exhaustive__global__one__help_commands] )) ||
+_exhaustive__global__one__help_commands() {
+    local commands; commands=(
+'one-one:' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'exhaustive global one help commands' commands "$@"
+}
+(( $+functions[_exhaustive__global__one__help__help_commands] )) ||
+_exhaustive__global__one__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'exhaustive global one help help commands' commands "$@"
+}
+(( $+functions[_exhaustive__global__one__help__one-one_commands] )) ||
+_exhaustive__global__one__help__one-one_commands() {
+    local commands; commands=()
+    _describe -t commands 'exhaustive global one help one-one commands' commands "$@"
+}
+(( $+functions[_exhaustive__global__one__one-one_commands] )) ||
+_exhaustive__global__one__one-one_commands() {
+    local commands; commands=()
+    _describe -t commands 'exhaustive global one one-one commands' commands "$@"
+}
+(( $+functions[_exhaustive__global__two_commands] )) ||
+_exhaustive__global__two_commands() {
+    local commands; commands=()
+    _describe -t commands 'exhaustive global two commands' commands "$@"
+}
 (( $+functions[_exhaustive__help_commands] )) ||
 _exhaustive__help_commands() {
     local commands; commands=(
+'global:' \
 'action:' \
 'quote:' \
 'value:' \
@@ -484,6 +679,31 @@ _exhaustive__help__action_commands() {
 _exhaustive__help__alias_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive help alias commands' commands "$@"
+}
+(( $+functions[_exhaustive__help__global_commands] )) ||
+_exhaustive__help__global_commands() {
+    local commands; commands=(
+'one:' \
+'two:' \
+    )
+    _describe -t commands 'exhaustive help global commands' commands "$@"
+}
+(( $+functions[_exhaustive__help__global__one_commands] )) ||
+_exhaustive__help__global__one_commands() {
+    local commands; commands=(
+'one-one:' \
+    )
+    _describe -t commands 'exhaustive help global one commands' commands "$@"
+}
+(( $+functions[_exhaustive__help__global__one__one-one_commands] )) ||
+_exhaustive__help__global__one__one-one_commands() {
+    local commands; commands=()
+    _describe -t commands 'exhaustive help global one one-one commands' commands "$@"
+}
+(( $+functions[_exhaustive__help__global__two_commands] )) ||
+_exhaustive__help__global__two_commands() {
+    local commands; commands=()
+    _describe -t commands 'exhaustive help global two commands' commands "$@"
 }
 (( $+functions[_exhaustive__help__help_commands] )) ||
 _exhaustive__help__help_commands() {

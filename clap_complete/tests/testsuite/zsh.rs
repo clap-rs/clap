@@ -164,8 +164,8 @@ fn complete() {
     let input = "exhaustive \t";
     let expected = snapbox::str![[r#"
 % exhaustive
-help                                             -- Print this message or the help of the given subcommand(s)         
-pacman  action  alias  value  quote  hint  last  --                                                                   
+help                                                     -- Print this message or the help of the given subcommand(s) 
+pacman  action  global  alias  value  quote  hint  last  --                                                           
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -193,11 +193,9 @@ fn complete_dynamic_env_toplevel() {
     let expected = snapbox::str![[r#"
 % exhaustive
 --generate  -- generate
---global    -- everywhere
 --help      -- Print help
---version   -- Print version
 help        -- Print this message or the help of the given subcommand(s)
-action  alias   hint    last    pacman  quote   value
+action  alias   global  hint    last    pacman  quote   value
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -217,9 +215,7 @@ fn complete_dynamic_env_quoted_help() {
     let input = "exhaustive quote \t\t";
     let expected = snapbox::str![[r#"
 % exhaustive quote
---global                            -- everywhere                                                                     
 --help                              -- Print help (see more with '--help')                                            
---version                           -- Print version                                                                  
 cmd-backslash      --backslash      -- Avoid '/n'                                                                     
 cmd-backticks      --backticks      -- For more information see `echo test`                                           
 cmd-brackets       --brackets       -- List packages [filter]                                                         

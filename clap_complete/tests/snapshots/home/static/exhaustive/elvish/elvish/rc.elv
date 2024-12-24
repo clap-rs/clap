@@ -21,11 +21,9 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
     var completions = [
         &'exhaustive'= {
             cand --generate 'generate'
-            cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
-            cand -V 'Print version'
-            cand --version 'Print version'
+            cand global 'global'
             cand action 'action'
             cand quote 'quote'
             cand value 'value'
@@ -35,16 +33,68 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
             cand hint 'hint'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
-        &'exhaustive;action'= {
-            cand --set 'value'
-            cand --choice 'enum'
-            cand --set-true 'bool'
-            cand --count 'number'
+        &'exhaustive;global'= {
             cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
             cand -V 'Print version'
             cand --version 'Print version'
+            cand one 'one'
+            cand two 'two'
+            cand help 'Print this message or the help of the given subcommand(s)'
+        }
+        &'exhaustive;global;one'= {
+            cand --global 'everywhere'
+            cand -h 'Print help'
+            cand --help 'Print help'
+            cand -V 'Print version'
+            cand --version 'Print version'
+            cand one-one 'one-one'
+            cand help 'Print this message or the help of the given subcommand(s)'
+        }
+        &'exhaustive;global;one;one-one'= {
+            cand --global 'everywhere'
+            cand -h 'Print help'
+            cand --help 'Print help'
+            cand -V 'Print version'
+            cand --version 'Print version'
+        }
+        &'exhaustive;global;one;help'= {
+            cand one-one 'one-one'
+            cand help 'Print this message or the help of the given subcommand(s)'
+        }
+        &'exhaustive;global;one;help;one-one'= {
+        }
+        &'exhaustive;global;one;help;help'= {
+        }
+        &'exhaustive;global;two'= {
+            cand --global 'everywhere'
+            cand -h 'Print help'
+            cand --help 'Print help'
+            cand -V 'Print version'
+            cand --version 'Print version'
+        }
+        &'exhaustive;global;help'= {
+            cand one 'one'
+            cand two 'two'
+            cand help 'Print this message or the help of the given subcommand(s)'
+        }
+        &'exhaustive;global;help;one'= {
+            cand one-one 'one-one'
+        }
+        &'exhaustive;global;help;one;one-one'= {
+        }
+        &'exhaustive;global;help;two'= {
+        }
+        &'exhaustive;global;help;help'= {
+        }
+        &'exhaustive;action'= {
+            cand --set 'value'
+            cand --choice 'enum'
+            cand --set-true 'bool'
+            cand --count 'number'
+            cand -h 'Print help'
+            cand --help 'Print help'
         }
         &'exhaustive;quote'= {
             cand --choice 'choice'
@@ -54,11 +104,8 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
             cand --backslash 'Avoid ''\n'''
             cand --brackets 'List packages [filter]'
             cand --expansions 'Execute the shell command with $SHELL'
-            cand --global 'everywhere'
             cand -h 'Print help (see more with ''--help'')'
             cand --help 'Print help (see more with ''--help'')'
-            cand -V 'Print version'
-            cand --version 'Print version'
             cand cmd-single-quotes 'Can be ''always'', ''auto'', or ''never'''
             cand cmd-double-quotes 'Can be "always", "auto", or "never"'
             cand cmd-backticks 'For more information see `echo test`'
@@ -69,53 +116,32 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
             cand help 'Print this message or the help of the given subcommand(s)'
         }
         &'exhaustive;quote;cmd-single-quotes'= {
-            cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
-            cand -V 'Print version'
-            cand --version 'Print version'
         }
         &'exhaustive;quote;cmd-double-quotes'= {
-            cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
-            cand -V 'Print version'
-            cand --version 'Print version'
         }
         &'exhaustive;quote;cmd-backticks'= {
-            cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
-            cand -V 'Print version'
-            cand --version 'Print version'
         }
         &'exhaustive;quote;cmd-backslash'= {
-            cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
-            cand -V 'Print version'
-            cand --version 'Print version'
         }
         &'exhaustive;quote;cmd-brackets'= {
-            cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
-            cand -V 'Print version'
-            cand --version 'Print version'
         }
         &'exhaustive;quote;cmd-expansions'= {
-            cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
-            cand -V 'Print version'
-            cand --version 'Print version'
         }
         &'exhaustive;quote;escape-help'= {
-            cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
-            cand -V 'Print version'
-            cand --version 'Print version'
         }
         &'exhaustive;quote;help'= {
             cand cmd-single-quotes 'Can be ''always'', ''auto'', or ''never'''
@@ -147,35 +173,23 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
             cand --delim 'delim'
             cand --tuple 'tuple'
             cand --require-eq 'require-eq'
-            cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
-            cand -V 'Print version'
-            cand --version 'Print version'
         }
         &'exhaustive;pacman'= {
-            cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
-            cand -V 'Print version'
-            cand --version 'Print version'
             cand one 'one'
             cand two 'two'
             cand help 'Print this message or the help of the given subcommand(s)'
         }
         &'exhaustive;pacman;one'= {
-            cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
-            cand -V 'Print version'
-            cand --version 'Print version'
         }
         &'exhaustive;pacman;two'= {
-            cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
-            cand -V 'Print version'
-            cand --version 'Print version'
         }
         &'exhaustive;pacman;help'= {
             cand one 'one'
@@ -189,11 +203,8 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
         &'exhaustive;pacman;help;help'= {
         }
         &'exhaustive;last'= {
-            cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
-            cand -V 'Print version'
-            cand --version 'Print version'
         }
         &'exhaustive;alias'= {
             cand -o 'cmd option'
@@ -204,11 +215,8 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
             cand -F 'cmd flag'
             cand --flag 'cmd flag'
             cand --flg 'cmd flag'
-            cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
-            cand -V 'Print version'
-            cand --version 'Print version'
         }
         &'exhaustive;hint'= {
             cand --choice 'choice'
@@ -231,13 +239,11 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
             cand --host 'host'
             cand --url 'url'
             cand --email 'email'
-            cand --global 'everywhere'
             cand -h 'Print help'
             cand --help 'Print help'
-            cand -V 'Print version'
-            cand --version 'Print version'
         }
         &'exhaustive;help'= {
+            cand global 'global'
             cand action 'action'
             cand quote 'quote'
             cand value 'value'
@@ -246,6 +252,17 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
             cand alias 'alias'
             cand hint 'hint'
             cand help 'Print this message or the help of the given subcommand(s)'
+        }
+        &'exhaustive;help;global'= {
+            cand one 'one'
+            cand two 'two'
+        }
+        &'exhaustive;help;global;one'= {
+            cand one-one 'one-one'
+        }
+        &'exhaustive;help;global;one;one-one'= {
+        }
+        &'exhaustive;help;global;two'= {
         }
         &'exhaustive;help;action'= {
         }

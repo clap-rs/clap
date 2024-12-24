@@ -164,8 +164,8 @@ fn complete() {
     let input = "exhaustive \t\t";
     let expected = snapbox::str![[r#"
 % 
--h          --global    --help      action      value       last        hint        
--V          --generate  --version   quote       pacman      alias       help        
+-h          --help      action      value       last        hint        
+--generate  global      quote       pacman      alias       help        
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -260,8 +260,8 @@ fn complete_dynamic_env_toplevel() {
     let input = "exhaustive \t\t";
     let expected = snapbox::str![[r#"
 % 
-action      value       last        hint        --global    --help      
-quote       pacman      alias       help        --generate  --version   
+global      quote       pacman      alias       help        --help      
+action      value       last        hint        --generate  
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -281,9 +281,9 @@ fn complete_dynamic_env_quoted_help() {
     let input = "exhaustive quote \t\t";
     let expected = snapbox::str![[r#"
 % 
-cmd-single-quotes  cmd-backslash      escape-help        --global           --backslash        --choice
-cmd-double-quotes  cmd-brackets       help               --double-quotes    --brackets         --help
-cmd-backticks      cmd-expansions     --single-quotes    --backticks        --expansions       --version
+cmd-single-quotes  cmd-backslash      escape-help        --double-quotes    --brackets         --help
+cmd-double-quotes  cmd-brackets       help               --backticks        --expansions       
+cmd-backticks      cmd-expansions     --single-quotes    --backslash        --choice           
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
