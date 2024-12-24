@@ -1,6 +1,6 @@
 # Print an optspec for argparse to handle cmd's options that are independent of any subcommand.
 function __fish_exhaustive_global_optspecs
-	string join \n generate= h/help
+	string join \n generate= empty-choice= h/help
 end
 
 function __fish_exhaustive_needs_command
@@ -25,6 +25,7 @@ function __fish_exhaustive_using_subcommand
 end
 
 complete -c exhaustive -n "__fish_exhaustive_needs_command" -l generate -d 'generate' -r -f -a "{bash\t'',elvish\t'',fish\t'',powershell\t'',zsh\t''}"
+complete -c exhaustive -n "__fish_exhaustive_needs_command" -l empty-choice -r -f -a "{}"
 complete -c exhaustive -n "__fish_exhaustive_needs_command" -s h -l help -d 'Print help'
 complete -c exhaustive -n "__fish_exhaustive_needs_command" -f -a "empty"
 complete -c exhaustive -n "__fish_exhaustive_needs_command" -f -a "global"

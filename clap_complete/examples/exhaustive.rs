@@ -23,14 +23,21 @@ fn print_completions<G: Generator>(gen: G, cmd: &mut clap::Command) {
     generate(gen, cmd, cmd.get_name().to_string(), &mut std::io::stdout());
 }
 
+const EMPTY: [&str; 0] = [];
+
 #[allow(clippy::let_and_return)]
 fn cli() -> clap::Command {
     clap::Command::new("exhaustive")
-        .args([clap::Arg::new("generate")
-            .long("generate")
-            .value_name("SHELL")
-            .value_parser(clap::value_parser!(Shell))
-            .help("generate")])
+        .args([
+            clap::Arg::new("generate")
+                .long("generate")
+                .value_name("SHELL")
+                .value_parser(clap::value_parser!(Shell))
+                .help("generate"),
+            clap::Arg::new("empty-choice")
+                .long("empty-choice")
+                .value_parser(EMPTY),
+        ])
         .subcommands([
             clap::Command::new("empty")
                 .disable_help_subcommand(true)

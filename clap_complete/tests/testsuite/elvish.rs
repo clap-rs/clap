@@ -162,8 +162,9 @@ fn complete() {
 
     let input = "exhaustive \t";
     let expected = snapbox::str![[r#"
-% exhaustive --generate
+% exhaustive --empty-choice
  COMPLETING argument  
+--empty-choice empty-choice                                             
 --generate     generate                                                 
 --help         Print help                                               
 -h             Print help                                               
@@ -210,10 +211,10 @@ fn complete_dynamic_env_toplevel() {
 
     let input = "exhaustive \t";
     let expected = snapbox::str![[r#"
-% exhaustive --generate
+% exhaustive --empty-choice
  COMPLETING argument  
---generate  action  empty   help  last    quote
---help      alias   global  hint  pacman  value
+--empty-choice  --help  alias  global  hint  pacman  value
+--generate      action  empty  help    last  quote 
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);

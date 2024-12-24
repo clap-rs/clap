@@ -208,8 +208,9 @@ fn complete_dynamic_env_toplevel() {
     let input = "exhaustive \t\t";
     let expected = snapbox::str![[r#"
 % exhaustive empty 
-empty   action  value   last   hint                                                               --generate  (generate)
-global  quote   pacman  alias  help  (Print this message or the help of the given subcommand(s))  --help    (Print help)
+empty   quote   last   help  (Print this message or the help of the given subcommand(s))  --help  (Print help)
+global  value   alias  --generate                                             (generate)  
+action  pacman  hint   --empty-choice                                                     
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);

@@ -216,7 +216,7 @@ _exhaustive() {
 
     case "${cmd}" in
         exhaustive)
-            opts="-h --generate --help empty global action quote value pacman last alias hint help"
+            opts="-h --generate --empty-choice --help empty global action quote value pacman last alias hint help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -224,6 +224,10 @@ _exhaustive() {
             case "${prev}" in
                 --generate)
                     COMPREPLY=($(compgen -W "bash elvish fish powershell zsh" -- "${cur}"))
+                    return 0
+                    ;;
+                --empty-choice)
+                    COMPREPLY=($(compgen -W "" -- "${cur}"))
                     return 0
                     ;;
                 *)

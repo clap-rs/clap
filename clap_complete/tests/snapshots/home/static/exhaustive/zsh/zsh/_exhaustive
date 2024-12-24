@@ -16,6 +16,7 @@ _exhaustive() {
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" : \
 '--generate=[generate]:SHELL:(bash elvish fish powershell zsh)' \
+'--empty-choice=[]: :()' \
 '-h[Print help]' \
 '--help[Print help]' \
 ":: :_exhaustive_commands" \

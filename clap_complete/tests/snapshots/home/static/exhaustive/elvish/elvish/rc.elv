@@ -21,6 +21,7 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
     var completions = [
         &'exhaustive'= {
             cand --generate 'generate'
+            cand --empty-choice 'empty-choice'
             cand -h 'Print help'
             cand --help 'Print help'
             cand empty 'empty'
