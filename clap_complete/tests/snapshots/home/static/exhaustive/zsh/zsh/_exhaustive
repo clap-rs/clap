@@ -27,7 +27,11 @@ _exhaustive() {
         (( CURRENT += 1 ))
         curcontext="${curcontext%:*:*}:exhaustive-command-$line[1]:"
         case $line[1] in
-            (global)
+            (empty)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(global)
 _arguments "${_arguments_options[@]}" : \
 '--global[everywhere]' \
 '-h[Print help]' \
@@ -413,7 +417,11 @@ _arguments "${_arguments_options[@]}" : \
         (( CURRENT += 1 ))
         curcontext="${curcontext%:*:*}:exhaustive-help-command-$line[1]:"
         case $line[1] in
-            (global)
+            (empty)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(global)
 _arguments "${_arguments_options[@]}" : \
 ":: :_exhaustive__help__global_commands" \
 "*::: :->global" \
@@ -557,6 +565,7 @@ esac
 (( $+functions[_exhaustive_commands] )) ||
 _exhaustive_commands() {
     local commands; commands=(
+'empty:' \
 'global:' \
 'action:' \
 'quote:' \
@@ -578,6 +587,11 @@ _exhaustive__action_commands() {
 _exhaustive__alias_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive alias commands' commands "$@"
+}
+(( $+functions[_exhaustive__empty_commands] )) ||
+_exhaustive__empty_commands() {
+    local commands; commands=()
+    _describe -t commands 'exhaustive empty commands' commands "$@"
 }
 (( $+functions[_exhaustive__global_commands] )) ||
 _exhaustive__global_commands() {
@@ -658,6 +672,7 @@ _exhaustive__global__two_commands() {
 (( $+functions[_exhaustive__help_commands] )) ||
 _exhaustive__help_commands() {
     local commands; commands=(
+'empty:' \
 'global:' \
 'action:' \
 'quote:' \
@@ -679,6 +694,11 @@ _exhaustive__help__action_commands() {
 _exhaustive__help__alias_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive help alias commands' commands "$@"
+}
+(( $+functions[_exhaustive__help__empty_commands] )) ||
+_exhaustive__help__empty_commands() {
+    local commands; commands=()
+    _describe -t commands 'exhaustive help empty commands' commands "$@"
 }
 (( $+functions[_exhaustive__help__global_commands] )) ||
 _exhaustive__help__global_commands() {

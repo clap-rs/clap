@@ -164,8 +164,9 @@ fn complete() {
     let input = "exhaustive \t";
     let expected = snapbox::str![[r#"
 % exhaustive
-help                                                     -- Print this message or the help of the given subcommand(s) 
-pacman  action  global  alias  value  quote  hint  last  --                                                           
+help                                                      -- Print this message or the help of the given subcommand(s)
+hint                                                      
+pacman  action  global  alias  value  quote  empty  last  --                                                          
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -195,7 +196,7 @@ fn complete_dynamic_env_toplevel() {
 --generate  -- generate
 --help      -- Print help
 help        -- Print this message or the help of the given subcommand(s)
-action  alias   global  hint    last    pacman  quote   value
+action  alias   empty   global  hint    last    pacman  quote   value
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);

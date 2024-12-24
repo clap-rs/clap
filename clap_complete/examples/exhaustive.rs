@@ -32,6 +32,9 @@ fn cli() -> clap::Command {
             .value_parser(clap::value_parser!(Shell))
             .help("generate")])
         .subcommands([
+            clap::Command::new("empty")
+                .disable_help_subcommand(true)
+                .disable_help_flag(true),
             clap::Command::new("global")
                 .version("3.0")
                 .propagate_version(true)

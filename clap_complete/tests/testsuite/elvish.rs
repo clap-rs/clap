@@ -169,6 +169,7 @@ fn complete_static_toplevel() {
 -h             Print help                                               
 action         action                                                   
 alias          alias                                                    
+empty          empty                                                    
 global         global                                                   
 help           Print this message or the help of the given subcommand(s)
 hint           hint                                                     
@@ -203,8 +204,8 @@ fn complete_dynamic_env_toplevel() {
     let expected = snapbox::str![[r#"
 % exhaustive --generate
  COMPLETING argument  
---generate  action  global  hint  pacman  value
---help      alias   help    last  quote 
+--generate  action  empty   help  last    quote
+--help      alias   global  hint  pacman  value
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);

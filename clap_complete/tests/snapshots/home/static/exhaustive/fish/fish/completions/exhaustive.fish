@@ -26,6 +26,7 @@ end
 
 complete -c exhaustive -n "__fish_exhaustive_needs_command" -l generate -d 'generate' -r -f -a "{bash\t'',elvish\t'',fish\t'',powershell\t'',zsh\t''}"
 complete -c exhaustive -n "__fish_exhaustive_needs_command" -s h -l help -d 'Print help'
+complete -c exhaustive -n "__fish_exhaustive_needs_command" -f -a "empty"
 complete -c exhaustive -n "__fish_exhaustive_needs_command" -f -a "global"
 complete -c exhaustive -n "__fish_exhaustive_needs_command" -f -a "action"
 complete -c exhaustive -n "__fish_exhaustive_needs_command" -f -a "quote"
@@ -119,15 +120,16 @@ complete -c exhaustive -n "__fish_exhaustive_using_subcommand hint" -s H -l host
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand hint" -l url -r -f
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand hint" -l email -r -f
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand hint" -s h -l help -d 'Print help'
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from global action quote value pacman last alias hint help" -f -a "global"
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from global action quote value pacman last alias hint help" -f -a "action"
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from global action quote value pacman last alias hint help" -f -a "quote"
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from global action quote value pacman last alias hint help" -f -a "value"
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from global action quote value pacman last alias hint help" -f -a "pacman"
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from global action quote value pacman last alias hint help" -f -a "last"
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from global action quote value pacman last alias hint help" -f -a "alias"
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from global action quote value pacman last alias hint help" -f -a "hint"
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from global action quote value pacman last alias hint help" -f -a "help" -d 'Print this message or the help of the given subcommand(s)'
+complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from empty global action quote value pacman last alias hint help" -f -a "empty"
+complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from empty global action quote value pacman last alias hint help" -f -a "global"
+complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from empty global action quote value pacman last alias hint help" -f -a "action"
+complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from empty global action quote value pacman last alias hint help" -f -a "quote"
+complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from empty global action quote value pacman last alias hint help" -f -a "value"
+complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from empty global action quote value pacman last alias hint help" -f -a "pacman"
+complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from empty global action quote value pacman last alias hint help" -f -a "last"
+complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from empty global action quote value pacman last alias hint help" -f -a "alias"
+complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from empty global action quote value pacman last alias hint help" -f -a "hint"
+complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and not __fish_seen_subcommand_from empty global action quote value pacman last alias hint help" -f -a "help" -d 'Print this message or the help of the given subcommand(s)'
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and __fish_seen_subcommand_from global" -f -a "one"
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and __fish_seen_subcommand_from global" -f -a "two"
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand help; and __fish_seen_subcommand_from quote" -f -a "cmd-single-quotes" -d 'Can be \'always\', \'auto\', or \'never\''

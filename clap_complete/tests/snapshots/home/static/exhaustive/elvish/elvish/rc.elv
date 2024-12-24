@@ -23,6 +23,7 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
             cand --generate 'generate'
             cand -h 'Print help'
             cand --help 'Print help'
+            cand empty 'empty'
             cand global 'global'
             cand action 'action'
             cand quote 'quote'
@@ -32,6 +33,8 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
             cand alias 'alias'
             cand hint 'hint'
             cand help 'Print this message or the help of the given subcommand(s)'
+        }
+        &'exhaustive;empty'= {
         }
         &'exhaustive;global'= {
             cand --global 'everywhere'
@@ -243,6 +246,7 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
             cand --help 'Print help'
         }
         &'exhaustive;help'= {
+            cand empty 'empty'
             cand global 'global'
             cand action 'action'
             cand quote 'quote'
@@ -252,6 +256,8 @@ set edit:completion:arg-completer[exhaustive] = {|@words|
             cand alias 'alias'
             cand hint 'hint'
             cand help 'Print this message or the help of the given subcommand(s)'
+        }
+        &'exhaustive;help;empty'= {
         }
         &'exhaustive;help;global'= {
             cand one 'one'
