@@ -169,6 +169,15 @@ alias   global  hint                                                            
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
+    let input = "exhaustive empty \t";
+    let expected = snapbox::str![[r#"
+% exhaustive empty 
+Cargo.toml    CONTRIBUTING.md  LICENSE-APACHE  README.md  tests/
+CHANGELOG.md  examples/        LICENSE-MIT     src/       
+"#]];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
     let input = "exhaustive quote --choice \t";
     let actual = runtime.complete(input, &term).unwrap();
     let expected = snapbox::str![[r#"
@@ -287,6 +296,23 @@ another shell  (something with a space)  bash  (bash (shell))  fish  (fish shell
 
     let input = "exhaustive quote --choice an\t";
     let expected = snapbox::str!["% exhaustive quote --choice another/ shell "];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+fn complete_dynamic_empty_subcommand() {
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+
+    let input = "exhaustive empty \t\t";
+    let expected = snapbox::str!["% exhaustive empty "];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }

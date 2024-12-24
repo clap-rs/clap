@@ -152,7 +152,7 @@ fn register_completion() {
 #[test]
 #[cfg(unix)]
 #[cfg(feature = "unstable-shell-tests")]
-fn complete_static_toplevel() {
+fn complete() {
     if !common::has_command(CMD) {
         return;
     }
@@ -177,6 +177,14 @@ last           last
 pacman         pacman                                                   
 quote          quote                                                    
 value          value                                                    
+"#]];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
+    let input = "exhaustive empty \t";
+    let expected = snapbox::str![[r#"
+no candidates
+% exhaustive empty 
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -289,6 +297,27 @@ another shell  bash  fish  zsh
 % exhaustive quote --choice 'another shell'
  COMPLETING argument  
 another shell
+"#]];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+fn complete_dynamic_empty_subcommand() {
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+
+    let input = "exhaustive empty \t\t";
+    let expected = snapbox::str![[r#"
+no candidates
+no candidates
+% exhaustive empty 
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
