@@ -175,6 +175,11 @@ fn complete() {
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
+    let input = "exhaustive --empty=\t";
+    let expected = snapbox::str!["exhaustive --empty=     % exhaustive --empty="];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
     // Issue 5239 (https://github.com/clap-rs/clap/issues/5239)
     let input = "exhaustive hint --file test\t";
     let expected = snapbox::str!["exhaustive hint --file test     % exhaustive hint --file tests/"];
@@ -355,6 +360,23 @@ fn complete_dynamic_empty_subcommand() {
 
     let input = "exhaustive empty \t";
     let expected = snapbox::str!["exhaustive empty        % exhaustive empty "];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+fn complete_dynamic_empty_option_value() {
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+
+    let input = "exhaustive --empty=\t";
+    let expected = snapbox::str!["exhaustive --empty=     % exhaustive --empty="];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
