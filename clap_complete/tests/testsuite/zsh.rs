@@ -164,9 +164,20 @@ fn complete() {
     let input = "exhaustive \t";
     let expected = snapbox::str![[r#"
 % exhaustive
-help                                             -- Print this message or the help of the given subcommand(s)         
-pacman  action  alias  value  quote  hint  last  --                                                                   
+help                                                      -- Print this message or the help of the given subcommand(s)
+hint                                                      
+pacman  action  global  alias  value  quote  empty  last  --                                                          
 "#]];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
+    let input = "exhaustive empty \t";
+    let expected = snapbox::str!["% exhaustive empty "];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
+    let input = "exhaustive --empty=\t";
+    let expected = snapbox::str!["% exhaustive --empty="];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
@@ -192,12 +203,11 @@ fn complete_dynamic_env_toplevel() {
     let input = "exhaustive \t\t";
     let expected = snapbox::str![[r#"
 % exhaustive
---generate  -- generate
---global    -- everywhere
---help      -- Print help
---version   -- Print version
-help        -- Print this message or the help of the given subcommand(s)
-action  alias   hint    last    pacman  quote   value
+--generate      -- generate
+--help          -- Print help
+help            -- Print this message or the help of the given subcommand(s)
+--empty-choice  alias           global          last            quote           
+action          empty           hint            pacman          value           
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -217,9 +227,7 @@ fn complete_dynamic_env_quoted_help() {
     let input = "exhaustive quote \t\t";
     let expected = snapbox::str![[r#"
 % exhaustive quote
---global                            -- everywhere                                                                     
 --help                              -- Print help (see more with '--help')                                            
---version                           -- Print version                                                                  
 cmd-backslash      --backslash      -- Avoid '/n'                                                                     
 cmd-backticks      --backticks      -- For more information see `echo test`                                           
 cmd-brackets       --brackets       -- List packages [filter]                                                         
@@ -283,6 +291,40 @@ zsh            -- zsh shell
 
     let input = "exhaustive quote --choice an\t\t";
     let expected = snapbox::str!["% exhaustive quote --choice another/ shell "];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+fn complete_dynamic_empty_subcommand() {
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+
+    let input = "exhaustive empty \t\t";
+    let expected = snapbox::str!["% exhaustive empty "];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+fn complete_dynamic_empty_option_value() {
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+
+    let input = "exhaustive --empty=\t";
+    let expected = snapbox::str!["% exhaustive --empty="];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }

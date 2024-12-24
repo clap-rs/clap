@@ -23,24 +23,37 @@ fn print_completions<G: Generator>(gen: G, cmd: &mut clap::Command) {
     generate(gen, cmd, cmd.get_name().to_string(), &mut std::io::stdout());
 }
 
+const EMPTY: [&str; 0] = [];
+
 #[allow(clippy::let_and_return)]
 fn cli() -> clap::Command {
     clap::Command::new("exhaustive")
-        .version("3.0")
-        .propagate_version(true)
         .args([
-            clap::Arg::new("global")
-                .long("global")
-                .global(true)
-                .action(clap::ArgAction::SetTrue)
-                .help("everywhere"),
             clap::Arg::new("generate")
                 .long("generate")
                 .value_name("SHELL")
                 .value_parser(clap::value_parser!(Shell))
                 .help("generate"),
+            clap::Arg::new("empty-choice")
+                .long("empty-choice")
+                .value_parser(EMPTY),
         ])
         .subcommands([
+            clap::Command::new("empty")
+                .disable_help_subcommand(true)
+                .disable_help_flag(true),
+            clap::Command::new("global")
+                .version("3.0")
+                .propagate_version(true)
+                .args([clap::Arg::new("global")
+                    .long("global")
+                    .global(true)
+                    .action(clap::ArgAction::SetTrue)
+                    .help("everywhere")])
+                .subcommands([
+                    clap::Command::new("one").subcommand(clap::Command::new("one-one")),
+                    clap::Command::new("two"),
+                ]),
             clap::Command::new("action").args([
                 clap::Arg::new("set-true")
                     .long("set-true")

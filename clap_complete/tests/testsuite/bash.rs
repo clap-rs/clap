@@ -164,9 +164,19 @@ fn complete() {
     let input = "exhaustive \t\t";
     let expected = snapbox::str![[r#"
 % 
--h          --global    --help      action      value       last        hint        
--V          --generate  --version   quote       pacman      alias       help        
+-h              --empty-choice  empty           action          value           last            hint
+--generate      --help          global          quote           pacman          alias           help
 "#]];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
+    let input = "exhaustive empty \t";
+    let expected = snapbox::str!["exhaustive empty        % exhaustive empty "];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
+    let input = "exhaustive --empty=\t";
+    let expected = snapbox::str!["exhaustive --empty=     % exhaustive --empty="];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
@@ -260,8 +270,8 @@ fn complete_dynamic_env_toplevel() {
     let input = "exhaustive \t\t";
     let expected = snapbox::str![[r#"
 % 
-action      value       last        hint        --global    --help      
-quote       pacman      alias       help        --generate  --version   
+empty           action          value           last            hint            --generate      --help
+global          quote           pacman          alias           help            --empty-choice  
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -281,9 +291,9 @@ fn complete_dynamic_env_quoted_help() {
     let input = "exhaustive quote \t\t";
     let expected = snapbox::str![[r#"
 % 
-cmd-single-quotes  cmd-backslash      escape-help        --global           --backslash        --choice
-cmd-double-quotes  cmd-brackets       help               --double-quotes    --brackets         --help
-cmd-backticks      cmd-expansions     --single-quotes    --backticks        --expansions       --version
+cmd-single-quotes  cmd-backslash      escape-help        --double-quotes    --brackets         --help
+cmd-double-quotes  cmd-brackets       help               --backticks        --expansions       
+cmd-backticks      cmd-expansions     --single-quotes    --backslash        --choice           
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -333,6 +343,40 @@ another shell  bash           fish           zsh
     let input = "exhaustive quote --choice an\t";
     let expected =
         snapbox::str!["exhaustive quote --choice an    % exhaustive quote --choice another shell "];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+fn complete_dynamic_empty_subcommand() {
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+
+    let input = "exhaustive empty \t";
+    let expected = snapbox::str!["exhaustive empty        % exhaustive empty "];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+fn complete_dynamic_empty_option_value() {
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+
+    let input = "exhaustive --empty=\t";
+    let expected = snapbox::str!["exhaustive --empty=     % exhaustive --empty="];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }

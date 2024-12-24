@@ -20,6 +20,12 @@ _exhaustive() {
             exhaustive,alias)
                 cmd="exhaustive__alias"
                 ;;
+            exhaustive,empty)
+                cmd="exhaustive__empty"
+                ;;
+            exhaustive,global)
+                cmd="exhaustive__global"
+                ;;
             exhaustive,help)
                 cmd="exhaustive__help"
                 ;;
@@ -38,11 +44,50 @@ _exhaustive() {
             exhaustive,value)
                 cmd="exhaustive__value"
                 ;;
+            exhaustive__global,help)
+                cmd="exhaustive__global__help"
+                ;;
+            exhaustive__global,one)
+                cmd="exhaustive__global__one"
+                ;;
+            exhaustive__global,two)
+                cmd="exhaustive__global__two"
+                ;;
+            exhaustive__global__help,help)
+                cmd="exhaustive__global__help__help"
+                ;;
+            exhaustive__global__help,one)
+                cmd="exhaustive__global__help__one"
+                ;;
+            exhaustive__global__help,two)
+                cmd="exhaustive__global__help__two"
+                ;;
+            exhaustive__global__help__one,one-one)
+                cmd="exhaustive__global__help__one__one__one"
+                ;;
+            exhaustive__global__one,help)
+                cmd="exhaustive__global__one__help"
+                ;;
+            exhaustive__global__one,one-one)
+                cmd="exhaustive__global__one__one__one"
+                ;;
+            exhaustive__global__one__help,help)
+                cmd="exhaustive__global__one__help__help"
+                ;;
+            exhaustive__global__one__help,one-one)
+                cmd="exhaustive__global__one__help__one__one"
+                ;;
             exhaustive__help,action)
                 cmd="exhaustive__help__action"
                 ;;
             exhaustive__help,alias)
                 cmd="exhaustive__help__alias"
+                ;;
+            exhaustive__help,empty)
+                cmd="exhaustive__help__empty"
+                ;;
+            exhaustive__help,global)
+                cmd="exhaustive__help__global"
                 ;;
             exhaustive__help,help)
                 cmd="exhaustive__help__help"
@@ -61,6 +106,15 @@ _exhaustive() {
                 ;;
             exhaustive__help,value)
                 cmd="exhaustive__help__value"
+                ;;
+            exhaustive__help__global,one)
+                cmd="exhaustive__help__global__one"
+                ;;
+            exhaustive__help__global,two)
+                cmd="exhaustive__help__global__two"
+                ;;
+            exhaustive__help__global__one,one-one)
+                cmd="exhaustive__help__global__one__one__one"
                 ;;
             exhaustive__help__pacman,one)
                 cmd="exhaustive__help__pacman__one"
@@ -162,7 +216,7 @@ _exhaustive() {
 
     case "${cmd}" in
         exhaustive)
-            opts="-h -V --global --generate --help --version action quote value pacman last alias hint help"
+            opts="-h --generate --empty-choice --help empty global action quote value pacman last alias hint help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -170,6 +224,10 @@ _exhaustive() {
             case "${prev}" in
                 --generate)
                     COMPREPLY=($(compgen -W "bash elvish fish powershell zsh" -- "${cur}"))
+                    return 0
+                    ;;
+                --empty-choice)
+                    COMPREPLY=($(compgen -W "" -- "${cur}"))
                     return 0
                     ;;
                 *)
@@ -180,7 +238,7 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__action)
-            opts="-h -V --set-true --set --count --choice --global --help --version"
+            opts="-h --set-true --set --count --choice --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -202,7 +260,7 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__alias)
-            opts="-F -f -O -o -h -V --flg --flag --opt --option --global --help --version [positional]"
+            opts="-F -f -O -o -h --flg --flag --opt --option --help [positional]"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -231,8 +289,190 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
+        exhaustive__empty)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        exhaustive__global)
+            opts="-h -V --global --help --version one two help"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        exhaustive__global__help)
+            opts="one two help"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        exhaustive__global__help__help)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        exhaustive__global__help__one)
+            opts="one-one"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        exhaustive__global__help__one__one__one)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 5 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        exhaustive__global__help__two)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        exhaustive__global__one)
+            opts="-h -V --global --help --version one-one help"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        exhaustive__global__one__help)
+            opts="one-one help"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        exhaustive__global__one__help__help)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 5 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        exhaustive__global__one__help__one__one)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 5 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        exhaustive__global__one__one__one)
+            opts="-h -V --global --help --version"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        exhaustive__global__two)
+            opts="-h -V --global --help --version"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
         exhaustive__help)
-            opts="action quote value pacman last alias hint help"
+            opts="empty global action quote value pacman last alias hint help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -262,6 +502,76 @@ _exhaustive() {
         exhaustive__help__alias)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        exhaustive__help__empty)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        exhaustive__help__global)
+            opts="one two"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        exhaustive__help__global__one)
+            opts="one-one"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        exhaustive__help__global__one__one__one)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 5 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        exhaustive__help__global__two)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
@@ -484,7 +794,7 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__hint)
-            opts="-p -f -d -e -c -u -H -h -V --choice --unknown --other --path --file --dir --exe --cmd-name --cmd --user --host --url --email --global --help --version [command_with_args]..."
+            opts="-p -f -d -e -c -u -H -h --choice --unknown --other --path --file --dir --exe --cmd-name --cmd --user --host --url --email --help [command_with_args]..."
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -609,7 +919,7 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__last)
-            opts="-h -V --global --help --version [first] [free]"
+            opts="-h --help [first] [free]"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -623,7 +933,7 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__pacman)
-            opts="-h -V --global --help --version one two help"
+            opts="-h --help one two help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -693,7 +1003,7 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__pacman__one)
-            opts="-h -V --global --help --version"
+            opts="-h --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -707,7 +1017,7 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__pacman__two)
-            opts="-h -V --global --help --version"
+            opts="-h --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -721,7 +1031,7 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__quote)
-            opts="-h -V --single-quotes --double-quotes --backticks --backslash --brackets --expansions --choice --global --help --version cmd-single-quotes cmd-double-quotes cmd-backticks cmd-backslash cmd-brackets cmd-expansions escape-help help"
+            opts="-h --single-quotes --double-quotes --backticks --backslash --brackets --expansions --choice --help cmd-single-quotes cmd-double-quotes cmd-backticks cmd-backslash cmd-brackets cmd-expansions escape-help help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -739,7 +1049,7 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__quote__cmd__backslash)
-            opts="-h -V --global --help --version"
+            opts="-h --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -753,7 +1063,7 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__quote__cmd__backticks)
-            opts="-h -V --global --help --version"
+            opts="-h --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -767,7 +1077,7 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__quote__cmd__brackets)
-            opts="-h -V --global --help --version"
+            opts="-h --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -781,7 +1091,7 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__quote__cmd__double__quotes)
-            opts="-h -V --global --help --version"
+            opts="-h --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -795,7 +1105,7 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__quote__cmd__expansions)
-            opts="-h -V --global --help --version"
+            opts="-h --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -809,7 +1119,7 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__quote__cmd__single__quotes)
-            opts="-h -V --global --help --version"
+            opts="-h --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -823,7 +1133,7 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__quote__escape__help)
-            opts="-h -V --global --help --version"
+            opts="-h --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -963,7 +1273,7 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__value)
-            opts="-h -V --delim --tuple --require-eq --global --help --version [term]..."
+            opts="-h --delim --tuple --require-eq --help [term]..."
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0

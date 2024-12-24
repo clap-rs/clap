@@ -163,9 +163,23 @@ fn complete() {
     let input = "exhaustive \t";
     let expected = snapbox::str![[r#"
 % exhaustive 
-action  help  (Print this message or the help of the given subcommand(s))  last    quote
-alias   hint                                                               pacman  value
+action  empty   help  (Print this message or the help of the given subcommand(s))  last    quote
+alias   global  hint                                                               pacman  value
 "#]];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
+    let input = "exhaustive empty \t";
+    let expected = snapbox::str![[r#"
+% exhaustive empty 
+Cargo.toml    CONTRIBUTING.md  LICENSE-APACHE  README.md  tests/
+CHANGELOG.md  examples/        LICENSE-MIT     src/       
+"#]];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
+    let input = "exhaustive --empty=\t";
+    let expected = snapbox::str!["% exhaustive --empty="];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
@@ -198,10 +212,10 @@ fn complete_dynamic_env_toplevel() {
 
     let input = "exhaustive \t\t";
     let expected = snapbox::str![[r#"
-% exhaustive action 
-action  pacman  hint                                                               --generate      (generate)
-quote   last    help  (Print this message or the help of the given subcommand(s))  --help        (Print help)
-value   alias   --global                                             (everywhere)  --version  (Print version)
+% exhaustive empty 
+empty   quote   last   help  (Print this message or the help of the given subcommand(s))  --help  (Print help)
+global  value   alias  --generate                                             (generate)  
+action  pacman  hint   --empty-choice                                                     
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -230,7 +244,6 @@ cmd-expansions            (Execute the shell command with $SHELL)
 escape-help                                             (/tab "')
 help  (Print this message or the help of the given subcommand(s))
 --single-quotes             (Can be 'always', 'auto', or 'never')
---global                                             (everywhere)
 --double-quotes             (Can be "always", "auto", or "never")
 --backticks                (For more information see `echo test`)
 --backslash                                          (Avoid '/n')
@@ -238,7 +251,6 @@ help  (Print this message or the help of the given subcommand(s))
 --expansions              (Execute the shell command with $SHELL)
 --choice                                                         
 --help                      (Print help (see more with '--help'))
---version                                         (Print version)
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -290,6 +302,40 @@ another shell  (something with a space)  bash  (bash (shell))  fish  (fish shell
 
     let input = "exhaustive quote --choice an\t";
     let expected = snapbox::str!["% exhaustive quote --choice another/ shell "];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+fn complete_dynamic_empty_subcommand() {
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+
+    let input = "exhaustive empty \t\t";
+    let expected = snapbox::str!["% exhaustive empty "];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+fn complete_dynamic_empty_option_value() {
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+
+    let input = "exhaustive --empty=\t";
+    let expected = snapbox::str!["% exhaustive --empty="];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
