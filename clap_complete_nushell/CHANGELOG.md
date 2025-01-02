@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.5] - 2025-01-02
+
 ### Features
 
 - Respect `ValueHint` for paths
@@ -50,7 +52,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [4.3.0] - 2023-05-24
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.5.4...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.5.5...HEAD
+[4.5.5]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.5.4...clap_complete_nushell-v4.5.5
 [4.5.4]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.5.3...clap_complete_nushell-v4.5.4
 [4.5.3]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.5.2...clap_complete_nushell-v4.5.3
 [4.5.2]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.5.1...clap_complete_nushell-v4.5.2
