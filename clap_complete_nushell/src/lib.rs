@@ -23,6 +23,7 @@
 #![warn(clippy::print_stdout)]
 
 use clap::builder::StyledStr;
+use clap::ValueHint;
 use clap::{builder::PossibleValue, Arg, ArgAction, Command};
 use clap_complete::Generator;
 
@@ -65,7 +66,23 @@ fn append_value_completion_and_help(
         .unwrap_or(false);
 
     if takes_values {
-        s.push_str(": string");
+        let nu_type = match arg.get_value_hint() {
+            ValueHint::Unknown => "string",
+            ValueHint::Other => "string",
+            ValueHint::AnyPath => "path",
+            ValueHint::FilePath => "path",
+            ValueHint::DirPath => "path",
+            ValueHint::ExecutablePath => "path",
+            ValueHint::CommandName => "string",
+            ValueHint::CommandString => "string",
+            ValueHint::CommandWithArguments => "string",
+            ValueHint::Username => "string",
+            ValueHint::Hostname => "string",
+            ValueHint::Url => "string",
+            ValueHint::EmailAddress => "string",
+            _ => "string",
+        };
+        s.push_str(format!(": {nu_type}").as_str());
 
         if !possible_values.is_empty() {
             s.push_str(format!(r#"@"nu-complete {} {}""#, name, arg.get_id()).as_str());

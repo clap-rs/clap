@@ -8,10 +8,10 @@ module completions {
     --choice: string@"nu-complete my-app choice"
     --unknown: string
     --other: string
-    --path(-p): string
-    --file(-f): string
-    --dir(-d): string
-    --exe(-e): string
+    --path(-p): path
+    --file(-f): path
+    --dir(-d): path
+    --exe(-e): path
     --cmd-name: string
     --cmd(-c): string
     command_with_args?: string
