@@ -184,7 +184,7 @@ value          value
 
     let input = "exhaustive empty \t";
     let expected = snapbox::str![[r#"
-no candidates
+error: no candidates
 % exhaustive empty 
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
@@ -192,7 +192,7 @@ no candidates
 
     let input = "exhaustive --empty=\t";
     let expected = snapbox::str![[r#"
-no candidates
+error: no candidates
 % exhaustive --empty=
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
@@ -324,8 +324,8 @@ fn complete_dynamic_empty_subcommand() {
 
     let input = "exhaustive empty \t\t";
     let expected = snapbox::str![[r#"
-no candidates
-no candidates
+error: no candidates
+error: no candidates
 % exhaustive empty 
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
@@ -345,7 +345,7 @@ fn complete_dynamic_empty_option_value() {
 
     let input = "exhaustive --empty=\t";
     let expected = snapbox::str![[r#"
-no candidates
+error: no candidates
 % exhaustive --empty=
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
