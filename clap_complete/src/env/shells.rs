@@ -157,14 +157,10 @@ impl EnvCompleter for Elvish {
 
         let script = r#"
 set edit:completion:arg-completer[BIN] = { |@words|
-    set E:_CLAP_IFS = "\n"
-
     var index = (count $words)
     set index = (- $index 1)
-    set E:_CLAP_COMPLETE_INDEX = (to-string $index)
-    set E:VAR = "elvish"
 
-    put (COMPLETER -- $@words) | to-lines
+    put (env _CLAP_IFS="\n" _CLAP_COMPLETE_INDEX=(to-string $index) VAR="elvish" COMPLETER -- $@words) | to-lines
 }
 "#
         .replace("COMPLETER", &completer)
