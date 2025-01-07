@@ -1,4 +1,5 @@
-use clap::{arg, Arg, ArgAction, Command};
+use clap::{arg, error::ErrorKind, parser::ValueSource, Arg, ArgAction, Command};
+use snapbox::str;
 
 use super::utils;
 
@@ -114,6 +115,38 @@ fn unexpected_argument() {
         Some("config file".to_owned())
     );
     assert_eq!(m.get_one::<bool>("unset-flag").copied(), Some(false));
+}
+
+#[test]
+#[cfg(feature = "error-context")]
+fn did_you_mean() {
+    let mut cmd = Command::new("cmd").arg(arg!(--"ignore-immutable"));
+
+    // Verify we are in a "did you mean" error
+    let r = cmd.try_get_matches_from_mut(vec!["cmd", "--ig"]);
+    assert!(r.is_err());
+    let err = r.unwrap_err();
+    utils::assert_error(err, ErrorKind::UnknownArgument, str![[r#"
+error: unexpected argument '--ig' found
+
+  tip: a similar argument exists: '--ignore-immutable'
+
+Usage: cmd --ignore-immutable
+
+For more information, try '--help'.
+
+"#]], true);
+
+    let r = cmd
+        .ignore_errors(true)
+        .try_get_matches_from(vec!["cmd", "--ig"]);
+    assert!(r.is_ok(), "unexpected error: {r:?}");
+    let m = r.unwrap();
+    assert!(m.contains_id("ignore-immutable"), "{m:#?}");
+    assert_eq!(
+        m.value_source("ignore-immutable"),
+        Some(ValueSource::CommandLine)
+    );
 }
 
 #[test]
