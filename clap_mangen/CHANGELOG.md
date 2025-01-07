@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Do not generate man pages for hidden subcommands
+
 ## [0.2.24] - 2024-10-08
 
 ## [0.2.23] - 2024-07-25
