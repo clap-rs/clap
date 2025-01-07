@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+- *(elvish)* Avoid leaking env variables in dynamic completions
+
 ## [4.5.40] - 2024-12-17
 
 ### Fixes
