@@ -130,7 +130,7 @@ pub fn generate_to(
     out_dir: impl AsRef<std::path::Path>,
 ) -> Result<(), std::io::Error> {
     fn generate(cmd: clap::Command, out_dir: &std::path::Path) -> Result<(), std::io::Error> {
-        for cmd in cmd.get_subcommands().cloned() {
+        for cmd in cmd.get_subcommands().filter(|s| !s.is_hide_set()).cloned() {
             generate(cmd, out_dir)?;
         }
         Man::new(cmd).generate_to(out_dir)?;
