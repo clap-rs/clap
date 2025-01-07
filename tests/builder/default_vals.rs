@@ -5,6 +5,7 @@ use clap::builder::ArgPredicate;
 #[cfg(feature = "error-context")]
 use clap::error::ErrorKind;
 use clap::{arg, value_parser, Arg, ArgAction, Command};
+use snapbox::str;
 
 #[cfg(feature = "error-context")]
 use super::utils;
@@ -49,10 +50,12 @@ fn opt_without_value_fail() {
         .try_get_matches_from(vec!["", "-o"]);
     assert!(r.is_err());
     let err = r.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::InvalidValue);
-    assert!(err
-        .to_string()
-        .contains("a value is required for '-o <opt>' but none was supplied"));
+    utils::assert_error(err, ErrorKind::InvalidValue, str![[r#"
+error: a value is required for '-o <opt>' but none was supplied
+
+For more information, try '--help'.
+
+"#]], true);
 }
 
 #[test]

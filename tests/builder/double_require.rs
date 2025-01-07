@@ -1,14 +1,7 @@
 use clap::{error::ErrorKind, Arg, ArgAction, Command};
+use snapbox::str;
 
-static HELP: &str = "\
-Usage: prog [OPTIONS]
-
-Options:
-  -a          
-  -b          
-  -c          
-  -h, --help  Print help
-";
+use crate::utils;
 
 fn cmd() -> Command {
     Command::new("prog")
@@ -50,41 +43,54 @@ fn help_text() {
     let res = cmd().try_get_matches_from(vec!["prog", "--help"]);
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::DisplayHelp);
-    println!("{err}");
-    assert_eq!(err.to_string(), HELP);
+    utils::assert_error(err, ErrorKind::DisplayHelp, str![[r#"
+Usage: prog [OPTIONS]
+
+Options:
+  -a          
+  -b          
+  -c          
+  -h, --help  Print help
+
+"#]], false);
 }
 
 #[test]
 #[cfg(feature = "error-context")]
 fn no_duplicate_error() {
-    static ONLY_B_ERROR: &str = "\
+    let res = cmd().try_get_matches_from(vec!["", "-b"]);
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    utils::assert_error(
+        err,
+        ErrorKind::MissingRequiredArgument,
+        str![[r#"
 error: the following required arguments were not provided:
   -c
 
 Usage: prog -b -c
 
 For more information, try '--help'.
-";
 
-    let res = cmd().try_get_matches_from(vec!["", "-b"]);
+"#]],
+        true,
+    );
+
+    let res = cmd().try_get_matches_from(vec!["", "-c"]);
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::MissingRequiredArgument);
-    assert_eq!(err.to_string(), ONLY_B_ERROR);
-
-    static ONLY_C_ERROR: &str = "\
+    utils::assert_error(
+        err,
+        ErrorKind::MissingRequiredArgument,
+        str![[r#"
 error: the following required arguments were not provided:
   -b
 
 Usage: prog -c -b
 
 For more information, try '--help'.
-";
 
-    let res = cmd().try_get_matches_from(vec!["", "-c"]);
-    assert!(res.is_err());
-    let err = res.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::MissingRequiredArgument);
-    assert_eq!(err.to_string(), ONLY_C_ERROR);
+"#]],
+        true,
+    );
 }

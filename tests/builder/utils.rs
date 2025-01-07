@@ -52,6 +52,7 @@ pub(crate) fn assert_error<F: clap::error::ErrorFormatter>(
         err.use_stderr()
     );
     assert_eq!(expected_kind, err.kind());
+    #[cfg(feature = "error-context")]
     assert_data_eq!(actual_output, expected_output);
 }
 

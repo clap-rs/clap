@@ -3,28 +3,9 @@
 use clap::{
     crate_authors, crate_description, crate_name, crate_version, error::ErrorKind, Command,
 };
+use snapbox::str;
 
 use crate::utils;
-
-static DESCRIPTION_ONLY: &str = "prog 1
-A simple to use, efficient, and full-featured Command Line Argument Parser
-
-Usage: prog
-
-Options:
-  -h, --help     Print help
-  -V, --version  Print version
-";
-
-static AUTHORS_ONLY: &str = "prog 1
-
-
-Usage: prog
-
-Options:
-  -h, --help     Print help
-  -V, --version  Print version
-";
 
 #[test]
 fn crate_version() {
@@ -52,8 +33,17 @@ fn crate_description() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::DisplayHelp);
-    assert_eq!(err.to_string(), DESCRIPTION_ONLY);
+    utils::assert_error(err, ErrorKind::DisplayHelp, str![[r#"
+prog 1
+A simple to use, efficient, and full-featured Command Line Argument Parser
+
+Usage: prog
+
+Options:
+  -h, --help     Print help
+  -V, --version  Print version
+
+"#]], false);
 }
 
 #[test]
@@ -66,8 +56,17 @@ fn crate_authors() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::DisplayHelp);
-    assert_eq!(err.to_string(), AUTHORS_ONLY);
+    utils::assert_error(err, ErrorKind::DisplayHelp, str![[r#"
+prog 1
+
+
+Usage: prog
+
+Options:
+  -h, --help     Print help
+  -V, --version  Print version
+
+"#]], false);
 }
 
 #[test]
@@ -80,8 +79,17 @@ fn crate_authors_with_sep() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::DisplayHelp);
-    assert_eq!(err.to_string(), AUTHORS_ONLY);
+    utils::assert_error(err, ErrorKind::DisplayHelp, str![[r#"
+prog 1
+
+
+Usage: prog
+
+Options:
+  -h, --help     Print help
+  -V, --version  Print version
+
+"#]], false);
 }
 
 #[test]
@@ -93,6 +101,8 @@ fn crate_name() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::DisplayVersion);
-    assert_eq!(err.to_string(), "clap 3.0\n");
+    utils::assert_error(err, ErrorKind::DisplayVersion, str![[r#"
+clap 3.0
+
+"#]], false);
 }

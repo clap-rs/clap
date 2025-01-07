@@ -2,6 +2,8 @@ use clap::{error::ErrorKind, Arg, ArgAction, Command};
 use snapbox::assert_data_eq;
 use snapbox::str;
 
+use crate::utils;
+
 #[test]
 fn option_long() {
     let m = Command::new("multiple_values")
@@ -164,6 +166,7 @@ fn option_exact_exact_mult() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn option_exact_less() {
     let m = Command::new("multiple_values")
         .arg(
@@ -177,19 +180,18 @@ fn option_exact_less() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::WrongNumberOfValues);
-    #[cfg(feature = "error-context")]
-    assert_data_eq!(err.to_string(), str![[r#"
+    utils::assert_error(err, ErrorKind::WrongNumberOfValues, str![[r#"
 error: 3 values required for '-o <option> <option> <option>' but 1 was provided
 
 Usage: multiple_values [OPTIONS]
 
 For more information, try '--help'.
 
-"#]]);
+"#]], true);
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn option_exact_more() {
     let m = Command::new("multiple_values")
         .arg(
@@ -205,16 +207,14 @@ fn option_exact_more() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::WrongNumberOfValues);
-    #[cfg(feature = "error-context")]
-    assert_data_eq!(err.to_string(), str![[r#"
+    utils::assert_error(err, ErrorKind::WrongNumberOfValues, str![[r#"
 error: 3 values required for '-o <option> <option> <option>' but 1 was provided
 
 Usage: multiple_values [OPTIONS]
 
 For more information, try '--help'.
 
-"#]]);
+"#]], true);
 }
 
 #[test]
@@ -243,6 +243,7 @@ fn option_min_exact() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn option_min_less() {
     let m = Command::new("multiple_values")
         .arg(
@@ -256,16 +257,14 @@ fn option_min_less() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::TooFewValues);
-    #[cfg(feature = "error-context")]
-    assert_data_eq!(err.to_string(), str![[r#"
+    utils::assert_error(err, ErrorKind::TooFewValues, str![[r#"
 error: 3 values required by '-o <option> <option> <option>...'; only 2 were provided
 
 Usage: multiple_values [OPTIONS]
 
 For more information, try '--help'.
 
-"#]]);
+"#]], true);
 }
 
 #[test]
@@ -374,6 +373,7 @@ fn option_max_less() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn option_max_zero() {
     let m = Command::new("multiple_values")
         .arg(
@@ -387,14 +387,12 @@ fn option_max_zero() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::InvalidValue);
-    #[cfg(feature = "error-context")]
-    assert_data_eq!(err.to_string(), str![[r#"
+    utils::assert_error(err, ErrorKind::InvalidValue, str![[r#"
 error: a value is required for '-o <option>...' but none was supplied
 
 For more information, try '--help'.
 
-"#]]);
+"#]], true);
 }
 
 #[test]
@@ -423,6 +421,7 @@ fn option_max_zero_eq() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn option_max_more() {
     let m = Command::new("multiple_values")
         .arg(
@@ -437,16 +436,14 @@ fn option_max_more() {
     assert!(m.is_err());
     let err = m.unwrap_err();
     // Can end up being TooManyValues or UnknownArgument
-    assert_eq!(err.kind(), ErrorKind::UnknownArgument);
-    #[cfg(feature = "error-context")]
-    assert_data_eq!(err.to_string(), str![[r#"
+    utils::assert_error(err, ErrorKind::UnknownArgument, str![[r#"
 error: unexpected argument 'val4' found
 
 Usage: multiple_values [OPTIONS]
 
 For more information, try '--help'.
 
-"#]]);
+"#]], true);
 }
 
 #[test]
@@ -534,6 +531,7 @@ fn positional_exact_exact() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn positional_exact_less() {
     let m = Command::new("multiple_values")
         .arg(Arg::new("pos").help("multiple positionals").num_args(3))
@@ -541,19 +539,18 @@ fn positional_exact_less() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::WrongNumberOfValues);
-    #[cfg(feature = "error-context")]
-    assert_data_eq!(err.to_string(), str![[r#"
+    utils::assert_error(err, ErrorKind::WrongNumberOfValues, str![[r#"
 error: 3 values required for '[pos] [pos] [pos]' but 2 were provided
 
 Usage: myprog [pos] [pos] [pos]
 
 For more information, try '--help'.
 
-"#]]);
+"#]], true);
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn positional_exact_more() {
     let m = Command::new("multiple_values")
         .arg(Arg::new("pos").help("multiple positionals").num_args(3))
@@ -561,16 +558,14 @@ fn positional_exact_more() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::WrongNumberOfValues);
-    #[cfg(feature = "error-context")]
-    assert_data_eq!(err.to_string(), str![[r#"
+    utils::assert_error(err, ErrorKind::WrongNumberOfValues, str![[r#"
 error: 3 values required for '[pos] [pos] [pos]' but 4 were provided
 
 Usage: myprog [pos] [pos] [pos]
 
 For more information, try '--help'.
 
-"#]]);
+"#]], true);
 }
 
 #[test]
@@ -593,6 +588,7 @@ fn positional_min_exact() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn positional_min_less() {
     let m = Command::new("multiple_values")
         .arg(Arg::new("pos").help("multiple positionals").num_args(3..))
@@ -600,16 +596,14 @@ fn positional_min_less() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::TooFewValues);
-    #[cfg(feature = "error-context")]
-    assert_data_eq!(err.to_string(), str![[r#"
+    utils::assert_error(err, ErrorKind::TooFewValues, str![[r#"
 error: 3 values required by '[pos] [pos] [pos]...'; only 2 were provided
 
 Usage: myprog [pos] [pos] [pos]...
 
 For more information, try '--help'.
 
-"#]]);
+"#]], true);
 }
 
 #[test]
@@ -670,6 +664,7 @@ fn positional_max_less() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn positional_max_more() {
     let m = Command::new("multiple_values")
         .arg(Arg::new("pos").help("multiple positionals").num_args(1..=3))
@@ -677,16 +672,14 @@ fn positional_max_more() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::TooManyValues);
-    #[cfg(feature = "error-context")]
-    assert_data_eq!(err.to_string(), str![[r#"
+    utils::assert_error(err, ErrorKind::TooManyValues, str![[r#"
 error: unexpected value 'val4' for '[pos]...' found; no more were expected
 
 Usage: myprog [pos]...
 
 For more information, try '--help'.
 
-"#]]);
+"#]], true);
 }
 
 #[test]
@@ -1676,6 +1669,7 @@ fn issue_1480_max_values_consumes_extra_arg_1() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn issue_1480_max_values_consumes_extra_arg_2() {
     let m = Command::new("prog")
         .arg(Arg::new("field").num_args(..=1).long("field"))
@@ -1683,19 +1677,18 @@ fn issue_1480_max_values_consumes_extra_arg_2() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::UnknownArgument);
-    #[cfg(feature = "error-context")]
-    assert_data_eq!(err.to_string(), str![[r#"
+    utils::assert_error(err, ErrorKind::UnknownArgument, str![[r#"
 error: unexpected argument '2' found
 
 Usage: prog [OPTIONS]
 
 For more information, try '--help'.
 
-"#]]);
+"#]], true);
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn issue_1480_max_values_consumes_extra_arg_3() {
     let m = Command::new("prog")
         .arg(Arg::new("field").num_args(..=1).long("field"))
@@ -1703,16 +1696,14 @@ fn issue_1480_max_values_consumes_extra_arg_3() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::UnknownArgument);
-    #[cfg(feature = "error-context")]
-    assert_data_eq!(err.to_string(), str![[r#"
+    utils::assert_error(err, ErrorKind::UnknownArgument, str![[r#"
 error: unexpected argument '2' found
 
 Usage: prog [OPTIONS]
 
 For more information, try '--help'.
 
-"#]]);
+"#]], true);
 }
 
 #[test]
@@ -1831,6 +1822,7 @@ fn values_per_occurrence_positional() {
 }
 
 #[test]
+#[cfg(feature = "error-context")]
 fn issue_2229() {
     let m = Command::new("multiple_values")
         .arg(Arg::new("pos").help("multiple positionals").num_args(3))
@@ -1840,16 +1832,14 @@ fn issue_2229() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::WrongNumberOfValues);
-    #[cfg(feature = "error-context")]
-    assert_data_eq!(err.to_string(), str![[r#"
+    utils::assert_error(err, ErrorKind::WrongNumberOfValues, str![[r#"
 error: 3 values required for '[pos] [pos] [pos]' but 6 were provided
 
 Usage: myprog [pos] [pos] [pos]
 
 For more information, try '--help'.
 
-"#]]);
+"#]], true);
 }
 
 #[test]

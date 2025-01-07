@@ -1,4 +1,5 @@
 use clap::{error::ErrorKind, ArgAction, Command};
+use snapbox::str;
 
 use crate::utils;
 
@@ -28,7 +29,19 @@ fn version_short_flag_no_version() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::UnknownArgument);
+    utils::assert_error(
+        err,
+        ErrorKind::UnknownArgument,
+        str![[r#"
+error: unexpected argument '-V' found
+
+Usage: foo
+
+For more information, try '--help'.
+
+"#]],
+        true,
+    );
 }
 
 #[test]
@@ -37,7 +50,19 @@ fn version_long_flag_no_version() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::UnknownArgument);
+    utils::assert_error(
+        err,
+        ErrorKind::UnknownArgument,
+        str![[r#"
+error: unexpected argument '--version' found
+
+Usage: foo
+
+For more information, try '--help'.
+
+"#]],
+        true,
+    );
 }
 
 #[test]
@@ -46,8 +71,15 @@ fn version_short_flag_with_version() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::DisplayVersion);
-    assert_eq!(err.to_string(), "foo 3.0\n");
+    utils::assert_error(
+        err,
+        ErrorKind::DisplayVersion,
+        str![[r#"
+foo 3.0
+
+"#]],
+        false,
+    );
 }
 
 #[test]
@@ -56,8 +88,15 @@ fn version_long_flag_with_version() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::DisplayVersion);
-    assert_eq!(err.to_string(), "foo 3.0\n");
+    utils::assert_error(
+        err,
+        ErrorKind::DisplayVersion,
+        str![[r#"
+foo 3.0
+
+"#]],
+        false,
+    );
 }
 
 #[test]
@@ -66,8 +105,15 @@ fn version_short_flag_with_long_version() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::DisplayVersion);
-    assert_eq!(err.to_string(), "foo 3.0 (abcdefg)\n");
+    utils::assert_error(
+        err,
+        ErrorKind::DisplayVersion,
+        str![[r#"
+foo 3.0 (abcdefg)
+
+"#]],
+        false,
+    );
 }
 
 #[test]
@@ -76,8 +122,15 @@ fn version_long_flag_with_long_version() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::DisplayVersion);
-    assert_eq!(err.to_string(), "foo 3.0 (abcdefg)\n");
+    utils::assert_error(
+        err,
+        ErrorKind::DisplayVersion,
+        str![[r#"
+foo 3.0 (abcdefg)
+
+"#]],
+        false,
+    );
 }
 
 #[test]
@@ -86,8 +139,15 @@ fn version_short_flag_with_both() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::DisplayVersion);
-    assert_eq!(err.to_string(), "foo 3.0\n");
+    utils::assert_error(
+        err,
+        ErrorKind::DisplayVersion,
+        str![[r#"
+foo 3.0
+
+"#]],
+        false,
+    );
 }
 
 #[test]
@@ -96,8 +156,10 @@ fn version_long_flag_with_both() {
 
     assert!(res.is_err());
     let err = res.unwrap_err();
-    assert_eq!(err.kind(), ErrorKind::DisplayVersion);
-    assert_eq!(err.to_string(), "foo 3.0 (abcdefg)\n");
+    utils::assert_error(err, ErrorKind::DisplayVersion, str![[r#"
+foo 3.0 (abcdefg)
+
+"#]], false);
 }
 
 #[test]
