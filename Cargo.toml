@@ -6,7 +6,6 @@ members = [
   "clap_derive",
   "clap_lex",
   "clap_complete",
-  "clap_complete_fig",
   "clap_complete_nushell",
   "clap_mangen",
 ]
