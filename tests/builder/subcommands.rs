@@ -487,20 +487,22 @@ fn bad_multicall_command_error() {
 
     let err = cmd.clone().try_get_matches_from(["world"]).unwrap_err();
     assert_eq!(err.kind(), ErrorKind::InvalidSubcommand);
-    assert_data_eq!(err.to_string(), str![[r#"
+    assert_data_eq!(
+        err.to_string(),
+        str![[r#"
 error: unrecognized subcommand 'world'
 
 Usage: <COMMAND>
 
 For more information, try 'help'.
 
-"#]]);
+"#]]
+    );
 
     #[cfg(feature = "suggestions")]
     {
         let err = cmd.clone().try_get_matches_from(["baz"]).unwrap_err();
-        assert_eq!(err.kind(), ErrorKind::InvalidSubcommand);
-        assert_data_eq!(err.to_string(), str![[r#"
+        utils::assert_error(err, ErrorKind::InvalidSubcommand, str![[r#"
 error: unrecognized subcommand 'baz'
 
   tip: a similar subcommand exists: 'bar'
@@ -509,7 +511,7 @@ Usage: <COMMAND>
 
 For more information, try 'help'.
 
-"#]]);
+"#]], true);
     }
 
     // Verify whatever we did to get the above to work didn't disable `--help` and `--version`.
@@ -600,7 +602,9 @@ fn multicall_render_help() {
     let subcmd = subcmd.find_subcommand_mut("bar").unwrap();
 
     let help = subcmd.render_help().to_string();
-    assert_data_eq!(help, str![[r#"
+    assert_data_eq!(
+        help,
+        str![[r#"
 Usage: foo bar [value]
 
 Arguments:
@@ -610,7 +614,8 @@ Options:
   -h, --help     Print help
   -V, --version  Print version
 
-"#]]);
+"#]]
+    );
 }
 
 #[test]
