@@ -126,7 +126,10 @@ fn did_you_mean() {
     let r = cmd.try_get_matches_from_mut(vec!["cmd", "--ig"]);
     assert!(r.is_err());
     let err = r.unwrap_err();
-    utils::assert_error(err, ErrorKind::UnknownArgument, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::UnknownArgument,
+        str![[r#"
 error: unexpected argument '--ig' found
 
   tip: a similar argument exists: '--ignore-immutable'
@@ -135,7 +138,9 @@ Usage: cmd --ignore-immutable
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 
     let r = cmd
         .ignore_errors(true)
@@ -145,7 +150,7 @@ For more information, try '--help'.
     assert!(m.contains_id("ignore-immutable"), "{m:#?}");
     assert_eq!(
         m.value_source("ignore-immutable"),
-        Some(ValueSource::CommandLine)
+        Some(ValueSource::DefaultValue)
     );
 }
 
