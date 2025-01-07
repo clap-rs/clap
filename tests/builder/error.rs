@@ -1,5 +1,6 @@
 use clap::{arg, builder::ArgAction, error::Error, error::ErrorKind, value_parser, Arg, Command};
 use snapbox::assert_data_eq;
+use snapbox::str;
 
 #[track_caller]
 fn assert_error<F: clap::error::ErrorFormatter>(
@@ -22,12 +23,14 @@ fn assert_error<F: clap::error::ErrorFormatter>(
 
 #[test]
 fn app_error() {
-    static MESSAGE: &str = "error: failed for mysterious reasons
+    let message = str![[r#"
+error: failed for mysterious reasons
 
 Usage: test [OPTIONS] --all
 
 For more information, try '--help'.
-";
+
+"#]];
     let cmd = Command::new("test")
         .arg(
             Arg::new("all")
@@ -55,7 +58,7 @@ For more information, try '--help'.
     let mut cmd = cmd;
     let expected_kind = ErrorKind::InvalidValue;
     let err = cmd.error(expected_kind, "failed for mysterious reasons");
-    assert_error(err, expected_kind, MESSAGE, true);
+    assert_error(err, expected_kind, message, true);
 }
 
 #[test]
@@ -86,13 +89,14 @@ fn kind_prints_help() {
     assert!(res.is_err());
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::DisplayHelp;
-    static MESSAGE: &str = "\
+    let message = str![[r#"
 Usage: test
 
 Options:
   -h, --help  Print help
-";
-    assert_error(err, expected_kind, MESSAGE, false);
+
+"#]];
+    assert_error(err, expected_kind, message, false);
 }
 
 #[test]
@@ -104,10 +108,11 @@ fn kind_formats_validation_error() {
     assert!(res.is_err());
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::UnknownArgument;
-    static MESSAGE: &str = "\
+    let message = str![[r#"
 error: unexpected argument found
-";
-    assert_error(err, expected_kind, MESSAGE, true);
+
+"#]];
+    assert_error(err, expected_kind, message, true);
 }
 
 #[test]
@@ -118,14 +123,15 @@ fn rich_formats_validation_error() {
     assert!(res.is_err());
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::UnknownArgument;
-    static MESSAGE: &str = "\
+    let message = str![[r#"
 error: unexpected argument 'unused' found
 
 Usage: test
 
 For more information, try '--help'.
-";
-    assert_error(err, expected_kind, MESSAGE, true);
+
+"#]];
+    assert_error(err, expected_kind, message, true);
 }
 
 #[test]
@@ -137,7 +143,7 @@ fn suggest_trailing() {
     assert!(res.is_err());
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::UnknownArgument;
-    static MESSAGE: &str = "\
+    let message = str![[r#"
 error: unexpected argument '--foo' found
 
   tip: to pass '--foo' as a value, use '-- --foo'
@@ -145,8 +151,9 @@ error: unexpected argument '--foo' found
 Usage: rg [PATTERN]
 
 For more information, try '--help'.
-";
-    assert_error(err, expected_kind, MESSAGE, true);
+
+"#]];
+    assert_error(err, expected_kind, message, true);
 }
 
 #[test]
@@ -160,7 +167,7 @@ fn suggest_trailing_last() {
     assert!(res.is_err());
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::UnknownArgument;
-    static MESSAGE: &str = "\
+    let message = str![[r#"
 error: unexpected argument '--ignored' found
 
   tip: a similar argument exists: '--ignore-rust-version'
@@ -169,8 +176,9 @@ error: unexpected argument '--ignored' found
 Usage: cargo --ignore-rust-version [-- <TESTNAME>]
 
 For more information, try '--help'.
-";
-    assert_error(err, expected_kind, MESSAGE, true);
+
+"#]];
+    assert_error(err, expected_kind, message, true);
 }
 
 #[test]
@@ -182,14 +190,15 @@ fn trailing_already_in_use() {
     assert!(res.is_err());
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::UnknownArgument;
-    static MESSAGE: &str = "\
+    let message = str![[r#"
 error: unexpected argument '--foo' found
 
 Usage: rg [PATTERN]
 
 For more information, try '--help'.
-";
-    assert_error(err, expected_kind, MESSAGE, true);
+
+"#]];
+    assert_error(err, expected_kind, message, true);
 }
 
 #[test]
@@ -201,14 +210,15 @@ fn cant_use_trailing() {
     assert!(res.is_err());
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::UnknownArgument;
-    static MESSAGE: &str = "\
+    let message = str![[r#"
 error: unexpected argument '--foo' found
 
 Usage: test
 
 For more information, try '--help'.
-";
-    assert_error(err, expected_kind, MESSAGE, true);
+
+"#]];
+    assert_error(err, expected_kind, message, true);
 }
 
 #[test]
@@ -221,7 +231,7 @@ fn cant_use_trailing_subcommand() {
     assert!(res.is_err());
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::InvalidSubcommand;
-    static MESSAGE: &str = "\
+    let message = str![[r#"
 error: unrecognized subcommand 'baz'
 
   tip: a similar subcommand exists: 'bar'
@@ -229,8 +239,9 @@ error: unrecognized subcommand 'baz'
 Usage: test [COMMAND]
 
 For more information, try '--help'.
-";
-    assert_error(err, expected_kind, MESSAGE, true);
+
+"#]];
+    assert_error(err, expected_kind, message, true);
 }
 
 #[test]
@@ -256,7 +267,7 @@ fn unknown_argument_option() {
     assert!(res.is_err());
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::UnknownArgument;
-    static MESSAGE: &str = "\
+    let message = str![[r#"
 error: unexpected argument '--cwd <current-dir-unknown>' found
 
   tip: a similar argument exists: '-C'
@@ -265,8 +276,9 @@ error: unexpected argument '--cwd <current-dir-unknown>' found
 Usage: test [OPTIONS]
 
 For more information, try '--help'.
-";
-    assert_error(err, expected_kind, MESSAGE, true);
+
+"#]];
+    assert_error(err, expected_kind, message, true);
 }
 
 #[test]
@@ -292,7 +304,7 @@ fn unknown_argument_flag() {
     assert!(res.is_err());
     let err = res.unwrap_err();
     let expected_kind = ErrorKind::UnknownArgument;
-    static MESSAGE: &str = "\
+    let message = str![[r#"
 error: unexpected argument '--ignored' found
 
   tip: a similar argument exists: '-- --ignored'
@@ -301,6 +313,7 @@ error: unexpected argument '--ignored' found
 Usage: test [OPTIONS]
 
 For more information, try '--help'.
-";
-    assert_error(err, expected_kind, MESSAGE, true);
+
+"#]];
+    assert_error(err, expected_kind, message, true);
 }
