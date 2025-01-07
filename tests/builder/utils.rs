@@ -3,7 +3,7 @@
 use std::io::{BufRead, Cursor, Write};
 use std::str;
 
-use clap::{arg, Arg, ArgAction, ArgGroup, Command};
+use clap::{arg, error::Error, error::ErrorKind, Arg, ArgAction, ArgGroup, Command};
 use snapbox::assert_data_eq;
 
 pub(crate) const FULL_TEMPLATE: &str = "\
@@ -34,6 +34,25 @@ pub(crate) fn assert_output(
         err.use_stderr()
     );
     assert_data_eq!(actual, expected.raw());
+}
+
+#[track_caller]
+pub(crate) fn assert_error<F: clap::error::ErrorFormatter>(
+    err: Error<F>,
+    expected_kind: ErrorKind,
+    expected_output: impl snapbox::data::IntoData,
+    stderr: bool,
+) {
+    let actual_output = err.to_string();
+    assert_eq!(
+        stderr,
+        err.use_stderr(),
+        "Should Use STDERR failed. Should be {} but is {}",
+        stderr,
+        err.use_stderr()
+    );
+    assert_eq!(expected_kind, err.kind());
+    assert_data_eq!(actual_output, expected_output);
 }
 
 // Legacy tests from the python script days

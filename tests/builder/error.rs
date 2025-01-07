@@ -1,25 +1,7 @@
-use clap::{arg, builder::ArgAction, error::Error, error::ErrorKind, value_parser, Arg, Command};
-use snapbox::assert_data_eq;
+use clap::{arg, builder::ArgAction, error::ErrorKind, value_parser, Arg, Command};
 use snapbox::str;
 
-#[track_caller]
-fn assert_error<F: clap::error::ErrorFormatter>(
-    err: Error<F>,
-    expected_kind: ErrorKind,
-    expected_output: impl snapbox::data::IntoData,
-    stderr: bool,
-) {
-    let actual_output = err.to_string();
-    assert_eq!(
-        stderr,
-        err.use_stderr(),
-        "Should Use STDERR failed. Should be {} but is {}",
-        stderr,
-        err.use_stderr()
-    );
-    assert_eq!(expected_kind, err.kind());
-    assert_data_eq!(actual_output, expected_output);
-}
+use crate::utils::assert_error;
 
 #[test]
 fn app_error() {
