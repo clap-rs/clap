@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.41] - 2025-01-07
+
 - *(elvish)* Avoid leaking env variables in dynamic completions
 
 ## [4.5.40] - 2024-12-17
@@ -500,7 +502,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.40...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.41...HEAD
+[4.5.41]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.40...clap_complete-v4.5.41
 [4.5.40]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.39...clap_complete-v4.5.40
 [4.5.39]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.38...clap_complete-v4.5.39
 [4.5.38]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.37...clap_complete-v4.5.38
