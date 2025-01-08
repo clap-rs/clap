@@ -187,7 +187,7 @@ CHANGELOG.md  examples/        LICENSE-MIT     src/
     let actual = runtime.complete(input, &term).unwrap();
     let expected = snapbox::str![[r#"
 % exhaustive quote --choice 
-another shell  (something with a space)  bash  (bash (shell))  fish  (fish shell)  zsh  (zsh shell)
+another  bash  (bash (shell))  fish  (fish shell)  shell  (something with a space)  zsh  (zsh shell)
 "#]];
     assert_data_eq!(actual, expected);
 }

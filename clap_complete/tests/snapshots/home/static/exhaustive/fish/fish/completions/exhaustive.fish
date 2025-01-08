@@ -24,8 +24,12 @@ function __fish_exhaustive_using_subcommand
 	contains -- $cmd[1] $argv
 end
 
-complete -c exhaustive -n "__fish_exhaustive_needs_command" -l generate -d 'generate' -r -f -a "{bash\t'',elvish\t'',fish\t'',powershell\t'',zsh\t''}"
-complete -c exhaustive -n "__fish_exhaustive_needs_command" -l empty-choice -r -f -a "{}"
+complete -c exhaustive -n "__fish_exhaustive_needs_command" -l generate -d 'generate' -r -f -a "bash\t''
+elvish\t''
+fish\t''
+powershell\t''
+zsh\t''"
+complete -c exhaustive -n "__fish_exhaustive_needs_command" -l empty-choice -r -f -a ""
 complete -c exhaustive -n "__fish_exhaustive_needs_command" -s h -l help -d 'Print help'
 complete -c exhaustive -n "__fish_exhaustive_needs_command" -f -a "empty"
 complete -c exhaustive -n "__fish_exhaustive_needs_command" -f -a "global"
@@ -55,11 +59,15 @@ complete -c exhaustive -n "__fish_exhaustive_using_subcommand global; and __fish
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand global; and __fish_seen_subcommand_from help" -f -a "two"
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand global; and __fish_seen_subcommand_from help" -f -a "help" -d 'Print this message or the help of the given subcommand(s)'
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand action" -l set -d 'value' -r
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand action" -l choice -d 'enum' -r -f -a "{first\t'',second\t''}"
+complete -c exhaustive -n "__fish_exhaustive_using_subcommand action" -l choice -d 'enum' -r -f -a "first\t''
+second\t''"
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand action" -l set-true -d 'bool'
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand action" -l count -d 'number'
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand action" -s h -l help -d 'Print help'
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand quote; and not __fish_seen_subcommand_from cmd-single-quotes cmd-double-quotes cmd-backticks cmd-backslash cmd-brackets cmd-expansions escape-help help" -l choice -r -f -a "{another shell\t'something with a space',bash\t'bash (shell)',fish\t'fish shell',zsh\t'zsh shell'}"
+complete -c exhaustive -n "__fish_exhaustive_using_subcommand quote; and not __fish_seen_subcommand_from cmd-single-quotes cmd-double-quotes cmd-backticks cmd-backslash cmd-brackets cmd-expansions escape-help help" -l choice -r -f -a "another shell\t'something with a space'
+bash\t'bash (shell)'
+fish\t'fish shell'
+zsh\t'zsh shell'"
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand quote; and not __fish_seen_subcommand_from cmd-single-quotes cmd-double-quotes cmd-backticks cmd-backslash cmd-brackets cmd-expansions escape-help help" -l single-quotes -d 'Can be \'always\', \'auto\', or \'never\''
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand quote; and not __fish_seen_subcommand_from cmd-single-quotes cmd-double-quotes cmd-backticks cmd-backslash cmd-brackets cmd-expansions escape-help help" -l double-quotes -d 'Can be "always", "auto", or "never"'
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand quote; and not __fish_seen_subcommand_from cmd-single-quotes cmd-double-quotes cmd-backticks cmd-backslash cmd-brackets cmd-expansions escape-help help" -l backticks -d 'For more information see `echo test`'
@@ -107,7 +115,9 @@ complete -c exhaustive -n "__fish_exhaustive_using_subcommand last" -s h -l help
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand alias" -s o -s O -l option -l opt -d 'cmd option' -r
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand alias" -s f -s F -l flag -l flg -d 'cmd flag'
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand alias" -s h -l help -d 'Print help'
-complete -c exhaustive -n "__fish_exhaustive_using_subcommand hint" -l choice -r -f -a "{bash\t'',fish\t'',zsh\t''}"
+complete -c exhaustive -n "__fish_exhaustive_using_subcommand hint" -l choice -r -f -a "bash\t''
+fish\t''
+zsh\t''"
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand hint" -l unknown -r
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand hint" -l other -r -f
 complete -c exhaustive -n "__fish_exhaustive_using_subcommand hint" -s p -l path -r -F

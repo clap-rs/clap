@@ -275,10 +275,10 @@ fn value_completion(option: &Arg) -> String {
     }
 
     if let Some(data) = utils::possible_values(option) {
-        // We return the possible values with their own empty description e.g. {a\t,b\t}
+        // We return the possible values with their own empty description e.g. "a\t''\nb\t''"
         // this makes sure that a and b don't get the description of the option or argument
         format!(
-            " -r -f -a \"{{{}}}\"",
+            " -r -f -a \"{}\"",
             data.iter()
                 .filter_map(|value| if value.is_hide_set() {
                     None
@@ -292,7 +292,7 @@ fn value_completion(option: &Arg) -> String {
                     ))
                 })
                 .collect::<Vec<_>>()
-                .join(",")
+                .join("\n")
         )
     } else {
         // NB! If you change this, please also update the table in `ValueHint` documentation.
