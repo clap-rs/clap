@@ -1,5 +1,6 @@
 use clap::{arg, error::ErrorKind, Arg, ArgAction, Command};
 
+
 use super::utils;
 use snapbox::assert_data_eq;
 use snapbox::str;
@@ -634,4 +635,87 @@ fn duplicate_subcommand_alias() {
         .subcommand(Command::new("repeat"))
         .subcommand(Command::new("unique").alias("repeat"))
         .build();
+}
+
+#[test]
+fn subcommand_help_header() {
+    static VISIBLE_ALIAS_HELP: &str = "\
+Usage: clap-test [COMMAND]
+
+Commands:
+  help  Print this message or the help of the given subcommand(s)
+
+Test commands:
+  test  Some help
+
+Options:
+  -h, --help     Print help
+  -V, --version  Print version
+";
+
+    let cmd = Command::new("clap-test").version("2.6").subcommand(
+        Command::new("test")
+            .about("Some help")
+            .subcommand_help_heading("Test commands")
+    );
+    utils::assert_output(cmd, "clap-test --help", VISIBLE_ALIAS_HELP, false);
+}
+
+
+#[test]
+fn subcommand_help_header_hide_commands_header() {
+    static VISIBLE_ALIAS_HELP: &str = "\
+Usage: clap-test [COMMAND]
+
+Test commands:
+  test  Some help
+
+Options:
+  -h, --help     Print help
+  -V, --version  Print version
+";
+
+    let cmd = Command::new("clap-test")
+        .version("2.6")
+        .disable_help_subcommand(true)
+        .subcommand(
+            Command::new("test")
+                .about("Some help")
+                .subcommand_help_heading("Test commands")
+        );
+    utils::assert_output(cmd, "clap-test --help", VISIBLE_ALIAS_HELP, false);
+}
+
+
+#[test]
+fn subcommand_help_header_multiple_help_headers() {
+    static VISIBLE_ALIAS_HELP: &str = "\
+Usage: clap-test [COMMAND]
+
+Test commands 1:
+  test1  Some help
+
+Test commands 2:
+  test2  Some help
+
+Options:
+  -h, --help     Print help
+  -V, --version  Print version
+";
+
+    let cmd = Command::new("clap-test")
+        .version("2.6")
+        .disable_help_subcommand(true)
+        .subcommand(
+            Command::new("test1")
+                .about("Some help")
+                .subcommand_help_heading("Test commands 1")
+        )
+        .subcommand(
+            Command::new("test2")
+                .about("Some help")
+                .subcommand_help_heading("Test commands 2")
+        );
+
+    utils::assert_output(cmd, "clap-test --help", VISIBLE_ALIAS_HELP, false);
 }

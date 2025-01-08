@@ -406,7 +406,9 @@ impl HelpTemplate<'_, '_> {
                 .cmd
                 .get_subcommand_help_heading()
                 .unwrap_or(&default_help_heading);
-            let _ = write!(self.writer, "{header}{help_heading}:{header:#}\n",);
+            if self.cmd.needs_commands_header() {
+                let _ = write!(self.writer, "{header}{help_heading}:{header:#}\n",);
+            }
 
             self.write_subcommands(self.cmd);
         }
@@ -864,13 +866,14 @@ impl HelpTemplate<'_, '_> {
             .filter(|subcommand| should_show_subcommand(subcommand))
         {
             ord_v.push((
+                subcommand.get_subcommand_help_heading(),
                 subcommand.get_display_order(),
                 subcommand.get_name(),
                 subcommand,
             ));
         }
-        ord_v.sort_by(|a, b| (a.0, &a.1).cmp(&(b.0, &b.1)));
-        for (_, _, subcommand) in ord_v {
+        ord_v.sort_by(|a, b| (a.0, a.1, &a.2).cmp(&(b.0, b.1, &b.2)));
+        for (_, _, _, subcommand) in ord_v {
             if !*first {
                 self.writer.push_str("\n\n");
             }
@@ -930,19 +933,41 @@ impl HelpTemplate<'_, '_> {
                 let _ = write!(styled, ", {literal}--{long}{literal:#}",);
             }
             longest = longest.max(styled.display_width());
-            ord_v.push((subcommand.get_display_order(), styled, subcommand));
+            ord_v.push((
+                subcommand.get_subcommand_help_heading(),
+                subcommand.get_display_order(),
+                styled,
+                subcommand,
+            ));
         }
-        ord_v.sort_by(|a, b| (a.0, &a.1).cmp(&(b.0, &b.1)));
+        ord_v.sort_by(|a, b| (a.0, a.1, &a.2).cmp(&(b.0, b.1, &b.2)));
 
         debug!("HelpTemplate::write_subcommands longest = {longest}");
 
         let next_line_help = self.will_subcommands_wrap(cmd.get_subcommands(), longest);
+        let mut current_help_heading = &None;
+        let mut help_heading_nl_needed = true;
 
-        for (i, (_, sc_str, sc)) in ord_v.into_iter().enumerate() {
+        for (i, (opt_help_heading, _, sc_str, sc)) in ord_v.iter().enumerate() {
             if 0 < i {
                 self.writer.push_str("\n");
             }
-            self.write_subcommand(sc_str, sc, next_line_help, longest);
+            if current_help_heading != opt_help_heading {
+                if let Some(help_heading) = opt_help_heading {
+                    let header = &self.styles.get_header();
+                    if help_heading_nl_needed {
+                        help_heading_nl_needed = false;
+                    } else {
+                        self.writer.push_str("\n");
+                    };
+                    let _ = write!(self.writer, "{header}{help_heading}:{header:#}\n",);
+                }
+                current_help_heading = &ord_v[i].0;
+            } else {
+                help_heading_nl_needed = false;
+            }
+
+            self.write_subcommand(sc_str.clone(), sc, next_line_help, longest);
         }
     }
 
