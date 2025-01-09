@@ -38,7 +38,8 @@ complete -c my-app -n "__fish_my_app_using_subcommand some_cmd; and not __fish_s
 complete -c my-app -n "__fish_my_app_using_subcommand some_cmd; and not __fish_seen_subcommand_from sub_cmd help" -s V -l version -d 'Print version'
 complete -c my-app -n "__fish_my_app_using_subcommand some_cmd; and not __fish_seen_subcommand_from sub_cmd help" -f -a "sub_cmd" -d 'sub-subcommand'
 complete -c my-app -n "__fish_my_app_using_subcommand some_cmd; and not __fish_seen_subcommand_from sub_cmd help" -f -a "help" -d 'Print this message or the help of the given subcommand(s)'
-complete -c my-app -n "__fish_my_app_using_subcommand some_cmd; and __fish_seen_subcommand_from sub_cmd" -l config -d 'the other case to test' -r -f -a "{Lest quotes\, aren\'t escaped.\t'help,with,comma',Second to trigger display of options\t''}"
+complete -c my-app -n "__fish_my_app_using_subcommand some_cmd; and __fish_seen_subcommand_from sub_cmd" -l config -d 'the other case to test' -r -f -a "Lest quotes\, aren\'t escaped.\t'help,with,comma'
+Second to trigger display of options\t''"
 complete -c my-app -n "__fish_my_app_using_subcommand some_cmd; and __fish_seen_subcommand_from sub_cmd" -s h -l help -d 'Print help (see more with \'--help\')'
 complete -c my-app -n "__fish_my_app_using_subcommand some_cmd; and __fish_seen_subcommand_from sub_cmd" -s V -l version -d 'Print version'
 complete -c my-app -n "__fish_my_app_using_subcommand some_cmd; and __fish_seen_subcommand_from help" -f -a "sub_cmd" -d 'sub-subcommand'
@@ -47,7 +48,8 @@ complete -c my-app -n "__fish_my_app_using_subcommand some_cmd_alias; and not __
 complete -c my-app -n "__fish_my_app_using_subcommand some_cmd_alias; and not __fish_seen_subcommand_from sub_cmd help" -s V -l version -d 'Print version'
 complete -c my-app -n "__fish_my_app_using_subcommand some_cmd_alias; and not __fish_seen_subcommand_from sub_cmd help" -f -a "sub_cmd" -d 'sub-subcommand'
 complete -c my-app -n "__fish_my_app_using_subcommand some_cmd_alias; and not __fish_seen_subcommand_from sub_cmd help" -f -a "help" -d 'Print this message or the help of the given subcommand(s)'
-complete -c my-app -n "__fish_my_app_using_subcommand some_cmd_alias; and __fish_seen_subcommand_from sub_cmd" -l config -d 'the other case to test' -r -f -a "{Lest quotes\, aren\'t escaped.\t'help,with,comma',Second to trigger display of options\t''}"
+complete -c my-app -n "__fish_my_app_using_subcommand some_cmd_alias; and __fish_seen_subcommand_from sub_cmd" -l config -d 'the other case to test' -r -f -a "Lest quotes\, aren\'t escaped.\t'help,with,comma'
+Second to trigger display of options\t''"
 complete -c my-app -n "__fish_my_app_using_subcommand some_cmd_alias; and __fish_seen_subcommand_from sub_cmd" -s h -l help -d 'Print help (see more with \'--help\')'
 complete -c my-app -n "__fish_my_app_using_subcommand some_cmd_alias; and __fish_seen_subcommand_from sub_cmd" -s V -l version -d 'Print version'
 complete -c my-app -n "__fish_my_app_using_subcommand some_cmd_alias; and __fish_seen_subcommand_from help" -f -a "sub_cmd" -d 'sub-subcommand'
