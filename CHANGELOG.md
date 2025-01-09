@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(help)* Reduce binary size
+
 ## [4.5.24] - 2025-01-07
 
 ### Fixes
