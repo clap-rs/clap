@@ -88,9 +88,7 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
     roff.text(line);
 }
 
-pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command) {
-    let items: Vec<_> = cmd.get_arguments().filter(|i| !i.is_hide_set()).collect();
-
+pub(crate) fn options(roff: &mut Roff, items: &[&Arg]) {
     for opt in items.iter().filter(|a| !a.is_positional()) {
         let mut header = match (opt.get_short(), opt.get_long()) {
             (Some(short), Some(long)) => {
