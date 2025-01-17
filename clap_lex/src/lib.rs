@@ -274,7 +274,8 @@ where
 /// Position within [`RawArgs`]
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ArgCursor {
-    cursor: usize,
+    /// Current position
+    pub cursor: usize,
 }
 
 impl ArgCursor {

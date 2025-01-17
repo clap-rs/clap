@@ -53,22 +53,23 @@ impl<'cmd> Parser<'cmd> {
         args_cursor: clap_lex::ArgCursor,
     ) -> ClapResult<()> {
         debug!("Parser::get_matches_with");
+        let index = args_cursor.cursor as isize;
 
         ok!(self.parse(matcher, raw_args, args_cursor).map_err(|err| {
             if self.cmd.is_ignore_errors_set() {
                 #[cfg(feature = "env")]
-                let _ = self.add_env(matcher);
-                let _ = self.add_defaults(matcher);
+                let _ = self.add_env(matcher, index);
+                let _ = self.add_defaults(matcher, index);
             }
             err
         }));
-        ok!(self.resolve_pending(matcher));
+        ok!(self.resolve_pending(matcher, index));
 
         #[cfg(feature = "env")]
-        ok!(self.add_env(matcher));
-        ok!(self.add_defaults(matcher));
+        ok!(self.add_env(matcher, index));
+        ok!(self.add_defaults(matcher, index));
 
-        Validator::new(self.cmd).validate(matcher)
+        Validator::new(self.cmd).validate(matcher, index)
     }
 
     // The actual parsing function
@@ -103,6 +104,7 @@ impl<'cmd> Parser<'cmd> {
         let contains_last = self.cmd.get_arguments().any(|x| x.is_last_set());
 
         while let Some(arg_os) = raw_args.next(&mut args_cursor) {
+            let index = args_cursor.cursor as isize;
             debug!(
                 "Parser::get_matches_with: Begin parsing '{:?}'",
                 arg_os.to_value_os(),
@@ -118,7 +120,10 @@ impl<'cmd> Parser<'cmd> {
                     debug!("Parser::get_matches_with: sc={sc_name:?}");
                     if let Some(sc_name) = sc_name {
                         if sc_name == "help" && !self.cmd.is_disable_help_subcommand_set() {
-                            ok!(self.parse_help_subcommand(raw_args.remaining(&mut args_cursor)));
+                            ok!(self.parse_help_subcommand(
+                                raw_args.remaining(&mut args_cursor),
+                                index
+                            ));
                             unreachable!("`parse_help_subcommand` always errors");
                         } else {
                             subcmd_name = Some(sc_name.to_owned());
@@ -146,6 +151,7 @@ impl<'cmd> Parser<'cmd> {
                         &parse_state,
                         pos_counter,
                         &mut valid_arg_found,
+                        index,
                     ));
                     debug!("Parser::get_matches_with: After parse_long_arg {parse_result:?}");
                     match parse_result {
@@ -169,15 +175,16 @@ impl<'cmd> Parser<'cmd> {
                             break;
                         }
                         ParseResult::EqualsNotProvided { arg } => {
-                            let _ = self.resolve_pending(matcher);
+                            let _ = self.resolve_pending(matcher, index);
                             return Err(ClapError::no_equals(
                                 self.cmd,
                                 arg,
                                 Usage::new(self.cmd).create_usage_with_title(&[]),
+                                index,
                             ));
                         }
                         ParseResult::NoMatchingArg { arg } => {
-                            let _ = self.resolve_pending(matcher);
+                            let _ = self.resolve_pending(matcher, index);
                             let remaining_args: Vec<_> =
                                 raw_args.remaining(&mut args_cursor).collect();
                             return Err(self.did_you_mean_error(
@@ -185,15 +192,17 @@ impl<'cmd> Parser<'cmd> {
                                 matcher,
                                 &remaining_args,
                                 trailing_values,
+                                index,
                             ));
                         }
                         ParseResult::UnneededAttachedValue { rest, used, arg } => {
-                            let _ = self.resolve_pending(matcher);
+                            let _ = self.resolve_pending(matcher, index);
                             return Err(ClapError::too_many_values(
                                 self.cmd,
                                 rest,
                                 arg,
                                 Usage::new(self.cmd).create_usage_with_title(&used),
+                                index,
                             ));
                         }
                         ParseResult::MaybeHyphenValue => {
@@ -215,6 +224,7 @@ impl<'cmd> Parser<'cmd> {
                         &parse_state,
                         pos_counter,
                         &mut valid_arg_found,
+                        index,
                     ));
                     // If it's None, we then check if one of those two AppSettings was set
                     debug!("Parser::get_matches_with: After parse_short_arg {parse_result:?}");
@@ -255,15 +265,16 @@ impl<'cmd> Parser<'cmd> {
                             break;
                         }
                         ParseResult::EqualsNotProvided { arg } => {
-                            let _ = self.resolve_pending(matcher);
+                            let _ = self.resolve_pending(matcher, index);
                             return Err(ClapError::no_equals(
                                 self.cmd,
                                 arg,
                                 Usage::new(self.cmd).create_usage_with_title(&[]),
+                                index,
                             ));
                         }
                         ParseResult::NoMatchingArg { arg } => {
-                            let _ = self.resolve_pending(matcher);
+                            let _ = self.resolve_pending(matcher, index);
                             // We already know it looks like a flag
                             let suggested_trailing_arg =
                                 !trailing_values && self.cmd.has_positionals();
@@ -273,6 +284,7 @@ impl<'cmd> Parser<'cmd> {
                                 None,
                                 suggested_trailing_arg,
                                 Usage::new(self.cmd).create_usage_with_title(&[]),
+                                index,
                             ));
                         }
                         ParseResult::MaybeHyphenValue => {
@@ -386,7 +398,7 @@ impl<'cmd> Parser<'cmd> {
 
             if let Some(arg) = self.cmd.get_keymap().get(&pos_counter) {
                 if arg.is_last_set() && !trailing_values {
-                    let _ = self.resolve_pending(matcher);
+                    let _ = self.resolve_pending(matcher, index);
                     // Its already considered a positional, we don't need to suggest turning it
                     // into one
                     let suggested_trailing_arg = false;
@@ -396,6 +408,7 @@ impl<'cmd> Parser<'cmd> {
                         None,
                         suggested_trailing_arg,
                         Usage::new(self.cmd).create_usage_with_title(&[]),
+                        index,
                     ));
                 }
 
@@ -404,7 +417,7 @@ impl<'cmd> Parser<'cmd> {
                 }
 
                 if matcher.pending_arg_id() != Some(arg.get_id()) || !arg.is_multiple_values_set() {
-                    ok!(self.resolve_pending(matcher));
+                    ok!(self.resolve_pending(matcher, index));
                 }
                 parse_state =
                     if let Some(parse_result) = self.check_terminator(arg, arg_os.to_value_os()) {
@@ -435,10 +448,11 @@ impl<'cmd> Parser<'cmd> {
                 let sc_name = match arg_os.to_value() {
                     Ok(s) => s.to_owned(),
                     Err(_) => {
-                        let _ = self.resolve_pending(matcher);
+                        let _ = self.resolve_pending(matcher, index);
                         return Err(ClapError::invalid_utf8(
                             self.cmd,
                             Usage::new(self.cmd).create_usage_with_title(&[]),
+                            index,
                         ));
                     }
                 };
@@ -452,7 +466,8 @@ impl<'cmd> Parser<'cmd> {
                         self.cmd,
                         None,
                         raw_val,
-                        ValueSource::CommandLine
+                        ValueSource::CommandLine,
+                        index,
                     ));
                     let external_id = Id::from_static_ref(Id::EXTERNAL);
                     sc_m.add_val_to(&external_id, val, raw_val.to_os_string());
@@ -466,12 +481,13 @@ impl<'cmd> Parser<'cmd> {
                 return Ok(());
             } else {
                 // Start error processing
-                let _ = self.resolve_pending(matcher);
+                let _ = self.resolve_pending(matcher, index);
                 return Err(self.match_arg_error(
                     &arg_os,
                     valid_arg_found,
                     trailing_values,
                     matcher,
+                    index,
                 ));
             }
         }
@@ -486,6 +502,7 @@ impl<'cmd> Parser<'cmd> {
                         .map(|id| self.cmd.find(id).unwrap().to_string())
                         .collect(),
                     Usage::new(self.cmd).create_usage_with_title(&[]),
+                    args_cursor.cursor as isize,
                 ));
             }
             let sc_name = self
@@ -506,6 +523,7 @@ impl<'cmd> Parser<'cmd> {
         valid_arg_found: bool,
         trailing_values: bool,
         matcher: &ArgMatcher,
+        index: isize,
     ) -> ClapError {
         // If argument follows a `--`
         if trailing_values {
@@ -518,6 +536,7 @@ impl<'cmd> Parser<'cmd> {
                     self.cmd,
                     arg_os.display().to_string(),
                     Usage::new(self.cmd).create_usage_with_title(&[]),
+                    index,
                 );
             }
         }
@@ -536,6 +555,7 @@ impl<'cmd> Parser<'cmd> {
                         .filter_map(|id| self.cmd.find(id).map(|a| a.to_string()))
                         .collect(),
                     Usage::new(self.cmd).create_usage_with_title(&[]),
+                    index,
                 );
             }
 
@@ -552,6 +572,7 @@ impl<'cmd> Parser<'cmd> {
                     self.cmd.get_bin_name_fallback().to_owned(),
                     suggested_trailing_arg,
                     Usage::new(self.cmd).create_usage_with_title(&[]),
+                    index,
                 );
             }
 
@@ -561,6 +582,7 @@ impl<'cmd> Parser<'cmd> {
                     self.cmd,
                     arg_os.display().to_string(),
                     Usage::new(self.cmd).create_usage_with_title(&[]),
+                    index,
                 );
             }
         }
@@ -571,6 +593,7 @@ impl<'cmd> Parser<'cmd> {
             None,
             suggested_trailing_arg,
             Usage::new(self.cmd).create_usage_with_title(&[]),
+            index,
         )
     }
 
@@ -647,6 +670,7 @@ impl<'cmd> Parser<'cmd> {
     fn parse_help_subcommand(
         &self,
         cmds: impl Iterator<Item = &'cmd OsStr>,
+        index: isize,
     ) -> ClapResult<std::convert::Infallible> {
         debug!("Parser::parse_help_subcommand");
 
@@ -664,6 +688,7 @@ impl<'cmd> Parser<'cmd> {
                         sc,
                         cmd.to_string_lossy().into_owned(),
                         Usage::new(sc).create_usage_with_title(&[]),
+                        index,
                     ));
                 };
             }
@@ -760,6 +785,7 @@ impl<'cmd> Parser<'cmd> {
         parse_state: &ParseState,
         pos_counter: usize,
         valid_arg_found: &mut bool,
+        index: isize,
     ) -> ClapResult<ParseResult> {
         // maybe here lifetime should be 'a
         debug!("Parser::parse_long_arg");
@@ -817,7 +843,7 @@ impl<'cmd> Parser<'cmd> {
                     long_arg, &long_value
                 );
                 let has_eq = long_value.is_some();
-                self.parse_opt_value(ident, long_value, arg, matcher, has_eq)
+                self.parse_opt_value(ident, long_value, arg, matcher, has_eq, index)
             } else if let Some(rest) = long_value {
                 let required = self.cmd.required_graph();
                 debug!("Parser::parse_long_arg({long_arg:?}): Got invalid literal `{rest:?}`");
@@ -851,6 +877,7 @@ impl<'cmd> Parser<'cmd> {
                     vec![],
                     trailing_idx,
                     matcher,
+                    index,
                 )
             }
         } else if let Some(sc_name) = self.possible_long_flag_subcommand(long_arg) {
@@ -879,6 +906,7 @@ impl<'cmd> Parser<'cmd> {
         // change this to possible pos_arg when removing the usage of &mut Parser.
         pos_counter: usize,
         valid_arg_found: &mut bool,
+        index: isize,
     ) -> ClapResult<ParseResult> {
         debug!("Parser::parse_short_arg: short_arg={short_arg:?}");
 
@@ -951,6 +979,7 @@ impl<'cmd> Parser<'cmd> {
                         arg_values,
                         trailing_idx,
                         matcher,
+                        index,
                     ));
                     continue;
                 }
@@ -974,7 +1003,7 @@ impl<'cmd> Parser<'cmd> {
                 } else {
                     (val, false)
                 };
-                match ok!(self.parse_opt_value(ident, val, arg, matcher, has_eq)) {
+                match ok!(self.parse_opt_value(ident, val, arg, matcher, has_eq, index)) {
                     ParseResult::AttachedValueNotConsumed => continue,
                     x => return Ok(x),
                 }
@@ -983,7 +1012,7 @@ impl<'cmd> Parser<'cmd> {
             return if let Some(sc_name) = self.cmd.find_short_subcmd(c) {
                 debug!("Parser::parse_short_arg:iter:{c}: subcommand={sc_name}");
                 // Make sure indices get updated before reading `self.cur_idx`
-                ok!(self.resolve_pending(matcher));
+                ok!(self.resolve_pending(matcher, index));
                 self.cur_idx.set(self.cur_idx.get() + 1);
                 debug!("Parser::parse_short_arg: cur_idx:={}", self.cur_idx.get());
 
@@ -1014,6 +1043,7 @@ impl<'cmd> Parser<'cmd> {
         arg: &Arg,
         matcher: &mut ArgMatcher,
         has_eq: bool,
+        index: isize,
     ) -> ClapResult<ParseResult> {
         debug!(
             "Parser::parse_opt_value; arg={}, val={:?}, has_eq={:?}",
@@ -1037,6 +1067,7 @@ impl<'cmd> Parser<'cmd> {
                     arg_values,
                     trailing_idx,
                     matcher,
+                    index,
                 ));
                 debug_assert_eq!(react_result, ParseResult::ValuesDone);
                 if attached_value.is_some() {
@@ -1060,13 +1091,14 @@ impl<'cmd> Parser<'cmd> {
                 arg_values,
                 trailing_idx,
                 matcher,
+                index,
             ));
             debug_assert_eq!(react_result, ParseResult::ValuesDone);
             // Attached are always done
             Ok(ParseResult::ValuesDone)
         } else {
             debug!("Parser::parse_opt_value: More arg vals required...");
-            ok!(self.resolve_pending(matcher));
+            ok!(self.resolve_pending(matcher, index));
             let trailing_values = false;
             matcher.pending_values_mut(arg.get_id(), Some(ident), trailing_values);
             Ok(ParseResult::Opt(arg.get_id().clone()))
@@ -1088,6 +1120,7 @@ impl<'cmd> Parser<'cmd> {
         raw_vals: Vec<OsString>,
         source: ValueSource,
         matcher: &mut ArgMatcher,
+        index: isize,
     ) -> ClapResult<()> {
         debug!("Parser::push_arg_values: {raw_vals:?}");
 
@@ -1099,7 +1132,7 @@ impl<'cmd> Parser<'cmd> {
                 self.cur_idx.get()
             );
             let value_parser = arg.get_value_parser();
-            let val = ok!(value_parser.parse_ref(self.cmd, Some(arg), &raw_val, source));
+            let val = ok!(value_parser.parse_ref(self.cmd, Some(arg), &raw_val, source, index));
 
             matcher.add_val_to(arg.get_id(), val, raw_val);
             matcher.add_index_to(arg.get_id(), self.cur_idx.get());
@@ -1108,7 +1141,7 @@ impl<'cmd> Parser<'cmd> {
         Ok(())
     }
 
-    fn resolve_pending(&self, matcher: &mut ArgMatcher) -> ClapResult<()> {
+    fn resolve_pending(&self, matcher: &mut ArgMatcher, index: isize) -> ClapResult<()> {
         let pending = match matcher.take_pending() {
             Some(pending) => pending,
             None => {
@@ -1125,6 +1158,7 @@ impl<'cmd> Parser<'cmd> {
             pending.raw_vals,
             pending.trailing_idx,
             matcher,
+            index,
         ));
 
         Ok(())
@@ -1138,8 +1172,9 @@ impl<'cmd> Parser<'cmd> {
         mut raw_vals: Vec<OsString>,
         mut trailing_idx: Option<usize>,
         matcher: &mut ArgMatcher,
+        index: isize,
     ) -> ClapResult<ParseResult> {
-        ok!(self.resolve_pending(matcher));
+        ok!(self.resolve_pending(matcher, index));
 
         debug!(
             "Parser::react action={:?}, identifier={:?}, source={:?}",
@@ -1151,7 +1186,7 @@ impl<'cmd> Parser<'cmd> {
         // Process before `default_missing_values` to avoid it counting as values from the command
         // line
         if source == ValueSource::CommandLine {
-            ok!(self.verify_num_args(arg, &raw_vals));
+            ok!(self.verify_num_args(arg, &raw_vals, index));
         }
 
         if raw_vals.is_empty() {
@@ -1205,10 +1240,11 @@ impl<'cmd> Parser<'cmd> {
                         arg.to_string(),
                         vec![arg.to_string()],
                         Usage::new(self.cmd).create_usage_with_title(&[]),
+                        index,
                     ));
                 }
                 self.start_custom_arg(matcher, arg, source);
-                ok!(self.push_arg_values(arg, raw_vals, source, matcher));
+                ok!(self.push_arg_values(arg, raw_vals, source, matcher, index));
                 if cfg!(debug_assertions) && matcher.needs_more_vals(arg) {
                     debug!(
                         "Parser::react not enough values passed in, leaving it to the validator to complain",
@@ -1225,7 +1261,7 @@ impl<'cmd> Parser<'cmd> {
                     debug!("Parser::react: cur_idx:={}", self.cur_idx.get());
                 }
                 self.start_custom_arg(matcher, arg, source);
-                ok!(self.push_arg_values(arg, raw_vals, source, matcher));
+                ok!(self.push_arg_values(arg, raw_vals, source, matcher, index));
                 if cfg!(debug_assertions) && matcher.needs_more_vals(arg) {
                     debug!(
                         "Parser::react not enough values passed in, leaving it to the validator to complain",
@@ -1248,10 +1284,11 @@ impl<'cmd> Parser<'cmd> {
                         arg.to_string(),
                         vec![arg.to_string()],
                         Usage::new(self.cmd).create_usage_with_title(&[]),
+                        index,
                     ));
                 }
                 self.start_custom_arg(matcher, arg, source);
-                ok!(self.push_arg_values(arg, raw_vals, source, matcher));
+                ok!(self.push_arg_values(arg, raw_vals, source, matcher, index));
                 Ok(ParseResult::ValuesDone)
             }
             ArgAction::SetFalse => {
@@ -1269,10 +1306,11 @@ impl<'cmd> Parser<'cmd> {
                         arg.to_string(),
                         vec![arg.to_string()],
                         Usage::new(self.cmd).create_usage_with_title(&[]),
+                        index,
                     ));
                 }
                 self.start_custom_arg(matcher, arg, source);
-                ok!(self.push_arg_values(arg, raw_vals, source, matcher));
+                ok!(self.push_arg_values(arg, raw_vals, source, matcher, index));
                 Ok(ParseResult::ValuesDone)
             }
             ArgAction::Count => {
@@ -1288,7 +1326,7 @@ impl<'cmd> Parser<'cmd> {
 
                 matcher.remove(arg.get_id());
                 self.start_custom_arg(matcher, arg, source);
-                ok!(self.push_arg_values(arg, raw_vals, source, matcher));
+                ok!(self.push_arg_values(arg, raw_vals, source, matcher, index));
                 Ok(ParseResult::ValuesDone)
             }
             ArgAction::Help => {
@@ -1324,7 +1362,7 @@ impl<'cmd> Parser<'cmd> {
         }
     }
 
-    fn verify_num_args(&self, arg: &Arg, raw_vals: &[OsString]) -> ClapResult<()> {
+    fn verify_num_args(&self, arg: &Arg, raw_vals: &[OsString], index: isize) -> ClapResult<()> {
         if self.cmd.is_ignore_errors_set() {
             return Ok(());
         }
@@ -1343,6 +1381,7 @@ impl<'cmd> Parser<'cmd> {
                     .map(|n| n.get_name().to_owned())
                     .collect::<Vec<_>>(),
                 arg.to_string(),
+                index,
             ));
         } else if let Some(expected) = expected.num_values() {
             if expected != actual {
@@ -1353,6 +1392,7 @@ impl<'cmd> Parser<'cmd> {
                     expected,
                     actual,
                     Usage::new(self.cmd).create_usage_with_title(&[]),
+                    index,
                 ));
             }
         } else if actual < expected.min_values() {
@@ -1362,6 +1402,7 @@ impl<'cmd> Parser<'cmd> {
                 expected.min_values(),
                 actual,
                 Usage::new(self.cmd).create_usage_with_title(&[]),
+                index,
             ));
         } else if expected.max_values() < actual {
             debug!("Validator::validate_arg_num_vals: Sending error TooManyValues");
@@ -1374,6 +1415,7 @@ impl<'cmd> Parser<'cmd> {
                     .into_owned(),
                 arg.to_string(),
                 Usage::new(self.cmd).create_usage_with_title(&[]),
+                index,
             ));
         }
 
@@ -1403,7 +1445,7 @@ impl<'cmd> Parser<'cmd> {
     }
 
     #[cfg(feature = "env")]
-    fn add_env(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
+    fn add_env(&mut self, matcher: &mut ArgMatcher, index: isize) -> ClapResult<()> {
         debug!("Parser::add_env");
 
         for arg in self.cmd.get_arguments() {
@@ -1426,6 +1468,7 @@ impl<'cmd> Parser<'cmd> {
                     arg_values,
                     trailing_idx,
                     matcher,
+                    index,
                 ));
             }
         }
@@ -1433,18 +1476,23 @@ impl<'cmd> Parser<'cmd> {
         Ok(())
     }
 
-    fn add_defaults(&self, matcher: &mut ArgMatcher) -> ClapResult<()> {
+    fn add_defaults(&self, matcher: &mut ArgMatcher, index: isize) -> ClapResult<()> {
         debug!("Parser::add_defaults");
 
         for arg in self.cmd.get_arguments() {
             debug!("Parser::add_defaults:iter:{}:", arg.get_id());
-            ok!(self.add_default_value(arg, matcher));
+            ok!(self.add_default_value(arg, matcher, index));
         }
 
         Ok(())
     }
 
-    fn add_default_value(&self, arg: &Arg, matcher: &mut ArgMatcher) -> ClapResult<()> {
+    fn add_default_value(
+        &self,
+        arg: &Arg,
+        matcher: &mut ArgMatcher,
+        index: isize,
+    ) -> ClapResult<()> {
         if !arg.default_vals_ifs.is_empty() {
             debug!("Parser::add_default_value: has conditional defaults");
             if !matcher.contains(arg.get_id()) {
@@ -1471,6 +1519,7 @@ impl<'cmd> Parser<'cmd> {
                                 arg_values,
                                 trailing_idx,
                                 matcher,
+                                index,
                             ));
                         }
                         return Ok(());
@@ -1507,6 +1556,7 @@ impl<'cmd> Parser<'cmd> {
                     arg_values,
                     trailing_idx,
                     matcher,
+                    index,
                 ));
             }
         } else {
@@ -1549,6 +1599,7 @@ impl Parser<'_> {
         matcher: &mut ArgMatcher,
         remaining_args: &[&OsStr],
         trailing_values: bool,
+        index: isize,
     ) -> ClapError {
         debug!("Parser::did_you_mean_error: arg={arg}");
         // Didn't match a flag or option
@@ -1609,6 +1660,7 @@ impl Parser<'_> {
             Usage::new(self.cmd)
                 .required(&required)
                 .create_usage_with_title(&used),
+            index,
         )
     }
 

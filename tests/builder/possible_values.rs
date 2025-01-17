@@ -539,6 +539,7 @@ mod expensive {
             _cmd: &Command,
             _arg: Option<&Arg>,
             _value: &std::ffi::OsStr,
+            _index: isize,
         ) -> Result<Self::Value, clap_builder::Error> {
             unimplemented!()
         }
