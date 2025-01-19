@@ -219,7 +219,18 @@ impl EnvCompleter for Fish {
 
         writeln!(
             buf,
-            r#"complete --keep-order --exclusive --command {bin} --arguments "({var}=fish "'{completer}'" -- (commandline --current-process --tokenize --cut-at-cursor) (commandline --current-token))""#
+            r#"
+                complete --keep-order --exclusive --command {bin} --arguments \
+                    "({var}=fish "'{completer}'" -- (
+                        set --local tokenize;
+                        if commandline --tokens-expanded >/dev/null 2>&1;
+                            set tokenize --tokens-expanded;
+                        else;
+                            set tokenize --tokenize;
+                        end;
+                        commandline --current-process $tokenize --cut-at-cursor
+                    ) (commandline --current-token))"
+            "#
         )
     }
     fn write_complete(
