@@ -8,6 +8,7 @@
 //! $ cargo add clap --features derive
 //! ```
 //!
+//! Here is a preview of the type of application you can make:
 //! ```rust
 #![doc = include_str!("../../../examples/tutorial_derive/01_quick.rs")]
 //! ```

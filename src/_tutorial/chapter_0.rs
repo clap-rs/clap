@@ -7,6 +7,7 @@
 //! $ cargo add clap
 //! ```
 //!
+//! Here is a preview of the type of application you can make:
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_builder/01_quick.rs")]
 //! ```
