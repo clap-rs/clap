@@ -10,7 +10,7 @@
 //!
 //! ### Positionals
 //!
-//! You can have users specify values by their position on the command-line:
+//! By default, struct fields define positional arguments:
 //!
 //! ```rust
 #![doc = include_str!("../../../examples/tutorial_derive/03_03_positional.rs")]
