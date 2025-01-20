@@ -220,6 +220,9 @@
 //! ### Arg Attributes
 //!
 //! These correspond to a [`Arg`][crate::Arg].
+//! The default state for a field without attributes is to be a positional argument with [behavior
+//! inferred from the field type](#arg-types).
+//! `#[arg(...)]` attributes allow overriding or extending those defaults.
 //!
 //! **Raw attributes:**  Any [`Arg` method][crate::Arg] can also be used as an attribute, see [Terminology](#terminology) for syntax.
 //! - e.g. `#[arg(num_args(..=3))]` would translate to `arg.num_args(..=3)`

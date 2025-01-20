@@ -9,7 +9,7 @@
 //!
 //! ### Positionals
 //!
-//! You can have users specify values by their position on the command-line:
+//! By default, an [`Arg`] defines a positional argument:
 //!
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_builder/03_03_positional.rs")]
