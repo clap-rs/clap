@@ -1082,7 +1082,8 @@ fn suggest_external_subcommand() {
     let mut cmd = Command::new("dynamic")
         .allow_external_subcommands(true)
         .add(SubcommandCandidates::new(|| {
-            vec![CompletionCandidate::new("external")]
+            let gctx = GlobalContext::default();
+            let _ = third_party_subcommands(&gctx);
         }))
         .arg(clap::Arg::new("positional").value_parser(["pos1", "pos2", "pos3"]));
 
