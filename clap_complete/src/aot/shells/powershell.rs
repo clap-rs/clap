@@ -59,7 +59,7 @@ Register-ArgumentCompleter -Native -CommandName '{bin_name}' -ScriptBlock {{
 
 // Escape string inside single quotes
 fn escape_string(string: &str) -> String {
-    string.replace('\'', "''")
+    string.replace('\'', "''").replace('’', "'’")
 }
 
 fn escape_help<T: ToString>(help: Option<&StyledStr>, data: T) -> String {
