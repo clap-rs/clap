@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(powershell)* Correctly escape backtick
+- *(powershell)* Improve handling of empty help
+
 ## [4.5.42] - 2025-01-09
 
 ### Fixes
