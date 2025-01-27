@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.43] - 2025-01-27
+
 ### Fixes
 
 - *(powershell)* Correctly escape backtick
@@ -515,7 +517,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.42...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.43...HEAD
+[4.5.43]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.42...clap_complete-v4.5.43
 [4.5.42]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.41...clap_complete-v4.5.42
 [4.5.41]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.40...clap_complete-v4.5.41
 [4.5.40]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.39...clap_complete-v4.5.40
