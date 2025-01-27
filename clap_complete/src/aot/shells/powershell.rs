@@ -63,10 +63,13 @@ fn escape_string(string: &str) -> String {
 }
 
 fn escape_help<T: ToString>(help: Option<&StyledStr>, data: T) -> String {
-    match help {
-        Some(help) => escape_string(&help.to_string().replace('\n', " ")),
-        _ => data.to_string(),
+    if let Some(help) = help {
+        let help_str = help.to_string();
+        if !help_str.is_empty() {
+            return escape_string(&help_str.replace('\n', " "));
+        }
     }
+    data.to_string()
 }
 
 fn generate_inner(p: &Command, previous_command_name: &str) -> String {
