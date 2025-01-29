@@ -7,7 +7,9 @@
       line-height: 18px;
     }
     .bold { font-weight: bold; }
+    .italic { font-style: italic; }
     .underline { text-decoration-line: underline; }
+    .strikethrough { text-decoration-line: line-through; }
     tspan {
       font: 14px SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
       white-space: pre;
@@ -18,11 +20,11 @@
   <rect width="100%" height="100%" y="0" rx="4.5" class="bg" />
 
   <text xml:space="preserve" class="container fg">
-    <tspan x="10px" y="28px"><tspan>*emphasis* **bold** ~strike through~ `code`</tspan>
+    <tspan x="10px" y="28px"><tspan class="italic">emphasis</tspan><tspan> </tspan><tspan class="bold">bold</tspan><tspan> </tspan><tspan class="strikethrough">strike through</tspan><tspan> </tspan><tspan class="bold">code</tspan>
 </tspan>
     <tspan x="10px" y="46px">
 </tspan>
-    <tspan x="10px" y="64px"><tspan>*all **of ~them `combined` in~ one** line*</tspan>
+    <tspan x="10px" y="64px"><tspan class="italic">all </tspan><tspan class="bold italic">of </tspan><tspan class="strikethrough bold italic">them combined</tspan><tspan class="strikethrough bold italic"> in</tspan><tspan class="bold italic"> one</tspan><tspan class="italic"> line</tspan>
 </tspan>
     <tspan x="10px" y="82px">
 </tspan>

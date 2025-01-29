@@ -170,6 +170,7 @@ unstable-v5 = ["clap_builder/unstable-v5", "clap_derive?/unstable-v5", "deprecat
 unstable-ext = ["clap_builder/unstable-ext"]
 unstable-styles = ["clap_builder/unstable-styles"]  # deprecated
 unstable-derive-ui-tests = []
+unstable-markdown = ["clap_derive/unstable-markdown"]
 
 [lib]
 bench = false

@@ -1,4 +1,4 @@
-#![cfg(feature = "derive")]
+#![cfg(feature = "unstable-markdown")]
 
 use clap::CommandFactory;
 use clap_derive::Parser;

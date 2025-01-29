@@ -1,4 +1,4 @@
-<svg width="995px" height="254px" xmlns="http://www.w3.org/2000/svg">
+<svg width="740px" height="416px" xmlns="http://www.w3.org/2000/svg">
   <style>
     .fg { fill: #AAAAAA }
     .bg { background: #000000 }
@@ -22,27 +22,45 @@
 </tspan>
     <tspan x="10px" y="46px">
 </tspan>
-    <tspan x="10px" y="64px"><tspan>- unordered - bullet - lists - with multiple - levels</tspan>
+    <tspan x="10px" y="64px"><tspan>- unordered</tspan>
 </tspan>
-    <tspan x="10px" y="82px">
+    <tspan x="10px" y="82px"><tspan>  - bullet</tspan>
 </tspan>
-    <tspan x="10px" y="100px"><tspan>0. numeric lists 1. only care 1. about the initial number 2. 5. and count from there 7. anything goes 3. though they</tspan>
+    <tspan x="10px" y="100px"><tspan>    - lists</tspan>
 </tspan>
-    <tspan x="10px" y="118px"><tspan>need an empty line</tspan>
+    <tspan x="10px" y="118px"><tspan>- with multiple</tspan>
 </tspan>
-    <tspan x="10px" y="136px">
+    <tspan x="10px" y="136px"><tspan>  - levels</tspan>
 </tspan>
-    <tspan x="10px" y="154px"><tspan class="underline bold">Usage:</tspan><tspan> </tspan><tspan class="bold">clap</tspan>
+    <tspan x="10px" y="154px">
 </tspan>
-    <tspan x="10px" y="172px">
+    <tspan x="10px" y="172px"><tspan>0. numeric lists</tspan>
 </tspan>
-    <tspan x="10px" y="190px"><tspan class="underline bold">Options:</tspan>
+    <tspan x="10px" y="190px"><tspan>1. only care</tspan>
 </tspan>
-    <tspan x="10px" y="208px"><tspan>  </tspan><tspan class="bold">-h</tspan><tspan>, </tspan><tspan class="bold">--help</tspan>
+    <tspan x="10px" y="208px"><tspan>  1. about the initial number</tspan>
 </tspan>
-    <tspan x="10px" y="226px"><tspan>          Print help (see a summary with '-h')</tspan>
+    <tspan x="10px" y="226px"><tspan>2. </tspan>
 </tspan>
-    <tspan x="10px" y="244px">
+    <tspan x="10px" y="244px"><tspan>  5. and count from there</tspan>
+</tspan>
+    <tspan x="10px" y="262px"><tspan>  6. anything goes</tspan>
+</tspan>
+    <tspan x="10px" y="280px"><tspan>3. though they need an empty line</tspan>
+</tspan>
+    <tspan x="10px" y="298px">
+</tspan>
+    <tspan x="10px" y="316px"><tspan class="underline bold">Usage:</tspan><tspan> </tspan><tspan class="bold">clap</tspan>
+</tspan>
+    <tspan x="10px" y="334px">
+</tspan>
+    <tspan x="10px" y="352px"><tspan class="underline bold">Options:</tspan>
+</tspan>
+    <tspan x="10px" y="370px"><tspan>  </tspan><tspan class="bold">-h</tspan><tspan>, </tspan><tspan class="bold">--help</tspan>
+</tspan>
+    <tspan x="10px" y="388px"><tspan>          Print help (see a summary with '-h')</tspan>
+</tspan>
+    <tspan x="10px" y="406px">
 </tspan>
   </text>
 
