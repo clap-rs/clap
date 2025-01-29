@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(dynamic)* Allow disabling completions through `COMPLETE=` and `COMPLETE=0`
+
 ## [4.5.43] - 2025-01-27
 
 ### Fixes
