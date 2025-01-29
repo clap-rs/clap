@@ -1,0 +1,57 @@
+<svg width="995px" height="326px" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .fg { fill: #AAAAAA }
+    .bg { background: #000000 }
+    .container {
+      padding: 0 10px;
+      line-height: 18px;
+    }
+    .bold { font-weight: bold; }
+    .underline { text-decoration-line: underline; }
+    tspan {
+      font: 14px SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+      white-space: pre;
+      line-height: 18px;
+    }
+  </style>
+
+  <rect width="100%" height="100%" y="0" rx="4.5" class="bg" />
+
+  <text xml:space="preserve" class="container fg">
+    <tspan x="10px" y="28px"><tspan>```rust This is a *fenced* code block.</tspan>
+</tspan>
+    <tspan x="10px" y="46px">
+</tspan>
+    <tspan x="10px" y="64px"><tspan>There is not much going on in terms of **styling**. ```</tspan>
+</tspan>
+    <tspan x="10px" y="82px">
+</tspan>
+    <tspan x="10px" y="100px"><tspan>---</tspan>
+</tspan>
+    <tspan x="10px" y="118px">
+</tspan>
+    <tspan x="10px" y="136px"><tspan>Code blocks can also be initiated through Indentation.</tspan>
+</tspan>
+    <tspan x="10px" y="154px">
+</tspan>
+    <tspan x="10px" y="172px"><tspan>&gt; This is a block quote. &gt; **Regular ~styling *should* work~ here.** &gt; &gt; # even headings &gt; and regular paragraphs. &gt;</tspan>
+</tspan>
+    <tspan x="10px" y="190px"><tspan>&gt; - lists &gt;   - are &gt; &gt; 1. also &gt;    1. supported &gt; &gt; &gt; nesting them &gt; &gt; &gt; also works (not)</tspan>
+</tspan>
+    <tspan x="10px" y="208px">
+</tspan>
+    <tspan x="10px" y="226px"><tspan class="underline bold">Usage:</tspan><tspan> </tspan><tspan class="bold">clap</tspan>
+</tspan>
+    <tspan x="10px" y="244px">
+</tspan>
+    <tspan x="10px" y="262px"><tspan class="underline bold">Options:</tspan>
+</tspan>
+    <tspan x="10px" y="280px"><tspan>  </tspan><tspan class="bold">-h</tspan><tspan>, </tspan><tspan class="bold">--help</tspan>
+</tspan>
+    <tspan x="10px" y="298px"><tspan>          Print help (see a summary with '-h')</tspan>
+</tspan>
+    <tspan x="10px" y="316px">
+</tspan>
+  </text>
+
+</svg>
