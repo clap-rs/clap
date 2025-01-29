@@ -61,6 +61,8 @@
 //! ```zsh
 //! echo "source <(COMPLETE=zsh your_program)" >> ~/.zshrc
 //! ```
+//!
+//! To disable completions, you can set `COMPLETE=` or `COMPLETE=0`
 
 mod shells;
 
@@ -218,6 +220,9 @@ impl<'s, F: Fn() -> clap::Command> CompleteEnv<'s, F> {
         let Some(name) = std::env::var_os(self.var) else {
             return Ok(false);
         };
+        if name.is_empty() || name == "0" {
+            return Ok(false);
+        }
 
         // Ensure any child processes called for custom completers don't activate their own
         // completion logic.
