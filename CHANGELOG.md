@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(derive)* Unstable support for full markdown syntax for doc comments, enabled with `unstable-markdown`
+
 ## [4.5.27] - 2025-01-20
 
 ### Documentation
