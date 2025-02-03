@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.28] - 2025-02-03
+
 ### Features
 
 - *(derive)* Unstable support for full markdown syntax for doc comments, enabled with `unstable-markdown`
@@ -4699,7 +4701,8 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/clap-rs/clap/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/v4.5.27...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/v4.5.28...HEAD
+[4.5.28]: https://github.com/clap-rs/clap/compare/v4.5.27...v4.5.28
 [4.5.27]: https://github.com/clap-rs/clap/compare/v4.5.26...v4.5.27
 [4.5.26]: https://github.com/clap-rs/clap/compare/v4.5.25...v4.5.26
 [4.5.25]: https://github.com/clap-rs/clap/compare/v4.5.24...v4.5.25
