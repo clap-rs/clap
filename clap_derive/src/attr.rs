@@ -102,6 +102,7 @@ impl Parse for ClapAttr {
             "long_help" => Some(MagicAttrName::LongHelp),
             "author" => Some(MagicAttrName::Author),
             "version" => Some(MagicAttrName::Version),
+            "fallback" => Some(MagicAttrName::Fallback),
             _ => None,
         };
 
@@ -168,6 +169,7 @@ pub(crate) enum MagicAttrName {
     DefaultValuesOsT,
     NextDisplayOrder,
     NextHelpHeading,
+    Fallback,
 }
 
 #[derive(Clone)]
