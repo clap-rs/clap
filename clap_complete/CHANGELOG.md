@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixes
 
-- *(fish)* Corectly generate `aot` completions for single-value `ValueEnum`s
+- *(fish)* Correctly generate `aot` completions for single-value `ValueEnum`s
 
 ## [4.5.41] - 2025-01-07
 
