@@ -101,7 +101,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [4.5.15] - 2024-08-10
 
-### Compatiblity
+### Compatibility
 
 - *(unstable-ext)* `Arg::remove` changed return types
 
@@ -519,7 +519,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Compatibility
 
 - Removed the languishing `unstable-replace` feature (open to discussion at [#2836](https://github.com/clap-rs/clap/issues/2836))
-- Removed the stablized `unstable-grouped` feature
+- Removed the stabilized `unstable-grouped` feature
 
 ### Features
 
@@ -1669,7 +1669,7 @@ Note: All items deprecated in 3.0.0 are now hidden in the documentation. (#3458)
 
 ### Features
 
-- For very limited cases, like `cargo`, expose `ArgMatches::is_valid_arg` to avoid panicing on undefined arguments
+- For very limited cases, like `cargo`, expose `ArgMatches::is_valid_arg` to avoid panicking on undefined arguments
 
 ## [3.0.3] - 2022-01-04
 
@@ -1908,7 +1908,7 @@ On top of the clap 2 changes
 - Provide extra context in long help messages (`--help`) with `before_long_help` and `after_long_help` ([clap-rs/clap#1903](https://github.com/clap-rs/clap/issues/1903))
 - Detect missing help descriptions via debug asserts by enabling `AppSettings::HelpExpected`
 - Aliases for short flags ([clap-rs/clap#1896](https://github.com/clap-rs/clap/issues/1896))
-- Validate UTF-8 values, rather than panicing during `ArgMatches::value_of` thanks to `AppSettings::AllowInvalidUtf8ForExternalSubcommands` and `ArgSettings::AllowInvalidUtf8`
+- Validate UTF-8 values, rather than panicking during `ArgMatches::value_of` thanks to `AppSettings::AllowInvalidUtf8ForExternalSubcommands` and `ArgSettings::AllowInvalidUtf8`
   - Debug builds will assert when the `ArgMatches` calls do not match the UTF-8 setting.
   - See [clap-rs/clap#751](https://github.com/clap-rs/clap/issues/751)
 - `clap::PossibleValue` to allow
@@ -2023,7 +2023,7 @@ On top of the clap 2 changes
 
 ### Improvements
 
-* **Deps:**  doesnt compile ansi_term on Windows since its not used ([b57ee946](https://github.com/kbknapp/clap-rs/commit/b57ee94609da3ddc897286cfba968f26ff961491), closes [#1155](https://github.com/kbknapp/clap-rs/issues/1155))
+* **Deps:**  doesn't, does not compile ansi_term on Windows since its not used ([b57ee946](https://github.com/kbknapp/clap-rs/commit/b57ee94609da3ddc897286cfba968f26ff961491), closes [#1155](https://github.com/kbknapp/clap-rs/issues/1155))
 
 ### Minimum Required Rust
 
@@ -2441,7 +2441,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 #### Bug Fixes
 
-* **PowerShell Completions:**  fixes a bug where powershells completions cant be used if no subcommands are defined ([a8bce558](https://github.com/clap-rs/clap/commit/a8bce55837dc4e0fb187dc93180884a40ae09c6f), closes [#931](https://github.com/clap-rs/clap/issues/931))
+* **PowerShell Completions:**  fixes a bug where powershells completions can't be used if no subcommands are defined ([a8bce558](https://github.com/clap-rs/clap/commit/a8bce55837dc4e0fb187dc93180884a40ae09c6f), closes [#931](https://github.com/clap-rs/clap/issues/931))
 
 #### Improvements
 
@@ -2553,7 +2553,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 *   doesn't run `arg_post_processing` on multiple values anymore ([ec516182](https://github.com/clap-rs/clap/commit/ec5161828729f6a53f0fccec8648f71697f01f78))
 *   changes internal use of `VecMap` to `Vec` for matched values of `Arg`s ([22bf137a](https://github.com/clap-rs/clap/commit/22bf137ac581684c6ed460d2c3c640c503d62621))
 *   vastly reduces the amount of cloning when adding non-global args minus when they're added from `App::args` which is forced to clone ([8da0303b](https://github.com/clap-rs/clap/commit/8da0303bc02db5fe047cfc0631a9da41d9dc60f7))
-*   refactor to remove unneeded vectors and allocations and checks for significant performance increases ([0efa4119](https://github.com/clap-rs/clap/commit/0efa4119632f134fc5b8b9695b007dd94b76735d))
+*   refactor to remove unneeded vectors and allocations and checks for significan't performance increases ([0efa4119](https://github.com/clap-rs/clap/commit/0efa4119632f134fc5b8b9695b007dd94b76735d))
 
 #### Documentation
 
@@ -2934,7 +2934,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 #### Documentation
 
-* **Help Wrapping:**  removes the verbage about using `'{n}'` to insert newlines in help text ([c5a2b352](https://github.com/clap-rs/clap/commit/c5a2b352ca600f5b802290ad945731066cd53611))
+* **Help Wrapping:**  removes the verbiage about using `'{n}'` to insert newlines in help text ([c5a2b352](https://github.com/clap-rs/clap/commit/c5a2b352ca600f5b802290ad945731066cd53611))
 * **Value Delimiters:**  updates the docs for the Arg::multiple method WRT value delimiters and default settings ([f9d17a06](https://github.com/clap-rs/clap/commit/f9d17a060aa53f10d0a6e1a7eed5d989d1a59533))
 * **appsettings:**  Document AppSetting::DisableVersion ([94501965](https://github.com/clap-rs/clap/commit/945019654d2ca67eb2b1d6014fdf80b84d528d30), closes [#589](https://github.com/clap-rs/clap/issues/589))
 
@@ -2961,7 +2961,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 #### Documentation
 
-* **Help Wrapping:**  removes the verbage about using `'{n}'` to insert newlines in help text ([c5a2b352](https://github.com/clap-rs/clap/commit/c5a2b352ca600f5b802290ad945731066cd53611))
+* **Help Wrapping:**  removes the verbiage about using `'{n}'` to insert newlines in help text ([c5a2b352](https://github.com/clap-rs/clap/commit/c5a2b352ca600f5b802290ad945731066cd53611))
 
 #### Improvements
 
@@ -4086,7 +4086,7 @@ Minimum version of Rust is now v1.13.0 (Stable)
 
 #### Documentation
 
-*   adds "whats new" section to readme ([ff149a29](https://github.com/clap-rs/clap/commit/ff149a29dd9e179865e6d577cd7dc87c54f8f95c))
+*   adds "what's new" section to readme ([ff149a29](https://github.com/clap-rs/clap/commit/ff149a29dd9e179865e6d577cd7dc87c54f8f95c))
 
 #### Improvements
 
