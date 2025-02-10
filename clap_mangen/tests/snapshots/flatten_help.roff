@@ -4,7 +4,11 @@
 .SH NAME
 my\-app
 .SH SYNOPSIS
-\fBmy\-app\fR [\fB\-c \fR] [\fB\-v \fR] [\fB\-h\fR|\fB\-\-help\fR] [\fIsubcommands\fR]
+\fBmy\-app\fR [\fB\-c \fR] [\fB\-v \fR] [\fB\-h\fR|\fB\-\-help\fR] 
+.br
+\fBmy\-app test\fR [\fB\-d \fR]... [\fB\-c \fR] [\fB\-h\fR|\fB\-\-help\fR] 
+.br
+\fBmy\-app help\fR 
 .SH DESCRIPTION
 .SH OPTIONS
 .TP
@@ -18,9 +22,9 @@ my\-app
 Print help
 .SH SUBCOMMANDS
 .TP
-my\-app\-test(1)
+\fBtest\fR [\fB\-d \fR]... [\fB\-c \fR] [\fB\-h\fR|\fB\-\-help\fR] 
 Subcommand
 with a second line
 .TP
-my\-app\-help(1)
+\fBhelp\fR 
 Print this message or the help of the given subcommand(s)
