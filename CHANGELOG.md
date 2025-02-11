@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Change `ArgMatches::args_present` so not-present flags are considered not-present (matching the documentation)
+
 ## [4.5.28] - 2025-02-03
 
 ### Features
