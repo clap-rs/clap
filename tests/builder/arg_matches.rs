@@ -1,5 +1,4 @@
 use clap::{arg, value_parser, Command};
-#[cfg(debug_assertions)]
 use clap::{Arg, ArgAction};
 
 #[test]
@@ -82,4 +81,37 @@ fn arg_matches_subcommand_matches_wrong_sub() {
 
     assert!(m.subcommand_matches("speed").is_some());
     m.subcommand_matches("seed");
+}
+
+#[test]
+fn args_present_positional() {
+    let c = Command::new("test").arg(Arg::new("positional"));
+
+    let m = c.clone().try_get_matches_from(["test"]).unwrap();
+    assert!(!m.args_present());
+
+    let m = c.clone().try_get_matches_from(["test", "value"]).unwrap();
+    assert!(m.args_present());
+}
+
+#[test]
+fn args_present_flag() {
+    let c = Command::new("test").arg(Arg::new("flag").long("flag").action(ArgAction::SetTrue));
+
+    let m = c.clone().try_get_matches_from(["test"]).unwrap();
+    assert!(m.args_present());
+
+    let m = c.clone().try_get_matches_from(["test", "--flag"]).unwrap();
+    assert!(m.args_present());
+}
+
+#[test]
+fn args_present_subcommand() {
+    let c = Command::new("test").subcommand(Command::new("sub"));
+
+    let m = c.clone().try_get_matches_from(["test"]).unwrap();
+    assert!(!m.args_present());
+
+    let m = c.clone().try_get_matches_from(["test", "sub"]).unwrap();
+    assert!(!m.args_present());
 }
