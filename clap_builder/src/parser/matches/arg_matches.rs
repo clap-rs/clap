@@ -554,7 +554,10 @@ impl ArgMatches {
         }
     }
 
-    /// Check if any args were present on the command line
+    /// Check if any [`Arg`][crate::Arg]s were present on the command line
+    ///
+    /// See [`ArgMatches::subcommand_name()`] or [`ArgMatches::subcommand()`] to check if a
+    /// subcommand was present on the command line.
     ///
     /// # Examples
     ///
