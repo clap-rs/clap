@@ -99,7 +99,7 @@ fn args_present_flag() {
     let c = Command::new("test").arg(Arg::new("flag").long("flag").action(ArgAction::SetTrue));
 
     let m = c.clone().try_get_matches_from(["test"]).unwrap();
-    assert!(m.args_present());
+    assert!(!m.args_present());
 
     let m = c.clone().try_get_matches_from(["test", "--flag"]).unwrap();
     assert!(m.args_present());
