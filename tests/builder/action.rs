@@ -220,7 +220,7 @@ fn set_true_with_required_if_eq() {
 }
 
 #[test]
-#[should_panic = "Argument `mammal`'s selected action SetTrue contradicts `takes_value`"]
+#[should_panic = "Argument `mammal`'s action SetTrue is incompatible with `num_args(1..)`"]
 fn set_true_with_incompatible_num_args() {
     Command::new("test")
         .arg(
@@ -347,7 +347,7 @@ fn set_false_with_default_value_if_value() {
 }
 
 #[test]
-#[should_panic = "Argument `mammal`'s selected action SetFalse contradicts `takes_value`"]
+#[should_panic = "Argument `mammal`'s action SetFalse is incompatible with `num_args(1..)`"]
 fn set_false_with_incompatible_num_args() {
     Command::new("test")
         .arg(
@@ -470,7 +470,7 @@ fn count_with_default_value_if_value() {
 }
 
 #[test]
-#[should_panic = "Argument `mammal`'s selected action Count contradicts `takes_value`"]
+#[should_panic = "Argument `mammal`'s action Count is incompatible with `num_args(1..)`"]
 fn count_with_incompatible_num_args() {
     Command::new("test")
         .arg(
@@ -483,7 +483,7 @@ fn count_with_incompatible_num_args() {
 }
 
 #[test]
-#[should_panic = "Argument `mammal`'s selected action Help contradicts `takes_value`"]
+#[should_panic = "Argument `mammal`'s action Help is incompatible with `num_args(1..)`"]
 fn help_with_incompatible_num_args() {
     Command::new("test")
         .arg(
@@ -496,7 +496,7 @@ fn help_with_incompatible_num_args() {
 }
 
 #[test]
-#[should_panic = "Argument `mammal`'s selected action HelpShort contradicts `takes_value`"]
+#[should_panic = "Argument `mammal`'s action HelpShort is incompatible with `num_args(1..)`"]
 fn help_short_with_incompatible_num_args() {
     Command::new("test")
         .arg(
@@ -509,7 +509,7 @@ fn help_short_with_incompatible_num_args() {
 }
 
 #[test]
-#[should_panic = "Argument `mammal`'s selected action HelpLong contradicts `takes_value`"]
+#[should_panic = "Argument `mammal`'s action HelpLong is incompatible with `num_args(1..)`"]
 fn help_long_with_incompatible_num_args() {
     Command::new("test")
         .arg(
@@ -522,7 +522,7 @@ fn help_long_with_incompatible_num_args() {
 }
 
 #[test]
-#[should_panic = "Argument `mammal`'s selected action Version contradicts `takes_value`"]
+#[should_panic = "Argument `mammal`'s action Version is incompatible with `num_args(1..)`"]
 fn version_with_incompatible_num_args() {
     Command::new("test")
         .version("1.0.0")
