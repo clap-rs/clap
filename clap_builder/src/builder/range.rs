@@ -176,7 +176,10 @@ impl From<std::ops::RangeToInclusive<usize>> for ValueRange {
 impl std::fmt::Display for ValueRange {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         ok!(self.start_inclusive.fmt(f));
-        if !self.is_fixed() {
+        if self.is_fixed() {
+        } else if self.end_inclusive == usize::MAX {
+            ok!("..".fmt(f));
+        } else {
             ok!("..=".fmt(f));
             ok!(self.end_inclusive.fmt(f));
         }
