@@ -220,6 +220,19 @@ fn set_true_with_required_if_eq() {
 }
 
 #[test]
+#[should_panic = "Argument `mammal`'s selected action SetTrue contradicts `takes_value`"]
+fn set_true_with_incompatible_num_args() {
+    Command::new("test")
+        .arg(
+            Arg::new("mammal")
+                .long("mammal")
+                .action(ArgAction::SetTrue)
+                .num_args(1..),
+        )
+        .build();
+}
+
+#[test]
 fn set_false() {
     let cmd = Command::new("test").arg(
         Arg::new("mammal")
@@ -334,6 +347,19 @@ fn set_false_with_default_value_if_value() {
 }
 
 #[test]
+#[should_panic = "Argument `mammal`'s selected action SetFalse contradicts `takes_value`"]
+fn set_false_with_incompatible_num_args() {
+    Command::new("test")
+        .arg(
+            Arg::new("mammal")
+                .long("mammal")
+                .action(ArgAction::SetFalse)
+                .num_args(1..),
+        )
+        .build();
+}
+
+#[test]
 fn count() {
     let cmd = Command::new("test").arg(Arg::new("mammal").long("mammal").action(ArgAction::Count));
 
@@ -441,4 +467,70 @@ fn count_with_default_value_if_value() {
         .unwrap();
     assert_eq!(*matches.get_one::<u8>("dog").unwrap(), 0);
     assert_eq!(*matches.get_one::<u8>("mammal").unwrap(), 1);
+}
+
+#[test]
+#[should_panic = "Argument `mammal`'s selected action Count contradicts `takes_value`"]
+fn count_with_incompatible_num_args() {
+    Command::new("test")
+        .arg(
+            Arg::new("mammal")
+                .long("mammal")
+                .action(ArgAction::Count)
+                .num_args(1..),
+        )
+        .build();
+}
+
+#[test]
+#[should_panic = "Argument `mammal`'s selected action Help contradicts `takes_value`"]
+fn help_with_incompatible_num_args() {
+    Command::new("test")
+        .arg(
+            Arg::new("mammal")
+                .long("mammal")
+                .action(ArgAction::Help)
+                .num_args(1..),
+        )
+        .build();
+}
+
+#[test]
+#[should_panic = "Argument `mammal`'s selected action HelpShort contradicts `takes_value`"]
+fn help_short_with_incompatible_num_args() {
+    Command::new("test")
+        .arg(
+            Arg::new("mammal")
+                .long("mammal")
+                .action(ArgAction::HelpShort)
+                .num_args(1..),
+        )
+        .build();
+}
+
+#[test]
+#[should_panic = "Argument `mammal`'s selected action HelpLong contradicts `takes_value`"]
+fn help_long_with_incompatible_num_args() {
+    Command::new("test")
+        .arg(
+            Arg::new("mammal")
+                .long("mammal")
+                .action(ArgAction::HelpLong)
+                .num_args(1..),
+        )
+        .build();
+}
+
+#[test]
+#[should_panic = "Argument `mammal`'s selected action Version contradicts `takes_value`"]
+fn version_with_incompatible_num_args() {
+    Command::new("test")
+        .version("1.0.0")
+        .arg(
+            Arg::new("mammal")
+                .long("mammal")
+                .action(ArgAction::Version)
+                .num_args(1..),
+        )
+        .build();
 }
