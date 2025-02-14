@@ -371,6 +371,21 @@ impl ArgAction {
         }
     }
 
+    #[cfg(debug_assertions)]
+    pub(crate) fn max_num_args(&self) -> ValueRange {
+        match self {
+            Self::Set => ValueRange::FULL,
+            Self::Append => ValueRange::FULL,
+            Self::SetTrue => ValueRange::EMPTY,
+            Self::SetFalse => ValueRange::EMPTY,
+            Self::Count => ValueRange::EMPTY,
+            Self::Help => ValueRange::EMPTY,
+            Self::HelpShort => ValueRange::EMPTY,
+            Self::HelpLong => ValueRange::EMPTY,
+            Self::Version => ValueRange::EMPTY,
+        }
+    }
+
     pub(crate) fn default_num_args(&self) -> ValueRange {
         match self {
             Self::Set => ValueRange::SINGLE,

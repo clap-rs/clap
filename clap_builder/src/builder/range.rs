@@ -18,6 +18,11 @@ impl ValueRange {
         end_inclusive: 1,
     };
 
+    pub(crate) const FULL: Self = Self {
+        start_inclusive: 0,
+        end_inclusive: usize::MAX,
+    };
+
     /// Create a range
     ///
     /// # Panics
@@ -135,9 +140,7 @@ impl From<std::ops::Range<usize>> for ValueRange {
 
 impl From<std::ops::RangeFull> for ValueRange {
     fn from(_: std::ops::RangeFull) -> Self {
-        let start_inclusive = 0;
-        let end_inclusive = usize::MAX;
-        Self::raw(start_inclusive, end_inclusive)
+        Self::FULL
     }
 }
 
