@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(dynamic)* Correctly complete option values based on `num_args`
+
 ## [4.5.44] - 2025-01-29
 
 ### Features

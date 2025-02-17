@@ -20,6 +20,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(assert)* Allow `num_args(0..=1)` to be used with `SetTrue`
+- *(assert)* Clean up rendering of `takes_values` assertions
+
 ## [4.5.29] - 2025-02-11
 
 ### Fixes
