@@ -128,7 +128,7 @@ jobs:
             features: wasm
           - build: wasm-wasi
             rust: stable
-            target: wasm32-wasip1
+            target: wasm32-wasip2
             features: wasm
           - build: debug
             rust: stable
