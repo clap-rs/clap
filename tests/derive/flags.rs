@@ -331,7 +331,6 @@ fn unit_for_negation() {
 }
 
 #[test]
-#[should_panic = "Argument `alice`'s action SetTrue is incompatible with `num_args(0..=1)`"]
 fn optional_value_flag() {
     #[derive(Parser, PartialEq, Eq, Debug)]
     struct Opt {

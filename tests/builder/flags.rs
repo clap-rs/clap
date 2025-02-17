@@ -225,7 +225,9 @@ fn leading_dash_stripped() {
 
 #[test]
 fn optional_value() {
-    let cmd = Command::new("flag").args([arg!(-f --flag "some flag").action(ArgAction::SetTrue)]);
+    let cmd = Command::new("flag").args([arg!(-f --flag "some flag")
+        .action(ArgAction::SetTrue)
+        .num_args(0..=1)]);
 
     let m = cmd.clone().try_get_matches_from(vec![""]).unwrap();
     assert!(!*m.get_one::<bool>("flag").expect("defaulted by clap"));
@@ -233,11 +235,15 @@ fn optional_value() {
     let m = cmd.clone().try_get_matches_from(vec!["", "-f"]).unwrap();
     assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
 
-    cmd.clone()
-        .try_get_matches_from(vec!["", "-f", "true"])
-        .unwrap_err();
-
-    cmd.clone()
+    let m = cmd
+        .clone()
         .try_get_matches_from(vec!["", "-f", "false"])
-        .unwrap_err();
+        .unwrap();
+    assert!(!*m.get_one::<bool>("flag").expect("defaulted by clap"));
+
+    let m = cmd
+        .clone()
+        .try_get_matches_from(vec!["", "-f", "true"])
+        .unwrap();
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }

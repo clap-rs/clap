@@ -376,8 +376,8 @@ impl ArgAction {
         match self {
             Self::Set => ValueRange::FULL,
             Self::Append => ValueRange::FULL,
-            Self::SetTrue => ValueRange::EMPTY,
-            Self::SetFalse => ValueRange::EMPTY,
+            Self::SetTrue => ValueRange::OPTIONAL,
+            Self::SetFalse => ValueRange::OPTIONAL,
             Self::Count => ValueRange::EMPTY,
             Self::Help => ValueRange::EMPTY,
             Self::HelpShort => ValueRange::EMPTY,

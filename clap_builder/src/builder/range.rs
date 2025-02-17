@@ -18,6 +18,12 @@ impl ValueRange {
         end_inclusive: 1,
     };
 
+    #[cfg(debug_assertions)]
+    pub(crate) const OPTIONAL: Self = Self {
+        start_inclusive: 0,
+        end_inclusive: 1,
+    };
+
     pub(crate) const FULL: Self = Self {
         start_inclusive: 0,
         end_inclusive: usize::MAX,
