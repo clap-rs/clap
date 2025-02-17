@@ -81,7 +81,7 @@ pub fn complete(
                 });
 
                 if let Some(opt) = opt {
-                    if opt.get_action().takes_values() && value.is_none() {
+                    if opt.get_num_args().expect("built").takes_values() && value.is_none() {
                         next_state = ParseState::Opt((opt, 1));
                     };
                 } else if pos_allows_hyphen(current_cmd, pos_index) {
@@ -581,7 +581,10 @@ fn parse_shortflags<'c, 's>(
                     });
                     is_find.unwrap_or(false)
                 });
-                if opt.map(|o| o.get_action().takes_values()).unwrap_or(false) {
+                if opt
+                    .map(|o| o.get_num_args().expect("built").takes_values())
+                    .unwrap_or(false)
+                {
                     takes_value_opt = opt;
                     break;
                 }

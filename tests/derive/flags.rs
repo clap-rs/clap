@@ -329,3 +329,26 @@ fn unit_for_negation() {
         Opt::try_parse_from(["test", "--arg", "--no-arg"]).unwrap()
     );
 }
+
+#[test]
+fn optional_value_flag() {
+    #[derive(Parser, PartialEq, Eq, Debug)]
+    struct Opt {
+        #[arg(short, long, num_args=0..=1)]
+        alice: bool,
+    }
+
+    assert_eq!(Opt { alice: false }, Opt::try_parse_from(["test"]).unwrap());
+    assert_eq!(
+        Opt { alice: true },
+        Opt::try_parse_from(["test", "-a"]).unwrap()
+    );
+    assert_eq!(
+        Opt { alice: true },
+        Opt::try_parse_from(["test", "-a", "true"]).unwrap()
+    );
+    assert_eq!(
+        Opt { alice: false },
+        Opt::try_parse_from(["test", "-a", "false"]).unwrap()
+    );
+}

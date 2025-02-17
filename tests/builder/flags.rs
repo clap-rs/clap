@@ -222,3 +222,28 @@ fn leading_dash_stripped() {
     let cmd = Command::new("mycat").arg(Arg::new("filename").long("--filename"));
     cmd.debug_assert();
 }
+
+#[test]
+fn optional_value() {
+    let cmd = Command::new("flag").args([arg!(-f --flag "some flag")
+        .action(ArgAction::SetTrue)
+        .num_args(0..=1)]);
+
+    let m = cmd.clone().try_get_matches_from(vec![""]).unwrap();
+    assert!(!*m.get_one::<bool>("flag").expect("defaulted by clap"));
+
+    let m = cmd.clone().try_get_matches_from(vec!["", "-f"]).unwrap();
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
+
+    let m = cmd
+        .clone()
+        .try_get_matches_from(vec!["", "-f", "false"])
+        .unwrap();
+    assert!(!*m.get_one::<bool>("flag").expect("defaulted by clap"));
+
+    let m = cmd
+        .clone()
+        .try_get_matches_from(vec!["", "-f", "true"])
+        .unwrap();
+    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
+}
