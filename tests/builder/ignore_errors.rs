@@ -206,7 +206,7 @@ fn subcommand() {
 }
 
 #[test]
-fn help_command() {
+fn help_flag() {
     static HELP: &str = "\
 Usage: test
 
@@ -220,7 +220,7 @@ Options:
 }
 
 #[test]
-fn version_command() {
+fn version_flag() {
     let cmd = Command::new("test").ignore_errors(true).version("0.1");
 
     utils::assert_output(cmd, "test --version", "test 0.1\n", false);
