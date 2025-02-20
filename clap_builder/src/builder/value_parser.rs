@@ -238,8 +238,10 @@ impl ValueParser {
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
         source: ValueSource,
+        index: isize,
     ) -> Result<AnyValue, crate::Error> {
-        self.any_value_parser().parse_ref_(cmd, arg, value, source)
+        self.any_value_parser()
+            .parse_ref_(cmd, arg, value, source, index)
     }
 
     /// Describes the content of `AnyValue`
@@ -594,6 +596,7 @@ trait AnyValueParser: Send + Sync + 'static {
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
+        index: isize,
     ) -> Result<AnyValue, crate::Error>;
 
     fn parse_ref_(
@@ -602,8 +605,9 @@ trait AnyValueParser: Send + Sync + 'static {
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
         _source: ValueSource,
+        index: isize,
     ) -> Result<AnyValue, crate::Error> {
-        self.parse_ref(cmd, arg, value)
+        self.parse_ref(cmd, arg, value, index)
     }
 
     /// Describes the content of `AnyValue`
@@ -626,8 +630,9 @@ where
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
+        index: isize,
     ) -> Result<AnyValue, crate::Error> {
-        let value = ok!(TypedValueParser::parse_ref(self, cmd, arg, value));
+        let value = ok!(TypedValueParser::parse_ref(self, cmd, arg, value, index));
         Ok(AnyValue::new(value))
     }
 
@@ -637,8 +642,11 @@ where
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
         source: ValueSource,
+        index: isize,
     ) -> Result<AnyValue, crate::Error> {
-        let value = ok!(TypedValueParser::parse_ref_(self, cmd, arg, value, source));
+        let value = ok!(TypedValueParser::parse_ref_(
+            self, cmd, arg, value, source, index
+        ));
         Ok(AnyValue::new(value))
     }
 
@@ -688,9 +696,10 @@ where
 ///         cmd: &clap::Command,
 ///         arg: Option<&clap::Arg>,
 ///         value: &std::ffi::OsStr,
+///         index:  isize,
 ///     ) -> Result<Self::Value, clap::Error> {
 ///         let inner = clap::value_parser!(u32);
-///         let val = inner.parse_ref(cmd, arg, value)?;
+///         let val = inner.parse_ref(cmd, arg, value, index)?;
 ///
 ///         const INVALID_VALUE: u32 = 10;
 ///         if val == INVALID_VALUE {
@@ -720,6 +729,7 @@ pub trait TypedValueParser: Clone + Send + Sync + 'static {
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
+        index: isize,
     ) -> Result<Self::Value, crate::Error>;
 
     /// Parse the argument value
@@ -731,8 +741,9 @@ pub trait TypedValueParser: Clone + Send + Sync + 'static {
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
         _source: ValueSource,
+        index: isize,
     ) -> Result<Self::Value, crate::Error> {
-        self.parse_ref(cmd, arg, value)
+        self.parse_ref(cmd, arg, value, index)
     }
 
     /// Parse the argument value
@@ -743,8 +754,9 @@ pub trait TypedValueParser: Clone + Send + Sync + 'static {
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: std::ffi::OsString,
+        index: isize,
     ) -> Result<Self::Value, crate::Error> {
-        self.parse_ref(cmd, arg, &value)
+        self.parse_ref(cmd, arg, &value, index)
     }
 
     /// Parse the argument value
@@ -756,8 +768,9 @@ pub trait TypedValueParser: Clone + Send + Sync + 'static {
         arg: Option<&crate::Arg>,
         value: std::ffi::OsString,
         _source: ValueSource,
+        index: isize,
     ) -> Result<Self::Value, crate::Error> {
-        self.parse(cmd, arg, value)
+        self.parse(cmd, arg, value, index)
     }
 
     /// Reflect on enumerated value properties
@@ -880,18 +893,20 @@ where
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
+        index: isize,
     ) -> Result<Self::Value, crate::Error> {
         let value = ok!(value.to_str().ok_or_else(|| {
             crate::Error::invalid_utf8(
                 cmd,
                 crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+                index,
             )
         }));
         let value = ok!((self)(value).map_err(|e| {
             let arg = arg
                 .map(|a| a.to_string())
                 .unwrap_or_else(|| "...".to_owned());
-            crate::Error::value_validation(arg, value.to_owned(), e.into()).with_cmd(cmd)
+            crate::Error::value_validation(arg, value.to_owned(), e.into(), index).with_cmd(cmd)
         }));
         Ok(value)
     }
@@ -919,8 +934,9 @@ impl TypedValueParser for StringValueParser {
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
+        index: isize,
     ) -> Result<Self::Value, crate::Error> {
-        TypedValueParser::parse(self, cmd, arg, value.to_owned())
+        TypedValueParser::parse(self, cmd, arg, value.to_owned(), index)
     }
 
     fn parse(
@@ -928,11 +944,13 @@ impl TypedValueParser for StringValueParser {
         cmd: &crate::Command,
         _arg: Option<&crate::Arg>,
         value: std::ffi::OsString,
+        index: isize,
     ) -> Result<Self::Value, crate::Error> {
         let value = ok!(value.into_string().map_err(|_| {
             crate::Error::invalid_utf8(
                 cmd,
                 crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+                index,
             )
         }));
         Ok(value)
@@ -967,8 +985,9 @@ impl TypedValueParser for OsStringValueParser {
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
+        index: isize,
     ) -> Result<Self::Value, crate::Error> {
-        TypedValueParser::parse(self, cmd, arg, value.to_owned())
+        TypedValueParser::parse(self, cmd, arg, value.to_owned(), index)
     }
 
     fn parse(
@@ -976,6 +995,7 @@ impl TypedValueParser for OsStringValueParser {
         _cmd: &crate::Command,
         _arg: Option<&crate::Arg>,
         value: std::ffi::OsString,
+        _index: isize,
     ) -> Result<Self::Value, crate::Error> {
         Ok(value)
     }
@@ -1009,8 +1029,9 @@ impl TypedValueParser for PathBufValueParser {
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
+        index: isize,
     ) -> Result<Self::Value, crate::Error> {
-        TypedValueParser::parse(self, cmd, arg, value.to_owned())
+        TypedValueParser::parse(self, cmd, arg, value.to_owned(), index)
     }
 
     fn parse(
@@ -1018,6 +1039,7 @@ impl TypedValueParser for PathBufValueParser {
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: std::ffi::OsString,
+        index: isize,
     ) -> Result<Self::Value, crate::Error> {
         if value.is_empty() {
             return Err(crate::Error::empty_value(
@@ -1025,6 +1047,7 @@ impl TypedValueParser for PathBufValueParser {
                 &[],
                 arg.map(ToString::to_string)
                     .unwrap_or_else(|| "...".to_owned()),
+                index,
             ));
         }
         Ok(Self::Value::from(value))
@@ -1069,11 +1092,11 @@ impl Default for PathBufValueParser {
 /// let value_parser = clap::builder::EnumValueParser::<ColorChoice>::new();
 /// // or
 /// let value_parser = clap::value_parser!(ColorChoice);
-/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).is_err());
-/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("")).is_err());
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("always")).unwrap(), ColorChoice::Always);
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("auto")).unwrap(), ColorChoice::Auto);
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("never")).unwrap(), ColorChoice::Never);
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("random"), 0).is_err());
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new(""), 0).is_err());
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("always"), 0).unwrap(), ColorChoice::Always);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("auto"), 0).unwrap(), ColorChoice::Auto);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("never"), 0).unwrap(), ColorChoice::Never);
 /// ```
 #[derive(Clone, Debug)]
 pub struct EnumValueParser<E: crate::ValueEnum + Clone + Send + Sync + 'static>(
@@ -1096,6 +1119,7 @@ impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> TypedValueParser for E
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
+        index: isize,
     ) -> Result<Self::Value, crate::Error> {
         let ignore_case = arg.map(|a| a.is_ignore_case_set()).unwrap_or(false);
         let possible_vals = || {
@@ -1114,6 +1138,7 @@ impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> TypedValueParser for E
                 &possible_vals(),
                 arg.map(ToString::to_string)
                     .unwrap_or_else(|| "...".to_owned()),
+                index,
             )
         }));
         let value = ok!(E::value_variants()
@@ -1130,6 +1155,7 @@ impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> TypedValueParser for E
                 &possible_vals(),
                 arg.map(ToString::to_string)
                     .unwrap_or_else(|| "...".to_owned()),
+                index,
             )
             }))
             .clone();
@@ -1186,11 +1212,11 @@ impl<E: crate::ValueEnum + Clone + Send + Sync + 'static> Default for EnumValueP
 /// # let cmd = clap::Command::new("test");
 /// # let arg = None;
 /// let value_parser = clap::builder::PossibleValuesParser::new(["always", "auto", "never"]);
-/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).is_err());
-/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("")).is_err());
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("always")).unwrap(), "always");
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("auto")).unwrap(), "auto");
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("never")).unwrap(), "never");
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("random"), 0).is_err());
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new(""), 0).is_err());
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("always"), 0).unwrap(), "always");
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("auto"), 0).unwrap(), "auto");
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("never"), 0).unwrap(), "never");
 /// ```
 #[derive(Clone, Debug)]
 pub struct PossibleValuesParser(Vec<super::PossibleValue>);
@@ -1210,8 +1236,9 @@ impl TypedValueParser for PossibleValuesParser {
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
+        index: isize,
     ) -> Result<Self::Value, crate::Error> {
-        TypedValueParser::parse(self, cmd, arg, value.to_owned())
+        TypedValueParser::parse(self, cmd, arg, value.to_owned(), index)
     }
 
     fn parse(
@@ -1219,11 +1246,13 @@ impl TypedValueParser for PossibleValuesParser {
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: std::ffi::OsString,
+        index: isize,
     ) -> Result<String, crate::Error> {
         let value = ok!(value.into_string().map_err(|_| {
             crate::Error::invalid_utf8(
                 cmd,
                 crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+                index,
             )
         }));
 
@@ -1244,6 +1273,7 @@ impl TypedValueParser for PossibleValuesParser {
                 &possible_vals,
                 arg.map(ToString::to_string)
                     .unwrap_or_else(|| "...".to_owned()),
+                index,
             ))
         }
     }
@@ -1303,13 +1333,13 @@ where
 /// # let cmd = clap::Command::new("test");
 /// # let arg = None;
 /// let value_parser = clap::builder::RangedI64ValueParser::<i32>::new().range(-1..200);
-/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).is_err());
-/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("")).is_err());
-/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("-200")).is_err());
-/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("300")).is_err());
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("-1")).unwrap(), -1);
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("0")).unwrap(), 0);
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("50")).unwrap(), 50);
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("random"), 0).is_err());
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new(""), 0).is_err());
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("-200"), 0).is_err());
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("300"), 0).is_err());
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("-1"), 0).unwrap(), -1);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("0"), 0).unwrap(), 0);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("50"), 0).unwrap(), 50);
 /// ```
 #[derive(Copy, Clone, Debug)]
 pub struct RangedI64ValueParser<T: TryFrom<i64> + Clone + Send + Sync = i64> {
@@ -1408,11 +1438,13 @@ where
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         raw_value: &std::ffi::OsStr,
+        index: isize,
     ) -> Result<Self::Value, crate::Error> {
         let value = ok!(raw_value.to_str().ok_or_else(|| {
             crate::Error::invalid_utf8(
                 cmd,
                 crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+                index,
             )
         }));
         let value = ok!(value.parse::<i64>().map_err(|err| {
@@ -1423,6 +1455,7 @@ where
                 arg,
                 raw_value.to_string_lossy().into_owned(),
                 err.into(),
+                index,
             )
             .with_cmd(cmd)
         }));
@@ -1434,6 +1467,7 @@ where
                 arg,
                 raw_value.to_string_lossy().into_owned(),
                 format!("{} is not in {}", value, self.format_bounds()).into(),
+                index,
             )
             .with_cmd(cmd));
         }
@@ -1447,6 +1481,7 @@ where
                 arg,
                 raw_value.to_string_lossy().into_owned(),
                 err.into(),
+                index,
             )
             .with_cmd(cmd)
         }));
@@ -1502,13 +1537,13 @@ impl<T: TryFrom<i64> + Clone + Send + Sync> Default for RangedI64ValueParser<T> 
 /// # let cmd = clap::Command::new("test");
 /// # let arg = None;
 /// let value_parser = clap::builder::RangedU64ValueParser::<u32>::new().range(0..200);
-/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).is_err());
-/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("")).is_err());
-/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("-200")).is_err());
-/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("300")).is_err());
-/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("-1")).is_err());
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("0")).unwrap(), 0);
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("50")).unwrap(), 50);
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("random"), 0).is_err());
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new(""), 0).is_err());
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("-200"), 0).is_err());
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("300"), 0).is_err());
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("-1"), 0).is_err());
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("0"), 0).unwrap(), 0);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("50"), 0).unwrap(), 50);
 /// ```
 #[derive(Copy, Clone, Debug)]
 pub struct RangedU64ValueParser<T: TryFrom<u64> = u64> {
@@ -1607,11 +1642,13 @@ where
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         raw_value: &std::ffi::OsStr,
+        index: isize,
     ) -> Result<Self::Value, crate::Error> {
         let value = ok!(raw_value.to_str().ok_or_else(|| {
             crate::Error::invalid_utf8(
                 cmd,
                 crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+                index,
             )
         }));
         let value = ok!(value.parse::<u64>().map_err(|err| {
@@ -1622,6 +1659,7 @@ where
                 arg,
                 raw_value.to_string_lossy().into_owned(),
                 err.into(),
+                index,
             )
             .with_cmd(cmd)
         }));
@@ -1633,6 +1671,7 @@ where
                 arg,
                 raw_value.to_string_lossy().into_owned(),
                 format!("{} is not in {}", value, self.format_bounds()).into(),
+                index,
             )
             .with_cmd(cmd));
         }
@@ -1646,6 +1685,7 @@ where
                 arg,
                 raw_value.to_string_lossy().into_owned(),
                 err.into(),
+                index,
             )
             .with_cmd(cmd)
         }));
@@ -1698,6 +1738,7 @@ impl TypedValueParser for BoolValueParser {
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
+        index: isize,
     ) -> Result<Self::Value, crate::Error> {
         let value = if value == std::ffi::OsStr::new("true") {
             true
@@ -1715,6 +1756,7 @@ impl TypedValueParser for BoolValueParser {
                 &possible_vals,
                 arg.map(ToString::to_string)
                     .unwrap_or_else(|| "...".to_owned()),
+                index,
             ));
         };
         Ok(value)
@@ -1765,13 +1807,13 @@ impl Default for BoolValueParser {
 /// # let cmd = clap::Command::new("test");
 /// # let arg = None;
 /// let value_parser = clap::builder::FalseyValueParser::new();
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).unwrap(), true);
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("100")).unwrap(), true);
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("")).unwrap(), false);
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("false")).unwrap(), false);
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("No")).unwrap(), false);
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("oFF")).unwrap(), false);
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("0")).unwrap(), false);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("random"), 0).unwrap(), true);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("100"), 0).unwrap(), true);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new(""), 0).unwrap(), false);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("false"), 0).unwrap(), false);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("No"), 0).unwrap(), false);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("oFF"), 0).unwrap(), false);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("0"), 0).unwrap(), false);
 /// ```
 #[derive(Copy, Clone, Debug)]
 #[non_exhaustive]
@@ -1800,11 +1842,13 @@ impl TypedValueParser for FalseyValueParser {
         cmd: &crate::Command,
         _arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
+        index: isize,
     ) -> Result<Self::Value, crate::Error> {
         let value = ok!(value.to_str().ok_or_else(|| {
             crate::Error::invalid_utf8(
                 cmd,
                 crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+                index,
             )
         }));
         let value = if value.is_empty() {
@@ -1860,17 +1904,17 @@ impl Default for FalseyValueParser {
 /// # let cmd = clap::Command::new("test");
 /// # let arg = None;
 /// let value_parser = clap::builder::BoolishValueParser::new();
-/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).is_err());
-/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("")).is_err());
-/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("100")).is_err());
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("true")).unwrap(), true);
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("Yes")).unwrap(), true);
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("oN")).unwrap(), true);
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("1")).unwrap(), true);
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("false")).unwrap(), false);
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("No")).unwrap(), false);
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("oFF")).unwrap(), false);
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("0")).unwrap(), false);
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("random"), 0).is_err());
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new(""), 0).is_err());
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("100"), 0).is_err());
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("true"), 0).unwrap(), true);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("Yes"), 0).unwrap(), true);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("oN"), 0).unwrap(), true);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("1"), 0).unwrap(), true);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("false"), 0).unwrap(), false);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("No"), 0).unwrap(), false);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("oFF"), 0).unwrap(), false);
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("0"), 0).unwrap(), false);
 /// ```
 #[derive(Copy, Clone, Debug)]
 #[non_exhaustive]
@@ -1899,19 +1943,26 @@ impl TypedValueParser for BoolishValueParser {
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
+        index: isize,
     ) -> Result<Self::Value, crate::Error> {
         let value = ok!(value.to_str().ok_or_else(|| {
             crate::Error::invalid_utf8(
                 cmd,
                 crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+                index,
             )
         }));
         let value = ok!(crate::util::str_to_bool(value).ok_or_else(|| {
             let arg = arg
                 .map(|a| a.to_string())
                 .unwrap_or_else(|| "...".to_owned());
-            crate::Error::value_validation(arg, value.to_owned(), "value was not a boolean".into())
-                .with_cmd(cmd)
+            crate::Error::value_validation(
+                arg,
+                value.to_owned(),
+                "value was not a boolean".into(),
+                index,
+            )
+            .with_cmd(cmd)
         }));
         Ok(value)
     }
@@ -1960,8 +2011,8 @@ impl Default for BoolishValueParser {
 /// # let cmd = clap::Command::new("test");
 /// # let arg = None;
 /// let value_parser = clap::builder::NonEmptyStringValueParser::new();
-/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("random")).unwrap(), "random");
-/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new("")).is_err());
+/// assert_eq!(value_parser.parse_ref(&cmd, arg, OsStr::new("random"), 0).unwrap(), "random");
+/// assert!(value_parser.parse_ref(&cmd, arg, OsStr::new(""), 0).is_err());
 /// ```
 #[derive(Copy, Clone, Debug)]
 #[non_exhaustive]
@@ -1982,6 +2033,7 @@ impl TypedValueParser for NonEmptyStringValueParser {
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
+        index: isize,
     ) -> Result<Self::Value, crate::Error> {
         if value.is_empty() {
             return Err(crate::Error::empty_value(
@@ -1989,12 +2041,14 @@ impl TypedValueParser for NonEmptyStringValueParser {
                 &[],
                 arg.map(ToString::to_string)
                     .unwrap_or_else(|| "...".to_owned()),
+                index,
             ));
         }
         let value = ok!(value.to_str().ok_or_else(|| {
             crate::Error::invalid_utf8(
                 cmd,
                 crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+                index,
             )
         }));
         Ok(value.to_owned())
@@ -2042,8 +2096,9 @@ where
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
+        index: isize,
     ) -> Result<Self::Value, crate::Error> {
-        let value = ok!(self.parser.parse_ref(cmd, arg, value));
+        let value = ok!(self.parser.parse_ref(cmd, arg, value, index));
         let value = (self.func)(value);
         Ok(value)
     }
@@ -2053,8 +2108,9 @@ where
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: std::ffi::OsString,
+        index: isize,
     ) -> Result<Self::Value, crate::Error> {
-        let value = ok!(self.parser.parse(cmd, arg, value));
+        let value = ok!(self.parser.parse(cmd, arg, value, index));
         let value = (self.func)(value);
         Ok(value)
     }
@@ -2103,14 +2159,20 @@ where
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
+        index: isize,
     ) -> Result<Self::Value, crate::Error> {
-        let mid_value = ok!(self.parser.parse_ref(cmd, arg, value));
+        let mid_value = ok!(self.parser.parse_ref(cmd, arg, value, index));
         let value = ok!((self.func)(mid_value).map_err(|e| {
             let arg = arg
                 .map(|a| a.to_string())
                 .unwrap_or_else(|| "...".to_owned());
-            crate::Error::value_validation(arg, value.to_string_lossy().into_owned(), e.into())
-                .with_cmd(cmd)
+            crate::Error::value_validation(
+                arg,
+                value.to_string_lossy().into_owned(),
+                e.into(),
+                index,
+            )
+            .with_cmd(cmd)
         }));
         Ok(value)
     }
@@ -2193,8 +2255,9 @@ impl TypedValueParser for UnknownArgumentValueParser {
         cmd: &crate::Command,
         arg: Option<&crate::Arg>,
         value: &std::ffi::OsStr,
+        index: isize,
     ) -> Result<Self::Value, crate::Error> {
-        TypedValueParser::parse_ref_(self, cmd, arg, value, ValueSource::CommandLine)
+        TypedValueParser::parse_ref_(self, cmd, arg, value, ValueSource::CommandLine, index)
     }
 
     fn parse_ref_(
@@ -2203,11 +2266,17 @@ impl TypedValueParser for UnknownArgumentValueParser {
         arg: Option<&crate::Arg>,
         _value: &std::ffi::OsStr,
         source: ValueSource,
+        index: isize,
     ) -> Result<Self::Value, crate::Error> {
         match source {
-            ValueSource::DefaultValue => {
-                TypedValueParser::parse_ref_(&StringValueParser::new(), cmd, arg, _value, source)
-            }
+            ValueSource::DefaultValue => TypedValueParser::parse_ref_(
+                &StringValueParser::new(),
+                cmd,
+                arg,
+                _value,
+                source,
+                index,
+            ),
             ValueSource::EnvVariable | ValueSource::CommandLine => {
                 let arg = match arg {
                     Some(arg) => arg.to_string(),
@@ -2219,6 +2288,7 @@ impl TypedValueParser for UnknownArgumentValueParser {
                     self.arg.as_ref().map(|s| (s.as_str().to_owned(), None)),
                     false,
                     crate::output::Usage::new(cmd).create_usage_with_title(&[]),
+                    index,
                 );
                 #[cfg(feature = "error-context")]
                 let err = {
@@ -2264,9 +2334,10 @@ impl TypedValueParser for UnknownArgumentValueParser {
 ///         cmd: &clap::Command,
 ///         arg: Option<&clap::Arg>,
 ///         value: &std::ffi::OsStr,
+///         index: isize,
 ///     ) -> Result<Self::Value, clap::Error> {
 ///         let inner = clap::value_parser!(u32);
-///         let val = inner.parse_ref(cmd, arg, value)?;
+///         let val = inner.parse_ref(cmd, arg, value, index)?;
 ///         Ok(Custom(val))
 ///     }
 /// }
@@ -2680,7 +2751,7 @@ mod test {
         let cmd = crate::Command::new("cmd");
         let arg = None;
         assert_eq!(
-            TypedValueParser::parse_ref(&parse, &cmd, arg, std::ffi::OsStr::new("foo")).unwrap(),
+            TypedValueParser::parse_ref(&parse, &cmd, arg, std::ffi::OsStr::new("foo"), 0).unwrap(),
             10
         );
     }
