@@ -263,7 +263,7 @@ where
     _generate::<G>(generator, cmd, buf);
 }
 
-fn _generate<G: Generator>(gen: G, cmd: &mut Command, buf: &mut dyn Write) {
+fn _generate<G: Generator>(generator: G, cmd: &mut Command, buf: &mut dyn Write) {
     cmd.build();
-    gen.generate(cmd, buf);
+    generator.generate(cmd, buf);
 }
