@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Add `ValueParserFactory` for `Saturating<T>`
+
 ## [4.5.30] - 2025-02-17
 
 ### Fixes
