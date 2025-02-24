@@ -324,6 +324,12 @@ required-features = ["cargo"]
 doc-scrape-examples = true
 
 [[example]]
+name = "03_06_required"
+path = "examples/tutorial_builder/03_06_required.rs"
+required-features = ["cargo"]
+doc-scrape-examples = true
+
+[[example]]
 name = "04_01_possible"
 path = "examples/tutorial_builder/04_01_possible.rs"
 required-features = ["cargo"]
@@ -441,6 +447,12 @@ doc-scrape-examples = true
 [[example]]
 name = "03_05_default_values_derive"
 path = "examples/tutorial_derive/03_05_default_values.rs"
+required-features = ["derive"]
+doc-scrape-examples = true
+
+[[example]]
+name = "03_06_optional_derive"
+path = "examples/tutorial_derive/03_06_optional.rs"
 required-features = ["derive"]
 doc-scrape-examples = true
 

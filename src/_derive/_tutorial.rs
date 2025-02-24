@@ -61,8 +61,9 @@
 //! 1. [Positionals](#positionals)
 //! 2. [Options](#options)
 //! 3. [Flags](#flags)
-//! 4. [Defaults](#defaults)
-//! 5. [Subcommands](#subcommands)
+//! 4. [Optional](#optional)
+//! 5. [Defaults](#defaults)
+//! 6. [Subcommands](#subcommands)
 //!
 //! Arguments are inferred from the fields of your struct.
 //!
@@ -123,6 +124,15 @@
 #![doc = include_str!("../../examples/tutorial_derive/03_01_flag_count.md")]
 //!
 //! This also shows that any[`Arg`][crate::Args] method may be used as an attribute.
+//!
+//! ### Optional
+//!
+//! By default, arguments are assumed to be [`required`][crate::Arg::required].
+//! To make an argument optional, wrap the field's type in `Option`:
+//! ```rust
+#![doc = include_str!("../../examples/tutorial_derive/03_06_optional.rs")]
+//! ```
+#![doc = include_str!("../../examples/tutorial_derive/03_06_optional.md")]
 //!
 //! ### Defaults
 //!

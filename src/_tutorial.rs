@@ -62,8 +62,9 @@
 //! 1. [Positionals](#positionals)
 //! 2. [Options](#options)
 //! 3. [Flags](#flags)
-//! 4. [Defaults](#defaults)
-//! 5. [Subcommands](#subcommands)
+//! 4. [Required](#required)
+//! 5. [Defaults](#defaults)
+//! 6. [Subcommands](#subcommands)
 //!
 //!
 //! ### Positionals
@@ -115,6 +116,15 @@
 #![doc = include_str!("../examples/tutorial_builder/03_01_flag_count.rs")]
 //! ```
 #![doc = include_str!("../examples/tutorial_builder/03_01_flag_count.md")]
+//!
+//! ### Required
+//!
+//! By default, an [`Arg`] is optional which can be changed with
+//! [`required`][crate::Arg::required].
+//! ```rust
+#![doc = include_str!("../examples/tutorial_builder/03_06_required.rs")]
+//! ```
+#![doc = include_str!("../examples/tutorial_builder/03_06_required.md")]
 //!
 //! ### Defaults
 //!
