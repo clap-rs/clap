@@ -62,8 +62,8 @@
 //! 1. [Positionals](#positionals)
 //! 2. [Options](#options)
 //! 3. [Flags](#flags)
-//! 4. [Subcommands](#subcommands)
-//! 5. [Defaults](#defaults)
+//! 4. [Defaults](#defaults)
+//! 5. [Subcommands](#subcommands)
 //!
 //!
 //! ### Positionals
@@ -117,17 +117,6 @@
 //! ```
 #![doc = include_str!("../examples/tutorial_builder/03_01_flag_count.md")]
 //!
-//! ### Subcommands
-//!
-//! Subcommands are defined as [`Command`][crate::Command]s that get added via
-//! [`Command::subcommand`][crate::Command::subcommand]. Each instance of a Subcommand can have its
-//! own version, author(s), Args, and even its own subcommands.
-//!
-//! ```rust
-#![doc = include_str!("../examples/tutorial_builder/03_04_subcommands.rs")]
-//! ```
-#![doc = include_str!("../examples/tutorial_builder/03_04_subcommands.md")]
-//!
 //! ### Defaults
 //!
 //! We've previously showed that arguments can be [`required`][crate::Arg::required] or optional.
@@ -138,6 +127,17 @@
 #![doc = include_str!("../examples/tutorial_builder/03_05_default_values.rs")]
 //! ```
 #![doc = include_str!("../examples/tutorial_builder/03_05_default_values.md")]
+//!
+//! ### Subcommands
+//!
+//! Subcommands are defined as [`Command`][crate::Command]s that get added via
+//! [`Command::subcommand`][crate::Command::subcommand]. Each instance of a Subcommand can have its
+//! own version, author(s), Args, and even its own subcommands.
+//!
+//! ```rust
+#![doc = include_str!("../examples/tutorial_builder/03_04_subcommands.rs")]
+//! ```
+#![doc = include_str!("../examples/tutorial_builder/03_04_subcommands.md")]
 //!
 //! ## Validation
 //!

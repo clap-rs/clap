@@ -61,8 +61,8 @@
 //! 1. [Positionals](#positionals)
 //! 2. [Options](#options)
 //! 3. [Flags](#flags)
-//! 4. [Subcommands](#subcommands)
-//! 5. [Defaults](#defaults)
+//! 4. [Defaults](#defaults)
+//! 5. [Subcommands](#subcommands)
 //!
 //! Arguments are inferred from the fields of your struct.
 //!
@@ -125,6 +125,17 @@
 //!
 //! This also shows that any[`Arg`][crate::Args] method may be used as an attribute.
 //!
+//! ### Defaults
+//!
+//! We've previously showed that arguments can be [`required`][crate::Arg::required] or optional.
+//! When optional, you work with a `Option` and can `unwrap_or`.  Alternatively, you can
+//! set [`#[arg(default_value_t)]`][super#arg-attributes].
+//!
+//! ```rust
+#![doc = include_str!("../../examples/tutorial_derive/03_05_default_values.rs")]
+//! ```
+#![doc = include_str!("../../examples/tutorial_derive/03_05_default_values.md")]
+//!
 //! ### Subcommands
 //!
 //! Subcommands are derived with `#[derive(Subcommand)]` and be added via
@@ -142,17 +153,6 @@
 //! ```
 //!
 #![doc = include_str!("../../examples/tutorial_derive/03_04_subcommands.md")]
-//!
-//! ### Defaults
-//!
-//! We've previously showed that arguments can be [`required`][crate::Arg::required] or optional.
-//! When optional, you work with a `Option` and can `unwrap_or`.  Alternatively, you can
-//! set [`#[arg(default_value_t)]`][super#arg-attributes].
-//!
-//! ```rust
-#![doc = include_str!("../../examples/tutorial_derive/03_05_default_values.rs")]
-//! ```
-#![doc = include_str!("../../examples/tutorial_derive/03_05_default_values.md")]
 //!
 //! ## Validation
 //!
