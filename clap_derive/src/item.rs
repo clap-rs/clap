@@ -49,6 +49,8 @@ pub(crate) struct Item {
     skip_group: bool,
     group_id: Name,
     group_methods: Vec<Method>,
+    /// Used as fallback value `ValueEnum`.
+    is_fallback: bool,
     kind: Sp<Kind>,
 }
 
@@ -279,6 +281,7 @@ impl Item {
             group_id,
             group_methods: vec![],
             kind,
+            is_fallback: false,
         }
     }
 
@@ -835,6 +838,12 @@ impl Item {
                     self.skip_group = true;
                 }
 
+                Some(MagicAttrName::Fallback) => {
+                    assert_attr_kind(attr, &[AttrKind::Value])?;
+
+                    self.is_fallback = true;
+                }
+
                 None
                 // Magic only for the default, otherwise just forward to the builder
                 | Some(MagicAttrName::Short)
@@ -1076,6 +1085,10 @@ impl Item {
 
     pub(crate) fn skip_group(&self) -> bool {
         self.skip_group
+    }
+
+    pub(crate) fn is_fallback(&self) -> bool {
+        self.is_fallback
     }
 }
 

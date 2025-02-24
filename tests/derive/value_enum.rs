@@ -626,3 +626,152 @@ fn vec_type_default_value() {
         Opt::try_parse_from(["", "-a", "foo,baz"]).unwrap()
     );
 }
+
+#[test]
+fn unit_fallback() {
+    #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
+    enum ArgChoice {
+        Foo,
+        #[clap(fallback)]
+        Fallback,
+    }
+
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        #[arg(value_enum)]
+        arg: ArgChoice,
+    }
+
+    assert_eq!(
+        Opt {
+            arg: ArgChoice::Foo
+        },
+        Opt::try_parse_from(["", "foo"]).unwrap()
+    );
+    assert_eq!(
+        Opt {
+            arg: ArgChoice::Fallback
+        },
+        Opt::try_parse_from(["", "not-foo"]).unwrap()
+    );
+}
+
+#[test]
+fn empty_tuple_fallback() {
+    #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
+    enum ArgChoice {
+        Foo,
+        #[clap(fallback)]
+        Fallback(),
+    }
+
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        #[arg(value_enum)]
+        arg: ArgChoice,
+    }
+
+    assert_eq!(
+        Opt {
+            arg: ArgChoice::Foo
+        },
+        Opt::try_parse_from(["", "foo"]).unwrap()
+    );
+    assert_eq!(
+        Opt {
+            arg: ArgChoice::Fallback()
+        },
+        Opt::try_parse_from(["", "not-foo"]).unwrap()
+    );
+}
+
+#[test]
+fn empty_struct_fallback() {
+    #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
+    enum ArgChoice {
+        Foo,
+        #[clap(fallback)]
+        Fallback {},
+    }
+
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        #[arg(value_enum)]
+        arg: ArgChoice,
+    }
+
+    assert_eq!(
+        Opt {
+            arg: ArgChoice::Foo
+        },
+        Opt::try_parse_from(["", "foo"]).unwrap()
+    );
+    assert_eq!(
+        Opt {
+            arg: ArgChoice::Fallback {}
+        },
+        Opt::try_parse_from(["", "not-foo"]).unwrap()
+    );
+}
+
+#[test]
+fn non_empty_struct_fallback() {
+    #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
+    enum ArgChoice {
+        Foo,
+        #[clap(fallback)]
+        Fallback {
+            value: String,
+        },
+    }
+
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        #[arg(value_enum)]
+        arg: ArgChoice,
+    }
+
+    assert_eq!(
+        Opt {
+            arg: ArgChoice::Foo
+        },
+        Opt::try_parse_from(["", "foo"]).unwrap()
+    );
+    assert_eq!(
+        Opt {
+            arg: ArgChoice::Fallback {
+                value: String::from("not-foo")
+            }
+        },
+        Opt::try_parse_from(["", "not-foo"]).unwrap()
+    );
+}
+
+#[test]
+fn non_empty_tuple_fallback() {
+    #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
+    enum ArgChoice {
+        Foo,
+        #[clap(fallback)]
+        Fallback(String),
+    }
+
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        #[arg(value_enum)]
+        arg: ArgChoice,
+    }
+
+    assert_eq!(
+        Opt {
+            arg: ArgChoice::Foo
+        },
+        Opt::try_parse_from(["", "foo"]).unwrap()
+    );
+    assert_eq!(
+        Opt {
+            arg: ArgChoice::Fallback(String::from("not-foo"))
+        },
+        Opt::try_parse_from(["", "not-foo"]).unwrap()
+    );
+}
