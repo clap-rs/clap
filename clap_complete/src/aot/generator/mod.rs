@@ -197,7 +197,7 @@ pub trait Generator {
 /// }
 /// ```
 pub fn generate_to<G, S, T>(
-    gen: G,
+    generator: G,
     cmd: &mut Command,
     bin_name: S,
     out_dir: T,
@@ -210,12 +210,12 @@ where
     cmd.set_bin_name(bin_name);
 
     let out_dir = PathBuf::from(out_dir.into());
-    let file_name = gen.file_name(cmd.get_bin_name().unwrap());
+    let file_name = generator.file_name(cmd.get_bin_name().unwrap());
 
     let path = out_dir.join(file_name);
     let mut file = File::create(&path)?;
 
-    _generate::<G>(gen, cmd, &mut file);
+    _generate::<G>(generator, cmd, &mut file);
     Ok(path)
 }
 
@@ -254,16 +254,16 @@ where
 /// ```console
 /// $ myapp generate-bash-completions > /usr/share/bash-completion/completions/myapp.bash
 /// ```
-pub fn generate<G, S>(gen: G, cmd: &mut Command, bin_name: S, buf: &mut dyn Write)
+pub fn generate<G, S>(generator: G, cmd: &mut Command, bin_name: S, buf: &mut dyn Write)
 where
     G: Generator,
     S: Into<String>,
 {
     cmd.set_bin_name(bin_name);
-    _generate::<G>(gen, cmd, buf);
+    _generate::<G>(generator, cmd, buf);
 }
 
-fn _generate<G: Generator>(gen: G, cmd: &mut Command, buf: &mut dyn Write) {
+fn _generate<G: Generator>(generator: G, cmd: &mut Command, buf: &mut dyn Write) {
     cmd.build();
-    gen.generate(cmd, buf);
+    generator.generate(cmd, buf);
 }

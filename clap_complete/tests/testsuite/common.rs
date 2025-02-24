@@ -286,12 +286,12 @@ pub(crate) fn subcommand_last(name: &'static str) -> clap::Command {
 
 pub(crate) fn assert_matches(
     expected: impl IntoData,
-    gen: impl clap_complete::Generator,
+    generator: impl clap_complete::Generator,
     mut cmd: clap::Command,
     name: &'static str,
 ) {
     let mut buf = vec![];
-    clap_complete::generate(gen, &mut cmd, name, &mut buf);
+    clap_complete::generate(generator, &mut cmd, name, &mut buf);
 
     snapbox::Assert::new()
         .action_env(snapbox::assert::DEFAULT_ACTION_ENV)
