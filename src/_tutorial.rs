@@ -85,9 +85,8 @@
 //! ### Options
 //!
 //! You can name your arguments with a flag:
+//! - Intent of the value is clearer
 //! - Order doesn't matter
-//! - They can be optional
-//! - Intent is clearer
 //!
 //! ```rust
 #![doc = include_str!("../examples/tutorial_builder/03_02_option.rs")]

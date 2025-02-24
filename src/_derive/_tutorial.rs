@@ -85,9 +85,8 @@
 //! ### Options
 //!
 //! You can name your arguments with a flag:
+//! - Intent of the value is clearer
 //! - Order doesn't matter
-//! - They can be optional
-//! - Intent is clearer
 //!
 //! To specify the flags for an argument, you can use [`#[arg(short = 'n')]`][Arg::short] and/or
 //! [`#[arg(long = "name")]`][Arg::long] attributes on a field.  When no value is given (e.g.
