@@ -377,7 +377,9 @@ mod markdown {
                     | Tag::TableHead
                     | Tag::TableRow
                     | Tag::TableCell
-                    | Tag::MetadataBlock(_),
+                    | Tag::MetadataBlock(_)
+                    | Tag::Superscript
+                    | Tag::Subscript,
                 )
                 | Event::End(
                     TagEnd::FootnoteDefinition
@@ -388,7 +390,9 @@ mod markdown {
                     | TagEnd::TableHead
                     | TagEnd::TableRow
                     | TagEnd::TableCell
-                    | TagEnd::MetadataBlock(_),
+                    | TagEnd::MetadataBlock(_)
+                    | TagEnd::Superscript
+                    | TagEnd::Subscript,
                 )
                 | Event::InlineMath(_)
                 | Event::DisplayMath(_)
