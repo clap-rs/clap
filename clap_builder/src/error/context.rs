@@ -37,6 +37,8 @@ pub enum ContextKind {
     Usage,
     /// An opaque message to the user
     Custom,
+    /// Index of the argument
+    ArgIndex,
 }
 
 impl ContextKind {
@@ -60,6 +62,7 @@ impl ContextKind {
             Self::Suggested => Some("Suggested"),
             Self::Usage => None,
             Self::Custom => None,
+            Self::ArgIndex => Some("Argument Index"),
         }
     }
 }

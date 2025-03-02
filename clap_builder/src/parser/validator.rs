@@ -21,7 +21,7 @@ impl<'cmd> Validator<'cmd> {
         Validator { cmd, required }
     }
 
-    pub(crate) fn validate(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
+    pub(crate) fn validate(&mut self, matcher: &mut ArgMatcher, index: isize) -> ClapResult<()> {
         debug!("Validator::validate");
         let conflicts = Conflicts::with_args(self.cmd, matcher);
         let has_subcmd = matcher.subcommand_name().is_some();
@@ -48,12 +48,13 @@ impl<'cmd> Validator<'cmd> {
                 Usage::new(self.cmd)
                     .required(&self.required)
                     .create_usage_with_title(&[]),
+                index,
             ));
         }
 
-        ok!(self.validate_conflicts(matcher, &conflicts));
+        ok!(self.validate_conflicts(matcher, &conflicts, index));
         if !(self.cmd.is_subcommand_negates_reqs_set() && has_subcmd) {
-            ok!(self.validate_required(matcher, &conflicts));
+            ok!(self.validate_required(matcher, &conflicts, index));
         }
 
         Ok(())
@@ -63,10 +64,11 @@ impl<'cmd> Validator<'cmd> {
         &mut self,
         matcher: &ArgMatcher,
         conflicts: &Conflicts,
+        index: isize,
     ) -> ClapResult<()> {
         debug!("Validator::validate_conflicts");
 
-        ok!(self.validate_exclusive(matcher));
+        ok!(self.validate_exclusive(matcher, index));
 
         for (arg_id, _) in matcher
             .args()
@@ -75,13 +77,13 @@ impl<'cmd> Validator<'cmd> {
         {
             debug!("Validator::validate_conflicts::iter: id={arg_id:?}");
             let conflicts = conflicts.gather_conflicts(self.cmd, arg_id);
-            ok!(self.build_conflict_err(arg_id, &conflicts, matcher));
+            ok!(self.build_conflict_err(arg_id, &conflicts, matcher, index));
         }
 
         Ok(())
     }
 
-    fn validate_exclusive(&self, matcher: &ArgMatcher) -> ClapResult<()> {
+    fn validate_exclusive(&self, matcher: &ArgMatcher, index: isize) -> ClapResult<()> {
         debug!("Validator::validate_exclusive");
         let args_count = matcher
             .args()
@@ -116,6 +118,7 @@ impl<'cmd> Validator<'cmd> {
                     Usage::new(self.cmd)
                         .required(&self.required)
                         .create_usage_with_title(&[]),
+                    index,
                 ))
             })
             .unwrap_or(Ok(()))
@@ -126,6 +129,7 @@ impl<'cmd> Validator<'cmd> {
         name: &Id,
         conflict_ids: &[Id],
         matcher: &ArgMatcher,
+        index: isize,
     ) -> ClapResult<()> {
         if conflict_ids.is_empty() {
             return Ok(());
@@ -157,6 +161,7 @@ impl<'cmd> Validator<'cmd> {
             former_arg.to_string(),
             conflicts,
             usg,
+            index,
         ))
     }
 
@@ -217,7 +222,12 @@ impl<'cmd> Validator<'cmd> {
         }
     }
 
-    fn validate_required(&mut self, matcher: &ArgMatcher, conflicts: &Conflicts) -> ClapResult<()> {
+    fn validate_required(
+        &mut self,
+        matcher: &ArgMatcher,
+        conflicts: &Conflicts,
+        index: isize,
+    ) -> ClapResult<()> {
         debug!("Validator::validate_required: required={:?}", self.required);
         self.gather_requires(matcher);
 
@@ -335,7 +345,7 @@ impl<'cmd> Validator<'cmd> {
         }
 
         if !missing_required.is_empty() {
-            ok!(self.missing_required_error(matcher, missing_required));
+            ok!(self.missing_required_error(matcher, missing_required, index));
         }
 
         Ok(())
@@ -370,6 +380,7 @@ impl<'cmd> Validator<'cmd> {
         &self,
         matcher: &ArgMatcher,
         raw_req_args: Vec<Id>,
+        index: isize,
     ) -> ClapResult<()> {
         debug!("Validator::missing_required_error; incl={raw_req_args:?}");
         debug!(
@@ -429,6 +440,7 @@ impl<'cmd> Validator<'cmd> {
             self.cmd,
             req_args,
             usg.create_usage_with_title(&used),
+            index,
         ))
     }
 }
