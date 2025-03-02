@@ -176,13 +176,13 @@ fn append_keys(keys: &mut Vec<Key>, arg: &Arg, index: usize) {
             keys.push(Key { key, index });
         }
 
-        for (short, _) in arg.short_aliases.iter() {
+        keys.extend(arg.short_aliases.iter().map(|(short, _)| {
             let key = KeyType::Short(*short);
-            keys.push(Key { key, index });
-        }
-        for (long, _) in arg.aliases.iter() {
+            Key { key, index }
+        }));
+        keys.extend(arg.aliases.iter().map(|(long, _)| {
             let key = KeyType::Long(long.into());
-            keys.push(Key { key, index });
-        }
+            Key { key, index }
+        }));
     }
 }

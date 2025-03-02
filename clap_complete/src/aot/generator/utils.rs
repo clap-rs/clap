@@ -53,13 +53,13 @@ pub fn subcommands(p: &Command) -> Vec<(String, String)> {
         );
         subcmds.push((sc.get_name().to_string(), sc_bin_name.to_string()));
 
-        for alias in sc.get_visible_aliases() {
+        subcmds.extend(sc.get_visible_aliases().map(|alias| {
             debug!(
                 "subcommands:iter: alias={}, bin_name={}",
                 alias, sc_bin_name
             );
-            subcmds.push((alias.to_string(), sc_bin_name.to_string()));
-        }
+            (alias.to_string(), sc_bin_name.to_string())
+        }));
     }
 
     subcmds

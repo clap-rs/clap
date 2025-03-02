@@ -40,18 +40,20 @@ pub(crate) fn assert_app(cmd: &Command) {
             short_flags.push(Flag::Command(format!("-{s}"), sc.get_name()));
         }
 
-        for short_alias in sc.get_all_short_flag_aliases() {
-            short_flags.push(Flag::Command(format!("-{short_alias}"), sc.get_name()));
-        }
+        short_flags.extend(
+            sc.get_all_short_flag_aliases()
+                .map(|short_alias| Flag::Command(format!("-{short_alias}"), sc.get_name())),
+        );
 
         if let Some(l) = sc.get_long_flag().as_ref() {
             assert!(!l.starts_with('-'), "Command {}: long_flag {:?} must not start with a `-`, that will be handled by the parser", sc.get_name(), l);
             long_flags.push(Flag::Command(format!("--{l}"), sc.get_name()));
         }
 
-        for long_alias in sc.get_all_long_flag_aliases() {
-            long_flags.push(Flag::Command(format!("--{long_alias}"), sc.get_name()));
-        }
+        long_flags.extend(
+            sc.get_all_long_flag_aliases()
+                .map(|long_alias| Flag::Command(format!("--{long_alias}"), sc.get_name())),
+        );
     }
 
     for arg in cmd.get_arguments() {
@@ -68,18 +70,22 @@ pub(crate) fn assert_app(cmd: &Command) {
             short_flags.push(Flag::Arg(format!("-{s}"), arg.get_id().as_str()));
         }
 
-        for (short_alias, _) in &arg.short_aliases {
-            short_flags.push(Flag::Arg(format!("-{short_alias}"), arg.get_id().as_str()));
-        }
+        short_flags.extend(
+            arg.short_aliases.iter().map(|(short_alias, _)| {
+                Flag::Arg(format!("-{short_alias}"), arg.get_id().as_str())
+            }),
+        );
 
         if let Some(l) = arg.get_long() {
             assert!(!l.starts_with('-'), "Argument {}: long {:?} must not start with a `-`, that will be handled by the parser", arg.get_id(), l);
             long_flags.push(Flag::Arg(format!("--{l}"), arg.get_id().as_str()));
         }
 
-        for (long_alias, _) in &arg.aliases {
-            long_flags.push(Flag::Arg(format!("--{long_alias}"), arg.get_id().as_str()));
-        }
+        long_flags.extend(
+            arg.aliases
+                .iter()
+                .map(|(long_alias, _)| Flag::Arg(format!("--{long_alias}"), arg.get_id().as_str())),
+        );
 
         // Name conflicts
         if let Some((first, second)) = cmd.two_args_of(|x| x.get_id() == arg.get_id()) {

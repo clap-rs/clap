@@ -93,13 +93,13 @@ fn all_subcommands(cmd: &Command, parent_fn_name: &str) -> String {
             cmd.get_name().to_string(),
             fn_name.clone(),
         ));
-        for alias in cmd.get_visible_aliases() {
-            subcmds.push((
+        subcmds.extend(cmd.get_visible_aliases().map(|alias| {
+            (
                 parent_fn_name.to_string(),
                 alias.to_string(),
                 fn_name.clone(),
-            ));
-        }
+            )
+        }));
         for subcmd in cmd.get_subcommands() {
             add_command(&fn_name, subcmd, subcmds);
         }
@@ -111,13 +111,13 @@ fn all_subcommands(cmd: &Command, parent_fn_name: &str) -> String {
     subcmds.sort();
 
     let mut cases = vec![String::new()];
-    for (parent_fn_name, name, fn_name) in subcmds {
-        cases.push(format!(
+    cases.extend(subcmds.into_iter().map(|(parent_fn_name, name, fn_name)| {
+        format!(
             "{parent_fn_name},{name})
                 cmd=\"{fn_name}\"
                 ;;",
-        ));
-    }
+        )
+    }));
 
     cases.join("\n            ")
 }

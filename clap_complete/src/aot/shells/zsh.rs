@@ -116,10 +116,10 @@ _{bin_name_underscore}_commands() {{
     all_subcommand_bins.sort();
     all_subcommand_bins.dedup();
 
-    for bin_name in &all_subcommand_bins {
+    ret.extend(all_subcommand_bins.iter().map(|bin_name| {
         debug!("subcommand_details:iter: bin_name={bin_name}");
 
-        ret.push(format!(
+        format!(
             "\
 (( $+functions[_{bin_name_underscore}_commands] )) ||
 _{bin_name_underscore}_commands() {{
@@ -130,8 +130,8 @@ _{bin_name_underscore}_commands() {{
             bin_name = bin_name,
             subcommands_and_args =
                 subcommands_of(parser_of(p, bin_name).expect(INTERNAL_ERROR_MSG))
-        ));
-    }
+        )
+    }));
 
     ret.join("\n")
 }
@@ -474,20 +474,20 @@ fn write_opts_of(p: &Command, p_global: Option<&Command>) -> String {
         let vc = vc.repeat(o.get_num_args().expect("built").min_values());
 
         if let Some(shorts) = o.get_short_and_visible_aliases() {
-            for short in shorts {
+            ret.extend(shorts.into_iter().map(|short| {
                 let s = format!("'{conflicts}{multiple}-{short}+[{help}]{vc}' \\");
 
                 debug!("write_opts_of:iter: Wrote...{}", &*s);
-                ret.push(s);
-            }
+                s
+            }));
         }
         if let Some(longs) = o.get_long_and_visible_aliases() {
-            for long in longs {
+            ret.extend(longs.into_iter().map(|long| {
                 let l = format!("'{conflicts}{multiple}--{long}=[{help}]{vc}' \\");
 
                 debug!("write_opts_of:iter: Wrote...{}", &*l);
-                ret.push(l);
-            }
+                l
+            }));
         }
     }
 
@@ -557,13 +557,13 @@ fn write_flags_of(p: &Command, p_global: Option<&Command>) -> String {
             ret.push(s);
 
             if let Some(short_aliases) = f.get_visible_short_aliases() {
-                for alias in short_aliases {
+                ret.extend(short_aliases.into_iter().map(|alias| {
                     let s = format!("'{conflicts}{multiple}-{alias}[{help}]' \\",);
 
                     debug!("write_flags_of:iter: Wrote...{}", &*s);
 
-                    ret.push(s);
-                }
+                    s
+                }));
             }
         }
 
@@ -575,13 +575,13 @@ fn write_flags_of(p: &Command, p_global: Option<&Command>) -> String {
             ret.push(l);
 
             if let Some(aliases) = f.get_visible_aliases() {
-                for alias in aliases {
+                ret.extend(aliases.into_iter().map(|alias| {
                     let l = format!("'{conflicts}{multiple}--{alias}[{help}]' \\");
 
                     debug!("write_flags_of:iter: Wrote...{}", &*l);
 
-                    ret.push(l);
-                }
+                    l
+                }));
             }
         }
     }
