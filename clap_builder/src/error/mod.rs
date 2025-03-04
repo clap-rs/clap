@@ -14,6 +14,7 @@ use std::{
     fmt::{self, Debug, Display, Formatter},
     io,
     result::Result as StdResult,
+    sync::Arc,
 };
 
 // Internal
@@ -57,18 +58,19 @@ pub type Result<T, E = Error> = StdResult<T, E>;
 /// See [`Command::error`] to create an error.
 ///
 /// [`Command::error`]: crate::Command::error
+#[derive(Clone)]
 pub struct Error<F: ErrorFormatter = DefaultFormatter> {
     inner: Box<ErrorInner>,
     phantom: std::marker::PhantomData<F>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct ErrorInner {
     kind: ErrorKind,
     #[cfg(feature = "error-context")]
     context: FlatMap<ContextKind, ContextValue>,
     message: Option<Message>,
-    source: Option<Box<dyn error::Error + Send + Sync>>,
+    source: Option<Arc<dyn error::Error + Send + Sync>>,
     help_flag: Option<Cow<'static, str>>,
     styles: Styles,
     color_when: ColorChoice,
@@ -302,7 +304,7 @@ impl<F: ErrorFormatter> Error<F> {
     }
 
     pub(crate) fn set_source(mut self, source: Box<dyn error::Error + Send + Sync>) -> Self {
-        self.inner.source = Some(source);
+        self.inner.source = Some(source.into());
         self
     }
 
@@ -894,7 +896,7 @@ impl From<StyledStr> for Message {
 }
 
 #[cfg(feature = "debug")]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Backtrace(backtrace::Backtrace);
 
 #[cfg(feature = "debug")]
@@ -913,7 +915,7 @@ impl Display for Backtrace {
 }
 
 #[cfg(not(feature = "debug"))]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Backtrace;
 
 #[cfg(not(feature = "debug"))]
@@ -932,5 +934,5 @@ impl Display for Backtrace {
 
 #[test]
 fn check_auto_traits() {
-    static_assertions::assert_impl_all!(Error: Send, Sync, Unpin);
+    static_assertions::assert_impl_all!(Error: Send, Sync, Unpin, Clone);
 }

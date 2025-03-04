@@ -17,7 +17,7 @@ use crate::output::TAB;
 use crate::ArgAction;
 
 /// Defines how to format an error for displaying to the user
-pub trait ErrorFormatter: Sized {
+pub trait ErrorFormatter: Sized + Clone {
     /// Stylize the error for the terminal
     fn format_error(error: &crate::error::Error<Self>) -> StyledStr;
 }
@@ -33,6 +33,7 @@ pub trait ErrorFormatter: Sized {
 ///
 /// </div>
 #[non_exhaustive]
+#[derive(Clone)]
 pub struct KindFormatter;
 
 impl ErrorFormatter for KindFormatter {
@@ -59,6 +60,7 @@ impl ErrorFormatter for KindFormatter {
 /// This follows the [rustc diagnostic style guide](https://rustc-dev-guide.rust-lang.org/diagnostics.html#suggestion-style-guide).
 #[non_exhaustive]
 #[cfg(feature = "error-context")]
+#[derive(Clone)]
 pub struct RichFormatter;
 
 #[cfg(feature = "error-context")]
