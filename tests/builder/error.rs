@@ -205,6 +205,51 @@ For more information, try '--help'.
 
 #[test]
 #[cfg(feature = "error-context")]
+fn edit_error() {
+    use clap::error::{ContextKind, ContextValue};
+    use snapbox::assert_data_eq;
+
+    let cmd = Command::new("rg").arg(arg!([PATTERN]));
+
+    let res = cmd.try_get_matches_from(["rg", "--foo"]);
+    assert!(res.is_err());
+    let mut err = res.unwrap_err();
+
+    let orig_message = str![[r#"
+error: unexpected argument '--foo' found
+
+  tip: to pass '--foo' as a value, use '-- --foo'
+
+Usage: rg [PATTERN]
+
+For more information, try '--help'.
+
+"#]];
+    assert_data_eq!(err.to_string(), orig_message);
+
+    assert!(err.remove(ContextKind::Suggested).is_some());
+    assert!(err.remove(ContextKind::Suggested).is_none());
+    assert!(err
+        .insert(
+            ContextKind::SuggestedArg,
+            ContextValue::String("--bar".to_string())
+        )
+        .is_none());
+    let edited_message = str![[r#"
+error: unexpected argument '--foo' found
+
+  tip: a similar argument exists: '--bar'
+
+Usage: rg [PATTERN]
+
+For more information, try '--help'.
+
+"#]];
+    assert_data_eq!(err.to_string(), edited_message);
+}
+
+#[test]
+#[cfg(feature = "error-context")]
 #[cfg(feature = "suggestions")]
 fn cant_use_trailing_subcommand() {
     let cmd = Command::new("test").subcommand(Command::new("bar"));
