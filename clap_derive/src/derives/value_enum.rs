@@ -49,6 +49,7 @@ pub(crate) fn gen_for_enum(
     let lits = lits(variants)?;
     let value_variants = gen_value_variants(&lits);
     let to_possible_value = gen_to_possible_value(item, &lits);
+    let from_str_for_fallback = gen_from_str_for_fallback(variants)?;
 
     Ok(quote! {
         #[allow(
@@ -75,6 +76,7 @@ pub(crate) fn gen_for_enum(
         impl clap::ValueEnum for #item_name {
             #value_variants
             #to_possible_value
+            #from_str_for_fallback
         }
     })
 }
@@ -83,6 +85,9 @@ fn lits(variants: &[(&Variant, Item)]) -> Result<Vec<(TokenStream, Ident)>, syn:
     let mut genned = Vec::new();
     for (variant, item) in variants {
         if let Kind::Skip(_, _) = &*item.kind() {
+            continue;
+        }
+        if item.is_fallback() {
             continue;
         }
         if !matches!(variant.fields, Fields::Unit) {
@@ -125,6 +130,65 @@ fn gen_to_possible_value(item: &Item, lits: &[(TokenStream, Ident)]) -> TokenStr
                 #(Self::#variant => Some(#lit),)*
                 _ => None
             }
+        }
+    }
+}
+
+fn gen_from_str_for_fallback(variants: &[(&Variant, Item)]) -> syn::Result<TokenStream> {
+    let fallbacks: Vec<_> = variants
+        .iter()
+        .filter(|(_, item)| item.is_fallback())
+        .collect();
+
+    match fallbacks.as_slice() {
+        [] => Ok(quote!()),
+        [(variant, _)] => {
+            let ident = &variant.ident;
+            let variant_initialization = match variant.fields.len() {
+                _ if matches!(variant.fields, Fields::Unit) => quote! {#ident},
+                0 => quote! {#ident{}},
+                1 => {
+                    let member = variant
+                        .fields
+                        .members()
+                        .next()
+                        .expect("there should be exactly one field");
+                    quote! {#ident{
+                        #member: {
+                            use std::convert::Into;
+                            __input.into()
+                        },
+                    }}
+                }
+                _ => abort!(
+                    variant,
+                    "`fallback` only supports Unit variants, or variants with a single field"
+                ),
+            };
+            Ok(quote! {
+                fn from_str(__input: &::std::primitive::str, __ignore_case: ::std::primitive::bool) -> ::std::result::Result<Self, ::std::string::String> {
+                    Ok(Self::value_variants()
+                        .iter()
+                        .find(|v| {
+                            v.to_possible_value()
+                                .expect("ValueEnum::value_variants contains only values with a corresponding ValueEnum::to_possible_value")
+                                .matches(__input, __ignore_case)
+                        })
+                        .cloned()
+                        .unwrap_or_else(|| Self::#variant_initialization))
+                }
+            })
+        }
+        [first, second, ..] => {
+            let mut error = syn::Error::new_spanned(
+                first.0,
+                "`#[derive(ValueEnum)]` only supports one `fallback`.",
+            );
+            error.combine(syn::Error::new_spanned(
+                second.0,
+                "second fallback defined here",
+            ));
+            Err(error)
         }
     }
 }

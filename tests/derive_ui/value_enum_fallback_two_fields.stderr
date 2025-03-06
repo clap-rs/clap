@@ -1,0 +1,6 @@
+error: `fallback` only supports Unit variants, or variants with a single field
+ --> tests/derive_ui/value_enum_fallback_two_fields.rs:5:5
+  |
+5 | /     #[clap(fallback)]
+6 | |     First(String, String),
+  | |_________________________^

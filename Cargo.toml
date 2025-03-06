@@ -144,6 +144,7 @@ default = [
   "usage",
   "error-context",
   "suggestions",
+"unstable-derive-ui-tests"
 ]
 debug = ["clap_builder/debug", "clap_derive?/debug"] # Enables debug messages
 unstable-doc = ["clap_builder/unstable-doc", "derive"] # for docs.rs

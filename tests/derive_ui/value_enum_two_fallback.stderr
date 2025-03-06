@@ -1,0 +1,13 @@
+error: `#[derive(ValueEnum)]` only supports one `fallback`.
+ --> tests/derive_ui/value_enum_two_fallback.rs:5:5
+  |
+5 | /     #[clap(fallback)]
+6 | |     First(String),
+  | |_________________^
+
+error: second fallback defined here
+ --> tests/derive_ui/value_enum_two_fallback.rs:7:5
+  |
+7 | /     #[clap(fallback)]
+8 | |     Second(String),
+  | |__________________^
