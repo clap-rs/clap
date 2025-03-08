@@ -438,7 +438,7 @@ dependencies = [
  "clap-cargo",
  "clap_builder 4.5.31",
  "clap_derive",
- "humantime",
+ "cyborgtime",
  "rustversion",
  "shlex",
  "snapbox",
@@ -797,6 +797,12 @@ checksum = "5efa2b3d7902f4b634a20cae3c9c4e6209dc4779feb6863329607560143efa70"
 dependencies = [
  "memchr",
 ]
+
+[[package]]
+name = "cyborgtime"
+version = "2.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "817fa642fb0ee7fe42e95783e00e0969927b96091bdd4b9b1af082acd943913b"
 
 [[package]]
 name = "deranged"
