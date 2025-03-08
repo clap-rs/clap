@@ -1191,3 +1191,40 @@ fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>
         .collect::<Vec<_>>()
         .join("\n")
 }
+
+#[test]
+fn suggest_value_path_without_mapper() {
+    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+    let testdir_path = testdir.path().unwrap();
+    fs::write(testdir_path.join("a_file"), "").unwrap();
+    fs::write(testdir_path.join("b_file"), "").unwrap();
+    fs::create_dir_all(testdir_path.join("c_dir")).unwrap();
+    fs::create_dir_all(testdir_path.join("d_dir")).unwrap();
+    
+    fs::write(testdir_path.join("c_dir").join("Cargo.toml"), "").unwrap();
+    
+    let mut cmd = Command::new("dynamic")
+        .arg(
+            clap::Arg::new("input")
+                .long("input")
+                .short('i')
+                .add(ArgValueCompleter::new(PathCompleter::dir())),
+        )
+        .args_conflicts_with_subcommands(true);
+    
+    let original_dir = std::env::current_dir().unwrap();
+    std::env::set_current_dir(testdir_path).unwrap();
+    
+    let result = complete!(cmd, "--input [TAB]", current_dir = None);
+    
+    std::env::set_current_dir(original_dir).unwrap();
+    
+    assert_data_eq!(
+        result,
+        snapbox::str![[r#"
+.
+c_dir/
+d_dir/
+"#]],
+    );
+}
