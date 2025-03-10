@@ -22,6 +22,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Add `Error::remove`
+
+### Documentation
+
+- *(cookbook)* Switch from `humantime` to `jiff`
+- *(tutorial)* Better cover required vs optional
+
+### Internal
+
+- Update `pulldown-cmark`
+
 ## [4.5.31] - 2025-02-24
 
 ### Features
