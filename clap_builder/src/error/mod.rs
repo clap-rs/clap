@@ -203,6 +203,16 @@ impl<F: ErrorFormatter> Error<F> {
         self.inner.context.insert(kind, value)
     }
 
+    /// Remove a piece of context, return the old value if any
+    ///
+    /// The context is currently implemented in a vector, so `remove` takes
+    /// linear time.
+    #[inline(never)]
+    #[cfg(feature = "error-context")]
+    pub fn remove(&mut self, kind: ContextKind) -> Option<ContextValue> {
+        self.inner.context.remove(&kind)
+    }
+
     /// Should the message be written to `stdout` or not?
     #[inline]
     pub fn use_stderr(&self) -> bool {
