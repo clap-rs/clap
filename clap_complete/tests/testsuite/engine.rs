@@ -1191,3 +1191,40 @@ fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>
         .collect::<Vec<_>>()
         .join("\n")
 }
+
+#[test]
+fn suggest_value_path_with_filter_and_mapper() {
+    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+    let testdir_path = testdir.path().unwrap();
+    fs::write(testdir_path.join("a_file"), "").unwrap();
+    fs::write(testdir_path.join("b_file"), "").unwrap();
+    fs::create_dir_all(testdir_path.join("c_dir")).unwrap();
+    fs::create_dir_all(testdir_path.join("d_dir")).unwrap();
+    
+    fs::write(testdir_path.join("c_dir").join("Cargo.toml"), "").unwrap();
+    
+    let mut cmd = Command::new("dynamic")
+        .arg(
+            clap::Arg::new("input")
+                .long("input")
+                .short('i')
+                .add(ArgValueCompleter::new(
+                    PathCompleter::dir()
+                        .current_dir(testdir_path.to_owned())
+                        .filter(|path| {
+                            path.file_name()
+                                .and_then(|n| n.to_str())
+                                .map_or(false, |name| name.starts_with('c'))
+                        })
+                )),
+        )
+        .args_conflicts_with_subcommands(true);
+    
+    assert_data_eq!(
+        complete!(cmd, "--input [TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![[r#"
+c_dir/
+d_dir/
+"#]],
+    );
+}
