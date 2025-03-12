@@ -216,6 +216,8 @@ pub struct PathCompleter {
     #[allow(clippy::type_complexity)]
     filter: Option<Box<dyn Fn(&std::path::Path) -> bool + Send + Sync>>,
     stdio: bool,
+    #[allow(clippy::type_complexity)]
+    mapper: Option<Box<dyn Fn(CompletionCandidate) -> CompletionCandidate + Send + Sync>>,
 }
 
 impl PathCompleter {
@@ -225,6 +227,7 @@ impl PathCompleter {
             filter: None,
             current_dir: None,
             stdio: false,
+            mapper: None,
         }
     }
 
@@ -253,6 +256,15 @@ impl PathCompleter {
         self
     }
 
+    /// Transform completion candidates after filtering
+    pub fn map(
+        mut self,
+        mapper: impl Fn(CompletionCandidate) -> CompletionCandidate + Send + Sync + 'static,
+    ) -> Self {
+        self.mapper = Some(Box::new(mapper));
+        self
+    }
+
     /// Override [`std::env::current_dir`]
     pub fn current_dir(mut self, path: impl Into<std::path::PathBuf>) -> Self {
         self.current_dir = Some(path.into());
@@ -275,6 +287,12 @@ impl ValueCompleter for PathCompleter {
             current_dir_actual.as_deref()
         });
         let mut candidates = complete_path(current, current_dir, filter);
+        if let Some(mapper) = &self.mapper {
+            candidates = candidates
+                .into_iter()
+                .map(|candidate| mapper(candidate))
+                .collect();
+        }
         if self.stdio && current.is_empty() {
             candidates.push(CompletionCandidate::new("-").help(Some("stdio".into())));
         }
