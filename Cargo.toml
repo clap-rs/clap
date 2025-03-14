@@ -19,6 +19,7 @@ include = [
 
 [workspace.lints.rust]
 rust_2018_idioms = { level = "warn", priority = -1 }
+unnameable_types = "warn"
 unreachable_pub = "warn"
 unsafe_op_in_unsafe_fn = "warn"
 unused_lifetimes = "warn"
