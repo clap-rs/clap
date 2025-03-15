@@ -681,13 +681,13 @@ baz
 fn suggest_multi_positional() {
     let mut cmd = Command::new("dynamic")
         .arg(
-            clap::Arg::new("positional")
-                .value_parser(["pos_1, pos_2, pos_3"])
+            clap::Arg::new("positional-1")
+                .value_parser(["pos_1"])
                 .index(1),
         )
         .arg(
             clap::Arg::new("positional-2")
-                .value_parser(["pos_a", "pos_b", "pos_c"])
+                .value_parser(["pos_2_a", "pos_2_b", "pos_2_c"])
                 .index(2)
                 .num_args(3),
         )
@@ -701,27 +701,27 @@ fn suggest_multi_positional() {
     assert_data_eq!(
         complete!(cmd, "pos_1 pos_a [TAB]"),
         snapbox::str![[r#"
-pos_a
-pos_b
-pos_c
+pos_2_a
+pos_2_b
+pos_2_c
 "#]]
     );
 
     assert_data_eq!(
         complete!(cmd, "pos_1 pos_a pos_b [TAB]"),
         snapbox::str![[r#"
-pos_a
-pos_b
-pos_c
+pos_2_a
+pos_2_b
+pos_2_c
 "#]]
     );
 
     assert_data_eq!(
         complete!(cmd, "--format json pos_1 [TAB]"),
         snapbox::str![[r#"
-pos_a
-pos_b
-pos_c
+pos_2_a
+pos_2_b
+pos_2_c
 --format
 --help	Print help
 "#]]
@@ -730,9 +730,9 @@ pos_c
     assert_data_eq!(
         complete!(cmd, "--format json pos_1 pos_a [TAB]"),
         snapbox::str![[r#"
-pos_a
-pos_b
-pos_c
+pos_2_a
+pos_2_b
+pos_2_c
 "#]]
     );
 
@@ -747,18 +747,18 @@ pos_c
     assert_data_eq!(
         complete!(cmd, "--format json -- pos_1 pos_a [TAB]"),
         snapbox::str![[r#"
-pos_a
-pos_b
-pos_c
+pos_2_a
+pos_2_b
+pos_2_c
 "#]]
     );
 
     assert_data_eq!(
         complete!(cmd, "--format json -- pos_1 pos_a pos_b [TAB]"),
         snapbox::str![[r#"
-pos_a
-pos_b
-pos_c
+pos_2_a
+pos_2_b
+pos_2_c
 "#]]
     );
 
