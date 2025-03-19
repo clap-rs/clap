@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(dynamic)* Complete flags with variable-number of `num_args`
+
 ## [4.5.46] - 2025-02-24
 
 ## [4.5.45] - 2025-02-17
