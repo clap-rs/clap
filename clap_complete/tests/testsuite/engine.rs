@@ -789,9 +789,7 @@ pos_1_b
 pos_1_c
 "#]]
     );
-
     assert_data_eq!(complete!(cmd, "pos_1_a --[TAB]"), snapbox::str![""]);
-
     assert_data_eq!(
         complete!(cmd, "pos_1_a --format [TAB]"),
         snapbox::str![[r#"
@@ -813,12 +811,31 @@ pos_1_c
     );
 
     assert_data_eq!(
+        complete!(cmd, "pos_1_a pos_1_b [TAB]"),
+        snapbox::str![[r#"
+pos_1_a
+pos_1_b
+pos_1_c
+--format
+--help	Print help
+"#]]
+    );
+    assert_data_eq!(
         complete!(cmd, "pos_1_a pos_1_b --[TAB]"),
         snapbox::str![[r#"
 --format
 --help	Print help
 "#]]
     );
+    assert_data_eq!(
+        complete!(cmd, "pos_1_a pos_1_b --format [TAB]"),
+        snapbox::str![[r#"
+json
+yaml
+toml
+"#]]
+    );
+
     assert_data_eq!(
         complete!(cmd, "pos_1_a pos_1_b --format json [TAB]"),
         snapbox::str![[r#"
