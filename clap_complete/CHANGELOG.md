@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.47] - 2025-03-19
+
 ### Features
 
 - *(dynamic)* Complete flags with variable-number of `num_args`
@@ -535,7 +537,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.46...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.47...HEAD
+[4.5.47]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.46...clap_complete-v4.5.47
 [4.5.46]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.45...clap_complete-v4.5.46
 [4.5.45]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.44...clap_complete-v4.5.45
 [4.5.44]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.43...clap_complete-v4.5.44
