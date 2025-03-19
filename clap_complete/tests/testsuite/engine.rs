@@ -680,15 +680,10 @@ baz
 #[test]
 fn suggest_multi_positional() {
     let mut cmd = Command::new("dynamic")
-        .arg(
-            clap::Arg::new("positional-1")
-                .value_parser(["pos_1"])
-                .index(1),
-        )
+        .arg(clap::Arg::new("positional-1").value_parser(["pos_1"]))
         .arg(
             clap::Arg::new("positional-2")
                 .value_parser(["pos_2_a", "pos_2_b", "pos_2_c"])
-                .index(2)
                 .num_args(3),
         )
         .arg(
@@ -774,7 +769,6 @@ fn suggest_multi_positional_unbounded() {
         .arg(
             clap::Arg::new("positional")
                 .value_parser(["pos_1", "pos_2"])
-                .index(1)
                 .num_args(2..),
         )
         .arg(
@@ -847,7 +841,6 @@ fn suggest_delimiter_values() {
         )
         .arg(
             clap::Arg::new("pos")
-                .index(1)
                 .value_parser(["a_pos", "b_pos", "c_pos"])
                 .value_delimiter(','),
         );
@@ -1046,14 +1039,9 @@ fn suggest_positional_long_allow_hyphen() {
         .arg(
             clap::Arg::new("positional_a")
                 .value_parser(["--pos_a"])
-                .index(1)
                 .allow_hyphen_values(true),
         )
-        .arg(
-            clap::Arg::new("positional_b")
-                .index(2)
-                .value_parser(["pos_b"]),
-        );
+        .arg(clap::Arg::new("positional_b").value_parser(["pos_b"]));
 
     assert_data_eq!(
         complete!(cmd, "--format --json --pos[TAB]"),
@@ -1104,14 +1092,9 @@ fn suggest_positional_short_allow_hyphen() {
         .arg(
             clap::Arg::new("positional_a")
                 .value_parser(["-a"])
-                .index(1)
                 .allow_hyphen_values(true),
         )
-        .arg(
-            clap::Arg::new("positional_b")
-                .index(2)
-                .value_parser(["pos_b"]),
-        );
+        .arg(clap::Arg::new("positional_b").value_parser(["pos_b"]));
 
     assert_data_eq!(
         complete!(cmd, "--format --json -a [TAB]"),
