@@ -157,100 +157,20 @@ fn complete_arg(
             {
                 completions.extend(complete_arg_value(arg.to_value(), positional, current_dir));
             }
-
-            if arg.is_empty() {
-                completions.extend(longs_and_visible_aliases(cmd));
-                completions.extend(hidden_longs_aliases(cmd));
-
-                let dash_or_arg = if arg.is_empty() {
-                    "-".into()
-                } else {
-                    arg.to_value_os().to_string_lossy()
-                };
-                completions.extend(
-                    shorts_and_visible_aliases(cmd)
-                        .into_iter()
-                        .map(|comp| comp.add_prefix(dash_or_arg.to_string())),
-                );
-            } else if arg.is_stdio() {
-                // HACK: Assuming knowledge of is_stdio
-                let dash_or_arg = if arg.is_empty() {
-                    "-".into()
-                } else {
-                    arg.to_value_os().to_string_lossy()
-                };
-                completions.extend(
-                    shorts_and_visible_aliases(cmd)
-                        .into_iter()
-                        .map(|comp| comp.add_prefix(dash_or_arg.to_string())),
-                );
-
-                completions.extend(longs_and_visible_aliases(cmd));
-                completions.extend(hidden_longs_aliases(cmd));
-            } else if arg.is_escape() {
-                // HACK: Assuming knowledge of is_escape
-                completions.extend(longs_and_visible_aliases(cmd));
-                completions.extend(hidden_longs_aliases(cmd));
-            } else if let Some((flag, value)) = arg.to_long() {
-                if let Ok(flag) = flag {
-                    if let Some(value) = value {
-                        if let Some(arg) = cmd.get_arguments().find(|a| a.get_long() == Some(flag))
-                        {
-                            completions.extend(
-                                complete_arg_value(value.to_str().ok_or(value), arg, current_dir)
-                                    .into_iter()
-                                    .map(|comp| comp.add_prefix(format!("--{flag}="))),
-                            );
-                        }
-                    } else {
-                        completions.extend(longs_and_visible_aliases(cmd).into_iter().filter(
-                            |comp| comp.get_value().starts_with(format!("--{flag}").as_str()),
-                        ));
-                        completions.extend(hidden_longs_aliases(cmd).into_iter().filter(|comp| {
-                            comp.get_value().starts_with(format!("--{flag}").as_str())
-                        }));
-                    }
-                }
-            } else if let Some(short) = arg.to_short() {
-                if !short.is_negative_number() {
-                    // Find the first takes_values option.
-                    let (leading_flags, takes_value_opt, mut short) = parse_shortflags(cmd, short);
-
-                    // Clone `short` to `peek_short` to peek whether the next flag is a `=`.
-                    if let Some(opt) = takes_value_opt {
-                        let mut peek_short = short.clone();
-                        let has_equal = if let Some(Ok('=')) = peek_short.next_flag() {
-                            short.next_flag();
-                            true
-                        } else {
-                            false
-                        };
-
-                        let value = short.next_value_os().unwrap_or(OsStr::new(""));
-                        completions.extend(
-                            complete_arg_value(value.to_str().ok_or(value), opt, current_dir)
-                                .into_iter()
-                                .map(|comp| {
-                                    let sep = if has_equal { "=" } else { "" };
-                                    comp.add_prefix(format!("-{leading_flags}{sep}"))
-                                }),
-                        );
-                    } else {
-                        completions.extend(
-                            shorts_and_visible_aliases(cmd)
-                                .into_iter()
-                                .map(|comp| comp.add_prefix(format!("-{leading_flags}"))),
-                        );
-                    }
-                }
-            }
+            completions.extend(complete_option(arg, cmd, current_dir));
         }
-        ParseState::Pos(..) => {
+        ParseState::Pos((_, num_arg)) => {
             if let Some(positional) = cmd
                 .get_positionals()
                 .find(|p| p.get_index() == Some(pos_index))
             {
                 completions.extend(complete_arg_value(arg.to_value(), positional, current_dir));
+                if positional
+                    .get_num_args()
+                    .is_some_and(|num_args| num_arg >= num_args.min_values())
+                {
+                    completions.extend(complete_option(arg, cmd, current_dir));
+                }
             }
         }
         ParseState::Opt((opt, count)) => {
@@ -295,6 +215,104 @@ fn complete_arg(
     });
 
     Ok(completions)
+}
+
+fn complete_option(
+    arg: &clap_lex::ParsedArg<'_>,
+    cmd: &clap::Command,
+    current_dir: Option<&std::path::Path>,
+) -> Vec<CompletionCandidate> {
+    let mut completions = Vec::<CompletionCandidate>::new();
+    if arg.is_empty() {
+        completions.extend(longs_and_visible_aliases(cmd));
+        completions.extend(hidden_longs_aliases(cmd));
+
+        let dash_or_arg = if arg.is_empty() {
+            "-".into()
+        } else {
+            arg.to_value_os().to_string_lossy()
+        };
+        completions.extend(
+            shorts_and_visible_aliases(cmd)
+                .into_iter()
+                .map(|comp| comp.add_prefix(dash_or_arg.to_string())),
+        );
+    } else if arg.is_stdio() {
+        // HACK: Assuming knowledge of is_stdio
+        let dash_or_arg = if arg.is_empty() {
+            "-".into()
+        } else {
+            arg.to_value_os().to_string_lossy()
+        };
+        completions.extend(
+            shorts_and_visible_aliases(cmd)
+                .into_iter()
+                .map(|comp| comp.add_prefix(dash_or_arg.to_string())),
+        );
+
+        completions.extend(longs_and_visible_aliases(cmd));
+        completions.extend(hidden_longs_aliases(cmd));
+    } else if arg.is_escape() {
+        // HACK: Assuming knowledge of is_escape
+        completions.extend(longs_and_visible_aliases(cmd));
+        completions.extend(hidden_longs_aliases(cmd));
+    } else if let Some((flag, value)) = arg.to_long() {
+        if let Ok(flag) = flag {
+            if let Some(value) = value {
+                if let Some(arg) = cmd.get_arguments().find(|a| a.get_long() == Some(flag)) {
+                    completions.extend(
+                        complete_arg_value(value.to_str().ok_or(value), arg, current_dir)
+                            .into_iter()
+                            .map(|comp| comp.add_prefix(format!("--{flag}="))),
+                    );
+                }
+            } else {
+                completions.extend(
+                    longs_and_visible_aliases(cmd)
+                        .into_iter()
+                        .filter(|comp| comp.get_value().starts_with(format!("--{flag}").as_str())),
+                );
+                completions.extend(
+                    hidden_longs_aliases(cmd)
+                        .into_iter()
+                        .filter(|comp| comp.get_value().starts_with(format!("--{flag}").as_str())),
+                );
+            }
+        }
+    } else if let Some(short) = arg.to_short() {
+        if !short.is_negative_number() {
+            // Find the first takes_values option.
+            let (leading_flags, takes_value_opt, mut short) = parse_shortflags(cmd, short);
+
+            // Clone `short` to `peek_short` to peek whether the next flag is a `=`.
+            if let Some(opt) = takes_value_opt {
+                let mut peek_short = short.clone();
+                let has_equal = if let Some(Ok('=')) = peek_short.next_flag() {
+                    short.next_flag();
+                    true
+                } else {
+                    false
+                };
+
+                let value = short.next_value_os().unwrap_or(OsStr::new(""));
+                completions.extend(
+                    complete_arg_value(value.to_str().ok_or(value), opt, current_dir)
+                        .into_iter()
+                        .map(|comp| {
+                            let sep = if has_equal { "=" } else { "" };
+                            comp.add_prefix(format!("-{leading_flags}{sep}"))
+                        }),
+                );
+            } else {
+                completions.extend(
+                    shorts_and_visible_aliases(cmd)
+                        .into_iter()
+                        .map(|comp| comp.add_prefix(format!("-{leading_flags}"))),
+                );
+            }
+        }
+    }
+    completions
 }
 
 fn complete_arg_value(
