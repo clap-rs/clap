@@ -3869,7 +3869,6 @@ greatgrandchild3 command
 parent child1 grandchild1 help:
 Print this message or the help of the given subcommand(s)
 
-
 parent child1 grandchild2:
 grandchild2 command
       --grandchild2 <grandchild>  
@@ -3882,7 +3881,6 @@ grandchild3 command
 
 parent child1 help:
 Print this message or the help of the given subcommand(s)
-
 
 parent child2:
 child2 command
