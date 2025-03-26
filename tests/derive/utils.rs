@@ -65,5 +65,5 @@ pub(crate) fn assert_output<P: clap::Parser + std::fmt::Debug>(
         stderr,
         err.use_stderr()
     );
-    assert_data_eq!(actual, expected);
+    assert_data_eq!(actual, expected.raw());
 }

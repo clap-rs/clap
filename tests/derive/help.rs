@@ -220,14 +220,16 @@ fn derive_generated_error_has_full_context() {
         result.unwrap()
     );
 
-    let expected = r#"error: The following required argument was not provided: req_str
+    let expected = str![[r#"
+error: The following required argument was not provided: req_str
 
 Usage: clap --req-str <REQ_STR>
        clap <COMMAND>
 
 For more information, try '--help'.
-"#;
-    assert_eq!(result.unwrap_err().to_string(), expected);
+
+"#]];
+    assert_data_eq!(result.unwrap_err().to_string(), expected);
 }
 
 #[test]
@@ -340,18 +342,6 @@ Options:
 
 #[test]
 fn derive_order_no_next_order() {
-    static HELP: &str = "\
-Usage: test [OPTIONS]
-
-Options:
-      --flag-a               first flag
-      --flag-b               second flag
-  -h, --help                 Print help
-      --option-a <OPTION_A>  first option
-      --option-b <OPTION_B>  second option
-  -V, --version              Print version
-";
-
     #[derive(Parser, Debug)]
     #[command(name = "test", version = "1.2")]
     #[command(next_display_order = None)]
@@ -386,7 +376,18 @@ Options:
     let mut cmd = Args::command();
 
     let help = cmd.render_help().to_string();
-    assert_data_eq!(HELP, help);
+    assert_data_eq!(help, str![[r#"
+Usage: test [OPTIONS]
+
+Options:
+      --flag-a               first flag
+      --flag-b               second flag
+  -h, --help                 Print help
+      --option-a <OPTION_A>  first option
+      --option-b <OPTION_B>  second option
+  -V, --version              Print version
+
+"#]]);
 }
 
 #[test]

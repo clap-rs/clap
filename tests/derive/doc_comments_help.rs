@@ -15,6 +15,7 @@
 use crate::utils;
 
 use clap::{CommandFactory, Parser, Subcommand, ValueEnum};
+use snapbox::str;
 
 #[test]
 fn doc_comments() {
@@ -276,7 +277,7 @@ fn respect_subcommand_doc_comment() {
         Twp,
     }
 
-    const OUTPUT: &str = "\
+    let output = str![[r#"
 Usage: cmd <COMMAND>
 
 Commands:
@@ -285,8 +286,9 @@ Commands:
 
 Options:
   -h, --help  Print help
-";
-    utils::assert_output::<Cmd>("cmd --help", OUTPUT, false);
+
+"#]];
+    utils::assert_output::<Cmd>("cmd --help", output, false);
 }
 
 #[test]
