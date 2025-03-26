@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(error)* When showing the usage of a suggestion for an unknown argument, don't show the group
+
 ## [4.5.32] - 2025-03-10
 
 ### Features
