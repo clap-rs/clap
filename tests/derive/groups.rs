@@ -1,4 +1,5 @@
 use clap::Parser;
+use snapbox::str;
 
 use crate::utils::assert_output;
 
@@ -44,15 +45,16 @@ fn implicit_struct_group() {
         git: Option<String>,
     }
 
-    const OUTPUT: &str = "\
+    let output = str![[r#"
 error: the following required arguments were not provided:
   <CRATES|--path <PATH>|--git <GIT>>
 
 Usage: prog --add <CRATES|--path <PATH>|--git <GIT>>
 
 For more information, try '--help'.
-";
-    assert_output::<Opt>("prog --add", OUTPUT, true);
+
+"#]];
+    assert_output::<Opt>("prog --add", output, true);
 
     use clap::Args;
     assert_eq!(Source::group_id(), Some(clap::Id::from("Source")));
@@ -229,13 +231,14 @@ fn required_group() {
         Opt::try_parse_from(["test", "--path=./"]).unwrap()
     );
 
-    const OUTPUT: &str = "\
+    let output = str![[r#"
 error: the following required arguments were not provided:
   <--path <PATH>|--git <GIT>>
 
 Usage: test <--path <PATH>|--git <GIT>>
 
 For more information, try '--help'.
-";
-    assert_output::<Opt>("test", OUTPUT, true);
+
+"#]];
+    assert_output::<Opt>("test", output, true);
 }
