@@ -297,7 +297,7 @@ error: unexpected argument '--hell' found
 
   tip: a similar argument exists: '--hello'
 
-Usage: test <NAME|--hello <HELLO>|--count01 <COUNT01>|--count02 <COUNT02>|--count03 <COUNT03>|--count04 <COUNT04>|--count05 <COUNT05>|--count06 <COUNT06>|--count07 <COUNT07>|--count08 <COUNT08>|--count09 <COUNT09>|--count10 <COUNT10>|--count11 <COUNT11>|--count12 <COUNT12>|--count13 <COUNT13>|--count14 <COUNT14>|--count15 <COUNT15>|--count16 <COUNT16>|--count17 <COUNT17>|--count18 <COUNT18>>
+Usage: test --hello <HELLO> <NAME>
 
 For more information, try '--help'.
 
