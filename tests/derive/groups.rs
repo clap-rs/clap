@@ -242,3 +242,65 @@ For more information, try '--help'.
 "#]];
     assert_output::<Opt>("test", output, true);
 }
+
+#[test]
+#[cfg(feature = "error-context")]
+#[cfg(feature = "suggestions")]
+fn suggestion() {
+    #[derive(Parser, Debug)]
+    struct Args {
+        name: String,
+
+        #[arg(long)]
+        hello: Option<u8>,
+
+        #[arg(long)]
+        count01: Vec<u8>,
+        #[arg(long)]
+        count02: Vec<u8>,
+        #[arg(long)]
+        count03: Vec<u8>,
+        #[arg(long)]
+        count04: Vec<u8>,
+        #[arg(long)]
+        count05: Vec<u8>,
+        #[arg(long)]
+        count06: Vec<u8>,
+        #[arg(long)]
+        count07: Vec<u8>,
+        #[arg(long)]
+        count08: Vec<u8>,
+        #[arg(long)]
+        count09: Vec<u8>,
+        #[arg(long)]
+        count10: Vec<u8>,
+        #[arg(long)]
+        count11: Vec<u8>,
+        #[arg(long)]
+        count12: Vec<u8>,
+        #[arg(long)]
+        count13: Vec<u8>,
+        #[arg(long)]
+        count14: Vec<u8>,
+        #[arg(long)]
+        count15: Vec<u8>,
+        #[arg(long)]
+        count16: Vec<u8>,
+        #[arg(long)]
+        count17: Vec<u8>,
+        #[arg(long)]
+        count18: Vec<u8>,
+    }
+
+    let output = str![[r#"
+error: unexpected argument '--hell' found
+
+  tip: a similar argument exists: '--hello'
+
+Usage: test <NAME|--hello <HELLO>|--count01 <COUNT01>|--count02 <COUNT02>|--count03 <COUNT03>|--count04 <COUNT04>|--count05 <COUNT05>|--count06 <COUNT06>|--count07 <COUNT07>|--count08 <COUNT08>|--count09 <COUNT09>|--count10 <COUNT10>|--count11 <COUNT11>|--count12 <COUNT12>|--count13 <COUNT13>|--count14 <COUNT14>|--count15 <COUNT15>|--count16 <COUNT16>|--count17 <COUNT17>|--count18 <COUNT18>>
+
+For more information, try '--help'.
+
+"#]];
+    assert_output::<Args>("test --hell", output, true);
+}
