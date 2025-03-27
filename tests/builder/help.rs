@@ -3986,8 +3986,8 @@ Options:
   -h, --help  Print help
 
 Mixed:
-  -b, --both        Both long and short
-      --long        Long only
+  -b, --both    Both long and short
+      --long    Long only
   <POSITIONAL>  Positional
 
 "#]];
@@ -4014,7 +4014,7 @@ Options:
 Mixed:
   -b, --both  Both long and short
       --long  Long only
-  <S>     Short positional
+  <S>         Short positional
 
 "#]];
     utils::assert_output(cmd, "myprog --help", expected, false);
@@ -4037,7 +4037,7 @@ Options:
   -h, --help  Print help
 
 Mixed:
-      --long        Long only
+      --long    Long only
   <POSITIONAL>  Positional
 
 "#]];
