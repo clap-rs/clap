@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(help)* Don't add extra blank lines with `flatten_help(true)` and subcommands without arguments
+
 ## [4.5.33] - 2025-03-26
 
 ### Fixes
