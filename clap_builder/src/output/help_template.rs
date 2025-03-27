@@ -880,9 +880,17 @@ impl HelpTemplate<'_, '_> {
                 .or_else(|| subcommand.get_long_about())
                 .unwrap_or_default();
 
-            let _ = write!(self.writer, "{header}{heading}:{header:#}\n",);
+            let _ = write!(self.writer, "{header}{heading}:{header:#}",);
             if !about.is_empty() {
-                let _ = write!(self.writer, "{about}\n",);
+                let _ = write!(self.writer, "\n{about}",);
+            }
+
+            let args = subcommand
+                .get_arguments()
+                .filter(|arg| should_show_arg(self.use_long, arg) && !arg.is_global_set())
+                .collect::<Vec<_>>();
+            if !args.is_empty() {
+                self.writer.push_str("\n");
             }
 
             let mut sub_help = HelpTemplate {
@@ -894,10 +902,6 @@ impl HelpTemplate<'_, '_> {
                 term_w: self.term_w,
                 use_long: self.use_long,
             };
-            let args = subcommand
-                .get_arguments()
-                .filter(|arg| should_show_arg(self.use_long, arg) && !arg.is_global_set())
-                .collect::<Vec<_>>();
             sub_help.write_args(&args, heading, option_sort_key);
             if subcommand.is_flatten_help_set() {
                 sub_help.write_flat_subcommands(subcommand, first);
