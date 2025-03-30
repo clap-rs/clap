@@ -4037,7 +4037,7 @@ Options:
   -h, --help  Print help
 
 Mixed:
-      --long    Long only
+  --long        Long only
   <POSITIONAL>  Positional
 
 "#]];
