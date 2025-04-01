@@ -3967,3 +3967,79 @@ Print this message or the help of the given subcommand(s)
 "#]];
     utils::assert_output(cmd, "parent -h", expected, false);
 }
+
+#[test]
+fn mixed_argument_types() {
+    let cmd = Command::new("myprog")
+        .about("mixed arguments")
+        .next_help_heading("Mixed")
+        .arg(arg!(-b --both "Both long and short"))
+        .arg(arg!(--long "Long only"))
+        .arg(arg!(<POSITIONAL> "Positional"));
+
+    let expected = str![[r#"
+mixed arguments
+
+Usage: myprog [OPTIONS] <POSITIONAL>
+
+Options:
+  -h, --help  Print help
+
+Mixed:
+  -b, --both        Both long and short
+      --long        Long only
+  <POSITIONAL>  Positional
+
+"#]];
+    utils::assert_output(cmd, "myprog --help", expected, false);
+}
+
+#[test]
+fn mixed_argument_types_short_positional() {
+    let cmd = Command::new("myprog")
+        .about("mixed arguments")
+        .next_help_heading("Mixed")
+        .arg(arg!(-b --both "Both long and short"))
+        .arg(arg!(--long "Long only"))
+        .arg(arg!(<S> "Short positional"));
+
+    let expected = str![[r#"
+mixed arguments
+
+Usage: myprog [OPTIONS] <S>
+
+Options:
+  -h, --help  Print help
+
+Mixed:
+  -b, --both  Both long and short
+      --long  Long only
+  <S>     Short positional
+
+"#]];
+    utils::assert_output(cmd, "myprog --help", expected, false);
+}
+
+#[test]
+fn mixed_argument_types_no_short() {
+    let cmd = Command::new("myprog")
+        .about("mixed arguments")
+        .next_help_heading("Mixed")
+        .arg(arg!(--long "Long only"))
+        .arg(arg!(<POSITIONAL> "Positional"));
+
+    let expected = str![[r#"
+mixed arguments
+
+Usage: myprog [OPTIONS] <POSITIONAL>
+
+Options:
+  -h, --help  Print help
+
+Mixed:
+      --long        Long only
+  <POSITIONAL>  Positional
+
+"#]];
+    utils::assert_output(cmd, "myprog --help", expected, false);
+}
