@@ -22,6 +22,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(help)* Align positionals and flags when put in the same `help_heading`
+- *(help)* Don't leave space for shorts if there are none
+
 ## [4.5.34] - 2025-03-27
 
 ### Fixes
