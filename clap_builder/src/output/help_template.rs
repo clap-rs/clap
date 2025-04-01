@@ -74,6 +74,8 @@ const DEFAULT_NO_ARGS_TEMPLATE: &str = "\
 {usage-heading} {usage}{after-help}\
     ";
 
+const SHORT_SIZE: usize = 4; // See `fn short` for the 4
+
 /// Help template writer
 ///
 /// Wraps a writer stream providing different methods to generate help for `clap` objects.
@@ -623,7 +625,7 @@ impl HelpTemplate<'_, '_> {
         } else if arg.map(|a| a.is_positional()).unwrap_or(true) {
             longest + TAB_WIDTH * 2
         } else {
-            longest + TAB_WIDTH * 2 + 4 // See `fn short` for the 4
+            longest + TAB_WIDTH * 2 + SHORT_SIZE
         };
         let trailing_indent = spaces; // Don't indent any further than the first line is indented
         let trailing_indent = self.get_spaces(trailing_indent);
@@ -727,7 +729,7 @@ impl HelpTemplate<'_, '_> {
             let taken = if arg.is_positional() {
                 longest + TAB_WIDTH * 2
             } else {
-                longest + TAB_WIDTH * 2 + 4 // See `fn short` for the 4
+                longest + TAB_WIDTH * 2 + SHORT_SIZE
             };
             self.term_w >= taken
                 && (taken as f32 / self.term_w as f32) > 0.40
