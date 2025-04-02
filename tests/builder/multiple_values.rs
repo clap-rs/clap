@@ -1843,7 +1843,7 @@ For more information, try '--help'.
 }
 
 #[test]
-#[should_panic = "Argument 'pos` is positional and it must take a value but action is SetTrue"]
+#[should_panic = "Argument 'pos' is positional and it must take a value but action is SetTrue"]
 fn disallow_positionals_without_values() {
     let cmd = Command::new("test").arg(Arg::new("pos").num_args(0));
     cmd.debug_assert();
