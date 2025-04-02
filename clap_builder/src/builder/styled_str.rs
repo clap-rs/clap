@@ -1,5 +1,7 @@
 #![cfg_attr(not(feature = "usage"), allow(dead_code))]
 
+use std::borrow::Cow;
+
 /// Terminal-styling container
 ///
 /// Styling may be encoded as [ANSI Escape Code](https://en.wikipedia.org/wiki/ANSI_escape_code)
@@ -206,5 +208,11 @@ impl std::fmt::Display for StyledStr {
         }
 
         Ok(())
+    }
+}
+
+impl From<Cow<'static, str>> for StyledStr {
+    fn from(value: Cow<'static, str>) -> Self {
+        StyledStr(value.to_string())
     }
 }
