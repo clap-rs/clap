@@ -92,9 +92,12 @@ jobs:
       with:
         toolchain: stable
     - uses: Swatinem/rust-cache@v2
+    - uses: elves/setup-elvish@v1
+      with:
+        elvish-version: 0.21.0
     - name: Install shells
       if: runner.os == 'Linux'
-      run: sudo apt-get install -y elvish fish zsh
+      run: sudo apt-get install -y fish zsh
     - name: clap_complete
       run: cargo test -p clap_complete -F unstable-dynamic -F unstable-shell-tests
   shell-integration-nu:
