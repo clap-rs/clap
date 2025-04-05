@@ -2053,12 +2053,40 @@ fn issue_1052_require_delim_help() {
     let expected = str![[r#"
 tests stuff
 
-Usage: test --fake <some> <val>
+Usage: test --fake <some>:<val>
 
 Options:
-  -f, --fake <some> <val>  some help
+  -f, --fake <some>:<val>  some help [value delimiter: ':']
   -h, --help               Print help
   -V, --version            Print version
+
+"#]];
+    utils::assert_output(cmd, "test --help", expected, false);
+}
+
+#[test]
+fn display_value_terminator() {
+    let cmd = Command::new("test")
+        .author("Jaffa")
+        .about("Likes seeing the value terminator")
+        .arg(
+            Arg::new("cmd")
+                .long("cmd")
+                .action(ArgAction::Append)
+                .help("command to run")
+                .required(true)
+                .num_args(1..)
+                .value_terminator(";"),
+        );
+
+    let expected = str![[r#"
+Likes seeing the value terminator
+
+Usage: test --cmd <cmd>... ;
+
+Options:
+      --cmd <cmd>... ;  command to run [value terminator: ";"]
+  -h, --help            Print help
 
 "#]];
     utils::assert_output(cmd, "test --help", expected, false);
@@ -2090,10 +2118,10 @@ fn custom_headers_headers() {
     let expected = str![[r#"
 does stuff
 
-Usage: test [OPTIONS] --fake <some> <val>
+Usage: test [OPTIONS] --fake <some>:<val>
 
 Options:
-  -f, --fake <some> <val>  some help
+  -f, --fake <some>:<val>  some help [value delimiter: ':']
   -h, --help               Print help
   -V, --version            Print version
 
@@ -2161,10 +2189,10 @@ fn multiple_custom_help_headers() {
     let expected = str![[r#"
 does stuff
 
-Usage: test [OPTIONS] --fake <some> <val> --birthday-song <song> --birthday-song-volume <volume>
+Usage: test [OPTIONS] --fake <some>:<val> --birthday-song <song> --birthday-song-volume <volume>
 
 Options:
-  -f, --fake <some> <val>  some help
+  -f, --fake <some>:<val>  some help [value delimiter: ':']
       --style <style>      Choose musical style to play the song
   -s, --speed <SPEED>      How fast? [possible values: fast, slow]
   -h, --help               Print help
