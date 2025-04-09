@@ -631,7 +631,6 @@ fn _verify_positionals(cmd: &Command) -> bool {
                     continue;
                 }
                 found = true;
-                continue;
             } else {
                 found = false;
             }
@@ -656,7 +655,6 @@ fn _verify_positionals(cmd: &Command) -> bool {
                 //      $ prog r1 -- r2
                 //      $ prog r1 o1 -- r2
                 found = true;
-                continue;
             }
         }
     }
