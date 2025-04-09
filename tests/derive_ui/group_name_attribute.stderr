@@ -6,5 +6,6 @@ error[E0599]: no method named `name` found for struct `ArgGroup` in the current 
    |
 help: there is a method `ne` with a similar name
    |
-11 | #[group(required = true, ne = "src")]
-   |                          ~~
+11 - #[group(required = true, name = "src")]
+11 + #[group(required = true, ne = "src")]
+   |
