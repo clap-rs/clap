@@ -64,7 +64,7 @@ jobs:
     - uses: Swatinem/rust-cache@v2
     - uses: taiki-e/install-action@cargo-hack
     - name: Default features
-      run: cargo hack check --feature-powerset --locked --rust-version --ignore-private --workspace --all-targets
+      run: cargo hack check --feature-powerset --locked --rust-version --ignore-private --workspace --all-targets --keep-going
   minimal-versions:
     name: Minimal versions
     runs-on: ubuntu-latest
@@ -82,7 +82,7 @@ jobs:
     - name: Downgrade dependencies to minimal versions
       run: cargo +nightly generate-lockfile -Z minimal-versions
     - name: Compile with minimal versions
-      run: cargo +stable check --workspace --all-features --locked
+      run: cargo +stable check --workspace --all-features --locked --keep-going
   lockfile:
     runs-on: ubuntu-latest
     steps:
@@ -109,7 +109,7 @@ jobs:
     - name: Check documentation
       env:
         RUSTDOCFLAGS: -D warnings
-      run: cargo doc --workspace --all-features --no-deps --document-private-items
+      run: cargo doc --workspace --all-features --no-deps --document-private-items --keep-going
   rustfmt:
     name: rustfmt
     runs-on: ubuntu-latest
@@ -155,7 +155,7 @@ jobs:
         sarif_file: clippy-results.sarif
         wait-for-processing: true
     - name: Report status
-      run: cargo clippy --workspace --all-features --all-targets -- -D warnings --allow deprecated
+      run: cargo clippy --workspace --all-features --all-targets --keep-going -- -D warnings --allow deprecated
   coverage:
     name: Coverage
     runs-on: ubuntu-latest
