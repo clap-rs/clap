@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(help)* Revert 4.5.35's "Don't leave space for shorts if there are none" for now
+
 ## [4.5.35] - 2025-04-01
 
 ### Fixes
