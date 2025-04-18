@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Added `ArgMatches::try_clear_id()`
+
 ## [4.5.36] - 2025-04-11
 
 ### Fixes
