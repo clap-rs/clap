@@ -2052,4 +2052,43 @@ mod tests {
         let b = b_index.into_iter().zip(b_value).rev().collect::<Vec<_>>();
         dbg!(b);
     }
+
+    #[test]
+    fn delete_id_without_returning() {
+        let mut matches = crate::Command::new("myprog")
+            .arg(crate::Arg::new("a").short('a').action(ArgAction::Append))
+            .arg(crate::Arg::new("b").short('b').action(ArgAction::Append))
+            .arg(crate::Arg::new("c").short('c').action(ArgAction::Append))
+            .try_get_matches_from(vec!["myprog", "-b1", "-a1", "-b2"])
+            .unwrap();
+        let matches_ids_count = matches.ids().count();
+        assert_eq!(matches_ids_count, 2);
+
+        let _ = matches
+            .try_remove_occurrences::<bool>("d")
+            .expect_err("should fail due to there is no arg 'd'");
+
+        let values = matches.try_remove_occurrences::<bool>("c").expect(
+            "doesn't fail because there is no matches for 'c' argument thus nothing to downcast",
+        );
+        assert!(values.is_none());
+        let matches_ids_count = matches.ids().count();
+        assert_eq!(matches_ids_count, 2);
+
+        let _ = matches
+            .try_remove_occurrences::<()>("b")
+            .expect_err("should fail due to impossible downcasting to ()");
+        let matches_ids_count = matches.ids().count();
+        assert_eq!(matches_ids_count, 2);
+
+        trait Remover: Any + Sync + Debug + 'static {
+            fn _noop(&self);
+        }
+
+        let _ = matches
+            .try_remove_occurrences::<&dyn Remover>("a")
+            .expect_err("should fail due to impossible downcasting to &dyn Remover");
+        let matches_ids_count = matches.ids().count();
+        assert_eq!(matches_ids_count, 2);
+    }
 }
