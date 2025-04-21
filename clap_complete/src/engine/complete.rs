@@ -578,6 +578,7 @@ fn populate_command_candidate(
         .display_order(Some(subcommand.get_display_order()))
         .hide(subcommand.is_hide_set())
 }
+
 /// Parse the short flags and find the first `takes_values` option.
 fn parse_shortflags<'c, 's>(
     cmd: &'c clap::Command,
