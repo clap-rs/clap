@@ -17,7 +17,7 @@ _clap_complete_my_app() {
     ) )
     if [[ $? != 0 ]]; then
         unset COMPREPLY
-    elif [[ $SUPPRESS_SPACE == 1 ]] && [[ "${COMPREPLY-}" =~ [=/:]$ ]]; then
+    elif [[ $_CLAP_COMPLETE_SPACE == false ]] && [[ "${COMPREPLY-}" =~ [=/:]$ ]]; then
         compopt -o nospace
     fi
 }
