@@ -40,7 +40,7 @@ jobs:
     - name: Build
       run: cargo test --workspace --no-run
     - name: Test
-      run: cargo hack test --feature-powerset --workspace
+      run: cargo hack test --each-feature --workspace
   latest:
     name: "Check latest dependencies"
     runs-on: ubuntu-latest
@@ -58,4 +58,4 @@ jobs:
     - name: Build
       run: cargo test --workspace --no-run
     - name: Test
-      run: cargo hack test --feature-powerset --workspace
+      run: cargo hack test --each-feature --workspace
