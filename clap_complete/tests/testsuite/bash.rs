@@ -186,6 +186,28 @@ fn complete() {
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
+    let input = "exhaustive quote --choice 'b\t";
+    let expected =
+        snapbox::str!["exhaustive quote --choice 'b    % exhaustive quote --choice 'bash' "];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
+    // Type in "bx", press left arrow, then trigger completion
+    let input = "exhaustive quote --choice bx\x1b[D\t";
+    let expected =
+        snapbox::str!["exhaustive quote --choice bx^[[D        % exhaustive quote --choice bashx"];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
+    // Trigger completion from empty space
+    let input = "exhaustive quote --choice  b\x1b[D\x1b[D\t\t";
+    let expected = snapbox::str![[r#"
+% 
+another  shell    bash     fish     zsh      
+"#]];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
     {
         use std::fs::File;
         use std::path::Path;
@@ -311,7 +333,12 @@ fn complete_dynamic_env_option_value() {
     let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
     let input = "exhaustive action --choice=\t\t";
-    let expected = snapbox::str!["% "];
+    let expected = snapbox::str![
+        r#"
+% 
+first   second  
+"#
+    ];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
@@ -377,6 +404,52 @@ fn complete_dynamic_empty_option_value() {
 
     let input = "exhaustive --empty=\t";
     let expected = snapbox::str!["exhaustive --empty=     % exhaustive --empty="];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+fn complete_dynamic_quoted_word() {
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+
+    let input = "exhaustive quote --choice 'b\t";
+    let expected =
+        snapbox::str!["exhaustive quote --choice 'b    % exhaustive quote --choice 'bash' "];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+fn complete_dynamic_middle_of_word() {
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+
+    // Type in "bx", press left arrow, then trigger completion
+    let input = "exhaustive quote --choice bx\x1b[D\t";
+    let expected =
+        snapbox::str!["exhaustive quote --choice bx^[[D        % exhaustive quote --choice bashx"];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
+    // Trigger completion from empty space
+    let input = "exhaustive quote --choice  b\x1b[D\x1b[D\t\t";
+    let expected = snapbox::str![[r#"
+% 
+another shell  bash           fish           zsh            
+"#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
