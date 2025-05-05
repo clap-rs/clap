@@ -212,8 +212,7 @@ another  shell    bash     fish     zsh
     let input = "exhaustive -- hint\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\t\t";
     let expected = snapbox::str![[r#"
 % 
---choice    --other     --file      --exe       --cmd       --host      --email     
---unknown   --path      --dir       --cmd-name  --user      --url       --help      
+--generate      --empty-choice  --help          
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
