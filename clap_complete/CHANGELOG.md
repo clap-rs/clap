@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(dynamic)* Improve handling of empty or quoted content
+- *(aot)* Improve handling of empty or quoted content
+
 ## [4.5.48] - 2025-04-28
 
 ### Fixes
