@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.49] - 2025-05-05
+
 ### Fixes
 
 - *(dynamic)* Improve handling of empty or quoted content
@@ -548,7 +550,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.48...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.49...HEAD
+[4.5.49]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.48...clap_complete-v4.5.49
 [4.5.48]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.47...clap_complete-v4.5.48
 [4.5.47]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.46...clap_complete-v4.5.47
 [4.5.46]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.45...clap_complete-v4.5.46
