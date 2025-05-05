@@ -37,13 +37,17 @@ _clap_complete_NAME() {
     else
         local _CLAP_COMPLETE_SPACE=true
     fi
+    local words=("${COMP_WORDS[@]}")
+    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+        words[COMP_CWORD]="$2"
+    fi
     COMPREPLY=( $( \
         _CLAP_IFS="$IFS" \
         _CLAP_COMPLETE_INDEX="$_CLAP_COMPLETE_INDEX" \
         _CLAP_COMPLETE_COMP_TYPE="$_CLAP_COMPLETE_COMP_TYPE" \
         _CLAP_COMPLETE_SPACE="$_CLAP_COMPLETE_SPACE" \
         VAR="bash" \
-        "COMPLETER" -- "${COMP_WORDS[@]}" \
+        "COMPLETER" -- "${words[@]}" \
     ) )
     if [[ $? != 0 ]]; then
         unset COMPREPLY

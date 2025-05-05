@@ -195,14 +195,16 @@ fn complete() {
     // Type in "bx", press left arrow, then trigger completion
     let input = "exhaustive quote --choice bx\x1b[D\t";
     let expected =
-        snapbox::str!["exhaustive quote --choice bx^[[D        % exhaustive quote --choice bx"];
+        snapbox::str!["exhaustive quote --choice bx^[[D        % exhaustive quote --choice bashx"];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
     // Trigger completion from empty space
-    let input = "exhaustive quote --choice  b\x1b[D\x1b[D\t";
-    let expected =
-        snapbox::str!["exhaustive quote --choice  b^[[D^[[D    % exhaustive quote --choice bash b"];
+    let input = "exhaustive quote --choice  b\x1b[D\x1b[D\t\t";
+    let expected = snapbox::str![[r#"
+% 
+another  shell    bash     fish     zsh      
+"#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
@@ -331,7 +333,12 @@ fn complete_dynamic_env_option_value() {
     let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
     let input = "exhaustive action --choice=\t\t";
-    let expected = snapbox::str!["% "];
+    let expected = snapbox::str![
+        r#"
+% 
+first   second  
+"#
+    ];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
@@ -413,7 +420,8 @@ fn complete_dynamic_quoted_word() {
     let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
     let input = "exhaustive quote --choice 'b\t";
-    let expected = snapbox::str!["exhaustive quote --choice 'b    % exhaustive quote --choice 'b"];
+    let expected =
+        snapbox::str!["exhaustive quote --choice 'b    % exhaustive quote --choice 'bash' "];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
@@ -432,14 +440,16 @@ fn complete_dynamic_middle_of_word() {
     // Type in "bx", press left arrow, then trigger completion
     let input = "exhaustive quote --choice bx\x1b[D\t";
     let expected =
-        snapbox::str!["exhaustive quote --choice bx^[[D        % exhaustive quote --choice bx"];
+        snapbox::str!["exhaustive quote --choice bx^[[D        % exhaustive quote --choice bashx"];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
     // Trigger completion from empty space
-    let input = "exhaustive quote --choice  b\x1b[D\x1b[D\t";
-    let expected =
-        snapbox::str!["exhaustive quote --choice  b^[[D^[[D    % exhaustive quote --choice bash b"];
+    let input = "exhaustive quote --choice  b\x1b[D\x1b[D\t\t";
+    let expected = snapbox::str![[r#"
+% 
+another shell  bash           fish           zsh            
+"#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
