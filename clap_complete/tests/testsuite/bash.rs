@@ -208,6 +208,15 @@ another  shell    bash     fish     zsh
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
+    // Trigger completion immediately after "--"
+    let input = "exhaustive -- hint\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\t\t";
+    let expected = snapbox::str![[r#"
+% 
+--generate      --empty-choice  --help          
+"#]];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
     {
         use std::fs::File;
         use std::path::Path;
@@ -449,6 +458,15 @@ fn complete_dynamic_middle_of_word() {
     let expected = snapbox::str![[r#"
 % 
 another shell  bash           fish           zsh            
+"#]];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
+    // Trigger completion immediately after "--"
+    let input = "exhaustive -- hint\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\t\t";
+    let expected = snapbox::str![[r#"
+% 
+--generate      --empty-choice  --help          
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
