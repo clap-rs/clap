@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.50] - 2025-05-06
+
 ### Fixes
 
 - *(aot/bash)* Don't suggest subcommand arguments when cursor is before the subcommand
@@ -554,7 +556,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.49...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.50...HEAD
+[4.5.50]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.49...clap_complete-v4.5.50
 [4.5.49]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.48...clap_complete-v4.5.49
 [4.5.48]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.47...clap_complete-v4.5.48
 [4.5.47]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.46...clap_complete-v4.5.47
