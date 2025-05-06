@@ -7,12 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(aot/bash)* Don't suggest subcommand arguments when cursor is before the subcommand
+
 ## [4.5.49] - 2025-05-05
 
 ### Fixes
 
-- *(dynamic)* Improve handling of empty or quoted content
-- *(aot)* Improve handling of empty or quoted content
+- *(dynamic/bash)* Improve handling of empty or quoted content
+- *(aot/bash)* Improve handling of empty or quoted content
 
 ## [4.5.48] - 2025-04-28
 
