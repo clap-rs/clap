@@ -10,12 +10,12 @@
     {
       customType: 'regex',
       managerFilePatterns: [
-        '^rust-toolchain\\.toml$',
-        'Cargo.toml$',
-        'clippy.toml$',
-        '\\.clippy.toml$',
-        '^\\.github/workflows/ci.yml$',
-        '^\\.github/workflows/rust-next.yml$',
+        '/^rust-toolchain\\.toml$/',
+        '/Cargo.toml$/',
+        '/clippy.toml$/',
+        '/\\.clippy.toml$/',
+        '/^\\.github/workflows/ci.yml$/',
+        '/^\\.github/workflows/rust-next.yml$/',
       ],
       matchStrings: [
         'STABLE.*?(?<currentValue>\\d+\\.\\d+(\\.\\d+)?)',
