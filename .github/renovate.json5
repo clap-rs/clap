@@ -9,7 +9,7 @@
   customManagers: [
     {
       customType: 'regex',
-      fileMatch: [
+      managerFilePatterns: [
         '^rust-toolchain\\.toml$',
         'Cargo.toml$',
         'clippy.toml$',
