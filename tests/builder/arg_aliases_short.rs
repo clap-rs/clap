@@ -194,7 +194,7 @@ Usage: ct test [OPTIONS]
 
 Options:
   -o, --opt <opt>  [short aliases: v]
-  -f, --flag       [aliases: flag1] [short aliases: a, b, 🦆]
+  -f, --flag       [aliases: --flag1] [short aliases: a, b, 🦆]
   -h, --help       Print help
   -V, --version    Print version
 ";
