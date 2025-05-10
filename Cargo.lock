@@ -503,6 +503,7 @@ dependencies = [
  "clap_lex 0.7.4",
  "completest",
  "completest-pty",
+ "home",
  "is_executable",
  "shlex",
  "snapbox",
