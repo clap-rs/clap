@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(help)* When showing aliases, include leading `--` or `-`
+
 ## [4.5.37] - 2025-04-18
 
 ### Features
