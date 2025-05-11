@@ -787,17 +787,6 @@ impl HelpTemplate<'_, '_> {
 
         let mut als = Vec::new();
 
-        let mut long_als = a
-            .aliases
-            .iter()
-            .filter(|&als| als.1) // visible
-            .map(|als| format!("--{}", als.0)) // name
-            .peekable();
-        if long_als.peek().is_some() {
-            debug!("HelpTemplate::spec_vals: Found aliases...{:?}", a.aliases);
-            als.extend(long_als);
-        }
-
         let mut short_als = a
             .short_aliases
             .iter()
@@ -810,6 +799,17 @@ impl HelpTemplate<'_, '_> {
                 a.short_aliases
             );
             als.extend(short_als);
+        }
+
+        let mut long_als = a
+            .aliases
+            .iter()
+            .filter(|&als| als.1) // visible
+            .map(|als| format!("--{}", als.0)) // name
+            .peekable();
+        if long_als.peek().is_some() {
+            debug!("HelpTemplate::spec_vals: Found aliases...{:?}", a.aliases);
+            als.extend(long_als);
         }
 
         if !als.is_empty() {
