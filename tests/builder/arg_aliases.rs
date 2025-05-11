@@ -226,8 +226,8 @@ Some help
 Usage: ct test [OPTIONS]
 
 Options:
-  -o, --opt <opt>  [aliases: visible]
-  -f, --flag       [aliases: v_flg, flag2, flg3]
+  -o, --opt <opt>  [aliases: --visible]
+  -f, --flag       [aliases: --v_flg, --flag2, --flg3]
   -h, --help       Print help
   -V, --version    Print version
 ";
