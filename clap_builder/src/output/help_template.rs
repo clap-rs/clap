@@ -785,31 +785,31 @@ impl HelpTemplate<'_, '_> {
             spec_vals.push(format!("[default: {pvs}]"));
         }
 
-        let als = a
+        let mut als = a
             .aliases
             .iter()
             .filter(|&als| als.1) // visible
             .map(|als| format!("--{}", als.0)) // name
-            .collect::<Vec<_>>()
-            .join(", ");
-        if !als.is_empty() {
+            .peekable();
+        if als.peek().is_some() {
             debug!("HelpTemplate::spec_vals: Found aliases...{:?}", a.aliases);
-            spec_vals.push(format!("[aliases: {als}]"));
+            let als: Vec<_> = als.collect();
+            spec_vals.push(format!("[aliases: {}]", als.join(", ")));
         }
 
-        let als = a
+        let mut als = a
             .short_aliases
             .iter()
             .filter(|&als| als.1) // visible
             .map(|&als| format!("-{}", als.0)) // name
-            .collect::<Vec<_>>()
-            .join(", ");
-        if !als.is_empty() {
+            .peekable();
+        if als.peek().is_some() {
             debug!(
                 "HelpTemplate::spec_vals: Found short aliases...{:?}",
                 a.short_aliases
             );
-            spec_vals.push(format!("[short aliases: {als}]"));
+            let als: Vec<_> = als.collect();
+            spec_vals.push(format!("[short aliases: {}]", als.join(", ")));
         }
 
         if !a.is_hide_possible_values_set() && !self.use_long_pv(a) {
