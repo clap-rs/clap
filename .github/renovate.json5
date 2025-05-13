@@ -9,15 +9,15 @@
   customManagers: [
     {
       customType: 'regex',
-      fileMatch: [
-        '^rust-toolchain\\.toml$',
-        'Cargo.toml$',
-        'clippy.toml$',
-        '^Makefile$',
-        '^tests/derive_ui.rs$',
-        '\\.clippy.toml$',
-        '^\\.github/workflows/ci.yml$',
-        '^\\.github/workflows/rust-next.yml$',
+      managerFilePatterns: [
+        '/^rust-toolchain\\.toml$/',
+        '/Cargo.toml$/',
+        '/clippy.toml$/',
+        '/^Makefile$/',
+        '/^tests/derive_ui.rs$/',
+        '/\\.clippy.toml$/',
+        '/^\\.github/workflows/ci.yml$/',
+        '/^\\.github/workflows/rust-next.yml$/',
       ],
       matchStrings: [
         'STABLE.*?(?<currentValue>\\d+\\.\\d+(\\.\\d+)?)',
@@ -37,18 +37,12 @@
       matchDepNames: [
         'STABLE',
       ],
-      extractVersion: '^(?<version>\\d+\\.\\d+)',  // Drop the patch version
+      extractVersion: '^(?<version>\\d+\\.\\d+)',
       schedule: [
         '* * * * *',
       ],
       automerge: true,
     },
-    // Goals:
-    // - Keep version reqs low, ignoring compatible normal/build dependencies
-    // - Take advantage of latest dev-dependencies
-    // - Rollup safe upgrades to reduce CI runner load
-    // - Help keep number of versions down by always using latest breaking change
-    // - Have lockfile and manifest in-sync
     {
       matchManagers: [
         'cargo',
