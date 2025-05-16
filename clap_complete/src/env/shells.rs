@@ -370,7 +370,7 @@ function _clap_dynamic_completer_NAME() {
         _CLAP_IFS="$_CLAP_IFS" \
         _CLAP_COMPLETE_INDEX="$_CLAP_COMPLETE_INDEX" \
         VAR="zsh" \
-        COMPLETER -- ${words} 2>/dev/null \
+        COMPLETER -- "${words[@]}" 2>/dev/null \
     )}")
 
     if [[ -n $completions ]]; then
