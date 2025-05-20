@@ -3,22 +3,22 @@ repos:
     rev: v4.5.0
     hooks:
     - id: check-yaml
-      stages: [commit]
+      stages: [pre-commit]
     - id: check-json
-      stages: [commit]
+      stages: [pre-commit]
     - id: check-toml
-      stages: [commit]
+      stages: [pre-commit]
     - id: check-merge-conflict
-      stages: [commit]
+      stages: [pre-commit]
     - id: check-case-conflict
-      stages: [commit]
+      stages: [pre-commit]
     - id: detect-private-key
-      stages: [commit]
+      stages: [pre-commit]
   - repo: https://github.com/crate-ci/typos
     rev: v1.16.20
     hooks:
     - id: typos
-      stages: [commit]
+      stages: [pre-commit]
   - repo: https://github.com/crate-ci/committed
     rev: v1.0.20
     hooks:
