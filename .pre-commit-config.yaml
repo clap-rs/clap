@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v5.0.0
     hooks:
     - id: check-yaml
     - id: check-json
@@ -9,10 +9,10 @@ repos:
     - id: check-case-conflict
     - id: detect-private-key
   - repo: https://github.com/crate-ci/typos
-    rev: v1.16.20
+    rev: v1.32.0
     hooks:
     - id: typos
   - repo: https://github.com/crate-ci/committed
-    rev: v1.0.20
+    rev: v1.1.7
     hooks:
     - id: committed
