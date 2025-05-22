@@ -1,4 +1,4 @@
-use std::io::Write;
+use std::io::{Error, Write};
 
 use clap::builder::StyledStr;
 use clap::Command;
@@ -15,7 +15,7 @@ impl Generator for Elvish {
         format!("{name}.elv")
     }
 
-    fn generate(&self, cmd: &Command, buf: &mut dyn Write) {
+    fn try_generate(&self, cmd: &Command, buf: &mut dyn Write) -> Result<(), Error> {
         let bin_name = cmd
             .get_bin_name()
             .expect("crate::generate should have set the bin_name");
@@ -48,7 +48,6 @@ set edit:completion:arg-completer[{bin_name}] = {{|@words|
 }}
 "#,
         )
-        .expect("failed to write completion file");
     }
 }
 
