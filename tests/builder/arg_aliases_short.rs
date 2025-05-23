@@ -193,8 +193,8 @@ Some help
 Usage: ct test [OPTIONS]
 
 Options:
-  -o, --opt <opt>  [short aliases: -v]
-  -f, --flag       [aliases: --flag1] [short aliases: -a, -b, -🦆]
+  -o, --opt <opt>  [aliases: -v]
+  -f, --flag       [aliases: -a, -b, -🦆, --flag1]
   -h, --help       Print help
   -V, --version    Print version
 ";
