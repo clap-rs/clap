@@ -1,4 +1,7 @@
-use std::{fmt::Write as _, io::Write};
+use std::{
+    fmt::Write as _,
+    io::{Error, Write},
+};
 
 use clap::{Arg, Command, ValueHint};
 
@@ -13,7 +16,7 @@ impl Generator for Bash {
         format!("{name}.bash")
     }
 
-    fn generate(&self, cmd: &Command, buf: &mut dyn Write) {
+    fn try_generate(&self, cmd: &Command, buf: &mut dyn Write) -> Result<(), Error> {
         let bin_name = cmd
             .get_bin_name()
             .expect("crate::generate should have set the bin_name");
@@ -75,7 +78,7 @@ fi
             name_opts_details = option_details_for_path(cmd, bin_name),
             subcmds = all_subcommands(cmd, &fn_name),
             subcmd_details = subcommand_details(cmd)
-        ).expect("failed to write completion file");
+        )
     }
 }
 

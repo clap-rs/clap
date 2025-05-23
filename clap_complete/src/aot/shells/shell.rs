@@ -1,4 +1,5 @@
 use std::fmt::Display;
+use std::io::Error;
 use std::path::Path;
 use std::str::FromStr;
 
@@ -81,12 +82,17 @@ impl Generator for Shell {
     }
 
     fn generate(&self, cmd: &clap::Command, buf: &mut dyn std::io::Write) {
+        self.try_generate(cmd, buf)
+            .expect("failed to write completion file");
+    }
+
+    fn try_generate(&self, cmd: &clap::Command, buf: &mut dyn std::io::Write) -> Result<(), Error> {
         match self {
-            Shell::Bash => shells::Bash.generate(cmd, buf),
-            Shell::Elvish => shells::Elvish.generate(cmd, buf),
-            Shell::Fish => shells::Fish.generate(cmd, buf),
-            Shell::PowerShell => shells::PowerShell.generate(cmd, buf),
-            Shell::Zsh => shells::Zsh.generate(cmd, buf),
+            Shell::Bash => shells::Bash.try_generate(cmd, buf),
+            Shell::Elvish => shells::Elvish.try_generate(cmd, buf),
+            Shell::Fish => shells::Fish.try_generate(cmd, buf),
+            Shell::PowerShell => shells::PowerShell.try_generate(cmd, buf),
+            Shell::Zsh => shells::Zsh.try_generate(cmd, buf),
         }
     }
 }
