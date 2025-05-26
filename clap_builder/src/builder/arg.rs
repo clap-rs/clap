@@ -89,6 +89,7 @@ pub struct Arg {
     pub(crate) index: Option<usize>,
     pub(crate) help_heading: Option<Option<Str>>,
     pub(crate) ext: Extensions,
+    pub(crate) hide_unless_any: Vec<Id>,
 }
 
 /// # Basic API
@@ -2836,6 +2837,202 @@ impl Arg {
             self.unset_setting(ArgSettings::HiddenLongHelp)
         }
     }
+
+    /// Do not display the argument in help message as long as the specified argument is not
+    /// present at runtime.
+    ///
+    /// The specified argument must have action [`ArgAction::Help`], [`ArgAction::HelpShort`], or
+    /// [`ArgAction::HelpLong`].
+    ///
+    /// <div class="warning">
+    ///
+    /// **NOTE:** This does **not** hide the argument from usage strings on error
+    ///
+    /// </div>
+    ///
+    /// <div class="warning">
+    ///
+    /// **NOTE:** Help flags are not additive, i.e. if both `--help-one` and `--help-two` are
+    /// passed at runtime, only `--help-one` will be marked as present.
+    ///
+    /// </div>
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # #[cfg(feature = "help")] {
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, Arg, ArgAction};
+    /// let m = Command::new("prog")
+    ///     .arg(Arg::new("cfg")
+    ///         .long("config")
+    ///         .hide_unless_present("help_all")
+    ///         .help("Some help text describing the --config arg"))
+    ///     .arg(Arg::new("help_all")
+    ///         .long("help_all")
+    ///         .action(ArgAction::Help)
+    ///         .help("Show all flags"))
+    ///     .get_matches_from(vec![
+    ///         "prog", "--help"
+    ///     ]);
+    /// # }
+    /// ```
+    ///
+    /// The above example displays
+    ///
+    /// ```text
+    /// helptest
+    ///
+    /// Usage: helptest [OPTIONS]
+    ///
+    /// Options:
+    ///     --help_all   Print help information for all flags
+    /// -h, --help       Print help information
+    /// -V, --version    Print version information
+    /// ```
+    ///
+    /// However, when `--help_all` is called
+    ///
+    /// ```rust
+    /// # #[cfg(feature = "help")] {
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, Arg, ArgAction};
+    /// let m = Command::new("prog")
+    ///     .arg(Arg::new("cfg")
+    ///         .long("config")
+    ///         .hide_unless_present("help_all")
+    ///         .help("Some help text describing the --config arg"))
+    ///     .arg(Arg::new("help_all")
+    ///         .long("help_all")
+    ///         .action(ArgAction::Help)
+    ///         .help("Print help information for all flags"))
+    ///     .get_matches_from(vec![
+    ///         "prog", "--help_all"
+    ///     ]);
+    /// # }
+    /// ```
+    ///
+    /// The above example displays
+    ///
+    /// ```text
+    /// helptest
+    ///
+    /// Usage: helptest [OPTIONS]
+    ///
+    /// Options:
+    ///     --config     Some help text describing the --config arg
+    ///     --help_all   Print help information for all flags
+    /// -h, --help       Print help information
+    /// -V, --version    Print version information
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn hide_unless_present(mut self, arg_id: impl IntoResettable<Id>) -> Self {
+        if let Some(arg_id) = arg_id.into_resettable().into_option() {
+            self.hide_unless_any.push(arg_id);
+        } else {
+            self.hide_unless_any.clear();
+        }
+        self
+    }
+
+    /// Do not display the argument in help message unless *any* of the specified arguments are
+    /// present at runtime.
+    ///
+    /// The specified arguments must have action [`ArgAction::Help`], [`ArgAction::HelpShort`], or
+    /// [`ArgAction::HelpLong`].
+    ///
+    /// <div class="warning">
+    ///
+    /// **NOTE:** This does **not** hide the argument from usage strings on error
+    ///
+    /// </div>
+    ///
+    /// <div class="warning">
+    ///
+    /// **NOTE:** Help flags are not additive, i.e. if both `--help-one` and `--help-two` are
+    /// passed at runtime, only `--help-one` will be marked as present.
+    ///
+    /// </div>
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # #[cfg(feature = "help")] {
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, Arg, ArgAction};
+    /// let m = Command::new("prog")
+    ///     .arg(Arg::new("cfg")
+    ///         .long("config")
+    ///         .hide_unless_present_any(["help_all"])
+    ///         .help("Some help text describing the --config arg"))
+    ///     .arg(Arg::new("help_all")
+    ///         .long("help_all")
+    ///         .action(ArgAction::Help)
+    ///         .help("Show all flags"))
+    ///     .get_matches_from(vec![
+    ///         "prog", "--help"
+    ///     ]);
+    /// # }
+    /// ```
+    ///
+    /// The above example displays
+    ///
+    /// ```text
+    /// helptest
+    ///
+    /// Usage: helptest [OPTIONS]
+    ///
+    /// Options:
+    ///     --help_all   Print help information for all flags
+    /// -h, --help       Print help information
+    /// -V, --version    Print version information
+    /// ```
+    ///
+    /// However, when `--help_all` is called
+    ///
+    /// ```rust
+    /// # #[cfg(feature = "help")] {
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, Arg, ArgAction};
+    /// let m = Command::new("prog")
+    ///     .arg(Arg::new("cfg")
+    ///         .long("config")
+    ///         .hide_unless_present_any(["help_all"])
+    ///         .help("Some help text describing the --config arg"))
+    ///     .arg(Arg::new("help_all")
+    ///         .long("help_all")
+    ///         .action(ArgAction::Help)
+    ///         .help("Print help information for all flags"))
+    ///     .get_matches_from(vec![
+    ///         "prog", "--help_all"
+    ///     ]);
+    /// # }
+    /// ```
+    ///
+    /// The above example displays
+    ///
+    /// ```text
+    /// helptest
+    ///
+    /// Usage: helptest [OPTIONS]
+    ///
+    /// Options:
+    ///     --config     Some help text describing the --config arg
+    ///     --help_all   Print help information for all flags
+    /// -h, --help       Print help information
+    /// -V, --version    Print version information
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn hide_unless_present_any(
+        mut self,
+        names: impl IntoIterator<Item = impl Into<Id>>,
+    ) -> Self {
+        self.hide_unless_any
+            .extend(names.into_iter().map(Into::into));
+        self
+    }
 }
 
 /// # Advanced Argument Relations
@@ -4743,7 +4940,8 @@ impl fmt::Debug for Arg {
             .field("index", &self.index)
             .field("help_heading", &self.help_heading)
             .field("default_missing_vals", &self.default_missing_vals)
-            .field("ext", &self.ext);
+            .field("ext", &self.ext)
+            .field("hide_unless_any", &self.hide_unless_any);
 
         #[cfg(feature = "env")]
         {

@@ -4043,3 +4043,61 @@ Mixed:
 "#]];
     utils::assert_output(cmd, "myprog --help", expected, false);
 }
+
+#[test]
+fn hide_unless_present() {
+    let cmd = Command::new("test")
+        .version("0.1")
+        .arg(
+            arg!(-A --advanced "Use advanced features")
+                .action(ArgAction::SetTrue)
+                .hide_unless_present_any(["help_all"]),
+        )
+        .arg(
+            arg!(-U --uber "Use uber advanced features")
+                .action(ArgAction::SetTrue)
+                .hide_unless_present("help_all")
+                .hide_unless_present("help_more"),
+        )
+        .arg(arg!(-H --help_all "Print help with all flags").action(ArgAction::Help))
+        .arg(arg!(--help_more "Print help with more flags").action(ArgAction::HelpLong));
+
+    let expected = str![[r#"
+Usage: test [OPTIONS]
+
+Options:
+  -H, --help_all   Print help with all flags
+      --help_more  Print help with more flags
+  -h, --help       Print help
+  -V, --version    Print version
+
+"#]];
+    utils::assert_output(cmd.clone(), "test --help", expected, false);
+
+    let expected = str![[r#"
+Usage: test [OPTIONS]
+
+Options:
+  -A, --advanced   Use advanced features
+  -U, --uber       Use uber advanced features
+  -H, --help_all   Print help with all flags
+      --help_more  Print help with more flags
+  -h, --help       Print help
+  -V, --version    Print version
+
+"#]];
+    utils::assert_output(cmd.clone(), "test -H", expected, false);
+
+    let expected = str![[r#"
+Usage: test [OPTIONS]
+
+Options:
+  -U, --uber       Use uber advanced features
+  -H, --help_all   Print help with all flags
+      --help_more  Print help with more flags
+  -h, --help       Print help
+  -V, --version    Print version
+
+"#]];
+    utils::assert_output(cmd, "test --help_more -H", expected, false);
+}

@@ -237,6 +237,24 @@ pub(crate) fn assert_app(cmd: &Command) {
             );
         }
 
+        for req in &arg.hide_unless_any {
+            assert!(
+                cmd.id_exists(req),
+                "Command {}: Argument or group '{}' specified in 'hide_unless_present_any' for '{}' does not exist",
+                    cmd.get_name(),
+                req,
+                arg.get_id(),
+            );
+            assert!(
+                matches!(
+                    cmd.find(req).unwrap().get_action(),
+                    ArgAction::Help | ArgAction::HelpShort | ArgAction::HelpLong
+                ),
+                "Argument {}: Argument '{}' specified in `hide_unless_present_any` has action '{:?}', but must be one of `ArgAction::Help`, `ArgAction::HelpShort`, or `ArgAction::HelpLong`",
+                arg.get_id(), req, arg.get_action()
+            );
+        }
+
         if arg.is_last_set() {
             assert!(
                 arg.get_long().is_none(),
