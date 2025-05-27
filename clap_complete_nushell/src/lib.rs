@@ -36,6 +36,15 @@ impl Generator for Nushell {
     }
 
     fn generate(&self, cmd: &Command, buf: &mut dyn std::io::Write) {
+        self.try_generate(cmd, buf)
+            .expect("failed to write completion file");
+    }
+
+    fn try_generate(
+        &self,
+        cmd: &Command,
+        buf: &mut dyn std::io::Write,
+    ) -> Result<(), std::io::Error> {
         let mut completions = String::new();
 
         completions.push_str("module completions {\n\n");
@@ -50,7 +59,6 @@ impl Generator for Nushell {
         completions.push_str("export use completions *\n");
 
         buf.write_all(completions.as_bytes())
-            .expect("Failed to write to generated file");
     }
 }
 

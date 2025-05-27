@@ -1,4 +1,4 @@
-use std::io::Write;
+use std::io::{Error, Write};
 
 use clap::builder::StyledStr;
 use clap::{Arg, Command};
@@ -16,6 +16,11 @@ impl Generator for PowerShell {
     }
 
     fn generate(&self, cmd: &Command, buf: &mut dyn Write) {
+        self.try_generate(cmd, buf)
+            .expect("failed to write completion file");
+    }
+
+    fn try_generate(&self, cmd: &Command, buf: &mut dyn Write) -> Result<(), Error> {
         let bin_name = cmd
             .get_bin_name()
             .expect("crate::generate should have set the bin_name");
@@ -53,7 +58,6 @@ Register-ArgumentCompleter -Native -CommandName '{bin_name}' -ScriptBlock {{
 }}
 "#
         )
-        .expect("failed to write completion file");
     }
 }
 
