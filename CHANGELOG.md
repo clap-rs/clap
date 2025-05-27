@@ -22,6 +22,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(help)* Show short flag aliases before long
+- *(help)* Merge the short and long flag alias lists
+
 ## [4.5.38] - 2025-05-11
 
 ### Fixes
