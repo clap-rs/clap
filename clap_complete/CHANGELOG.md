@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(aot)* Add `Generator::try_generate`
+
 ## [4.5.50] - 2025-05-06
 
 ### Fixes
