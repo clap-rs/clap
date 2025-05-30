@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(aot/zsh)* Fix handling of completing between spaces
+
 ## [4.5.51] - 2025-05-27
 
 ### Features
