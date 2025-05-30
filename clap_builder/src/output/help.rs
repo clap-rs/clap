@@ -4,9 +4,16 @@
 use crate::builder::Command;
 use crate::builder::StyledStr;
 use crate::output::Usage;
+use crate::Id;
 
 /// Writes the parser help to the wrapped stream.
-pub(crate) fn write_help(writer: &mut StyledStr, cmd: &Command, usage: &Usage<'_>, use_long: bool) {
+pub(crate) fn write_help(
+    writer: &mut StyledStr,
+    cmd: &Command,
+    usage: &Usage<'_>,
+    use_long: bool,
+    help_arg_id: Option<&Id>,
+) {
     debug!("write_help");
 
     if let Some(h) = cmd.get_override_help() {
@@ -17,10 +24,10 @@ pub(crate) fn write_help(writer: &mut StyledStr, cmd: &Command, usage: &Usage<'_
             use super::AutoHelp;
             use super::HelpTemplate;
             if let Some(tmpl) = cmd.get_help_template() {
-                HelpTemplate::new(writer, cmd, usage, use_long)
+                HelpTemplate::new(writer, cmd, usage, use_long, help_arg_id)
                     .write_templated_help(tmpl.as_styled_str());
             } else {
-                AutoHelp::new(writer, cmd, usage, use_long).write_help();
+                AutoHelp::new(writer, cmd, usage, use_long, help_arg_id).write_help();
             }
         }
 

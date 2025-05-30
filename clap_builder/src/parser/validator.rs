@@ -32,7 +32,7 @@ impl<'cmd> Validator<'cmd> {
                 .filter(|(_, matched)| matched.check_explicit(&ArgPredicate::IsPresent))
                 .count();
             if num_user_values == 0 {
-                let message = self.cmd.write_help_err(false);
+                let message = self.cmd.write_help_err(false, None);
                 return Err(Error::display_help_error(self.cmd, message));
             }
         }

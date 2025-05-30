@@ -876,7 +876,7 @@ impl Command {
 
         let mut styled = StyledStr::new();
         let usage = Usage::new(self);
-        write_help(&mut styled, self, &usage, false);
+        write_help(&mut styled, self, &usage, false, None);
 
         let c = Colorizer::new(Stream::Stdout, color).with_content(styled);
         c.print()
@@ -904,7 +904,7 @@ impl Command {
 
         let mut styled = StyledStr::new();
         let usage = Usage::new(self);
-        write_help(&mut styled, self, &usage, true);
+        write_help(&mut styled, self, &usage, true, None);
 
         let c = Colorizer::new(Stream::Stdout, color).with_content(styled);
         c.print()
@@ -933,7 +933,7 @@ impl Command {
 
         let mut styled = StyledStr::new();
         let usage = Usage::new(self);
-        write_help(&mut styled, self, &usage, false);
+        write_help(&mut styled, self, &usage, false, None);
         styled
     }
 
@@ -960,7 +960,7 @@ impl Command {
 
         let mut styled = StyledStr::new();
         let usage = Usage::new(self);
-        write_help(&mut styled, self, &usage, true);
+        write_help(&mut styled, self, &usage, true, None);
         styled
     }
 
@@ -974,7 +974,7 @@ impl Command {
 
         let mut styled = StyledStr::new();
         let usage = Usage::new(self);
-        write_help(&mut styled, self, &usage, false);
+        write_help(&mut styled, self, &usage, false, None);
         ok!(write!(w, "{styled}"));
         w.flush()
     }
@@ -989,7 +989,7 @@ impl Command {
 
         let mut styled = StyledStr::new();
         let usage = Usage::new(self);
-        write_help(&mut styled, self, &usage, true);
+        write_help(&mut styled, self, &usage, true, None);
         ok!(write!(w, "{styled}"));
         w.flush()
     }
@@ -5033,7 +5033,7 @@ impl Command {
             .map(|sc| sc.get_name())
     }
 
-    pub(crate) fn write_help_err(&self, mut use_long: bool) -> StyledStr {
+    pub(crate) fn write_help_err(&self, mut use_long: bool, help_arg_id: Option<&Id>) -> StyledStr {
         debug!(
             "Command::write_help_err: {}, use_long={:?}",
             self.get_display_name().unwrap_or_else(|| self.get_name()),
@@ -5044,7 +5044,7 @@ impl Command {
         let usage = Usage::new(self);
 
         let mut styled = StyledStr::new();
-        write_help(&mut styled, self, &usage, use_long);
+        write_help(&mut styled, self, &usage, use_long, help_arg_id);
 
         styled
     }

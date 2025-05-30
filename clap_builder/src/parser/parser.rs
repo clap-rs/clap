@@ -672,7 +672,7 @@ impl<'cmd> Parser<'cmd> {
         };
         let parser = Parser::new(sc);
 
-        Err(parser.help_err(true))
+        Err(parser.help_err(true, None))
     }
 
     fn is_new_arg(&self, next: &clap_lex::ParsedArg<'_>, current_positional: &Arg) -> bool {
@@ -1299,17 +1299,17 @@ impl<'cmd> Parser<'cmd> {
                     None => true,
                 };
                 debug!("Help: use_long={use_long}");
-                Err(self.help_err(use_long))
+                Err(self.help_err(use_long, Some(arg.get_id())))
             }
             ArgAction::HelpShort => {
                 let use_long = false;
                 debug!("Help: use_long={use_long}");
-                Err(self.help_err(use_long))
+                Err(self.help_err(use_long, Some(arg.get_id())))
             }
             ArgAction::HelpLong => {
                 let use_long = true;
                 debug!("Help: use_long={use_long}");
-                Err(self.help_err(use_long))
+                Err(self.help_err(use_long, Some(arg.get_id())))
             }
             ArgAction::Version => {
                 let use_long = match ident {
@@ -1612,8 +1612,8 @@ impl Parser<'_> {
         )
     }
 
-    fn help_err(&self, use_long: bool) -> ClapError {
-        let styled = self.cmd.write_help_err(use_long);
+    fn help_err(&self, use_long: bool, help_arg_id: Option<&Id>) -> ClapError {
+        let styled = self.cmd.write_help_err(use_long, help_arg_id);
         ClapError::display_help(self.cmd, styled)
     }
 
