@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.52] - 2025-05-30
+
 ### Features
 
 - *(aot/zsh)* Fix handling of completing between spaces
@@ -566,7 +568,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.51...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.52...HEAD
+[4.5.52]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.51...clap_complete-v4.5.52
 [4.5.51]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.50...clap_complete-v4.5.51
 [4.5.50]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.49...clap_complete-v4.5.50
 [4.5.49]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.48...clap_complete-v4.5.49
