@@ -7,7 +7,7 @@ function _clap_dynamic_completer_exhaustive() {
         _CLAP_IFS="$_CLAP_IFS" \
         _CLAP_COMPLETE_INDEX="$_CLAP_COMPLETE_INDEX" \
         COMPLETE="zsh" \
-        exhaustive -- ${words} 2>/dev/null \
+        exhaustive -- "${words[@]}" 2>/dev/null \
     )}")
 
     if [[ -n $completions ]]; then
