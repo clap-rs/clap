@@ -347,3 +347,7 @@ fn app_has_arguments(cmd: &clap::Command) -> bool {
 fn app_has_subcommands(cmd: &clap::Command) -> bool {
     cmd.get_subcommands().any(|i| !i.is_hide_set())
 }
+
+#[doc = include_str!("../README.md")]
+#[cfg(doctest)]
+pub struct ReadmeDoctests;
