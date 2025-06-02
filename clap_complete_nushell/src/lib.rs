@@ -235,3 +235,7 @@ fn generate_completion(completions: &mut String, cmd: &Command, is_subcommand: b
 fn single_line_styled_str(text: &StyledStr) -> String {
     text.to_string().replace('\n', " ")
 }
+
+#[doc = include_str!("../README.md")]
+#[cfg(doctest)]
+pub struct ReadmeDoctests;

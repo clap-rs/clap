@@ -106,3 +106,7 @@ pub use aot::generate_to;
 pub use aot::Generator;
 /// Deprecated, see [`aot::Shell`]
 pub use aot::Shell;
+
+#[doc = include_str!("../README.md")]
+#[cfg(doctest)]
+pub struct ReadmeDoctests;
