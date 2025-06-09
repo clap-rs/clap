@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.7] - 2025-06-09
+
 ## [4.5.6] - 2025-05-27
 
 ## [4.5.5] - 2025-01-02
@@ -54,7 +56,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [4.3.0] - 2023-05-24
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.5.6...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.5.7...HEAD
+[4.5.7]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.5.6...clap_complete_nushell-v4.5.7
 [4.5.6]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.5.5...clap_complete_nushell-v4.5.6
 [4.5.5]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.5.4...clap_complete_nushell-v4.5.5
 [4.5.4]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.5.3...clap_complete_nushell-v4.5.4
