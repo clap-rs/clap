@@ -353,7 +353,11 @@ fn get_args_of(parent: &Command, p_global: Option<&Command>) -> String {
 
         let subcommand_text = format!("\"*::: :->{name}\" \\", name = parent.get_name());
         segments.push(subcommand_text);
-    };
+    } else if parent.is_allow_external_subcommands_set() {
+        // If the command has an external subcommand value parser, we need to
+        // add a catch-all for the subcommand. Otherwise there would be no autocompletion whatsoever.
+        segments.push(String::from("\"*::external_command:_default\" \\"));
+    }
 
     segments.push(String::from("&& ret=0"));
     segments.join("\n")

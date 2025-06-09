@@ -30,6 +30,7 @@ _my-app() {
 _arguments "${_arguments_options[@]}" : \
 '-h[Print help]' \
 '--help[Print help]' \
+"*::external_command:_default" \
 && ret=0
 ;;
 (help)
