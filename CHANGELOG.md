@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Support quoted ids in `arg!()` macro (e.g. `arg!("check-config": ...)`)
+
 ## [4.5.39] - 2025-05-27
 
 ### Fixes
