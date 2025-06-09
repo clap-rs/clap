@@ -75,6 +75,15 @@ pub(crate) fn special_commands_command(name: &'static str) -> clap::Command {
         .subcommand(clap::Command::new("some-hidden-cmd").hide(true))
 }
 
+pub(crate) fn external_subcommand(name: &'static str) -> clap::Command {
+	clap::Command::new(name)
+		.subcommand(
+			clap::Command::new("external")
+				.allow_external_subcommands(true)
+				.about("An external subcommand")
+		)
+}
+
 pub(crate) fn quoting_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .version("3.0")

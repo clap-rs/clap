@@ -73,6 +73,18 @@ fn sub_subcommands() {
 }
 
 #[test]
+fn external_subcommands() {
+    let name = "my-app";
+    let cmd = common::external_subcommand(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/external_subcommands.ps1"],
+        clap_complete::shells::PowerShell,
+        cmd,
+        name,
+    );
+}
+
+#[test]
 fn custom_bin_name() {
     let name = "my-app";
     let bin_name = "bin-name";
