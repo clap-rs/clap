@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(aot/zsh)* Revert to the default completions for external subcommands
+
 ## [4.5.53] - 2025-06-09
 
 ## [4.5.52] - 2025-05-30
