@@ -5,6 +5,7 @@ pub(crate) mod flat_map;
 pub(crate) mod flat_set;
 mod graph;
 mod id;
+pub mod locale;
 mod str_to_bool;
 
 pub use self::id::Id;

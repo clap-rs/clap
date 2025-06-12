@@ -163,6 +163,7 @@ std = ["clap_builder/std"] # support for no_std in a backwards-compatible way
 color = ["clap_builder/color"]
 help = ["clap_builder/help"]
 usage = ["clap_builder/usage"]
+i18n = ["clap_builder/i18n"]
 error-context = ["clap_builder/error-context"]
 suggestions = ["clap_builder/suggestions"]
 

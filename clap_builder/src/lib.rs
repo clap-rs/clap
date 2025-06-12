@@ -43,7 +43,7 @@ pub mod parser;
 
 mod mkeymap;
 mod output;
-mod util;
+pub mod util;
 
 const INTERNAL_ERROR_MSG: &str = "Fatal internal error. Please consider filing a bug \
                                   report at https://github.com/clap-rs/clap/issues";
