@@ -30,6 +30,9 @@ use crate::util::ChildGraph;
 use crate::util::{color::ColorChoice, Id};
 use crate::{Error, INTERNAL_ERROR_MSG};
 
+// Localization imports
+use crate::{msg, msg_args};
+
 #[cfg(debug_assertions)]
 use crate::builder::debug_asserts::assert_app;
 
@@ -246,10 +249,16 @@ impl Command {
         F: FnOnce(Arg) -> Arg,
     {
         let id = arg_id.as_ref();
-        let a = self
-            .args
-            .remove_by_name(id)
-            .unwrap_or_else(|| panic!("Argument `{id}` is undefined"));
+        let a = self.args.remove_by_name(id).unwrap_or_else(|| {
+            panic!(
+                "{}",
+                msg_args!(
+                    "clap-error-arg-undefined",
+                    "Argument `{id}` is undefined",
+                    "id" => id
+                )
+            )
+        });
 
         self.args.push(f(a));
         self
@@ -334,7 +343,16 @@ impl Command {
             .groups
             .iter()
             .position(|g| g.get_id() == id)
-            .unwrap_or_else(|| panic!("Group `{id}` is undefined"));
+            .unwrap_or_else(|| {
+                panic!(
+                    "{}",
+                    msg_args!(
+                        "clap-error-group-undefined",
+                        "Group `{id}` is undefined",
+                        "id" => id
+                    )
+                )
+            });
         let a = self.groups.remove(index);
 
         self.groups.push(f(a));
@@ -379,7 +397,14 @@ impl Command {
         let subcmd = if let Some(idx) = pos {
             self.subcommands.remove(idx)
         } else {
-            panic!("Command `{name}` is undefined")
+            panic!(
+                "{}",
+                msg_args!(
+                    "clap-error-command-undefined",
+                    "Command `{name}` is undefined",
+                    "name" => name
+                )
+            );
         };
 
         self.subcommands.push(f(subcmd));
@@ -4396,6 +4421,13 @@ impl Command {
                 }
             }
 
+            #[cfg(feature = "i18n")]
+            {
+                if let Err(err) = crate::util::locale::setup_localization("clap") {
+                    eprintln!("Failed to set up localization: {err}");
+                }
+            }
+
             #[cfg(debug_assertions)]
             assert_app(self);
             self.settings.set(AppSettings::Built);
@@ -4722,10 +4754,16 @@ impl Command {
                 .action(ArgAction::Help);
             if self.long_help_exists {
                 arg = arg
-                    .help("Print help (see more with '--help')")
-                    .long_help("Print help (see a summary with '-h')");
+                    .help(msg!(
+                        "help-short-help",
+                        "Print help (see more with '--help')"
+                    ))
+                    .long_help(msg!(
+                        "help-long-help",
+                        "Print help (see a summary with '-h')"
+                    ));
             } else {
-                arg = arg.help("Print help");
+                arg = arg.help(msg!("print-help", "Print help"));
             }
             // Avoiding `arg_internal` to not be sensitive to `next_help_heading` /
             // `next_display_order`
@@ -4737,7 +4775,8 @@ impl Command {
                 .short('V')
                 .long("version")
                 .action(ArgAction::Version)
-                .help("Print version");
+                .help(msg!("print-version", "Print version"));
+
             // Avoiding `arg_internal` to not be sensitive to `next_help_heading` /
             // `next_display_order`
             self.args.push(arg);
@@ -4745,16 +4784,19 @@ impl Command {
 
         if !self.is_set(AppSettings::DisableHelpSubcommand) {
             debug!("Command::_check_help_and_version: Building help subcommand");
-            let help_about = "Print this message or the help of the given subcommand(s)";
+            let help_about = msg!(
+                "clap-print-help",
+                "Print this message or the help of the given subcommand(s)"
+            );
 
             let mut help_subcmd = if expand_help_tree {
                 // Slow code path to recursively clone all other subcommand subtrees under help
                 let help_subcmd = Command::new("help")
-                    .about(help_about)
+                    .about(&help_about)
                     .global_setting(AppSettings::DisableHelpSubcommand)
                     .subcommands(self.get_subcommands().map(Command::_copy_subtree_for_help));
 
-                let mut help_help_subcmd = Command::new("help").about(help_about);
+                let mut help_help_subcmd = Command::new("help").about(&help_about);
                 help_help_subcmd.version = None;
                 help_help_subcmd.long_version = None;
                 help_help_subcmd = help_help_subcmd
@@ -4763,12 +4805,15 @@ impl Command {
 
                 help_subcmd.subcommand(help_help_subcmd)
             } else {
-                Command::new("help").about(help_about).arg(
+                Command::new("help").about(&help_about).arg(
                     Arg::new("subcommand")
                         .action(ArgAction::Append)
                         .num_args(..)
                         .value_name("COMMAND")
-                        .help("Print help for the subcommand(s)"),
+                        .help(msg!(
+                            "print-help-subcommand",
+                            "Print help for the subcommand(s)"
+                        )),
                 )
             };
             self._propagate_subcommand(&mut help_subcmd);

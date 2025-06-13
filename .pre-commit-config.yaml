@@ -2,6 +2,7 @@ exclude: |
   (?x)^(
     tests/.*|
     CHANGELOG.md
+    clap_builder/locales/.*
   )$
 default_install_hook_types: ["pre-commit", "commit-msg"]
 repos:
