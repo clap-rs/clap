@@ -34,7 +34,7 @@ jobs:
     name: Test
     strategy:
       matrix:
-        build: [linux, windows, mac, minimal, default, next]
+        build: [linux, windows, mac, minimal, default, next, i18n]
         include:
         - build: linux
           os: buildjet-8vcpu-ubuntu-2204
@@ -60,6 +60,10 @@ jobs:
           os: buildjet-8vcpu-ubuntu-2204
           rust: "stable"
           features: "next"
+        - build: i18n
+          os: buildjet-8vcpu-ubuntu-2204
+          rust: "stable"
+          features: "i18n"
     continue-on-error: ${{ matrix.rust != 'stable' }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -70,6 +74,11 @@ jobs:
       with:
         toolchain: ${{ matrix.rust }}
     - uses: Swatinem/rust-cache@v2
+    - name: Setup locales for i18n testing
+      if: matrix.build == 'i18n' && runner.os == 'Linux'
+      run: |
+        sudo locale-gen --keep-existing fr_FR
+        sudo locale-gen --keep-existing ja_JP
     - name: Build
       run: make build-${{matrix.features}}
     - name: Test
