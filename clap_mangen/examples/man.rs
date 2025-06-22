@@ -34,5 +34,7 @@ And a few newlines.",
                 .arg(arg!(-l --list "Lists test values")),
         );
 
-    Man::new(cmd).render(&mut io::stdout())
+    Man::new(cmd)
+        .copyright("Copyright © 2025 Copyright Holder")
+        .render(&mut io::stdout())
 }

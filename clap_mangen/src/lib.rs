@@ -20,6 +20,7 @@ pub struct Man {
     title: String,
     section: String,
     date: String,
+    copyright: Option<String>,
     source: String,
     manual: String,
 }
@@ -35,6 +36,7 @@ impl Man {
             .to_owned();
         let section = "1".to_owned();
         let date = "".to_owned();
+        let copyright = None;
         let source = format!(
             "{} {}",
             cmd.get_name(),
@@ -46,6 +48,7 @@ impl Man {
             title,
             section,
             date,
+            copyright,
             source,
             manual,
         }
@@ -79,6 +82,12 @@ impl Man {
     /// Dates should be written in the form `YYYY-MM-DD`.
     pub fn date(mut self, date: impl Into<String>) -> Self {
         self.date = date.into();
+        self
+    }
+
+    /// Set a copyright
+    pub fn copyright(mut self, copyright: impl Into<String>) -> Self {
+        self.copyright = Some(copyright.into());
         self
     }
 
@@ -173,6 +182,10 @@ impl Man {
 
         if self.cmd.get_author().is_some() {
             self._render_authors_section(&mut roff);
+        }
+
+        if self.copyright.is_some() {
+            self._render_copyright_section(&mut roff);
         }
 
         roff.to_writer(w)
@@ -328,6 +341,12 @@ impl Man {
         let author = roman(self.cmd.get_author().unwrap_or_default());
         roff.control("SH", ["AUTHORS"]);
         roff.text([author]);
+    }
+
+    fn _render_copyright_section(&self, roff: &mut Roff) {
+        let copyright = roman(self.copyright.clone().unwrap_or_default());
+        roff.control("SH", ["COPYRIGHT"]);
+        roff.text([copyright]);
     }
 }
 
