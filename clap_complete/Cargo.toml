@@ -17,7 +17,7 @@ include.workspace = true
 
 [package.metadata.docs.rs]
 features = ["unstable-doc"]
-rustdoc-args = ["--cfg", "docsrs", "--generate-link-to-definition"]
+rustdoc-args = ["--generate-link-to-definition"]
 cargo-args = ["-Zunstable-options", "-Zrustdoc-scrape-examples"]
 
 [package.metadata.release]
