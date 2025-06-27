@@ -10,10 +10,10 @@ use std::collections::BTreeMap;
 
 // Internal
 use crate::builder::PossibleValue;
-use crate::builder::Str;
 use crate::builder::StyledStr;
 use crate::builder::Styles;
 use crate::builder::{Arg, Command};
+use crate::msg;
 use crate::output::display_width;
 use crate::output::wrap;
 use crate::output::Usage;
@@ -201,8 +201,9 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                     "usage-heading" => {
                         let _ = write!(
                             self.writer,
-                            "{}Usage:{}",
+                            "{}{}:{}",
                             self.styles.get_usage().render(),
+                            msg!("usage-header", "Usage"),
                             self.styles.get_usage().render_reset()
                         );
                     }
@@ -404,7 +405,7 @@ impl HelpTemplate<'_, '_> {
                 self.writer.push_str("\n\n");
             }
             first = false;
-            let default_help_heading = Str::from("Commands");
+            let default_help_heading = msg!("help-commands", "Commands");
             let help_heading = self
                 .cmd
                 .get_subcommand_help_heading()

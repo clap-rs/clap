@@ -355,6 +355,10 @@ fn version_required() {
 #[test]
 #[should_panic = "Argument `version` is undefined"]
 fn mut_arg_version_no_auto_version() {
+
+    if let Err(err) = clap::util::locale::setup_localization("clap") {
+        eprintln!("Failed to set up localization: {err}");
+    }
     let _ = common().mut_arg("version", |v| v.short('z').action(ArgAction::SetTrue));
 }
 

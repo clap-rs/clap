@@ -13,7 +13,9 @@ use crate::util::ChildGraph;
 use crate::util::FlatSet;
 use crate::util::Id;
 
-static DEFAULT_SUB_VALUE_NAME: &str = "COMMAND";
+// Localization macros
+use crate::msg;
+
 const USAGE_SEP: &str = "\n       ";
 
 pub(crate) struct Usage<'cmd> {
@@ -44,8 +46,9 @@ impl<'cmd> Usage<'cmd> {
         let mut styled = StyledStr::new();
         let _ = write!(
             styled,
-            "{}Usage:{} ",
+            "{}{}:{} ",
             self.styles.get_usage().render(),
+            msg!("usage-header", "Usage"),
             self.styles.get_usage().render_reset()
         );
         if self.write_usage_no_title(&mut styled, used) {
@@ -140,10 +143,11 @@ impl Usage<'_> {
         self.write_arg_usage(styled, used, true);
 
         if self.cmd.is_subcommand_required_set() {
+            let default_subcommand = msg!("usage-default-subcommand", "COMMAND");
             let value_name = self
                 .cmd
                 .get_subcommand_value_name()
-                .unwrap_or(DEFAULT_SUB_VALUE_NAME);
+                .unwrap_or(&default_subcommand);
             let _ = write!(styled, "{placeholder}<{value_name}>{placeholder:#}",);
         }
     }
@@ -161,7 +165,11 @@ impl Usage<'_> {
         }
 
         if used.is_empty() && self.needs_options_tag() {
-            let _ = write!(styled, "{placeholder}[OPTIONS]{placeholder:#} ",);
+            let _ = write!(
+                styled,
+                "{placeholder}[{}]{placeholder:#} ",
+                msg!("usage-options", "OPTIONS")
+            );
         }
 
         self.write_args(styled, used, !incl_reqs);
@@ -175,10 +183,11 @@ impl Usage<'_> {
         if self.cmd.has_visible_subcommands() || self.cmd.is_allow_external_subcommands_set() {
             let literal = &self.styles.get_literal();
             let placeholder = &self.styles.get_placeholder();
+            let default_subcommand = msg!("usage-default-subcommand", "COMMAND");
             let value_name = self
                 .cmd
                 .get_subcommand_value_name()
-                .unwrap_or(DEFAULT_SUB_VALUE_NAME);
+                .unwrap_or(&default_subcommand);
             if self.cmd.is_subcommand_negates_reqs_set()
                 || self.cmd.is_args_conflicts_with_subcommands_set()
             {
