@@ -343,16 +343,16 @@ impl<'cmd> Validator<'cmd> {
 
     fn is_missing_required_ok(&self, a: &Arg, conflicts: &Conflicts) -> bool {
         debug!("Validator::is_missing_required_ok: {}", a.get_id());
-        
+
         // If this argument is conditionally required (i.e., required by other present arguments
-        // through the 'requires' relationship), it's NOT OK for it to be missing, even if it 
-        // conflicts with other arguments. However, directly required arguments (marked as 
+        // through the 'requires' relationship), it's NOT OK for it to be missing, even if it
+        // conflicts with other arguments. However, directly required arguments (marked as
         // required(true)) can still be bypassed by conflicts.
         if self.required.contains(a.get_id()) && !a.is_required_set() {
             debug!("Validator::is_missing_required_ok: false (conditionally required)");
             return false;
         }
-        
+
         if !conflicts.gather_conflicts(self.cmd, a.get_id()).is_empty() {
             debug!("Validator::is_missing_required_ok: true (self)");
             return true;
