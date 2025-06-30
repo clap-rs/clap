@@ -21,7 +21,9 @@ use syn::DeriveInput;
 use syn::{self, ext::IdentExt, spanned::Spanned, Attribute, Field, Ident, LitStr, Type, Variant};
 
 use crate::attr::{AttrKind, AttrValue, ClapAttr, MagicAttrName};
-use crate::utils::{extract_doc_comment, format_doc_comment, inner_type, is_simple_ty, Sp, Ty};
+use crate::utils::{
+    extract_doc_comment, format_doc_comment, inner_type, is_simple_ty, DefaultField, Sp, Ty,
+};
 
 /// Default casing style for generated arguments.
 pub(crate) const DEFAULT_CASING: CasingStyle = CasingStyle::Kebab;
@@ -204,16 +206,35 @@ impl Item {
         let name = field.ident.clone().unwrap();
         let ident = field.ident.clone().unwrap();
         let span = field.span();
-        let ty = Ty::from_syn_ty(&field.ty);
+        let default_field = DefaultField::from_field_type(field.ty.clone());
+        let ty = Ty::from_syn_ty(&default_field.ty);
         let kind = Sp::new(Kind::Arg(ty), span);
+        let default_value_method = if let Some((_, expr)) = default_field.default {
+            let ty = &default_field.ty;
+            let val = quote_spanned!(expr.span()=> {
+                static DEFAULT_VALUE: ::std::sync::OnceLock<String> = ::std::sync::OnceLock::new();
+                let s = DEFAULT_VALUE.get_or_init(|| {
+                    let val: #ty = #expr;
+                    ::std::string::ToString::to_string(&val)
+                });
+                let s: &'static str = &*s;
+                s
+            });
+            let raw_ident = Ident::new("default_value", expr.span());
+            let method = Method::new(raw_ident, val);
+            Some(method)
+        } else {
+            None
+        };
         let mut res = Self::new(
             Name::Derived(name),
             ident,
-            Some(field.ty.clone()),
+            Some(default_field.ty),
             struct_casing,
             env_casing,
             kind,
         );
+        res.methods.extend(default_value_method);
         let parsed_attrs = ClapAttr::parse_all(&field.attrs)?;
         res.infer_kind(&parsed_attrs)?;
         res.push_attrs(&parsed_attrs)?;
