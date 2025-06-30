@@ -36,7 +36,7 @@ pub(crate) struct Item {
     name: Name,
     casing: Sp<CasingStyle>,
     env_casing: Sp<CasingStyle>,
-    ty: Option<Type>,
+    pub(crate) ty: Option<Type>,
     doc_comment: Vec<Method>,
     methods: Vec<Method>,
     deprecations: Vec<Deprecation>,
@@ -1236,7 +1236,7 @@ impl Kind {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub(crate) struct Method {
     name: Ident,
     args: TokenStream,

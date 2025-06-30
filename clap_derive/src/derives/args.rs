@@ -254,8 +254,8 @@ pub(crate) fn gen_augment(
                 }
             }
             Kind::Arg(ty) => {
-                let value_parser = item.value_parser(&field.ty);
-                let action = item.action(&field.ty);
+                let value_parser = item.value_parser(item.ty.as_ref().unwrap());
+                let action = item.action(item.ty.as_ref().unwrap());
                 let value_name = item.value_name();
 
                 let implicit_methods = match **ty {
@@ -665,7 +665,7 @@ fn gen_parsers(
     update: Option<&TokenStream>,
 ) -> Result<TokenStream, syn::Error> {
     let span = ty.span();
-    let convert_type = inner_type(&field.ty);
+    let convert_type = inner_type(item.ty.as_ref().unwrap());
     let id = item.id();
     let get_one = quote_spanned!(span=> remove_one::<#convert_type>);
     let get_many = quote_spanned!(span=> remove_many::<#convert_type>);
