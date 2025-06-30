@@ -1,5 +1,7 @@
 //! Special types handling
 
+use crate::utils::DefaultField;
+
 use super::spanned::Sp;
 
 use syn::{
@@ -22,6 +24,10 @@ pub(crate) enum Ty {
 impl Ty {
     pub(crate) fn from_syn_ty(ty: &Type) -> Sp<Self> {
         use self::Ty::{Option, OptionOption, OptionVec, OptionVecVec, Other, Unit, Vec, VecVec};
+        // TODO: Avoid clone here.
+        // Hack: If the type has a default field value, just ignore it.
+        let ty = DefaultField::from_field_type(ty.clone()).ty;
+        let ty = &ty;
         let t = |kind| Sp::new(kind, ty.span());
 
         if is_unit_ty(ty) {
@@ -57,6 +63,11 @@ impl Ty {
 
 pub(crate) fn inner_type(field_ty: &Type) -> &Type {
     let ty = Ty::from_syn_ty(field_ty);
+    // TODO: Avoid clone here.
+    // Hack: If the type has a default field value, just ignore it.
+    let field_ty = DefaultField::from_field_type(field_ty.clone()).ty;
+    // Obviously, this is really awful, and will be changed before merging.
+    let field_ty = Box::leak(Box::new(field_ty));
     match *ty {
         Ty::Vec | Ty::Option => sub_type(field_ty).unwrap_or(field_ty),
         Ty::OptionOption | Ty::OptionVec | Ty::VecVec => {
