@@ -54,14 +54,27 @@ impl<'cmd> Parser<'cmd> {
     ) -> ClapResult<()> {
         debug!("Parser::get_matches_with");
 
-        ok!(self.parse(matcher, raw_args, args_cursor).map_err(|err| {
-            if self.cmd.is_ignore_errors_set() {
-                #[cfg(feature = "env")]
-                let _ = self.add_env(matcher);
-                let _ = self.add_defaults(matcher);
+        match self.parse(matcher, raw_args, args_cursor) {
+            Ok(()) => {}
+            Err(err) => {
+                if self.cmd.is_ignore_errors_set() {
+                    // Handle help and version errors specially - they should still work with ignore_errors
+                    match err.kind() {
+                        crate::error::ErrorKind::DisplayHelp | crate::error::ErrorKind::DisplayVersion => {
+                            return Err(err);
+                        }
+                        _ => {
+                            // For other errors, apply ignore_errors logic
+                            #[cfg(feature = "env")]
+                            let _ = self.add_env(matcher);
+                            let _ = self.add_defaults(matcher);
+                        }
+                    }
+                } else {
+                    return Err(err);
+                }
             }
-            err
-        }));
+        }
         ok!(self.resolve_pending(matcher));
 
         #[cfg(feature = "env")]

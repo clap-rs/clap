@@ -225,3 +225,63 @@ fn version_flag() {
 
     utils::assert_output(cmd, "test --version", "test 0.1\n", false);
 }
+
+#[test]
+fn help_subcommand_with_subcommands_should_work() {
+    // This test shows what SHOULD happen - help subcommand should work with ignore_errors
+    static HELP: &str = "\
+Usage: test [COMMAND]
+
+Commands:
+  foo   Foo command
+  help  Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+";
+
+    let cmd = Command::new("test")
+        .ignore_errors(true)
+        .subcommand(Command::new("foo").about("Foo command"));
+
+    // This should work but currently fails due to the bug
+    utils::assert_output(cmd, "test help", HELP, false);
+}
+
+#[test]
+fn help_subcommand_now_works_with_ignore_errors() {
+    // This test verifies the fix - help subcommand should work with ignore_errors
+    let cmd = Command::new("test")
+        .ignore_errors(true)
+        .subcommand(Command::new("foo").about("Foo command"));
+
+    let result = cmd.try_get_matches_from(vec!["test", "help"]);
+    
+    // After the fix, this should return an error (DisplayHelp) which is the correct behavior
+    assert!(result.is_err(), "Help subcommand should return help error");
+    
+    let err = result.unwrap_err();
+    // Verify it's specifically a help error
+    assert_eq!(err.kind(), ErrorKind::DisplayHelp);
+}
+
+#[test]
+fn help_subcommand_works_without_ignore_errors() {
+    // This test verifies that help subcommand works correctly without ignore_errors
+    static HELP: &str = "\
+Usage: test [COMMAND]
+
+Commands:
+  foo   Foo command
+  help  Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+";
+
+    let cmd = Command::new("test")
+        .subcommand(Command::new("foo").about("Foo command"));
+
+    // This should work (help subcommand produces help output)
+    utils::assert_output(cmd, "test help", HELP, false);
+}
