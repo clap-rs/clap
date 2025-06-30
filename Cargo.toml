@@ -14,14 +14,14 @@ members = [
 repository = "https://github.com/clap-rs/clap"
 license = "MIT OR Apache-2.0"
 edition = "2021"
-rust-version = "1.74"  # MSRV
+rust-version = "1.74" # MSRV
 include = [
   "build.rs",
   "src/**/*",
   "Cargo.toml",
   "LICENSE*",
   "README.md",
-  "examples/**/*"
+  "examples/**/*",
 ]
 
 [workspace.lints.rust]
@@ -32,6 +32,8 @@ unsafe_op_in_unsafe_fn = "warn"
 unused_lifetimes = "warn"
 unused_macro_rules = "warn"
 unused_qualifications = "warn"
+# For testing with default_field_values
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(nightly)'] }
 
 [workspace.lints.clippy]
 bool_assert_comparison = "allow"
@@ -63,7 +65,7 @@ invalid_upcast_comparisons = "warn"
 large_digit_groups = "warn"
 large_stack_arrays = "warn"
 large_types_passed_by_value = "warn"
-let_and_return = "allow"  # sometimes good to name what you are returning
+let_and_return = "allow"                 # sometimes good to name what you are returning
 linkedlist = "warn"
 lossy_float_literal = "warn"
 macro_use_imports = "warn"
@@ -112,13 +114,7 @@ name = "clap"
 version = "4.5.40"
 description = "A simple to use, efficient, and full-featured Command Line Argument Parser"
 categories = ["command-line-interface"]
-keywords = [
-  "argument",
-  "cli",
-  "arg",
-  "parser",
-  "parse"
-]
+keywords = ["argument", "cli", "arg", "parser", "parse"]
 repository.workspace = true
 license.workspace = true
 edition.workspace = true
@@ -136,30 +132,23 @@ features = ["unstable-doc"]
 shared-version = true
 tag-name = "v{{version}}"
 pre-release-replacements = [
-  {file="CHANGELOG.md", search="Unreleased", replace="{{version}}", min=1},
-  {file="CHANGELOG.md", search="\\.\\.\\.HEAD", replace="...{{tag_name}}", exactly=1},
-  {file="CHANGELOG.md", search="ReleaseDate", replace="{{date}}", min=1},
-  {file="CHANGELOG.md", search="<!-- next-header -->", replace="<!-- next-header -->\n## [Unreleased] - ReleaseDate\n", exactly=1},
-  {file="CHANGELOG.md", search="<!-- next-url -->", replace="<!-- next-url -->\n[Unreleased]: https://github.com/clap-rs/clap/compare/{{tag_name}}...HEAD", exactly=1},
-  {file="CITATION.cff", search="^date-released: ....-..-..", replace="date-released: {{date}}"},
-  {file="CITATION.cff", search="^version: .+\\..+\\..+", replace="version: {{version}}"},
-  {file="src/lib.rs", search="blob/v.+\\..+\\..+/CHANGELOG.md", replace="blob/v{{version}}/CHANGELOG.md", exactly=1},
+  { file = "CHANGELOG.md", search = "Unreleased", replace = "{{version}}", min = 1 },
+  { file = "CHANGELOG.md", search = "\\.\\.\\.HEAD", replace = "...{{tag_name}}", exactly = 1 },
+  { file = "CHANGELOG.md", search = "ReleaseDate", replace = "{{date}}", min = 1 },
+  { file = "CHANGELOG.md", search = "<!-- next-header -->", replace = "<!-- next-header -->\n## [Unreleased] - ReleaseDate\n", exactly = 1 },
+  { file = "CHANGELOG.md", search = "<!-- next-url -->", replace = "<!-- next-url -->\n[Unreleased]: https://github.com/clap-rs/clap/compare/{{tag_name}}...HEAD", exactly = 1 },
+  { file = "CITATION.cff", search = "^date-released: ....-..-..", replace = "date-released: {{date}}" },
+  { file = "CITATION.cff", search = "^version: .+\\..+\\..+", replace = "version: {{version}}" },
+  { file = "src/lib.rs", search = "blob/v.+\\..+\\..+/CHANGELOG.md", replace = "blob/v{{version}}/CHANGELOG.md", exactly = 1 },
 ]
 
 [features]
-default = [
-  "std",
-  "color",
-  "help",
-  "usage",
-  "error-context",
-  "suggestions",
-]
-debug = ["clap_builder/debug", "clap_derive?/debug"] # Enables debug messages
-unstable-doc = ["clap_builder/unstable-doc", "derive"] # for docs.rs
+default = ["std", "color", "help", "usage", "error-context", "suggestions"]
+debug = ["clap_builder/debug", "clap_derive?/debug"]                        # Enables debug messages
+unstable-doc = ["clap_builder/unstable-doc", "derive"]                      # for docs.rs
 
 # Used in default
-std = ["clap_builder/std"] # support for no_std in a backwards-compatible way
+std = ["clap_builder/std"]                     # support for no_std in a backwards-compatible way
 color = ["clap_builder/color"]
 help = ["clap_builder/help"]
 usage = ["clap_builder/usage"]
@@ -167,18 +156,29 @@ error-context = ["clap_builder/error-context"]
 suggestions = ["clap_builder/suggestions"]
 
 # Optional
-deprecated = ["clap_builder/deprecated", "clap_derive?/deprecated"] # Guided experience to prepare for next breaking release (at different stages of development, this may become default)
+deprecated = [
+  "clap_builder/deprecated",
+  "clap_derive?/deprecated",
+] # Guided experience to prepare for next breaking release (at different stages of development, this may become default)
 derive = ["dep:clap_derive"]
-cargo = ["clap_builder/cargo"] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
+cargo = [
+  "clap_builder/cargo",
+] # Disable if you're not using Cargo, enables Cargo-env-var-dependent macros
 wrap_help = ["clap_builder/wrap_help"]
 env = ["clap_builder/env"] # Use environment variables during arg parsing
-unicode = ["clap_builder/unicode"]  # Support for unicode characters in arguments and help messages
-string = ["clap_builder/string"]  # Allow runtime generated strings
+unicode = [
+  "clap_builder/unicode",
+] # Support for unicode characters in arguments and help messages
+string = ["clap_builder/string"] # Allow runtime generated strings
 
 # In-work features
-unstable-v5 = ["clap_builder/unstable-v5", "clap_derive?/unstable-v5", "deprecated"]
+unstable-v5 = [
+  "clap_builder/unstable-v5",
+  "clap_derive?/unstable-v5",
+  "deprecated",
+]
 unstable-ext = ["clap_builder/unstable-ext"]
-unstable-styles = ["clap_builder/unstable-styles"]  # deprecated
+unstable-styles = ["clap_builder/unstable-styles"] # deprecated
 unstable-derive-ui-tests = []
 unstable-markdown = ["clap_derive/unstable-markdown"]
 
@@ -193,7 +193,11 @@ clap_derive = { path = "./clap_derive", version = "=4.5.40", optional = true }
 trybuild = "1.0.91"
 rustversion = "1.0.15"
 # Cutting out `filesystem` feature
-trycmd = { version = "0.15.3", default-features = false, features = ["color-auto", "diff", "examples"] }
+trycmd = { version = "0.15.3", default-features = false, features = [
+  "color-auto",
+  "diff",
+  "examples",
+] }
 jiff = "0.2.3"
 snapbox = { version = "0.6.16", features = ["term-svg"] }
 shlex = "1.3.0"

@@ -2,14 +2,11 @@
 name = "clap_derive"
 version = "4.5.40"
 description = "Parse command line argument by defining a struct, derive crate."
-categories = ["command-line-interface", "development-tools::procedural-macro-helpers"]
-keywords = [
-  "clap",
-  "cli",
-  "parse",
-  "derive",
-  "proc_macro"
+categories = [
+  "command-line-interface",
+  "development-tools::procedural-macro-helpers",
 ]
+keywords = ["clap", "cli", "parse", "derive", "proc_macro"]
 repository.workspace = true
 license.workspace = true
 edition.workspace = true
@@ -30,12 +27,15 @@ proc-macro = true
 bench = false
 
 [dependencies]
-syn = { version = "2.0.8", features = ["full"] }
+# https://github.com/dtolnay/syn/pull/1870
+syn = { version = "2.0.8", features = [
+  "full",
+], git = "https://github.com/dtolnay/syn", rev = "7680cb0c1d7cbf812118081dbcdfe5bc67083488" }
 quote = "1.0.9"
 proc-macro2 = "1.0.69"
 heck = "0.5.0"
-pulldown-cmark = { version = "0.13.0", default-features = false, optional = true}
-anstyle = {version ="1.0.10", optional = true}
+pulldown-cmark = { version = "0.13.0", default-features = false, optional = true }
+anstyle = { version = "1.0.10", optional = true }
 
 [features]
 default = []
