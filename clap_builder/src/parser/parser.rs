@@ -60,7 +60,8 @@ impl<'cmd> Parser<'cmd> {
                 if self.cmd.is_ignore_errors_set() {
                     // Handle help and version errors specially - they should still work with ignore_errors
                     match err.kind() {
-                        crate::error::ErrorKind::DisplayHelp | crate::error::ErrorKind::DisplayVersion => {
+                        crate::error::ErrorKind::DisplayHelp
+                        | crate::error::ErrorKind::DisplayVersion => {
                             return Err(err);
                         }
                         _ => {
