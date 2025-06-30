@@ -1,11 +1,11 @@
-#![feature(default_field_values)]
-#![cfg(feature = "derive")]
-#![cfg(feature = "help")]
-#![cfg(feature = "usage")]
-// #![cfg(nightly)]
+//! A module for the actual test.
+//!
+//! This is necessary because rustc will choke if we try and inline this module, because the (stable) parser knows
+//! that default field values are unstable, and complains even for `cfg()`ed out occurrences.
 
 use clap::{CommandFactory, Parser};
 
+// Copy of the same from tests/derive/util.rs
 pub(crate) fn get_long_help<T: CommandFactory>() -> String {
     let output = <T as CommandFactory>::command()
         .render_long_help()
@@ -18,11 +18,12 @@ pub(crate) fn get_long_help<T: CommandFactory>() -> String {
 }
 
 #[test]
-fn default_value() {
+fn default_field_value() {
     #[derive(Parser, Debug, PartialEq)]
     struct Opt {
-        arg: i32 = 3,
-    }
+            arg: i32 = 3,
+        }
+
     assert_eq!(Opt { arg: 3 }, Opt::try_parse_from(["test"]).unwrap());
     assert_eq!(Opt { arg: 1 }, Opt::try_parse_from(["test", "1"]).unwrap());
 
