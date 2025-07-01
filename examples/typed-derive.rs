@@ -84,14 +84,14 @@ mod foreign_crate {
         type Err = String;
 
         fn from_str(s: &str) -> Result<Self, Self::Err> {
-            match s {
-                "trace" => Ok(Self::Trace),
-                "debug" => Ok(Self::Debug),
-                "info" => Ok(Self::Info),
-                "warn" => Ok(Self::Warn),
-                "error" => Ok(Self::Error),
-                _ => Err(format!("Unknown log level: {s}")),
-            }
+            Ok(match s {
+                "trace" => Self::Trace,
+                "debug" => Self::Debug,
+                "info" => Self::Info,
+                "warn" => Self::Warn,
+                "error" => Self::Error,
+                _ => return Err(format!("Unknown log level: {s}")),
+            })
         }
     }
 }
