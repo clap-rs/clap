@@ -359,15 +359,14 @@ impl ArgAction {
     /// processed.
     pub fn takes_values(&self) -> bool {
         match self {
-            Self::Set => true,
-            Self::Append => true,
-            Self::SetTrue => false,
-            Self::SetFalse => false,
-            Self::Count => false,
-            Self::Help => false,
-            Self::HelpShort => false,
-            Self::HelpLong => false,
-            Self::Version => false,
+            Self::Set | Self::Append => true,
+            Self::SetTrue
+            | Self::SetFalse
+            | Self::Count
+            | Self::Help
+            | Self::HelpShort
+            | Self::HelpLong
+            | Self::Version => false,
         }
     }
 
@@ -432,28 +431,18 @@ impl ArgAction {
         match self {
             Self::Set => None,
             Self::Append => None,
-            Self::SetTrue => Some(super::ValueParser::bool()),
-            Self::SetFalse => Some(super::ValueParser::bool()),
+            Self::SetTrue | Self::SetFalse => Some(super::ValueParser::bool()),
             Self::Count => Some(crate::value_parser!(u8).into()),
-            Self::Help => None,
-            Self::HelpShort => None,
-            Self::HelpLong => None,
-            Self::Version => None,
+            Self::Help | Self::HelpShort | Self::HelpLong | Self::Version => None,
         }
     }
 
     #[cfg(debug_assertions)]
     pub(crate) fn value_type_id(&self) -> Option<AnyValueId> {
         match self {
-            Self::Set => None,
-            Self::Append => None,
-            Self::SetTrue => None,
-            Self::SetFalse => None,
+            Self::Set | Self::Append | Self::SetTrue | Self::SetFalse => None,
             Self::Count => Some(AnyValueId::of::<CountType>()),
-            Self::Help => None,
-            Self::HelpShort => None,
-            Self::HelpLong => None,
-            Self::Version => None,
+            Self::Help | Self::HelpShort | Self::HelpLong | Self::Version => None,
         }
     }
 }
