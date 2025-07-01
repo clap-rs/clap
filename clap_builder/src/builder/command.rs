@@ -3902,10 +3902,7 @@ impl Command {
     ///
     /// This does not recurse through subcommands of subcommands.
     #[inline]
-    pub fn find_subcommand_mut(
-        &mut self,
-        name: impl AsRef<std::ffi::OsStr>,
-    ) -> Option<&mut Self> {
+    pub fn find_subcommand_mut(&mut self, name: impl AsRef<std::ffi::OsStr>) -> Option<&mut Self> {
         let name = name.as_ref();
         self.get_subcommands_mut().find(|s| s.aliases_to(name))
     }

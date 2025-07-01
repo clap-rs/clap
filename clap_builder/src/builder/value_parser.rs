@@ -2302,8 +2302,7 @@ impl ValueParserFactory for std::ffi::OsString {
     }
 }
 impl ValueParserFactory for Box<std::ffi::OsStr> {
-    type Parser =
-        MapValueParser<OsStringValueParser, fn(std::ffi::OsString) -> Self>;
+    type Parser = MapValueParser<OsStringValueParser, fn(std::ffi::OsString) -> Self>;
     fn value_parser() -> Self::Parser {
         OsStringValueParser::new().map(std::ffi::OsString::into_boxed_os_str)
     }
@@ -2315,8 +2314,7 @@ impl ValueParserFactory for std::path::PathBuf {
     }
 }
 impl ValueParserFactory for Box<std::path::Path> {
-    type Parser =
-        MapValueParser<PathBufValueParser, fn(std::path::PathBuf) -> Self>;
+    type Parser = MapValueParser<PathBufValueParser, fn(std::path::PathBuf) -> Self>;
     fn value_parser() -> Self::Parser {
         PathBufValueParser::new().map(std::path::PathBuf::into_boxed_path)
     }
@@ -2393,8 +2391,7 @@ where
     <T as ValueParserFactory>::Parser: TypedValueParser<Value = T>,
     T: Send + Sync + Clone,
 {
-    type Parser =
-        MapValueParser<<T as ValueParserFactory>::Parser, fn(T) -> Self>;
+    type Parser = MapValueParser<<T as ValueParserFactory>::Parser, fn(T) -> Self>;
     fn value_parser() -> Self::Parser {
         T::value_parser().map(std::num::Saturating)
     }
