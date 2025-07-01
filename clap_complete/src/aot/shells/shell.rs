@@ -60,13 +60,13 @@ impl ValueEnum for Shell {
     }
 
     fn to_possible_value(&self) -> Option<PossibleValue> {
-        Some(match self {
-            Self::Bash => PossibleValue::new("bash"),
-            Self::Elvish => PossibleValue::new("elvish"),
-            Self::Fish => PossibleValue::new("fish"),
-            Self::PowerShell => PossibleValue::new("powershell"),
-            Self::Zsh => PossibleValue::new("zsh"),
-        })
+        Some(PossibleValue::new(match self {
+            Self::Bash => "bash",
+            Self::Elvish => "elvish",
+            Self::Fish => "fish",
+            Self::PowerShell => "powershell",
+            Self::Zsh => "zsh",
+        }))
     }
 }
 
