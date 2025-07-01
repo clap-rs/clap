@@ -373,29 +373,24 @@ impl ArgAction {
     #[cfg(debug_assertions)]
     pub(crate) fn max_num_args(&self) -> ValueRange {
         match self {
-            Self::Set => ValueRange::FULL,
-            Self::Append => ValueRange::FULL,
-            Self::SetTrue => ValueRange::OPTIONAL,
-            Self::SetFalse => ValueRange::OPTIONAL,
-            Self::Count => ValueRange::EMPTY,
-            Self::Help => ValueRange::EMPTY,
-            Self::HelpShort => ValueRange::EMPTY,
-            Self::HelpLong => ValueRange::EMPTY,
-            Self::Version => ValueRange::EMPTY,
+            Self::Set | Self::Append => ValueRange::FULL,
+            Self::SetTrue | Self::SetFalse => ValueRange::OPTIONAL,
+            Self::Count | Self::Help | Self::HelpShort | Self::HelpLong | Self::Version => {
+                ValueRange::EMPTY
+            }
         }
     }
 
     pub(crate) fn default_num_args(&self) -> ValueRange {
         match self {
-            Self::Set => ValueRange::SINGLE,
-            Self::Append => ValueRange::SINGLE,
-            Self::SetTrue => ValueRange::EMPTY,
-            Self::SetFalse => ValueRange::EMPTY,
-            Self::Count => ValueRange::EMPTY,
-            Self::Help => ValueRange::EMPTY,
-            Self::HelpShort => ValueRange::EMPTY,
-            Self::HelpLong => ValueRange::EMPTY,
-            Self::Version => ValueRange::EMPTY,
+            Self::Set | Self::Append => ValueRange::SINGLE,
+            Self::SetTrue
+            | Self::SetFalse
+            | Self::Count
+            | Self::Help
+            | Self::HelpShort
+            | Self::HelpLong
+            | Self::Version => ValueRange::EMPTY,
         }
     }
 
@@ -406,31 +401,22 @@ impl ArgAction {
             Self::SetTrue => Some(std::ffi::OsStr::new("false")),
             Self::SetFalse => Some(std::ffi::OsStr::new("true")),
             Self::Count => Some(std::ffi::OsStr::new("0")),
-            Self::Help => None,
-            Self::HelpShort => None,
-            Self::HelpLong => None,
-            Self::Version => None,
+            Self::Help | Self::HelpShort | Self::HelpLong | Self::Version => None,
         }
     }
 
     pub(crate) fn default_missing_value(&self) -> Option<&'static std::ffi::OsStr> {
         match self {
-            Self::Set => None,
-            Self::Append => None,
+            Self::Set | Self::Append => None,
             Self::SetTrue => Some(std::ffi::OsStr::new("true")),
             Self::SetFalse => Some(std::ffi::OsStr::new("false")),
-            Self::Count => None,
-            Self::Help => None,
-            Self::HelpShort => None,
-            Self::HelpLong => None,
-            Self::Version => None,
+            Self::Count | Self::Help | Self::HelpShort | Self::HelpLong | Self::Version => None,
         }
     }
 
     pub(crate) fn default_value_parser(&self) -> Option<super::ValueParser> {
         match self {
-            Self::Set => None,
-            Self::Append => None,
+            Self::Set | Self::Append => None,
             Self::SetTrue | Self::SetFalse => Some(super::ValueParser::bool()),
             Self::Count => Some(crate::value_parser!(u8).into()),
             Self::Help | Self::HelpShort | Self::HelpLong | Self::Version => None,

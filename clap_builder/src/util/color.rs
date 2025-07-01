@@ -99,10 +99,10 @@ impl ValueEnum for ColorChoice {
     }
 
     fn to_possible_value(&self) -> Option<PossibleValue> {
-        Some(match self {
-            Self::Auto => PossibleValue::new("auto"),
-            Self::Always => PossibleValue::new("always"),
-            Self::Never => PossibleValue::new("never"),
-        })
+        Some(PossibleValue::new(match self {
+            Self::Auto => "auto",
+            Self::Always => "always",
+            Self::Never => "never",
+        }))
     }
 }
