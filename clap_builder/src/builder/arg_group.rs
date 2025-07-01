@@ -110,7 +110,7 @@ impl ArgGroup {
     /// # ;
     /// ```
     pub fn new(id: impl Into<Id>) -> Self {
-        ArgGroup::default().id(id)
+        Self::default().id(id)
     }
 
     /// Sets the group name.
@@ -548,8 +548,8 @@ impl ArgGroup {
     }
 }
 
-impl From<&'_ ArgGroup> for ArgGroup {
-    fn from(g: &ArgGroup) -> Self {
+impl From<&'_ Self> for ArgGroup {
+    fn from(g: &Self) -> Self {
         g.clone()
     }
 }

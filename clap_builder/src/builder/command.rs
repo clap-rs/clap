@@ -479,7 +479,7 @@ impl Command {
     /// ```
     #[inline]
     #[must_use]
-    pub fn subcommand(self, subcmd: impl Into<Command>) -> Self {
+    pub fn subcommand(self, subcmd: impl Into<Self>) -> Self {
         let subcmd = subcmd.into();
         self.subcommand_internal(subcmd)
     }
@@ -536,7 +536,7 @@ impl Command {
     ///     )
     /// # ;
     /// ```
-    pub fn defer(mut self, deferred: fn(Command) -> Command) -> Self {
+    pub fn defer(mut self, deferred: fn(Self) -> Self) -> Self {
         self.deferred = Some(deferred);
         self
     }
@@ -3836,13 +3836,13 @@ impl Command {
 
     /// Iterate through the set of subcommands, getting a reference to each.
     #[inline]
-    pub fn get_subcommands(&self) -> impl Iterator<Item = &Command> {
+    pub fn get_subcommands(&self) -> impl Iterator<Item = &Self> {
         self.subcommands.iter()
     }
 
     /// Iterate through the set of subcommands, getting a mutable reference to each.
     #[inline]
-    pub fn get_subcommands_mut(&mut self) -> impl Iterator<Item = &mut Command> {
+    pub fn get_subcommands_mut(&mut self) -> impl Iterator<Item = &mut Self> {
         self.subcommands.iter_mut()
     }
 
@@ -3892,7 +3892,7 @@ impl Command {
     ///
     /// This does not recurse through subcommands of subcommands.
     #[inline]
-    pub fn find_subcommand(&self, name: impl AsRef<std::ffi::OsStr>) -> Option<&Command> {
+    pub fn find_subcommand(&self, name: impl AsRef<std::ffi::OsStr>) -> Option<&Self> {
         let name = name.as_ref();
         self.get_subcommands().find(|s| s.aliases_to(name))
     }
@@ -3905,7 +3905,7 @@ impl Command {
     pub fn find_subcommand_mut(
         &mut self,
         name: impl AsRef<std::ffi::OsStr>,
-    ) -> Option<&mut Command> {
+    ) -> Option<&mut Self> {
         let name = name.as_ref();
         self.get_subcommands_mut().find(|s| s.aliases_to(name))
     }
@@ -4754,12 +4754,12 @@ impl Command {
 
             let mut help_subcmd = if expand_help_tree {
                 // Slow code path to recursively clone all other subcommand subtrees under help
-                let help_subcmd = Command::new("help")
+                let help_subcmd = Self::new("help")
                     .about(help_about)
                     .global_setting(AppSettings::DisableHelpSubcommand)
-                    .subcommands(self.get_subcommands().map(Command::_copy_subtree_for_help));
+                    .subcommands(self.get_subcommands().map(Self::_copy_subtree_for_help));
 
-                let mut help_help_subcmd = Command::new("help").about(help_about);
+                let mut help_help_subcmd = Self::new("help").about(help_about);
                 help_help_subcmd.version = None;
                 help_help_subcmd.long_version = None;
                 help_help_subcmd = help_help_subcmd
@@ -4768,7 +4768,7 @@ impl Command {
 
                 help_subcmd.subcommand(help_help_subcmd)
             } else {
-                Command::new("help").about(help_about).arg(
+                Self::new("help").about(help_about).arg(
                     Arg::new("subcommand")
                         .action(ArgAction::Append)
                         .num_args(..)
@@ -4791,12 +4791,12 @@ impl Command {
         }
     }
 
-    fn _copy_subtree_for_help(&self) -> Command {
-        let mut cmd = Command::new(self.name.clone())
+    fn _copy_subtree_for_help(&self) -> Self {
+        let mut cmd = Self::new(self.name.clone())
             .hide(self.is_hide_set())
             .global_setting(AppSettings::DisableHelpFlag)
             .global_setting(AppSettings::DisableVersionFlag)
-            .subcommands(self.get_subcommands().map(Command::_copy_subtree_for_help));
+            .subcommands(self.get_subcommands().map(Self::_copy_subtree_for_help));
         if self.get_about().is_some() {
             cmd = cmd.about(self.get_about().unwrap().clone());
         }
@@ -5154,8 +5154,8 @@ impl Index<&'_ Id> for Command {
     }
 }
 
-impl From<&'_ Command> for Command {
-    fn from(cmd: &'_ Command) -> Self {
+impl From<&'_ Self> for Command {
+    fn from(cmd: &'_ Self) -> Self {
         cmd.clone()
     }
 }

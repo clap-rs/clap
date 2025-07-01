@@ -41,7 +41,7 @@ impl ClapAttr {
                 continue;
             };
             for mut attr in
-                attr.parse_args_with(Punctuated::<ClapAttr, Token![,]>::parse_terminated)?
+                attr.parse_args_with(Punctuated::<Self, Token![,]>::parse_terminated)?
             {
                 attr.kind = kind;
                 parsed.push(attr);
