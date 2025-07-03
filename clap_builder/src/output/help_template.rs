@@ -776,22 +776,22 @@ impl HelpTemplate<'_, '_> {
                 a.default_vals
             );
 
-            let pvs = a
+            let dvs = a
                 .default_vals
                 .iter()
-                .map(|pvs| pvs.to_string_lossy())
-                .map(|pvs| {
-                    if pvs.contains(char::is_whitespace) {
-                        Cow::from(format!("{pvs:?}"))
+                .map(|dv| dv.to_string_lossy())
+                .map(|dv| {
+                    if dv.contains(char::is_whitespace) {
+                        Cow::from(format!("{dv:?}"))
                     } else {
-                        pvs
+                        dv
                     }
                 })
                 .collect::<Vec<_>>()
                 .join(" ");
 
             spec_vals.push(format!(
-                "{ctx}[default: {ctx:#}{ctx_val}{pvs}{ctx_val:#}{ctx}]{ctx:#}"
+                "{ctx}[default: {ctx:#}{ctx_val}{dvs}{ctx_val:#}{ctx}]{ctx:#}"
             ));
         }
 
