@@ -5,7 +5,9 @@ stdout = ""
 stderr = """
 error: unexpected argument '--unknown-argument' found
 
-Usage: stdio-fixture[EXE] [OPTIONS] [COMMAND]
+  tip: to pass '--unknown-argument' as a value, use '-- --unknown-argument'
+
+Usage: stdio-fixture[EXE] [OPTIONS] [NAME] [ENV] [COMMAND]
 
 For more information, try '--help'.
 """
