@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Add `Styles::context` and `Styles::context_value` to customize the styling of `[default: value]` like notes in the `--help`
+
 ## [4.5.40] - 2025-06-09
 
 ### Features
