@@ -1,0 +1,27 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH parent 1  "parent " 
+.SH NAME
+parent \- parent command
+.SH SYNOPSIS
+\fBparent\fR [\fB\-\-parent\fR] [\fB\-h\fR|\fB\-\-help\fR] 
+.br
+\fBparent test\fR [\fB\-\-child\fR] [\fB\-\-parent\fR] [\fB\-h\fR|\fB\-\-help\fR] 
+.br
+\fBparent help\fR 
+.SH DESCRIPTION
+parent command
+.SH OPTIONS
+.TP
+\fB\-\-parent\fR
+
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help
+.SH SUBCOMMANDS
+.TP
+\fBtest\fR [\fB\-\-child\fR] [\fB\-\-parent\fR] [\fB\-h\fR|\fB\-\-help\fR] 
+test command
+.TP
+\fBhelp\fR 
+Print this message or the help of the given subcommand(s)
