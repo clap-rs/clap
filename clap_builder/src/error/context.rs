@@ -42,25 +42,24 @@ pub enum ContextKind {
 impl ContextKind {
     /// End-user description of the error case, where relevant
     pub fn as_str(self) -> Option<&'static str> {
-        match self {
-            Self::InvalidSubcommand => Some("Invalid Subcommand"),
-            Self::InvalidArg => Some("Invalid Argument"),
-            Self::PriorArg => Some("Prior Argument"),
-            Self::ValidSubcommand => Some("Valid Subcommand"),
-            Self::ValidValue => Some("Valid Value"),
-            Self::InvalidValue => Some("Invalid Value"),
-            Self::ActualNumValues => Some("Actual Number of Values"),
-            Self::ExpectedNumValues => Some("Expected Number of Values"),
-            Self::MinValues => Some("Minimum Number of Values"),
-            Self::SuggestedCommand => Some("Suggested Command"),
-            Self::SuggestedSubcommand => Some("Suggested Subcommand"),
-            Self::SuggestedArg => Some("Suggested Argument"),
-            Self::SuggestedValue => Some("Suggested Value"),
-            Self::TrailingArg => Some("Trailing Argument"),
-            Self::Suggested => Some("Suggested"),
-            Self::Usage => None,
-            Self::Custom => None,
-        }
+        Some(match self {
+            Self::InvalidSubcommand => "Invalid Subcommand",
+            Self::InvalidArg => "Invalid Argument",
+            Self::PriorArg => "Prior Argument",
+            Self::ValidSubcommand => "Valid Subcommand",
+            Self::ValidValue => "Valid Value",
+            Self::InvalidValue => "Invalid Value",
+            Self::ActualNumValues => "Actual Number of Values",
+            Self::ExpectedNumValues => "Expected Number of Values",
+            Self::MinValues => "Minimum Number of Values",
+            Self::SuggestedCommand => "Suggested Command",
+            Self::SuggestedSubcommand => "Suggested Subcommand",
+            Self::SuggestedArg => "Suggested Argument",
+            Self::SuggestedValue => "Suggested Value",
+            Self::TrailingArg => "Trailing Argument",
+            Self::Suggested => "Suggested",
+            Self::Usage | Self::Custom => return None,
+        })
     }
 }
 
