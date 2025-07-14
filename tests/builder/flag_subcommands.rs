@@ -165,6 +165,35 @@ fn flag_subcommand_short_with_aliases_vis_and_hidden() {
 }
 
 #[test]
+fn flag_subcommand_long_with_aliases_vis_and_hidden() {
+    let cmd = Command::new("test").subcommand(
+        Command::new("some")
+            .long_flag("sync")
+            .arg(
+                Arg::new("test")
+                    .short('t')
+                    .long("test")
+                    .help("testing testing"),
+            )
+            .visible_long_flag_aliases(["result", "someall"])
+            .long_flag_alias("flag"),
+    );
+    let app1 = cmd.clone();
+    let matches1 = app1.try_get_matches_from(vec!["test", "--result"]).unwrap();
+    assert_eq!(matches1.subcommand_name().unwrap(), "some");
+
+    let app2 = cmd.clone();
+    let matches2 = app2.try_get_matches_from(vec!["test", "--flag"]).unwrap();
+    assert_eq!(matches2.subcommand_name().unwrap(), "some");
+
+    let app3 = cmd.clone();
+    let matches3 = app3
+        .try_get_matches_from(vec!["test", "--someall"])
+        .unwrap();
+    assert_eq!(matches3.subcommand_name().unwrap(), "some");
+}
+
+#[test]
 fn flag_subcommand_short_with_aliases() {
     let matches = Command::new("test")
         .subcommand(
