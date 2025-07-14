@@ -905,6 +905,103 @@ Options:
     utils::assert_output(app, "ctest --help", expected, false);
 }
 
+#[cfg(feature = "wrap_help")]
+fn setup_aliases() -> Command {
+    Command::new("ctest")
+        .version("0.1")
+        .arg(
+            Arg::new("dest")
+                .short('d')
+                .long("destination")
+                .value_name("FILE")
+                .help("File to save into")
+                .long_help("The Filepath to save into the result")
+                .short_alias('q')
+                .short_aliases(['w', 'e'])
+                .alias("arg-alias")
+                .aliases(["do-stuff", "do-tests"])
+                .visible_short_alias('t')
+                .visible_short_aliases(['i', 'o'])
+                .visible_alias("file")
+                .visible_aliases(["into", "to"])
+                .action(ArgAction::Set),
+        )
+        .subcommand(
+            Command::new("rev")
+                .short_flag('r')
+                .long_flag("inplace")
+                .about("In place")
+                .long_about("Change mode to work in place on source")
+                .alias("subc-alias")
+                .aliases(["subc-do-stuff", "subc-do-tests"])
+                .short_flag_alias('j')
+                .short_flag_aliases(['k', 'l'])
+                .long_flag_alias("subc-long-flag-alias")
+                .long_flag_aliases(["subc-long-do-stuff", "subc-long-do-tests"])
+                .visible_alias("source")
+                .visible_aliases(["from", "onsource"])
+                .visible_short_flag_alias('s')
+                .visible_short_flag_aliases(['f', 'g'])
+                .visible_long_flag_alias("origin")
+                .visible_long_flag_aliases(["path", "tryfrom"])
+                .arg(
+                    Arg::new("input")
+                        .value_name("INPUT")
+                        .help("The source file"),
+                ),
+        )
+}
+
+#[test]
+#[cfg(feature = "wrap_help")]
+fn visible_aliases_with_short_help() {
+    let app = setup_aliases().term_width(80);
+
+    let expected = str![[r#"
+Usage: ctest [OPTIONS] [COMMAND]
+
+Commands:
+  rev, -r, --inplace  In place [aliases: -s, -f, -g, source, from, onsource]
+  help                Print this message or the help of the given subcommand(s)
+
+Options:
+  -d, --destination <FILE>  File to save into [aliases: -t, -i, -o, --file,
+                            --into, --to]
+  -h, --help                Print help (see more with '--help')
+  -V, --version             Print version
+
+"#]];
+    utils::assert_output(app, "ctest -h", expected, false);
+}
+
+#[test]
+#[cfg(feature = "wrap_help")]
+fn visible_aliases_with_long_help() {
+    let app = setup_aliases().term_width(80);
+
+    let expected = str![[r#"
+Usage: ctest [OPTIONS] [COMMAND]
+
+Commands:
+  rev, -r, --inplace  In place [aliases: -s, -f, -g, source, from, onsource]
+  help                Print this message or the help of the given subcommand(s)
+
+Options:
+  -d, --destination <FILE>
+          The Filepath to save into the result
+          
+          [aliases: -t, -i, -o, --file, --into, --to]
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+  -V, --version
+          Print version
+
+"#]];
+    utils::assert_output(app, "ctest --help", expected, false);
+}
+
 #[test]
 fn hidden_possible_vals() {
     let app = Command::new("ctest").arg(
