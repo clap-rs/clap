@@ -961,7 +961,8 @@ fn visible_aliases_with_short_help() {
 Usage: ctest [OPTIONS] [COMMAND]
 
 Commands:
-  rev, -r, --inplace  In place [aliases: -s, -f, -g, source, from, onsource]
+  rev, -r, --inplace  In place [aliases: -s, -f, -g, --origin, --path,
+                      --tryfrom, source, from, onsource]
   help                Print this message or the help of the given subcommand(s)
 
 Options:
@@ -983,7 +984,8 @@ fn visible_aliases_with_long_help() {
 Usage: ctest [OPTIONS] [COMMAND]
 
 Commands:
-  rev, -r, --inplace  In place [aliases: -s, -f, -g, source, from, onsource]
+  rev, -r, --inplace  In place [aliases: -s, -f, -g, --origin, --path,
+                      --tryfrom, source, from, onsource]
   help                Print this message or the help of the given subcommand(s)
 
 Options:
