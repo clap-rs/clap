@@ -33,7 +33,11 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
     let name = cmd.get_bin_name().unwrap_or_else(|| cmd.get_name());
     let mut line = vec![bold(name), roman(" ")];
 
-    for opt in cmd.get_arguments().filter(|i| !i.is_hide_set()) {
+    let mut opts: Vec<_> = cmd.get_arguments().filter(|i| !i.is_hide_set()).collect();
+
+    opts.sort_by_key(|opt| opt.get_display_order());
+
+    for opt in opts {
         let (lhs, rhs) = option_markers(opt);
         match (opt.get_short(), opt.get_long()) {
             (Some(short), Some(long)) => {
@@ -89,7 +93,10 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
 }
 
 pub(crate) fn options(roff: &mut Roff, items: &[&Arg]) {
-    for opt in items.iter().filter(|a| !a.is_positional()) {
+    let mut sorted_items = items.to_vec();
+    sorted_items.sort_by_key(|opt| opt.get_display_order());
+
+    for opt in sorted_items.iter().filter(|a| !a.is_positional()) {
         let mut header = match (opt.get_short(), opt.get_long()) {
             (Some(short), Some(long)) => {
                 vec![short_option(short), roman(", "), long_option(long)]
@@ -131,7 +138,7 @@ pub(crate) fn options(roff: &mut Roff, items: &[&Arg]) {
         }
     }
 
-    for pos in items.iter().filter(|a| a.is_positional()) {
+    for pos in sorted_items.iter().filter(|a| a.is_positional()) {
         let mut header = vec![];
         let (lhs, rhs) = option_markers(pos);
         header.push(roman(lhs));
