@@ -112,3 +112,14 @@ fn value_name_without_arg() {
         cmd,
     );
 }
+
+#[test]
+fn configured_display_order_args() {
+    let name = "my-app";
+    let cmd = common::configured_display_order_args(name);
+
+    common::assert_matches(
+        snapbox::file!["../snapshots/configured_display_order_args.roff"], 
+        cmd,
+    );
+}
