@@ -324,6 +324,43 @@ pub(crate) fn value_name_without_arg(name: &'static str) -> clap::Command {
     )
 }
 
+
+pub(crate) fn configured_display_order_args(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+        .arg(clap::Arg::new("1st").help("1st"))
+        .arg(clap::Arg::new("2nd").help("2nd"))
+        .arg(clap::Arg::new("3rd").help("3rd").last(true))
+        .arg(
+            clap::Arg::new("c")
+            .long("third")
+            .short('Q')
+            .display_order(3)
+            .help("Should be 3rd"),
+        )
+        .arg(
+            clap::Arg::new("d")
+                .long("fourth")
+                .display_order(4)
+                .help("Should be 4th"),
+        )
+        .arg(
+            clap::Arg::new("a")
+                .long("first")
+                .short('O')
+                .display_order(1)
+                .help("Should be 1st"),
+        )
+        .arg(
+            clap::Arg::new("b")
+                .long("second")
+                .short('P')
+                .display_order(2)
+                .help("Should be 2nd"),
+        )
+
+}
+
+
 pub(crate) fn help_headings(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .arg(
