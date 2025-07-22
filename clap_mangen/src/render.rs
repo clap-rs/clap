@@ -99,10 +99,28 @@ pub(crate) fn options(roff: &mut Roff, items: &[&Arg]) {
             (None, None) => vec![],
         };
 
-        if opt.get_num_args().expect("built").takes_values() {
-            if let Some(value) = &opt.get_value_names() {
-                header.push(roman("="));
-                header.push(italic(value.join(" ")));
+        let arg_range = opt.get_num_args().expect("built");
+        if arg_range.takes_values() {
+            if let Some(value_names) = &opt.get_value_names() {
+                let (lhs, rhs) = option_value_markers(opt);
+
+                header.push(roman(lhs));
+                for (i, name) in value_names.iter().enumerate() {
+                    if i > 0 {
+                        header.push(italic(" "));
+                    }
+
+                    let mut val = format!("<{name}>");
+
+                    // If this is the last value and it's variadic, add "..."
+                    let is_last = i == value_names.len() - 1;
+
+                    if is_last && arg_range.max_values() > value_names.len() {
+                        val.push_str("...");
+                    }
+                    header.push(italic(val));
+                }
+                header.push(roman(rhs));
             }
         }
 
@@ -248,6 +266,31 @@ fn markers(required: bool) -> (&'static str, &'static str) {
         ("<", ">")
     } else {
         ("[", "]")
+    }
+}
+
+fn option_value_markers(arg: &Arg) -> (&'static str, &'static str) {
+    let range = arg.get_num_args().expect("built");
+
+    if !range.takes_values() {
+        return ("", ""); // no value, so nothing to render
+    }
+
+    let required = range.min_values() > 0;
+    let require_equals = arg.is_require_equals_set();
+
+    match (required, require_equals) {
+        // Required, no equals: <VALUE>
+        (true, false) => (" ", ""),
+
+        // Optional, no equals: [<VALUE>]
+        (false, false) => (" [", "]"),
+
+        // Optional, with equals: [=<VALUE>]
+        (false, true) => ("[=", "]"),
+
+        // Required, with equals
+        (true, true) => ("=", ""),
     }
 }
 
