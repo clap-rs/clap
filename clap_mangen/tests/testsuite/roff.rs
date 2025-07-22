@@ -112,3 +112,53 @@ fn value_name_without_arg() {
         cmd,
     );
 }
+
+#[test]
+fn value_with_required_equals() {
+    let name = "my-app";
+    let cmd = common::value_with_required_equals(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/value_with_required_equals.bash.roff"],
+        cmd,
+    );
+}
+
+#[test]
+fn optional_value_with_required_equals() {
+    let name = "my-app";
+    let cmd = common::optional_value_with_required_equals(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/optional_with_required_equals_value.bash.roff"],
+        cmd,
+    );
+}
+
+#[test]
+fn optional_value() {
+    let name = "my-app";
+    let cmd = common::optional_value(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/optional_value.bash.roff"],
+        cmd,
+    );
+}
+
+#[test]
+fn multiple_optional_values() {
+    let name = "my-app";
+    let cmd = common::multiple_optional_values(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/multiple_optional_values.bash.roff"],
+        cmd,
+    );
+}
+
+#[test]
+fn variadic_values() {
+    let name = "my-app";
+    let cmd = common::variadic_values(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/variadic_values.bash.roff"],
+        cmd,
+    );
+}
