@@ -273,6 +273,39 @@ pub(crate) fn env_value_command(name: &'static str) -> clap::Command {
     )
 }
 
+pub(crate) fn mangen_output(cmd: &clap::Command) -> String {
+    let mut buf = vec![];
+    clap_mangen::Man::new(cmd.clone()).render(&mut buf).unwrap();
+
+    let s = match std::str::from_utf8(&buf) {
+        Ok(s) => s,
+        Err(e) => panic!("Failed to convert output to UTF-8: {e}"),
+    };
+
+    s.to_string()
+}
+
+// Go through the output and assert that the keywords
+// appear in the expected order
+pub(crate) fn is_correct_ordering(
+    keywords: &[&'static str],
+    text: &str,
+) -> bool  {
+    let mut s = text;
+    for keyword in keywords {
+        if !s.contains(keyword) {
+            return false;
+        }
+        // everytime we find a match,
+        // we only look at the rest of the string
+        s = match s.split(keyword).last() {
+            Some(rest) => rest,
+            None => return false,
+        };
+    }
+    true
+}
+
 pub(crate) fn assert_matches(expected: impl IntoData, cmd: clap::Command) {
     let mut buf = vec![];
     clap_mangen::Man::new(cmd).render(&mut buf).unwrap();
@@ -324,7 +357,6 @@ pub(crate) fn value_name_without_arg(name: &'static str) -> clap::Command {
     )
 }
 
-
 pub(crate) fn configured_display_order_args(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .arg(clap::Arg::new("1st").help("1st"))
@@ -360,7 +392,6 @@ pub(crate) fn configured_display_order_args(name: &'static str) -> clap::Command
 
 }
 
-
 pub(crate) fn help_headings(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .arg(
@@ -390,4 +421,31 @@ pub(crate) fn help_headings(name: &'static str) -> clap::Command {
                 .global(true)
                 .value_parser(["always", "never", "auto"]),
         )
+}
+
+pub(crate) fn configured_subcmd_order(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+    .version("1")
+    .next_display_order(None)
+    .subcommands(vec![
+        clap::Command::new("b1")
+            .about("blah b1")
+            .arg(clap::Arg::new("test").short('t').action(clap::ArgAction::SetTrue)),
+            clap::Command::new("a1")
+            .about("blah a1")
+            .arg(clap::Arg::new("roster").short('r').action(clap::ArgAction::SetTrue)),
+    ])
+}
+
+pub(crate) fn default_subcmd_order(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+    .version("1")
+    .subcommands(vec![
+        clap::Command::new("b1")
+            .about("blah b1")
+            .arg(clap::Arg::new("test").short('t').action(clap::ArgAction::SetTrue)),
+            clap::Command::new("a1")
+            .about("blah a1")
+            .arg(clap::Arg::new("roster").short('r').action(clap::ArgAction::SetTrue)),
+    ])
 }
