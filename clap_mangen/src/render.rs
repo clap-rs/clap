@@ -1,6 +1,26 @@
 use clap::{Arg, ArgAction};
 use roff::{bold, italic, roman, Inline, Roff};
 
+pub(crate) fn option_sort_key(arg: &Arg) -> (usize, String) {
+    let key = if let Some(x) = arg.get_short() {
+        let mut s = x.to_ascii_lowercase().to_string();
+        s.push(if x.is_ascii_lowercase() { '0' } else { '1' });
+        s
+    } else if let Some(x) = arg.get_long() {
+        x.to_string()
+    } else {
+        let mut s = '{'.to_string();
+        s.push_str(arg.get_id().as_str());
+        s
+    };
+    (arg.get_display_order(), key)
+}
+
+/// Provides consistent sorting for subcommands
+pub(crate) fn subcmd_sort_key(subcmd: &clap::Command) -> (usize, &str) {
+    (subcmd.get_display_order(), subcmd.get_name())
+}
+
 pub(crate) fn subcommand_heading(cmd: &clap::Command) -> &str {
     match cmd.get_subcommand_help_heading() {
         Some(title) => title,
@@ -33,7 +53,11 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
     let name = cmd.get_bin_name().unwrap_or_else(|| cmd.get_name());
     let mut line = vec![bold(name), roman(" ")];
 
-    for opt in cmd.get_arguments().filter(|i| !i.is_hide_set()) {
+    let mut opts: Vec<_> = cmd.get_arguments().filter(|i| !i.is_hide_set()).collect();
+
+    opts.sort_by_key(|opt| option_sort_key(opt));
+
+    for opt in opts {
         let (lhs, rhs) = option_markers(opt);
         match (opt.get_short(), opt.get_long()) {
             (Some(short), Some(long)) => {
@@ -89,7 +113,10 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
 }
 
 pub(crate) fn options(roff: &mut Roff, items: &[&Arg]) {
-    for opt in items.iter().filter(|a| !a.is_positional()) {
+    let mut sorted_items = items.to_vec();
+    sorted_items.sort_by_key(|opt| option_sort_key(opt));
+
+    for opt in sorted_items.iter().filter(|a| !a.is_positional()) {
         let mut header = match (opt.get_short(), opt.get_long()) {
             (Some(short), Some(long)) => {
                 vec![short_option(short), roman(", "), long_option(long)]
@@ -199,7 +226,10 @@ fn possible_options(roff: &mut Roff, arg: &Arg, arg_help_written: bool) {
 }
 
 pub(crate) fn subcommands(roff: &mut Roff, cmd: &clap::Command, section: &str) {
-    for sub in cmd.get_subcommands().filter(|s| !s.is_hide_set()) {
+    let mut sorted_subcommands: Vec<_> =
+        cmd.get_subcommands().filter(|s| !s.is_hide_set()).collect();
+    sorted_subcommands.sort_by_key(|sub| subcmd_sort_key(sub));
+    for sub in sorted_subcommands {
         roff.control("TP", []);
 
         let name = format!(
