@@ -354,3 +354,60 @@ pub(crate) fn help_headings(name: &'static str) -> clap::Command {
                 .value_parser(["always", "never", "auto"]),
         )
 }
+
+pub(crate) fn value_with_required_equals(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+    .arg(
+        clap::Arg::new("config")
+            .long("config")
+            .value_name("FILE")
+            .require_equals(true)
+            .help("Optional config file"),
+    )
+}
+
+pub(crate) fn optional_value_with_required_equals(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+    .arg(
+        clap::Arg::new("config")
+            .long("config")
+            .value_name("FILE")
+            .require_equals(true)
+            .num_args(0..=1)
+            .help("Optional config file"),
+    )
+}
+
+pub(crate) fn optional_value(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+    .arg(
+        clap::Arg::new("config")
+            .long("config")
+            .value_name("FILE")
+            .num_args(0..=1)
+            .help("Optional config file"),
+    )
+}
+
+pub(crate) fn multiple_optional_values(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+    .arg(
+        clap::Arg::new("config")
+            .long("config")
+            .value_names(["FILE1", "FILE2"])
+            .num_args(0..=2)
+            .help("Optional config file"),
+    )
+}
+
+pub(crate) fn variadic_values(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+    .arg(
+        clap::Arg::new("config")
+            .long("config")
+            .value_names(["FILE1", "FILE2"])
+            .require_equals(false)
+            .num_args(3)
+            .help("Optional config file"),
+    )
+}
