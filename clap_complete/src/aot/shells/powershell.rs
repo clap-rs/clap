@@ -53,6 +53,10 @@ Register-ArgumentCompleter -Native -CommandName '{bin_name}' -ScriptBlock {{
     $completions = @(switch ($command) {{{subcommands_cases}
     }})
 
+    if ($wordToComplete -notlike "-*") {{
+        $completions = $completions.Where{{ $_.CompletionText -notlike "-*" }}
+    }}
+
     $completions.Where{{ $_.CompletionText -like "$wordToComplete*" }} |
         Sort-Object -Property ListItemText
 }}
