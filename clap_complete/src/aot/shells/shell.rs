@@ -51,33 +51,33 @@ impl FromStr for Shell {
 impl ValueEnum for Shell {
     fn value_variants<'a>() -> &'a [Self] {
         &[
-            Shell::Bash,
-            Shell::Elvish,
-            Shell::Fish,
-            Shell::PowerShell,
-            Shell::Zsh,
+            Self::Bash,
+            Self::Elvish,
+            Self::Fish,
+            Self::PowerShell,
+            Self::Zsh,
         ]
     }
 
     fn to_possible_value(&self) -> Option<PossibleValue> {
-        Some(match self {
-            Shell::Bash => PossibleValue::new("bash"),
-            Shell::Elvish => PossibleValue::new("elvish"),
-            Shell::Fish => PossibleValue::new("fish"),
-            Shell::PowerShell => PossibleValue::new("powershell"),
-            Shell::Zsh => PossibleValue::new("zsh"),
-        })
+        Some(PossibleValue::new(match self {
+            Self::Bash => "bash",
+            Self::Elvish => "elvish",
+            Self::Fish => "fish",
+            Self::PowerShell => "powershell",
+            Self::Zsh => "zsh",
+        }))
     }
 }
 
 impl Generator for Shell {
     fn file_name(&self, name: &str) -> String {
         match self {
-            Shell::Bash => shells::Bash.file_name(name),
-            Shell::Elvish => shells::Elvish.file_name(name),
-            Shell::Fish => shells::Fish.file_name(name),
-            Shell::PowerShell => shells::PowerShell.file_name(name),
-            Shell::Zsh => shells::Zsh.file_name(name),
+            Self::Bash => shells::Bash.file_name(name),
+            Self::Elvish => shells::Elvish.file_name(name),
+            Self::Fish => shells::Fish.file_name(name),
+            Self::PowerShell => shells::PowerShell.file_name(name),
+            Self::Zsh => shells::Zsh.file_name(name),
         }
     }
 
@@ -88,11 +88,11 @@ impl Generator for Shell {
 
     fn try_generate(&self, cmd: &clap::Command, buf: &mut dyn std::io::Write) -> Result<(), Error> {
         match self {
-            Shell::Bash => shells::Bash.try_generate(cmd, buf),
-            Shell::Elvish => shells::Elvish.try_generate(cmd, buf),
-            Shell::Fish => shells::Fish.try_generate(cmd, buf),
-            Shell::PowerShell => shells::PowerShell.try_generate(cmd, buf),
-            Shell::Zsh => shells::Zsh.try_generate(cmd, buf),
+            Self::Bash => shells::Bash.try_generate(cmd, buf),
+            Self::Elvish => shells::Elvish.try_generate(cmd, buf),
+            Self::Fish => shells::Fish.try_generate(cmd, buf),
+            Self::PowerShell => shells::PowerShell.try_generate(cmd, buf),
+            Self::Zsh => shells::Zsh.try_generate(cmd, buf),
         }
     }
 }
@@ -109,7 +109,7 @@ impl Shell {
     /// assert_eq!(Shell::from_shell_path("/usr/bin/zsh"), Some(Shell::Zsh));
     /// assert_eq!(Shell::from_shell_path("/opt/my_custom_shell"), None);
     /// ```
-    pub fn from_shell_path<P: AsRef<Path>>(path: P) -> Option<Shell> {
+    pub fn from_shell_path<P: AsRef<Path>>(path: P) -> Option<Self> {
         parse_shell_from_path(path.as_ref())
     }
 
@@ -135,11 +135,11 @@ impl Shell {
     /// let mut cmd = build_cli();
     /// generate(Shell::from_env().unwrap_or(Shell::Bash), &mut cmd, "myapp", &mut std::io::stdout());
     /// ```
-    pub fn from_env() -> Option<Shell> {
+    pub fn from_env() -> Option<Self> {
         if let Some(env_shell) = std::env::var_os("SHELL") {
-            Shell::from_shell_path(env_shell)
+            Self::from_shell_path(env_shell)
         } else if cfg!(windows) {
-            Some(Shell::PowerShell)
+            Some(Self::PowerShell)
         } else {
             None
         }
@@ -150,12 +150,12 @@ impl Shell {
 // to from_shell_path being generic
 fn parse_shell_from_path(path: &Path) -> Option<Shell> {
     let name = path.file_stem()?.to_str()?;
-    match name {
-        "bash" => Some(Shell::Bash),
-        "zsh" => Some(Shell::Zsh),
-        "fish" => Some(Shell::Fish),
-        "elvish" => Some(Shell::Elvish),
-        "powershell" | "powershell_ise" => Some(Shell::PowerShell),
-        _ => None,
-    }
+    Some(match name {
+        "bash" => Shell::Bash,
+        "zsh" => Shell::Zsh,
+        "fish" => Shell::Fish,
+        "elvish" => Shell::Elvish,
+        "powershell" | "powershell_ise" => Shell::PowerShell,
+        _ => return None,
+    })
 }

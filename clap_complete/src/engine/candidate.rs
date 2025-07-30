@@ -108,6 +108,6 @@ impl CompletionCandidate {
 
 impl<S: Into<OsString>> From<S> for CompletionCandidate {
     fn from(s: S) -> Self {
-        CompletionCandidate::new(s.into())
+        Self::new(s.into())
     }
 }
