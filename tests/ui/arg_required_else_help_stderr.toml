@@ -9,9 +9,9 @@ Commands:
   more                    
   test                    Subcommand with one visible alias [aliases: do-stuff]
   test_2                  several visible aliases [aliases: do-other-stuff, tests]
-  test_3, --test          several visible long flag aliases
+  test_3, --test          several visible long flag aliases [aliases: --testing, --testall, --test_all]
   test_4, -t              several visible short flag aliases [aliases: -q, -w]
-  test_5, -e, --test-hdr  all kinds of visible aliases [aliases: -r, -y, tests_4k]
+  test_5, -e, --test-hdr  all kinds of visible aliases [aliases: -r, -y, --thetests, --t4k, tests_4k]
   help                    Print this message or the help of the given subcommand(s)
 
 Arguments:
