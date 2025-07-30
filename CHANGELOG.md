@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Include subcommand visible long aliases in `--help`
+
 ## [4.5.41] - 2025-07-09
 
 ### Features
