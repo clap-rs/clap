@@ -14,7 +14,7 @@ Dual-licensed under [Apache 2.0](LICENSE-APACHE) or [MIT](LICENSE-MIT).
 
 ## Get Started
 
-```
+```sh
 cargo add clap
 ```
 or
