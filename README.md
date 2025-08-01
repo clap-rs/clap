@@ -12,6 +12,18 @@
 
 Dual-licensed under [Apache 2.0](LICENSE-APACHE) or [MIT](LICENSE-MIT).
 
+## Get Started
+
+```
+cargo add clap
+```
+or
+
+```toml
+[dependencies]
+clap = {version = "4.5.42"}
+```
+
 ## About
 
 Create your command-line parser, with all of the bells and whistles, declaratively or procedurally.
