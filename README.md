@@ -14,14 +14,8 @@ Dual-licensed under [Apache 2.0](LICENSE-APACHE) or [MIT](LICENSE-MIT).
 
 ## Get Started
 
-```sh
-cargo add clap
-```
-or
-
-```toml
-[dependencies]
-clap = {version = "4.5.42"}
+```console
+$ cargo add clap
 ```
 
 ## About
