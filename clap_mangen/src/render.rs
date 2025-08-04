@@ -367,7 +367,7 @@ fn format_possible_values(possibles: &Vec<&clap::builder::PossibleValue>) -> Vec
         let val_name = value.get_name();
         match value.get_help() {
             Some(help) => lines.push(format!("{val_name}: {help}")),
-            None => lines.push(val_name.to_string()),
+            None => lines.push(val_name.to_owned()),
         }
     }
     lines
