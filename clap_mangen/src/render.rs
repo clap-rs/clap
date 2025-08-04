@@ -261,10 +261,8 @@ pub(crate) fn after_help(roff: &mut Roff, cmd: &clap::Command) {
                 continue;
             }
 
-            if line.starts_with("- ") {
+            if let Some(item_content) = line.strip_prefix("- ") {
                 // list item after removing "- "
-                let item_content = &line[2..];
-
                 // Look for the pattern: "- OPTION PARAM description"
                 if let Some((option, description)) = parse_list_item(item_content) {
                     roff.control("TP", []);
