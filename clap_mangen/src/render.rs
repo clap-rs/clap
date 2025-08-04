@@ -295,17 +295,19 @@ fn parse_list_item(content: &str) -> Option<(&str, &str)> {
     match parts.as_slice() {
         [option, param, _description] => {
             // Check if this looks like an option with parameter
-            if option.starts_with('-') && param.chars().all(|c| c.is_uppercase() || c == '_') {
+            // e.g. "-b FILE FILE exists and is block special"
+            if option.starts_with('-') && param.chars().all(|c| c.is_uppercase() || c == '_') { 
                 Some((*option, &content[option.len() + param.len() + 2..]))
             } else {
-                // Just option and description
+                // e.g. "- STRING equivalent to -n STRING"
                 Some((*option, &content[option.len() + 1..]))
             }
         }
         [option, description] => {
-            // Just option and description
+            // e.g. "- STRING equivalent to -n STRING"
             Some((*option, *description))
         }
+        // anything else is not a list item
         _ => None,
     }
 }
