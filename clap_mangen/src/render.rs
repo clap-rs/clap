@@ -206,7 +206,7 @@ fn possible_options(roff: &mut Roff, arg: &Arg, arg_help_written: bool) {
         roff.control("RS", ["14"]);
         for line in possible_values_text {
             roff.control("IP", ["\\(bu", "2"]);
-            roff.text([roman(line)]);
+            roff.extend([line]);
         }
         roff.control("RE", []);
     }
@@ -346,7 +346,7 @@ fn option_default_values(opt: &Arg) -> Option<String> {
     None
 }
 
-fn get_possible_values(arg: &Arg) -> Option<Vec<String>> {
+fn get_possible_values(arg: &Arg) -> Option<Vec<Roff>> {
     if arg.is_hide_possible_values_set() {
         return None;
     }
@@ -361,14 +361,20 @@ fn get_possible_values(arg: &Arg) -> Option<Vec<String>> {
     None
 }
 
-fn format_possible_values(possibles: &Vec<&clap::builder::PossibleValue>) -> Vec<String> {
+fn format_possible_values(possibles: &Vec<&clap::builder::PossibleValue>) -> Vec<Roff> {
     let mut lines = vec![];
     for value in possibles {
+        let mut roff = Roff::default();
         let val_name = value.get_name();
         match value.get_help() {
-            Some(help) => lines.push(format!("{val_name}: {help}")),
-            None => lines.push(val_name.to_owned()),
+            Some(help) => {
+                roff.text([roman(format!("{val_name}: {help}"))]);
+            }
+            None => {
+                roff.text([roman(val_name.to_owned())]);
+            }
         }
+        lines.push(roff);
     }
     lines
 }
