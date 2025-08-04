@@ -193,33 +193,22 @@ pub(crate) fn options(roff: &mut Roff, items: &[&Arg]) {
 }
 
 fn possible_options(roff: &mut Roff, arg: &Arg, arg_help_written: bool) {
-    if let Some((possible_values_text, with_help)) = get_possible_values(arg) {
+    if let Some(possible_values_text) = get_possible_values(arg) {
         if arg_help_written {
             // It looks nice to have a separation between the help and the values
             roff.text([Inline::LineBreak]);
         }
-        if with_help {
-            roff.text([Inline::LineBreak, italic("Possible values:")]);
+        roff.text([Inline::LineBreak, italic("Possible values:")]);
 
-            // Need to indent twice to get it to look right, because .TP heading indents, but
-            // that indent doesn't Carry over to the .IP for the bullets. The standard shift
-            // size is 7 for terminal devices
-            roff.control("RS", ["14"]);
-            for line in possible_values_text {
-                roff.control("IP", ["\\(bu", "2"]);
-                roff.text([roman(line)]);
-            }
-            roff.control("RE", []);
-        } else {
-            let possible_value_text: Vec<Inline> = vec![
-                Inline::LineBreak,
-                roman("["),
-                italic("possible values: "),
-                roman(possible_values_text.join(", ")),
-                roman("]"),
-            ];
-            roff.text(possible_value_text);
+        // Need to indent twice to get it to look right, because .TP heading indents, but
+        // that indent doesn't Carry over to the .IP for the bullets. The standard shift
+        // size is 7 for terminal devices
+        roff.control("RS", ["14"]);
+        for line in possible_values_text {
+            roff.control("IP", ["\\(bu", "2"]);
+            roff.text([roman(line)]);
         }
+        roff.control("RE", []);
     }
 }
 
@@ -357,7 +346,7 @@ fn option_default_values(opt: &Arg) -> Option<String> {
     None
 }
 
-fn get_possible_values(arg: &Arg) -> Option<(Vec<String>, bool)> {
+fn get_possible_values(arg: &Arg) -> Option<Vec<String>> {
     if arg.is_hide_possible_values_set() {
         return None;
     }
@@ -372,21 +361,16 @@ fn get_possible_values(arg: &Arg) -> Option<(Vec<String>, bool)> {
     None
 }
 
-fn format_possible_values(possibles: &Vec<&clap::builder::PossibleValue>) -> (Vec<String>, bool) {
+fn format_possible_values(possibles: &Vec<&clap::builder::PossibleValue>) -> Vec<String> {
     let mut lines = vec![];
-    let with_help = possibles.iter().any(|p| p.get_help().is_some());
-    if with_help {
-        for value in possibles {
-            let val_name = value.get_name();
-            match value.get_help() {
-                Some(help) => lines.push(format!("{val_name}: {help}")),
-                None => lines.push(val_name.to_string()),
-            }
+    for value in possibles {
+        let val_name = value.get_name();
+        match value.get_help() {
+            Some(help) => lines.push(format!("{val_name}: {help}")),
+            None => lines.push(val_name.to_string()),
         }
-    } else {
-        lines.append(&mut possibles.iter().map(|p| p.get_name().to_string()).collect());
     }
-    (lines, with_help)
+    lines
 }
 
 fn subcommand_sort_key(command: &clap::Command) -> (usize, &str) {
