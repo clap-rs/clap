@@ -34,6 +34,7 @@ bench = false
 
 [dependencies]
 roff = "0.2.1"
+anstyle-roff = { version = "0.3.8", optional = true }
 clap = { path = "../", version = "4.0.0", default-features = false, features = ["std", "env"] }
 
 [dev-dependencies]
@@ -44,6 +45,7 @@ anstyle = "1.0.11"
 
 [features]
 default = []
+ansi = ["dep:anstyle-roff", "clap/color"]
 debug = ["clap/debug"]
 
 [lints]
