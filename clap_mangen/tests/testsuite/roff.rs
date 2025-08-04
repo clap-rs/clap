@@ -162,3 +162,13 @@ fn variadic_values() {
         cmd,
     );
 }
+
+#[test]
+fn test_after_help() {
+    let name = "test";
+    let cmd = common::test_after_help_command(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/test_after_help.bash.roff"],
+        cmd,
+    );
+}

@@ -1,0 +1,158 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH test 1  "test 1.0" 
+.SH NAME
+test \- Check file types and compare values.
+.SH SYNOPSIS
+\fBtest\fR [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] 
+.SH DESCRIPTION
+Check file types and compare values.
+.SH OPTIONS
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Print version
+.SH EXTRA
+Exit with the status determined by EXPRESSION.
+.PP
+An omitted EXPRESSION defaults to false.
+Otherwise, EXPRESSION is true or false and sets exit status.
+.PP
+It is one of:
+.PP
+.TP
+\fB(\fR
+EXPRESSION ) EXPRESSION is true
+.TP
+\fB!\fR
+EXPRESSION EXPRESSION is false
+.TP
+\fBEXPRESSION1\fR
+\-a EXPRESSION2 both EXPRESSION1 and EXPRESSION2 are true
+.TP
+\fBEXPRESSION1\fR
+\-o EXPRESSION2 either EXPRESSION1 or EXPRESSION2 is true
+.PP
+String operations:
+.TP
+\fB\-n\fR
+the length of STRING is nonzero
+.TP
+\fBSTRING\fR
+equivalent to \-n STRING
+.TP
+\fB\-z\fR
+the length of STRING is zero
+.TP
+\fBSTRING1\fR
+= STRING2 the strings are equal
+.TP
+\fBSTRING1\fR
+!= STRING2 the strings are not equal
+.PP
+Integer comparisons:
+.TP
+\fBINTEGER1\fR
+\-eq INTEGER2 INTEGER1 is equal to INTEGER2
+.TP
+\fBINTEGER1\fR
+\-ge INTEGER2 INTEGER1 is greater than or equal to INTEGER2
+.TP
+\fBINTEGER1\fR
+\-gt INTEGER2 INTEGER1 is greater than INTEGER2
+.TP
+\fBINTEGER1\fR
+\-le INTEGER2 INTEGER1 is less than or equal to INTEGER2
+.TP
+\fBINTEGER1\fR
+\-lt INTEGER2 INTEGER1 is less than INTEGER2
+.TP
+\fBINTEGER1\fR
+\-ne INTEGER2 INTEGER1 is not equal to INTEGER2
+.PP
+File operations:
+.TP
+\fBFILE1\fR
+\-ef FILE2 FILE1 and FILE2 have the same device and inode numbers
+.TP
+\fBFILE1\fR
+\-nt FILE2 FILE1 is newer (modification date) than FILE2
+.TP
+\fBFILE1\fR
+\-ot FILE2 FILE1 is older than FILE2
+.PP
+.TP
+\fB\-b\fR
+FILE exists and is block special
+.TP
+\fB\-c\fR
+FILE exists and is character special
+.TP
+\fB\-d\fR
+FILE exists and is a directory
+.TP
+\fB\-e\fR
+FILE exists
+.TP
+\fB\-f\fR
+FILE exists and is a regular file
+.TP
+\fB\-g\fR
+FILE exists and is set\-group\-ID
+.TP
+\fB\-G\fR
+FILE exists and is owned by the effective group ID
+.TP
+\fB\-h\fR
+FILE exists and is a symbolic link (same as \-L)
+.TP
+\fB\-k\fR
+FILE exists and has its sticky bit set
+.TP
+\fB\-L\fR
+FILE exists and is a symbolic link (same as \-h)
+.TP
+\fB\-N\fR
+FILE exists and has been modified since it was last read
+.TP
+\fB\-O\fR
+FILE exists and is owned by the effective user ID
+.TP
+\fB\-p\fR
+FILE exists and is a named pipe
+.TP
+\fB\-r\fR
+FILE exists and read permission is granted
+.TP
+\fB\-s\fR
+FILE exists and has a size greater than zero
+.TP
+\fB\-S\fR
+FILE exists and is a socket
+.TP
+\fB\-t\fR
+file descriptor FD is opened on a terminal
+.TP
+\fB\-u\fR
+FILE exists and its set\-user\-ID bit is set
+.TP
+\fB\-w\fR
+FILE exists and write permission is granted
+.TP
+\fB\-x\fR
+FILE exists and execute (or search) permission is granted
+.PP
+Except for \-h and \-L, all FILE\-related tests dereference (follow) symbolic links.
+Beware that parentheses need to be escaped (e.g., by backslashes) for shells.
+INTEGER may also be \-l STRING, which evaluates to the length of STRING.
+.PP
+NOTE: Binary \-a and \-o are inherently ambiguous.
+Use test EXPR1 && test EXPR2 or test EXPR1 || test EXPR2 instead.
+NOTE: [ honors the \-\-help and \-\-version options, but test does not.
+test treats each of those as it treats any other nonempty STRING.
+NOTE: your shell may have its own version of test and/or [, which usually supersedes the version described here.
+Please refer to your shell\*(Aqs documentation for details about the options it supports.
+.SH VERSION
+v1.0 
