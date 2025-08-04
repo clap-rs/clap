@@ -137,10 +137,7 @@ fn optional_value_with_required_equals() {
 fn optional_value() {
     let name = "my-app";
     let cmd = common::optional_value(name);
-    common::assert_matches(
-        snapbox::file!["../snapshots/optional_value.bash.roff"],
-        cmd,
-    );
+    common::assert_matches(snapbox::file!["../snapshots/optional_value.bash.roff"], cmd);
 }
 
 #[test]

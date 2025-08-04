@@ -249,22 +249,22 @@ pub(crate) fn after_help(roff: &mut Roff, cmd: &clap::Command) {
     if let Some(about) = cmd.get_after_long_help().or_else(|| cmd.get_after_help()) {
         let content = about.to_string();
         let lines: Vec<&str> = content.lines().collect();
-        
+
         let mut i = 0;
         while i < lines.len() {
             let line = lines[i].trim();
-            
+
             // Skip empty lines
             if line.is_empty() {
                 roff.control("PP", []);
                 i += 1;
                 continue;
             }
-            
+
             if line.starts_with("- ") {
                 // list item after removing "- "
-                let item_content = &line[2..]; 
-                
+                let item_content = &line[2..];
+
                 // Look for the pattern: "- OPTION PARAM description"
                 if let Some((option, description)) = parse_list_item(item_content) {
                     roff.control("TP", []);
@@ -279,7 +279,7 @@ pub(crate) fn after_help(roff: &mut Roff, cmd: &clap::Command) {
                 // Regular paragraph text
                 roff.text([roman(line)]);
             }
-            
+
             i += 1;
         }
     }
@@ -291,12 +291,12 @@ pub(crate) fn after_help(roff: &mut Roff, cmd: &clap::Command) {
 /// "- STRING equivalent to -n STRING" -> ("STRING", "equivalent to -n STRING")
 fn parse_list_item(content: &str) -> Option<(&str, &str)> {
     let parts: Vec<&str> = content.splitn(3, ' ').collect();
-    
+
     match parts.as_slice() {
         [option, param, _description] => {
             // Check if this looks like an option with parameter
             // e.g. "-b FILE FILE exists and is block special"
-            if option.starts_with('-') && param.chars().all(|c| c.is_uppercase() || c == '_') { 
+            if option.starts_with('-') && param.chars().all(|c| c.is_uppercase() || c == '_') {
                 Some((*option, &content[option.len() + param.len() + 2..]))
             } else {
                 // e.g. "- STRING equivalent to -n STRING"
