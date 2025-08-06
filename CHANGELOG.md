@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(help)* In long help, list Possible Values before defaults, rather than after, for a more consistent look
+
 ## [4.5.42] - 2025-07-30
 
 ### Fixes
