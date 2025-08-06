@@ -31,12 +31,12 @@ Options:
 
   -c, --config <MODE>
           Speed configuration
-          
-          [default: fast]
 
           Possible values:
           - fast
           - slow: slower than fast
+          
+          [default: fast]
 
   -f <FRUITS>
           List of fruits
