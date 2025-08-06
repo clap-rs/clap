@@ -638,13 +638,10 @@ impl HelpTemplate<'_, '_> {
         let mut help_is_empty = help.is_empty();
         help.replace_newline_var();
 
-        if !spec_vals.is_empty() {
+        let next_line_specs = self.use_long && arg.is_some();
+        if !spec_vals.is_empty() && !next_line_specs {
             if !help_is_empty {
-                let sep = if self.use_long && arg.is_some() {
-                    "\n\n"
-                } else {
-                    " "
-                };
+                let sep = " ";
                 help.push_str(sep);
             }
             help.push_str(spec_vals);
@@ -710,6 +707,19 @@ impl HelpTemplate<'_, '_> {
                     }
                 }
             }
+        }
+
+        if !spec_vals.is_empty() && next_line_specs {
+            let mut help = StyledStr::new();
+            if !help_is_empty {
+                let sep = "\n\n";
+                help.push_str(sep);
+            }
+            help.push_str(spec_vals);
+
+            help.wrap(avail_chars);
+            help.indent("", &trailing_indent);
+            self.writer.push_styled(&help);
         }
     }
 
