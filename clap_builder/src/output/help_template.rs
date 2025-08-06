@@ -636,6 +636,7 @@ impl HelpTemplate<'_, '_> {
 
         let mut help = about.clone();
         help.replace_newline_var();
+
         if !spec_vals.is_empty() {
             if !help.is_empty() {
                 let sep = if self.use_long && arg.is_some() {
@@ -647,6 +648,7 @@ impl HelpTemplate<'_, '_> {
             }
             help.push_str(spec_vals);
         }
+
         let avail_chars = self.term_w.saturating_sub(spaces);
         debug!(
             "HelpTemplate::help: help_width={}, spaces={}, avail={}",
@@ -658,6 +660,7 @@ impl HelpTemplate<'_, '_> {
         help.indent("", &trailing_indent);
         let help_is_empty = help.is_empty();
         self.writer.push_styled(&help);
+
         if let Some(arg) = arg {
             if !arg.is_hide_possible_values_set() && self.use_long_pv(arg) {
                 const DASH_SPACE: usize = "- ".len();
