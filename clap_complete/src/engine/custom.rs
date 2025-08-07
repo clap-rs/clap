@@ -295,6 +295,16 @@ pub(crate) fn complete_path(
     let current = current.to_string_lossy();
     let search_root = if prefix.is_absolute() {
         prefix.to_owned()
+    } else if prefix.iter().next() == Some(OsStr::new("~")) {
+        let prefix = prefix.strip_prefix("~").unwrap_or(prefix);
+        let home_dir = match std::env::home_dir() {
+            Some(home_dir) => home_dir,
+            None => {
+                // Can't complete without a `home_dir`
+                return completions;
+            }
+        };
+        home_dir.join(prefix)
     } else {
         let current_dir = match current_dir {
             Some(current_dir) => current_dir,
