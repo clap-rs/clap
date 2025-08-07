@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+- *(aot)* Complete `~/` paths
+
 ## [4.5.55] - 2025-07-09
 
 ## [4.5.54] - 2025-06-09
