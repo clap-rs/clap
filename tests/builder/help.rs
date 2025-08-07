@@ -4142,3 +4142,569 @@ Mixed:
 "#]];
     utils::assert_output(cmd, "myprog --help", expected, false);
 }
+
+#[test]
+#[cfg(feature = "wrap_help")]
+fn next_line_command_short() {
+    let value_name = "V";
+    let text = "Hello";
+
+    let cmd = Command::new("test")
+        .term_width(120)
+        .next_line_help(true)
+        .args([
+            Arg::new("default")
+                .long("default")
+                .value_name(value_name)
+                .help(text)
+                .long_help(text),
+            Arg::new("next_line_help_false")
+                .long("next_line_help_false")
+                .next_line_help(false)
+                .value_name(value_name)
+                .help(text)
+                .long_help(text),
+            Arg::new("next_line_help_true")
+                .long("next_line_help_true")
+                .next_line_help(true)
+                .value_name(value_name)
+                .help(text)
+                .long_help(text),
+        ])
+        .subcommands([
+            Command::new("default").about(text).long_about(text),
+            Command::new("next_line_help_false")
+                .next_line_help(false)
+                .about(text)
+                .long_about(text),
+            Command::new("next_line_help_true")
+                .next_line_help(true)
+                .about(text)
+                .long_about(text),
+        ]);
+
+    let expected = str![[r#"
+Usage: myprog [OPTIONS] [COMMAND]
+
+Commands:
+  default
+          Hello
+  next_line_help_false
+          Hello
+  next_line_help_true
+          Hello
+  help
+          Print this message or the help of the given subcommand(s)
+
+Options:
+      --default <V>
+          Hello
+      --next_line_help_false <V>
+          Hello
+      --next_line_help_true <V>
+          Hello
+  -h, --help
+          Print help (see more with '--help')
+
+"#]];
+    utils::assert_output(cmd.clone(), "myprog -h", expected, false);
+
+    let expected = str![[r#"
+Usage: myprog [OPTIONS] [COMMAND]
+
+Commands:
+  default
+          Hello
+  next_line_help_false
+          Hello
+  next_line_help_true
+          Hello
+  help
+          Print this message or the help of the given subcommand(s)
+
+Options:
+      --default <V>
+          Hello
+
+      --next_line_help_false <V>
+          Hello
+
+      --next_line_help_true <V>
+          Hello
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+"#]];
+    utils::assert_output(cmd, "myprog --help", expected, false);
+}
+
+#[test]
+#[cfg(feature = "wrap_help")]
+fn next_line_arg_short() {
+    let value_name = "V";
+    let text = "Hello";
+
+    let cmd = Command::new("test")
+        .term_width(120)
+        .next_line_help(true)
+        .args([
+            Arg::new("default")
+                .long("default")
+                .value_name(value_name)
+                .help(text)
+                .long_help(text),
+            Arg::new("next_line_help_false")
+                .long("next_line_help_false")
+                .next_line_help(false)
+                .value_name(value_name)
+                .help(text)
+                .long_help(text),
+            Arg::new("next_line_help_true")
+                .long("next_line_help_true")
+                .next_line_help(true)
+                .value_name(value_name)
+                .help(text)
+                .long_help(text),
+        ])
+        .subcommands([
+            Command::new("default").about(text).long_about(text),
+            Command::new("next_line_help_false")
+                .next_line_help(false)
+                .about(text)
+                .long_about(text),
+            Command::new("next_line_help_true")
+                .next_line_help(true)
+                .about(text)
+                .long_about(text),
+        ]);
+
+    let expected = str![[r#"
+Usage: myprog [OPTIONS] [COMMAND]
+
+Commands:
+  default
+          Hello
+  next_line_help_false
+          Hello
+  next_line_help_true
+          Hello
+  help
+          Print this message or the help of the given subcommand(s)
+
+Options:
+      --default <V>
+          Hello
+      --next_line_help_false <V>
+          Hello
+      --next_line_help_true <V>
+          Hello
+  -h, --help
+          Print help (see more with '--help')
+
+"#]];
+    utils::assert_output(cmd.clone(), "myprog -h", expected, false);
+
+    let expected = str![[r#"
+Usage: myprog [OPTIONS] [COMMAND]
+
+Commands:
+  default
+          Hello
+  next_line_help_false
+          Hello
+  next_line_help_true
+          Hello
+  help
+          Print this message or the help of the given subcommand(s)
+
+Options:
+      --default <V>
+          Hello
+
+      --next_line_help_false <V>
+          Hello
+
+      --next_line_help_true <V>
+          Hello
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+"#]];
+    utils::assert_output(cmd, "myprog --help", expected, false);
+}
+
+#[test]
+#[cfg(feature = "wrap_help")]
+fn next_line_command_wrapped() {
+    let value_name = "SOME_LONG_VALUE";
+    let text = "Also do versioning for private crates (will not be published)
+
+Specify inter dependency version numbers exactly with `=`
+
+Do not commit version changes
+
+Do not push generated commit and tags to git remote
+";
+
+    let cmd = Command::new("test")
+        .term_width(67)
+        .next_line_help(true)
+        .args([
+            Arg::new("default")
+                .long("default")
+                .value_name(value_name)
+                .help(text)
+                .long_help(text),
+            Arg::new("next_line_help_false")
+                .long("next_line_help_false")
+                .next_line_help(false)
+                .value_name(value_name)
+                .help(text)
+                .long_help(text),
+            Arg::new("next_line_help_true")
+                .long("next_line_help_true")
+                .next_line_help(true)
+                .value_name(value_name)
+                .help(text)
+                .long_help(text),
+        ])
+        .subcommands([
+            Command::new("default").about(text).long_about(text),
+            Command::new("next_line_help_false")
+                .next_line_help(false)
+                .about(text)
+                .long_about(text),
+            Command::new("next_line_help_true")
+                .next_line_help(true)
+                .about(text)
+                .long_about(text),
+        ]);
+
+    let expected = str![[r#"
+Usage: myprog [OPTIONS] [COMMAND]
+
+Commands:
+  default
+          Also do versioning for private crates (will not be
+          published)
+          
+          Specify inter dependency version numbers exactly with `=`
+          
+          Do not commit version changes
+          
+          Do not push generated commit and tags to git remote
+  next_line_help_false
+          Also do versioning for private crates (will not be
+          published)
+          
+          Specify inter dependency version numbers exactly with `=`
+          
+          Do not commit version changes
+          
+          Do not push generated commit and tags to git remote
+  next_line_help_true
+          Also do versioning for private crates (will not be
+          published)
+          
+          Specify inter dependency version numbers exactly with `=`
+          
+          Do not commit version changes
+          
+          Do not push generated commit and tags to git remote
+  help
+          Print this message or the help of the given subcommand(s)
+
+Options:
+      --default <SOME_LONG_VALUE>
+          Also do versioning for private crates (will not be
+          published)
+          
+          Specify inter dependency version numbers exactly with `=`
+          
+          Do not commit version changes
+          
+          Do not push generated commit and tags to git remote
+      --next_line_help_false <SOME_LONG_VALUE>
+          Also do versioning for private crates (will not be
+          published)
+          
+          Specify inter dependency version numbers exactly with `=`
+          
+          Do not commit version changes
+          
+          Do not push generated commit and tags to git remote
+      --next_line_help_true <SOME_LONG_VALUE>
+          Also do versioning for private crates (will not be
+          published)
+          
+          Specify inter dependency version numbers exactly with `=`
+          
+          Do not commit version changes
+          
+          Do not push generated commit and tags to git remote
+  -h, --help
+          Print help (see more with '--help')
+
+"#]];
+    utils::assert_output(cmd.clone(), "myprog -h", expected, false);
+
+    let expected = str![[r#"
+Usage: myprog [OPTIONS] [COMMAND]
+
+Commands:
+  default
+          Also do versioning for private crates (will not be
+          published)
+          
+          Specify inter dependency version numbers exactly with `=`
+          
+          Do not commit version changes
+          
+          Do not push generated commit and tags to git remote
+  next_line_help_false
+          Also do versioning for private crates (will not be
+          published)
+          
+          Specify inter dependency version numbers exactly with `=`
+          
+          Do not commit version changes
+          
+          Do not push generated commit and tags to git remote
+  next_line_help_true
+          Also do versioning for private crates (will not be
+          published)
+          
+          Specify inter dependency version numbers exactly with `=`
+          
+          Do not commit version changes
+          
+          Do not push generated commit and tags to git remote
+  help
+          Print this message or the help of the given subcommand(s)
+
+Options:
+      --default <SOME_LONG_VALUE>
+          Also do versioning for private crates (will not be
+          published)
+          
+          Specify inter dependency version numbers exactly with `=`
+          
+          Do not commit version changes
+          
+          Do not push generated commit and tags to git remote
+
+      --next_line_help_false <SOME_LONG_VALUE>
+          Also do versioning for private crates (will not be
+          published)
+          
+          Specify inter dependency version numbers exactly with `=`
+          
+          Do not commit version changes
+          
+          Do not push generated commit and tags to git remote
+
+      --next_line_help_true <SOME_LONG_VALUE>
+          Also do versioning for private crates (will not be
+          published)
+          
+          Specify inter dependency version numbers exactly with `=`
+          
+          Do not commit version changes
+          
+          Do not push generated commit and tags to git remote
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+"#]];
+    utils::assert_output(cmd, "myprog --help", expected, false);
+}
+
+#[test]
+#[cfg(feature = "wrap_help")]
+fn next_line_arg_wrapped() {
+    let value_name = "SOME_LONG_VALUE";
+    let text = "Also do versioning for private crates (will not be published)
+
+Specify inter dependency version numbers exactly with `=`
+
+Do not commit version changes
+
+Do not push generated commit and tags to git remote
+";
+
+    let cmd = Command::new("test")
+        .term_width(67)
+        .next_line_help(true)
+        .args([
+            Arg::new("default")
+                .long("default")
+                .value_name(value_name)
+                .help(text)
+                .long_help(text),
+            Arg::new("next_line_help_false")
+                .long("next_line_help_false")
+                .next_line_help(false)
+                .value_name(value_name)
+                .help(text)
+                .long_help(text),
+            Arg::new("next_line_help_true")
+                .long("next_line_help_true")
+                .next_line_help(true)
+                .value_name(value_name)
+                .help(text)
+                .long_help(text),
+        ])
+        .subcommands([
+            Command::new("default").about(text).long_about(text),
+            Command::new("next_line_help_false")
+                .next_line_help(false)
+                .about(text)
+                .long_about(text),
+            Command::new("next_line_help_true")
+                .next_line_help(true)
+                .about(text)
+                .long_about(text),
+        ]);
+
+    let expected = str![[r#"
+Usage: myprog [OPTIONS] [COMMAND]
+
+Commands:
+  default
+          Also do versioning for private crates (will not be
+          published)
+          
+          Specify inter dependency version numbers exactly with `=`
+          
+          Do not commit version changes
+          
+          Do not push generated commit and tags to git remote
+  next_line_help_false
+          Also do versioning for private crates (will not be
+          published)
+          
+          Specify inter dependency version numbers exactly with `=`
+          
+          Do not commit version changes
+          
+          Do not push generated commit and tags to git remote
+  next_line_help_true
+          Also do versioning for private crates (will not be
+          published)
+          
+          Specify inter dependency version numbers exactly with `=`
+          
+          Do not commit version changes
+          
+          Do not push generated commit and tags to git remote
+  help
+          Print this message or the help of the given subcommand(s)
+
+Options:
+      --default <SOME_LONG_VALUE>
+          Also do versioning for private crates (will not be
+          published)
+          
+          Specify inter dependency version numbers exactly with `=`
+          
+          Do not commit version changes
+          
+          Do not push generated commit and tags to git remote
+      --next_line_help_false <SOME_LONG_VALUE>
+          Also do versioning for private crates (will not be
+          published)
+          
+          Specify inter dependency version numbers exactly with `=`
+          
+          Do not commit version changes
+          
+          Do not push generated commit and tags to git remote
+      --next_line_help_true <SOME_LONG_VALUE>
+          Also do versioning for private crates (will not be
+          published)
+          
+          Specify inter dependency version numbers exactly with `=`
+          
+          Do not commit version changes
+          
+          Do not push generated commit and tags to git remote
+  -h, --help
+          Print help (see more with '--help')
+
+"#]];
+    utils::assert_output(cmd.clone(), "myprog -h", expected, false);
+
+    let expected = str![[r#"
+Usage: myprog [OPTIONS] [COMMAND]
+
+Commands:
+  default
+          Also do versioning for private crates (will not be
+          published)
+          
+          Specify inter dependency version numbers exactly with `=`
+          
+          Do not commit version changes
+          
+          Do not push generated commit and tags to git remote
+  next_line_help_false
+          Also do versioning for private crates (will not be
+          published)
+          
+          Specify inter dependency version numbers exactly with `=`
+          
+          Do not commit version changes
+          
+          Do not push generated commit and tags to git remote
+  next_line_help_true
+          Also do versioning for private crates (will not be
+          published)
+          
+          Specify inter dependency version numbers exactly with `=`
+          
+          Do not commit version changes
+          
+          Do not push generated commit and tags to git remote
+  help
+          Print this message or the help of the given subcommand(s)
+
+Options:
+      --default <SOME_LONG_VALUE>
+          Also do versioning for private crates (will not be
+          published)
+          
+          Specify inter dependency version numbers exactly with `=`
+          
+          Do not commit version changes
+          
+          Do not push generated commit and tags to git remote
+
+      --next_line_help_false <SOME_LONG_VALUE>
+          Also do versioning for private crates (will not be
+          published)
+          
+          Specify inter dependency version numbers exactly with `=`
+          
+          Do not commit version changes
+          
+          Do not push generated commit and tags to git remote
+
+      --next_line_help_true <SOME_LONG_VALUE>
+          Also do versioning for private crates (will not be
+          published)
+          
+          Specify inter dependency version numbers exactly with `=`
+          
+          Do not commit version changes
+          
+          Do not push generated commit and tags to git remote
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+"#]];
+    utils::assert_output(cmd, "myprog --help", expected, false);
+}
