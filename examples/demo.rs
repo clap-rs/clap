@@ -1,6 +1,6 @@
 use clap::Parser;
 
-/// Simple program to greet a person
+/// A simple to use, efficient, and full-featured Command Line Argument Parser
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
