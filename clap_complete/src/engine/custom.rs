@@ -333,9 +333,10 @@ pub(crate) fn complete_path(
         }
 
         if entry.metadata().map(|m| m.is_dir()).unwrap_or(false) {
-            let mut suggestion = prefix.join(raw_file_name);
+            let mut suggestion = prefix.join(&raw_file_name);
             suggestion.push(""); // Ensure trailing `/`
-            let candidate = CompletionCandidate::new(suggestion.as_os_str().to_owned());
+            let candidate = CompletionCandidate::new(suggestion.as_os_str().to_owned())
+                .hide(is_hidden(&raw_file_name));
 
             if is_wanted(&entry.path()) {
                 completions.push(candidate);
@@ -344,8 +345,9 @@ pub(crate) fn complete_path(
             }
         } else {
             if is_wanted(&entry.path()) {
-                let suggestion = prefix.join(raw_file_name);
-                let candidate = CompletionCandidate::new(suggestion.as_os_str().to_owned());
+                let suggestion = prefix.join(&raw_file_name);
+                let candidate = CompletionCandidate::new(suggestion.as_os_str().to_owned())
+                    .hide(is_hidden(&raw_file_name));
                 completions.push(candidate);
             }
         }
@@ -355,6 +357,10 @@ pub(crate) fn complete_path(
     completions.extend(potential);
 
     completions
+}
+
+fn is_hidden(file_name: &OsStr) -> bool {
+    file_name.starts_with(".")
 }
 
 fn split_file_name(path: &std::path::Path) -> (&std::path::Path, &OsStr) {
