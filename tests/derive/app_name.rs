@@ -1,5 +1,8 @@
 use clap::CommandFactory;
 use clap::Parser;
+use snapbox::assert_data_eq;
+use snapbox::prelude::*;
+use snapbox::str;
 
 use crate::utils::get_help;
 use crate::utils::get_long_help;
@@ -12,7 +15,13 @@ fn app_name_in_short_help_from_struct() {
 
     let help = get_help::<MyApp>();
 
-    assert!(help.contains("my-cmd"));
+    assert_data_eq!(help, str![[r#"
+Usage: my-cmd
+
+Options:
+  -h, --help  Print help
+
+"#]].raw());
 }
 
 #[test]
@@ -23,7 +32,13 @@ fn app_name_in_long_help_from_struct() {
 
     let help = get_help::<MyApp>();
 
-    assert!(help.contains("my-cmd"));
+    assert_data_eq!(help, str![[r#"
+Usage: my-cmd
+
+Options:
+  -h, --help  Print help
+
+"#]].raw());
 }
 
 #[test]
@@ -34,7 +49,13 @@ fn app_name_in_short_help_from_enum() {
 
     let help = get_help::<MyApp>();
 
-    assert!(help.contains("my-cmd"));
+    assert_data_eq!(help, str![[r#"
+Usage: my-cmd
+
+Options:
+  -h, --help  Print help
+
+"#]].raw());
 }
 
 #[test]
@@ -45,7 +66,14 @@ fn app_name_in_long_help_from_enum() {
 
     let help = get_long_help::<MyApp>();
 
-    assert!(help.contains("my-cmd"));
+    assert_data_eq!(help, str![[r#"
+Usage: my-cmd
+
+Options:
+  -h, --help
+          Print help
+
+"#]].raw());
 }
 
 #[test]
@@ -56,7 +84,10 @@ fn app_name_in_short_version_from_struct() {
 
     let version = MyApp::command().render_version();
 
-    assert!(version.contains("my-cmd"));
+    assert_data_eq!(version, str![[r#"
+my-cmd 
+
+"#]].raw());
 }
 
 #[test]
@@ -67,7 +98,10 @@ fn app_name_in_long_version_from_struct() {
 
     let version = MyApp::command().render_long_version();
 
-    assert!(version.contains("my-cmd"));
+    assert_data_eq!(version, str![[r#"
+my-cmd 
+
+"#]].raw());
 }
 
 #[test]
@@ -78,7 +112,10 @@ fn app_name_in_short_version_from_enum() {
 
     let version = MyApp::command().render_version();
 
-    assert!(version.contains("my-cmd"));
+    assert_data_eq!(version, str![[r#"
+my-cmd 
+
+"#]].raw());
 }
 
 #[test]
@@ -89,5 +126,8 @@ fn app_name_in_long_version_from_enum() {
 
     let version = MyApp::command().render_long_version();
 
-    assert!(version.contains("my-cmd"));
+    assert_data_eq!(version, str![[r#"
+my-cmd 
+
+"#]].raw());
 }

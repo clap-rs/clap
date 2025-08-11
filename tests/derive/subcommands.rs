@@ -12,9 +12,12 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use crate::utils;
-
 use clap::{Args, Parser, Subcommand};
+use snapbox::assert_data_eq;
+use snapbox::prelude::*;
+use snapbox::str;
+
+use crate::utils;
 
 #[derive(Parser, PartialEq, Eq, Debug)]
 enum Opt {
@@ -159,9 +162,20 @@ fn test_tuple_commands() {
 
     let output = utils::get_long_help::<Opt4>();
 
-    assert!(output.contains("download history from remote"));
-    assert!(output.contains("Add a file"));
-    assert!(!output.contains("Not shown"));
+    assert_data_eq!(output, str![[r#"
+Usage: clap <COMMAND>
+
+Commands:
+  add    Add a file
+  init   
+  fetch  download history from remote
+  help   Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help
+          Print help
+
+"#]].raw());
 }
 
 #[test]

@@ -14,9 +14,12 @@
 
 #![allow(clippy::option_option)]
 
-use crate::utils;
-
 use clap::{Parser, Subcommand};
+use snapbox::assert_data_eq;
+use snapbox::prelude::*;
+use snapbox::str;
+
+use crate::utils;
 
 #[test]
 fn required_option() {
@@ -282,8 +285,14 @@ fn option_option_type_help() {
         arg: Option<Option<i32>>,
     }
     let help = utils::get_help::<Opt>();
-    assert!(help.contains("--arg [<val>]"));
-    assert!(!help.contains("--arg [<val>...]"));
+    assert_data_eq!(help, str![[r#"
+Usage: clap [OPTIONS]
+
+Options:
+      --arg [<val>]  
+  -h, --help         Print help
+
+"#]].raw());
 }
 
 #[test]

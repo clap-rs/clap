@@ -1,8 +1,11 @@
 #![cfg(feature = "env")]
 
-use crate::utils;
-
 use clap::Parser;
+use snapbox::assert_data_eq;
+use snapbox::prelude::*;
+use snapbox::str;
+
+use crate::utils;
 
 #[test]
 fn it_works() {
@@ -14,7 +17,16 @@ fn it_works() {
     }
 
     let help = utils::get_help::<BehaviorModel>();
-    assert!(help.contains("[env: be-nice=]"));
+    assert_data_eq!(help, str![[r#"
+Usage: clap <BE_NICE>
+
+Arguments:
+  <BE_NICE>  [env: be-nice=]
+
+Options:
+  -h, --help  Print help
+
+"#]].raw());
 }
 
 #[test]
@@ -26,7 +38,16 @@ fn default_is_screaming() {
     }
 
     let help = utils::get_help::<BehaviorModel>();
-    assert!(help.contains("[env: BE_NICE=]"));
+    assert_data_eq!(help, str![[r#"
+Usage: clap <BE_NICE>
+
+Arguments:
+  <BE_NICE>  [env: BE_NICE=]
+
+Options:
+  -h, --help  Print help
+
+"#]].raw());
 }
 
 #[test]
@@ -42,6 +63,15 @@ fn overridable() {
     }
 
     let help = utils::get_help::<BehaviorModel>();
-    assert!(help.contains("[env: be-nice=]"));
-    assert!(help.contains("[env: BeAggressive=]"));
+    assert_data_eq!(help, str![[r#"
+Usage: clap <BE_NICE> <BE_AGGRESSIVE>
+
+Arguments:
+  <BE_NICE>        [env: be-nice=]
+  <BE_AGGRESSIVE>  [env: BeAggressive=]
+
+Options:
+  -h, --help  Print help
+
+"#]].raw());
 }

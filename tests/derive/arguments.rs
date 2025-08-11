@@ -12,9 +12,12 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use clap::Parser;
-
 use crate::utils::get_help;
+
+use clap::Parser;
+use snapbox::assert_data_eq;
+use snapbox::prelude::*;
+use snapbox::str;
 
 #[test]
 fn required_argument() {
@@ -54,7 +57,17 @@ fn auto_value_name() {
 
     let help = get_help::<Opt>();
 
-    assert!(help.contains("MY_SPECIAL_ARG"));
+    assert_data_eq!(help, str![[r#"
+Usage: clap <MY_SPECIAL_ARG>
+
+Arguments:
+  <MY_SPECIAL_ARG>  
+
+Options:
+  -h, --help  Print help
+
+"#]].raw());
+
     // Ensure the implicit `num_vals` is just 1
     assert_eq!(
         Opt { my_special_arg: 10 },
@@ -72,8 +85,17 @@ fn explicit_value_name() {
 
     let help = get_help::<Opt>();
 
-    assert!(help.contains("BROWNIE_POINTS"));
-    assert!(!help.contains("MY_SPECIAL_ARG"));
+    assert_data_eq!(help, str![[r#"
+Usage: clap <BROWNIE_POINTS>
+
+Arguments:
+  <BROWNIE_POINTS>  
+
+Options:
+  -h, --help  Print help
+
+"#]].raw());
+
     // Ensure the implicit `num_vals` is just 1
     assert_eq!(
         Opt { my_special_arg: 10 },

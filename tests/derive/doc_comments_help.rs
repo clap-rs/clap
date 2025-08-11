@@ -15,6 +15,8 @@
 use crate::utils;
 
 use clap::{CommandFactory, Parser, Subcommand, ValueEnum};
+use snapbox::assert_data_eq;
+use snapbox::prelude::*;
 use snapbox::str;
 
 #[test]
@@ -29,8 +31,19 @@ fn doc_comments() {
     }
 
     let help = utils::get_long_help::<LoremIpsum>();
-    assert!(help.contains("Lorem ipsum"));
-    assert!(help.contains("Fooify a bar and a baz"));
+    assert_data_eq!(help, str![[r#"
+Lorem ipsum
+
+Usage: clap [OPTIONS]
+
+Options:
+  -f, --foo
+          Fooify a bar and a baz
+
+  -h, --help
+          Print help
+
+"#]].raw());
 }
 
 #[test]
@@ -45,9 +58,19 @@ fn help_is_better_than_comments() {
     }
 
     let help = utils::get_long_help::<LoremIpsum>();
-    assert!(help.contains("Dolor sit amet"));
-    assert!(!help.contains("Lorem ipsum"));
-    assert!(help.contains("DO NOT PASS A BAR"));
+    assert_data_eq!(help, str![[r#"
+Dolor sit amet
+
+Usage: lorem-ipsum [OPTIONS]
+
+Options:
+  -f, --foo
+          DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES
+
+  -h, --help
+          Print help
+
+"#]].raw());
 }
 
 #[test]
@@ -90,12 +113,35 @@ fn field_long_doc_comment_both_help_long_help() {
     let short_help = utils::get_help::<LoremIpsum>();
     let long_help = utils::get_long_help::<LoremIpsum>();
 
-    assert!(short_help.contains("Dot is removed from one short comment"));
-    assert!(!short_help.contains("Dot is removed from one short comment."));
-    assert!(short_help.contains("Dot is removed from multiline comments"));
-    assert!(!short_help.contains("Dot is removed from multiline comments."));
-    assert!(long_help.contains("Long help"));
-    assert!(!short_help.contains("Long help"));
+    assert_data_eq!(short_help, str![[r#"
+Dolor sit amet
+
+Usage: lorem-ipsum [OPTIONS]
+
+Options:
+      --foo   Dot is removed from multiline comments
+      --bar   Dot is removed from one short comment
+  -h, --help  Print help (see more with '--help')
+
+"#]].raw());
+    assert_data_eq!(long_help, str![[r#"
+Dolor sit amet
+
+Usage: lorem-ipsum [OPTIONS]
+
+Options:
+      --foo
+          Dot is removed from multiline comments.
+          
+          Long help
+
+      --bar
+          Dot is removed from one short comment
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+"#]].raw());
 }
 
 #[test]
@@ -122,9 +168,35 @@ fn top_long_doc_comment_both_help_long_help() {
     let short_help = utils::get_help::<LoremIpsum>();
     let long_help = utils::get_subcommand_long_help::<LoremIpsum>("foo");
 
-    assert!(!short_help.contains("Or something else"));
-    assert!(long_help.contains("DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES"));
-    assert!(long_help.contains("Or something else"));
+    assert_data_eq!(short_help, str![[r#"
+Dolor sit amet
+
+Usage: lorem-ipsum <COMMAND>
+
+Commands:
+  foo   DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES
+  help  Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+"#]].raw());
+    assert_data_eq!(long_help, str![[r#"
+DO NOT PASS A BAR UNDER ANY CIRCUMSTANCES
+
+Or something else
+
+Usage: foo <BARS>
+
+Arguments:
+  <BARS>
+          foo
+
+Options:
+  -h, --help
+          Print help (see a summary with '-h')
+
+"#]].raw());
 }
 
 #[test]
@@ -154,7 +226,9 @@ fn verbatim_doc_comment() {
     }
 
     let help = utils::get_long_help::<SeeFigure1>();
-    let sample = r"
+    assert_data_eq!(help, str![[r#"
+DANCE!
+
                    ()
                    |
               (   ()   )
@@ -169,9 +243,18 @@ fn verbatim_doc_comment() {
       ((     ||
        \\    ||
      ( ()    ||
-      (      () ) )";
+      (      () ) )
 
-    assert!(help.contains(sample));
+Usage: clap [OPTIONS]
+
+Options:
+      --foo
+          
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+"#]].raw());
 }
 
 #[test]
@@ -188,8 +271,20 @@ fn verbatim_doc_comment_field() {
 
     let help = utils::get_long_help::<Command>();
 
-    assert!(help.contains("This help ends in a period."));
-    assert!(help.contains("This help does not end in a period"));
+    assert_data_eq!(help, str![[r#"
+Usage: clap [OPTIONS]
+
+Options:
+      --foo
+          This help ends in a period.
+
+      --bar
+          This help does not end in a period
+
+  -h, --help
+          Print help
+
+"#]].raw());
 }
 
 #[test]
@@ -204,12 +299,32 @@ fn multiline_separates_default() {
     }
 
     let help = utils::get_long_help::<Command>();
-    assert!(!help.contains("Doc comment [default"));
-    assert!(help.lines().any(|s| s.trim().starts_with("[default")));
+    assert_data_eq!(help, str![[r#"
+Usage: clap [OPTIONS]
+
+Options:
+      --x <X>
+          Multiline
+          
+          Doc comment
+          
+          [default: x]
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+"#]].raw());
 
     // The short help should still have the default on the same line
     let help = utils::get_help::<Command>();
-    assert!(help.contains("Multiline [default"));
+    assert_data_eq!(help, str![[r#"
+Usage: clap [OPTIONS]
+
+Options:
+      --x <X>  Multiline [default: x]
+  -h, --help   Print help (see more with '--help')
+
+"#]].raw());
 }
 
 #[test]
@@ -229,10 +344,20 @@ fn value_enum_multiline_doc_comment() {
 
     let help = utils::get_long_help::<Command>();
 
-    assert!(help.contains("Doc comment summary"));
-
     // There is no long help text for possible values. The long help only contains the summary.
-    assert!(!help.contains("The doc comment body is ignored"));
+    assert_data_eq!(help, str![[r#"
+Usage: clap <X>
+
+Arguments:
+  <X>
+          Possible values:
+          - bar: Doc comment summary
+
+Options:
+  -h, --help
+          Print help (see a summary with '-h')
+
+"#]].raw());
 }
 
 #[test]
@@ -303,5 +428,17 @@ fn force_long_help() {
     }
 
     let help = utils::get_long_help::<LoremIpsum>();
-    assert!(help.contains("Fooify a bar and a baz."));
+    assert_data_eq!(help, str![[r#"
+Lorem ipsum
+
+Usage: clap [OPTIONS]
+
+Options:
+  -f, --foo
+          Fooify a bar and a baz.
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+"#]].raw());
 }
