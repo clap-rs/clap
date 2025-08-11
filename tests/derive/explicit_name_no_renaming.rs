@@ -1,6 +1,9 @@
-use crate::utils;
-
 use clap::Parser;
+use snapbox::assert_data_eq;
+use snapbox::prelude::*;
+use snapbox::str;
+
+use crate::utils;
 
 #[test]
 fn explicit_short_long_no_rename() {
@@ -32,5 +35,16 @@ fn explicit_name_no_rename() {
     }
 
     let help = utils::get_long_help::<Opt>();
-    assert!(help.contains("<.options>"));
+    assert_data_eq!(help, str![[r#"
+Usage: clap <.options>
+
+Arguments:
+  <.options>
+          
+
+Options:
+  -h, --help
+          Print help
+
+"#]].raw());
 }

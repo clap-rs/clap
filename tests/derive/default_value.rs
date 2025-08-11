@@ -1,6 +1,9 @@
 use std::path::PathBuf;
 
 use clap::{CommandFactory, Parser};
+use snapbox::assert_data_eq;
+use snapbox::prelude::*;
+use snapbox::str;
 
 use crate::utils;
 
@@ -15,7 +18,18 @@ fn default_value() {
     assert_eq!(Opt { arg: 1 }, Opt::try_parse_from(["test", "1"]).unwrap());
 
     let help = utils::get_long_help::<Opt>();
-    assert!(help.contains("[default: 3]"));
+    assert_data_eq!(help, str![[r#"
+Usage: clap [ARG]
+
+Arguments:
+  [ARG]
+          [default: 3]
+
+Options:
+  -h, --help
+          Print help
+
+"#]].raw());
 }
 
 #[test]
@@ -29,7 +43,18 @@ fn default_value_t() {
     assert_eq!(Opt { arg: 1 }, Opt::try_parse_from(["test", "1"]).unwrap());
 
     let help = utils::get_long_help::<Opt>();
-    assert!(help.contains("[default: 3]"));
+    assert_data_eq!(help, str![[r#"
+Usage: clap [ARG]
+
+Arguments:
+  [ARG]
+          [default: 3]
+
+Options:
+  -h, --help
+          Print help
+
+"#]].raw());
 }
 
 #[test]
@@ -43,7 +68,18 @@ fn auto_default_value_t() {
     assert_eq!(Opt { arg: 1 }, Opt::try_parse_from(["test", "1"]).unwrap());
 
     let help = utils::get_long_help::<Opt>();
-    assert!(help.contains("[default: 0]"));
+    assert_data_eq!(help, str![[r#"
+Usage: clap [ARG]
+
+Arguments:
+  [ARG]
+          [default: 0]
+
+Options:
+  -h, --help
+          Print help
+
+"#]].raw());
 }
 
 #[test]
@@ -103,7 +139,33 @@ fn default_values_t() {
     );
 
     let help = utils::get_long_help::<Opt>();
-    assert!(help.contains("[default: 1 2 3]"));
+    assert_data_eq!(help, str![[r#"
+Usage: clap [OPTIONS] [ARG1]...
+
+Arguments:
+  [ARG1]...
+          [default: 1 2 3]
+
+Options:
+      --arg2 <ARG2>
+          [default: 4 5 6]
+
+      --arg3 <ARG3>
+          [default: 7 8 9]
+
+      --arg4 <ARG4>
+          [default: 10 11 12]
+
+      --arg5 <ARG5>
+          [default: hello world]
+
+      --arg6 <ARG6>
+          [default: foo bar]
+
+  -h, --help
+          Print help
+
+"#]].raw());
 }
 
 #[test]
@@ -127,7 +189,18 @@ fn default_value_os_t() {
     );
 
     let help = utils::get_long_help::<Opt>();
-    assert!(help.contains("[default: abc.def]"));
+    assert_data_eq!(help, str![[r#"
+Usage: clap [ARG]
+
+Arguments:
+  [ARG]
+          [default: abc.def]
+
+Options:
+  -h, --help
+          Print help
+
+"#]].raw());
 }
 
 #[test]
@@ -161,7 +234,21 @@ fn default_values_os_t() {
     );
 
     let help = utils::get_long_help::<Opt>();
-    assert!(help.contains("[default: abc.def 123.foo]"));
+    assert_data_eq!(help, str![[r#"
+Usage: clap [OPTIONS] [ARG1]...
+
+Arguments:
+  [ARG1]...
+          [default: abc.def 123.foo]
+
+Options:
+      --arg2 <ARG2>
+          [default: bar.baz]
+
+  -h, --help
+          Print help
+
+"#]].raw());
 }
 
 #[test]

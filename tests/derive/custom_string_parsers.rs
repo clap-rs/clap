@@ -12,10 +12,13 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use clap::Parser;
-
 use std::num::ParseIntError;
 use std::path::PathBuf;
+
+use clap::Parser;
+use snapbox::assert_data_eq;
+use snapbox::prelude::*;
+use snapbox::str;
 
 #[derive(Parser, PartialEq, Debug)]
 struct PathOpt {
@@ -82,11 +85,12 @@ fn test_parse_hex() {
     );
 
     let err = HexOpt::try_parse_from(["test", "-n", "gg"]).unwrap_err();
-    assert!(
-        err.to_string().contains("invalid digit found in string"),
-        "{}",
-        err
-    );
+    assert_data_eq!(err.to_string(), str![[r#"
+error: invalid value 'gg' for '-n <NUMBER>': invalid digit found in string
+
+For more information, try '--help'.
+
+"#]].raw());
 }
 
 #[derive(Debug)]

@@ -12,9 +12,12 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use crate::utils;
-
 use clap::{Args, Parser, Subcommand};
+use snapbox::assert_data_eq;
+use snapbox::prelude::*;
+use snapbox::str;
+
+use crate::utils;
 
 #[test]
 fn flatten() {
@@ -211,8 +214,16 @@ fn flatten_with_doc_comment() {
     );
 
     let help = utils::get_help::<Opt>();
-    assert!(help.contains("This is an arg."));
-    assert!(!help.contains("The very important"));
+    assert_data_eq!(help, str![[r#"
+Usage: clap <ARG>
+
+Arguments:
+  <ARG>  This is an arg. Arg means "argument". Command line argument
+
+Options:
+  -h, --help  Print help
+
+"#]].raw());
 }
 
 #[test]
@@ -233,7 +244,16 @@ fn docstrings_ordering_with_multiple_command() {
 
     let short_help = utils::get_help::<Command>();
 
-    assert!(short_help.contains("This is the docstring for Command"));
+    assert_data_eq!(short_help, str![[r#"
+This is the docstring for Command
+
+Usage: clap [OPTIONS]
+
+Options:
+      --foo   
+  -h, --help  Print help
+
+"#]].raw());
 }
 
 #[test]
@@ -253,7 +273,16 @@ fn docstrings_ordering_with_multiple_clap_partial() {
 
     let short_help = utils::get_help::<Command>();
 
-    assert!(short_help.contains("This is the docstring for Flattened"));
+    assert_data_eq!(short_help, str![[r#"
+This is the docstring for Flattened
+
+Usage: clap [OPTIONS]
+
+Options:
+      --foo   
+  -h, --help  Print help
+
+"#]].raw());
 }
 
 #[test]

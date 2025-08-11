@@ -1,8 +1,11 @@
 // https://github.com/TeXitoi/structopt/issues/{NUMBER}
 
-use crate::utils;
-
 use clap::{ArgGroup, Args, Parser, Subcommand};
+use snapbox::assert_data_eq;
+use snapbox::prelude::*;
+use snapbox::str;
+
+use crate::utils;
 
 #[test]
 fn issue_151_groups_within_subcommands() {
@@ -72,7 +75,23 @@ fn issue_324() {
     }
 
     let help = utils::get_long_help::<Opt>();
-    assert!(help.contains("MY_VERSION"));
+    assert_data_eq!(help, str![[r#"
+clap MY_VERSION
+
+Usage: clap <COMMAND>
+
+Commands:
+  start  
+  help   Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help
+          Print help
+
+  -V, --version
+          Print version
+
+"#]].raw());
 }
 
 #[test]
@@ -98,7 +117,19 @@ fn issue_418() {
     }
 
     let help = utils::get_long_help::<Opts>();
-    assert!(help.contains("Reticulate the splines [aliases: ret]"));
+    assert_data_eq!(help, str![[r#"
+Usage: clap <COMMAND>
+
+Commands:
+  reticulate  Reticulate the splines [aliases: ret]
+  frobnicate  Frobnicate the rest [aliases: frob]
+  help        Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help
+          Print help
+
+"#]].raw());
 }
 
 #[test]

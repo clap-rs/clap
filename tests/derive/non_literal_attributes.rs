@@ -12,9 +12,13 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
+use std::num::ParseIntError;
+
 use clap::error::ErrorKind;
 use clap::Parser;
-use std::num::ParseIntError;
+use snapbox::assert_data_eq;
+use snapbox::prelude::*;
+use snapbox::str;
 
 pub(crate) const DISPLAY_ORDER: usize = 2;
 
@@ -150,11 +154,12 @@ fn test_parse_hex_function_path() {
     );
 
     let err = HexOpt::try_parse_from(["test", "-n", "gg"]).unwrap_err();
-    assert!(
-        err.to_string().contains("invalid digit found in string"),
-        "{}",
-        err
-    );
+    assert_data_eq!(err.to_string(), str![[r#"
+error: invalid value 'gg' for '-n <NUMBER>': invalid digit found in string
+
+For more information, try '--help'.
+
+"#]].raw());
 }
 
 #[test]

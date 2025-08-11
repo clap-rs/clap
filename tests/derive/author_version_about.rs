@@ -12,9 +12,12 @@
 // commit#ea76fa1b1b273e65e3b0b1046643715b49bec51f which is licensed under the
 // MIT/Apache 2.0 license.
 
-use crate::utils;
-
 use clap::Parser;
+use snapbox::assert_data_eq;
+use snapbox::prelude::*;
+use snapbox::str;
+
+use crate::utils;
 
 #[test]
 fn no_author_version_about() {
@@ -35,9 +38,20 @@ fn use_env() {
     struct Opt {}
 
     let output = utils::get_long_help::<Opt>();
-    assert!(output.starts_with("clap"));
-    assert!(output
-        .contains("A simple to use, efficient, and full-featured Command Line Argument Parser"));
+    assert_data_eq!(output, str![[r#"
+clap 4.5.43
+A simple to use, efficient, and full-featured Command Line Argument Parser
+
+Usage: clap
+
+Options:
+  -h, --help
+          Print help
+
+  -V, --version
+          Print version
+
+"#]].raw());
 }
 
 #[test]
@@ -50,5 +64,17 @@ fn explicit_version_not_str_lit() {
     pub(crate) struct Opt {}
 
     let output = utils::get_long_help::<Opt>();
-    assert!(output.contains("custom version"));
+    assert_data_eq!(output, str![[r#"
+clap custom version
+
+Usage: clap
+
+Options:
+  -h, --help
+          Print help
+
+  -V, --version
+          Print version
+
+"#]].raw());
 }
