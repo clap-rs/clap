@@ -38,8 +38,10 @@ fn use_env() {
     struct Opt {}
 
     let output = utils::get_long_help::<Opt>();
-    assert_data_eq!(output, str![[r#"
-clap 4.5.43
+    assert_data_eq!(
+        output,
+        str![[r#"
+clap [..]
 A simple to use, efficient, and full-featured Command Line Argument Parser
 
 Usage: clap
@@ -51,7 +53,8 @@ Options:
   -V, --version
           Print version
 
-"#]].raw());
+"#]]
+    );
 }
 
 #[test]
@@ -64,7 +67,9 @@ fn explicit_version_not_str_lit() {
     pub(crate) struct Opt {}
 
     let output = utils::get_long_help::<Opt>();
-    assert_data_eq!(output, str![[r#"
+    assert_data_eq!(
+        output,
+        str![[r#"
 clap custom version
 
 Usage: clap
@@ -76,5 +81,7 @@ Options:
   -V, --version
           Print version
 
-"#]].raw());
+"#]]
+        .raw()
+    );
 }
