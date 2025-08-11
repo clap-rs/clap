@@ -517,10 +517,6 @@ fn suggest_value_hint_file_path() {
     assert_data_eq!(
         complete!(cmd, "--input [TAB]", current_dir = Some(testdir_path)),
         snapbox::str![[r#"
-.a_file
-.b_file
-.c_dir/
-.d_dir/
 a_file
 b_file
 c_dir/
@@ -535,10 +531,6 @@ d_dir/
     assert_data_eq!(
         complete!(cmd, "--input .[TAB]", current_dir = Some(testdir_path)),
         snapbox::str![[r#"
-./.a_file
-./.b_file
-./.c_dir/
-./.d_dir/
 ./a_file
 ./b_file
 ./c_dir/
@@ -581,12 +573,8 @@ fn suggest_value_path_file() {
     assert_data_eq!(
         complete!(cmd, "--input [TAB]", current_dir = Some(testdir_path)),
         snapbox::str![[r#"
-.a_file
-.b_file
 a_file
 b_file
-.c_dir/
-.d_dir/
 c_dir/
 d_dir/
 -	stdio
@@ -600,12 +588,8 @@ d_dir/
     assert_data_eq!(
         complete!(cmd, "--input .[TAB]", current_dir = Some(testdir_path)),
         snapbox::str![[r#"
-./.a_file
-./.b_file
 ./a_file
 ./b_file
-./.c_dir/
-./.d_dir/
 ./c_dir/
 ./d_dir/
 "#]],
@@ -645,8 +629,6 @@ fn suggest_value_path_dir() {
         complete!(cmd, "--input [TAB]", current_dir = Some(testdir_path)),
         snapbox::str![[r#"
 .
-.c_dir/
-.d_dir/
 c_dir/
 d_dir/
 "#]],
@@ -659,8 +641,6 @@ d_dir/
     assert_data_eq!(
         complete!(cmd, "--input .[TAB]", current_dir = Some(testdir_path)),
         snapbox::str![[r#"
-./.c_dir/
-./.d_dir/
 ./c_dir/
 ./d_dir/
 "#]],
