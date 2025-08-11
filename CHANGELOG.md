@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Add `Command::mut_subcommands`
+
 ## [4.5.43] - 2025-08-06
 
 ### Fixes
