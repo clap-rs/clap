@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(aot)* Hide `.file` paths by default
+
 ## [4.5.56] - 2025-08-07
+
+### Features
 
 - *(aot)* Complete `~/` paths
 
