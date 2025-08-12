@@ -901,13 +901,26 @@ impl Item {
             let (short_help, long_help) =
                 format_doc_comment(&lines, !self.verbatim_doc_comment, self.force_long_help);
             let short_name = format_ident!("{short_name}");
-            let short = Method::new(
-                short_name,
-                short_help
-                    .map(|h| quote!(#h))
-                    .unwrap_or_else(|| quote!(None)),
-            );
-            self.doc_comment.push(short);
+
+            let is_value_kind = matches!(self.kind.get(), Kind::Value);
+            let short_method = if is_value_kind && cfg!(feature = "unstable-v5") {
+                Method::new(
+                    short_name,
+                    long_help
+                        .clone()
+                        .or(short_help)
+                        .map(|h| quote!(#h))
+                        .unwrap_or_else(|| quote!(None)),
+                )
+            } else {
+                Method::new(
+                    short_name,
+                    short_help
+                        .map(|h| quote!(#h))
+                        .unwrap_or_else(|| quote!(None)),
+                )
+            };
+            self.doc_comment.push(short_method);
             if let Some(long_name) = long_name {
                 let long_name = format_ident!("{long_name}");
                 let long = Method::new(
