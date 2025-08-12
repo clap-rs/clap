@@ -352,6 +352,8 @@ Arguments:
   <X>
           Possible values:
           - bar: Doc comment summary
+            
+            The doc comment body is not ignored
 
 Options:
   -h, --help
