@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - *(help)* Change default `Command::term_width` to "source format"
 - *(help)* Change default `Command::max_term_width` to 100
 - *(derive)* `Vec<Vec<T>>` types are now assuming to capture occurrences
+- *(derive)* `ValueEnum` variants now use the full doc comment, not summary, for `PossibleValue::help`
 
 ### Features
 
@@ -21,6 +22,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
+
+### Fixes
+
+- *(unstable-v5)* `ValueEnum` variants now use the full doc comment, not summary, for `PossibleValue::help`
 
 ## [4.5.44] - 2025-08-11
 
