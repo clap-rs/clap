@@ -327,6 +327,40 @@ Options:
 "#]].raw());
 }
 
+#[cfg(feature = "unstable-v5")]
+#[test]
+fn value_enum_multiline_doc_comment() {
+    #[derive(Parser, Debug)]
+    struct Command {
+        x: LoremIpsum,
+    }
+
+    #[derive(ValueEnum, Clone, PartialEq, Debug)]
+    enum LoremIpsum {
+        /// Doc comment summary
+        ///
+        /// The doc comment body is not ignored
+        Bar,
+    }
+
+    let help = utils::get_long_help::<Command>();
+
+    assert_data_eq!(help, str![[r#"
+Usage: clap <X>
+
+Arguments:
+  <X>
+          Possible values:
+          - bar: Doc comment summary
+
+Options:
+  -h, --help
+          Print help (see a summary with '-h')
+
+"#]].raw());
+}
+
+#[cfg(not(feature = "unstable-v5"))]
 #[test]
 fn value_enum_multiline_doc_comment() {
     #[derive(Parser, Debug)]
