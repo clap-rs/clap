@@ -274,7 +274,19 @@ impl ValueCompleter for PathCompleter {
             current_dir_actual = std::env::current_dir().ok();
             current_dir_actual.as_deref()
         });
-        let mut candidates = complete_path(current, current_dir, filter);
+
+        let Some(current) = current.to_str() else {
+            return vec![];
+        };
+
+        #[cfg(unix)]
+        if current.starts_with("~") {
+            if let Some(home) = home_dir() {
+                current.replace_range(..1, &home.to_string_lossy());
+            }
+        }
+
+        let mut candidates = complete_path(&current, current_dir, filter);
         if self.stdio && current.is_empty() {
             candidates.push(CompletionCandidate::new("-").help(Some("stdio".into())));
         }
@@ -283,7 +295,7 @@ impl ValueCompleter for PathCompleter {
 }
 
 pub(crate) fn complete_path(
-    value_os: &OsStr,
+    value_os: &str,
     current_dir: Option<&std::path::Path>,
     is_wanted: &dyn Fn(&std::path::Path) -> bool,
 ) -> Vec<CompletionCandidate> {
