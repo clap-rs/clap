@@ -154,8 +154,8 @@ pub(crate) enum Entry<'a, K, V> {
 impl<'a, K: 'a, V: 'a> Entry<'a, K, V> {
     pub(crate) fn or_insert(self, default: V) -> &'a mut V {
         match self {
-            Entry::Occupied(entry) => &mut entry.v.values[entry.index],
-            Entry::Vacant(entry) => {
+            Self::Occupied(entry) => &mut entry.v.values[entry.index],
+            Self::Vacant(entry) => {
                 entry.v.keys.push(entry.key);
                 entry.v.values.push(default);
                 entry.v.values.last_mut().unwrap()
@@ -165,8 +165,8 @@ impl<'a, K: 'a, V: 'a> Entry<'a, K, V> {
 
     pub(crate) fn or_insert_with<F: FnOnce() -> V>(self, default: F) -> &'a mut V {
         match self {
-            Entry::Occupied(entry) => &mut entry.v.values[entry.index],
-            Entry::Vacant(entry) => {
+            Self::Occupied(entry) => &mut entry.v.values[entry.index],
+            Self::Vacant(entry) => {
                 entry.v.keys.push(entry.key);
                 entry.v.values.push(default());
                 entry.v.values.last_mut().unwrap()
