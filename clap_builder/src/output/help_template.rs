@@ -849,6 +849,23 @@ impl HelpTemplate<'_, '_> {
 
                 spec_vals.push(format!("{ctx}[possible values: {ctx:#}{pvs}{ctx}]{ctx:#}"));
             }
+            if !a.default_missing_vals.is_empty() {
+                let default_missing_vals =
+                    a.default_missing_vals.iter().map(|t| t.to_string_lossy());
+                debug!(
+                    "HelpTemplate::spec_vals: Found default missing vals...{:?}",
+                    default_missing_vals.clone().collect::<Vec<_>>()
+                );
+
+                let dmvs = default_missing_vals
+                    .map(|s| format!("{ctx_val}{s}{ctx_val:#}"))
+                    .collect::<Vec<_>>()
+                    .join(&val_sep);
+
+                spec_vals.push(format!(
+                    "{ctx}[default missing values: {ctx:#}{dmvs}{ctx}]{ctx:#}"
+                ));
+            }
         }
         let connector = if self.use_long { "\n" } else { " " };
         spec_vals.join(connector)
