@@ -301,6 +301,11 @@ impl<F: ErrorFormatter> Error<F> {
         self.formatted().into_owned()
     }
 
+    /// Get error message styles
+    pub fn get_styles(&self) -> &Styles {
+        &self.inner.styles
+    }
+
     #[inline(never)]
     fn for_app(kind: ErrorKind, cmd: &Command, styled: StyledStr) -> Self {
         Self::new(kind).set_message(styled).with_cmd(cmd)

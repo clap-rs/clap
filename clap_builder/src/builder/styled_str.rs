@@ -37,11 +37,12 @@ impl StyledStr {
 
     /// May allow the compiler to consolidate the `Drop`s for `msg`, reducing code size compared to
     /// `styled.push_str(&msg)`
-    pub(crate) fn push_string(&mut self, msg: String) {
+    pub fn push_string(&mut self, msg: String) {
         self.0.push_str(&msg);
     }
 
-    pub(crate) fn push_str(&mut self, msg: &str) {
+    /// Appends a given string slice onto the end of this `StyledStr`.
+    pub fn push_str(&mut self, msg: &str) {
         self.0.push_str(msg);
     }
 
@@ -138,7 +139,8 @@ impl StyledStr {
         [self.0.as_str()].into_iter()
     }
 
-    pub(crate) fn push_styled(&mut self, other: &Self) {
+    /// Appends a given `StyledStr` onto the end of this `StyledStr`.
+    pub fn push_styled(&mut self, other: &Self) {
         self.0.push_str(&other.0);
     }
 
