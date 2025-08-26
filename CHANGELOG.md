@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Expose `StyledStr::push_str`
+
 ## [4.5.45] - 2025-08-12
 
 ### Fixes
