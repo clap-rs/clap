@@ -1236,7 +1236,7 @@ pub(crate) struct Method {
 
 impl Method {
     pub(crate) fn new(name: Ident, args: TokenStream) -> Self {
-        Method { name, args }
+        Self { name, args }
     }
 
     fn from_env(ident: Ident, env_var: &str) -> Result<Option<Self>, syn::Error> {
@@ -1263,7 +1263,7 @@ impl Method {
             lit = LitStr::new(&edited, lit.span());
         }
 
-        Ok(Some(Method::new(ident, quote!(#lit))))
+        Ok(Some(Self::new(ident, quote!(#lit))))
     }
 
     pub(crate) fn args(&self) -> &TokenStream {
@@ -1273,7 +1273,7 @@ impl Method {
 
 impl ToTokens for Method {
     fn to_tokens(&self, ts: &mut TokenStream) {
-        let Method { ref name, ref args } = self;
+        let Self { ref name, ref args } = self;
 
         let tokens = quote!( .#name(#args) );
 
@@ -1307,7 +1307,7 @@ impl Deprecation {
 impl ToTokens for Deprecation {
     fn to_tokens(&self, ts: &mut TokenStream) {
         let tokens = if cfg!(feature = "deprecated") {
-            let Deprecation {
+            let Self {
                 span,
                 id,
                 version,
@@ -1429,8 +1429,8 @@ impl Name {
         use CasingStyle::{Camel, Kebab, Lower, Pascal, ScreamingSnake, Snake, Upper, Verbatim};
 
         match self {
-            Name::Assigned(tokens) => tokens,
-            Name::Derived(ident) => {
+            Self::Assigned(tokens) => tokens,
+            Self::Derived(ident) => {
                 let s = ident.unraw().to_string();
                 let s = match style {
                     Pascal => s.to_upper_camel_case(),
@@ -1451,8 +1451,8 @@ impl Name {
         use CasingStyle::{Camel, Kebab, Lower, Pascal, ScreamingSnake, Snake, Upper, Verbatim};
 
         match self {
-            Name::Assigned(tokens) => quote!( (#tokens).chars().next().unwrap() ),
-            Name::Derived(ident) => {
+            Self::Assigned(tokens) => quote!( (#tokens).chars().next().unwrap() ),
+            Self::Derived(ident) => {
                 let s = ident.unraw().to_string();
                 let s = match style {
                     Pascal => s.to_upper_camel_case(),
@@ -1475,8 +1475,8 @@ impl Name {
 impl ToTokens for Name {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match self {
-            Name::Assigned(t) => t.to_tokens(tokens),
-            Name::Derived(ident) => {
+            Self::Assigned(t) => t.to_tokens(tokens),
+            Self::Derived(ident) => {
                 let s = ident.unraw().to_string();
                 quote_spanned!(ident.span()=> #s).to_tokens(tokens);
             }
