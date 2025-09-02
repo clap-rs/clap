@@ -23,6 +23,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Added `impl FromArgMatches for ()`
+- Added `impl Args for ()`
+- Added `impl Subcommand for ()`
+- Added `impl FromArgMatches for Infallible`
+- Added `impl Subcommand for Infallible`
+
+### Fixes
+
+- *(derive)* Update runtime error text to match `clap`
+
 ## [4.5.46] - 2025-08-26
 
 ### Features
