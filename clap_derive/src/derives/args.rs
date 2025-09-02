@@ -735,13 +735,13 @@ fn gen_parsers(
                 Name::Assigned(_) => {
                     quote_spanned! { ty.span()=>
                         #arg_matches.#get_one(#id)
-                            .ok_or_else(|| clap::Error::raw(clap::error::ErrorKind::MissingRequiredArgument, format!("The following required argument was not provided: {}", #id)))?
+                            .ok_or_else(|| clap::Error::raw(clap::error::ErrorKind::MissingRequiredArgument, format!("the following required argument was not provided: {}", #id)))?
                     }
                 }
                 Name::Derived(_) => {
                     quote_spanned! { ty.span()=>
                         #arg_matches.#get_one(#id)
-                            .ok_or_else(|| clap::Error::raw(clap::error::ErrorKind::MissingRequiredArgument, concat!("The following required argument was not provided: ", #id)))?
+                            .ok_or_else(|| clap::Error::raw(clap::error::ErrorKind::MissingRequiredArgument, concat!("the following required argument was not provided: ", #id)))?
                     }
                 }
             }

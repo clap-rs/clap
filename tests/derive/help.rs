@@ -221,7 +221,7 @@ fn derive_generated_error_has_full_context() {
     );
 
     let expected = str![[r#"
-error: The following required argument was not provided: req_str
+error: the following required argument was not provided: req_str
 
 Usage: clap --req-str <REQ_STR>
        clap <COMMAND>
