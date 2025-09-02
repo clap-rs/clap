@@ -548,7 +548,7 @@ fn gen_from_arg_matches(variants: &[(&Variant, Item)]) -> Result<TokenStream, sy
         },
 
         None => quote! {
-            ::std::result::Result::Err(clap::Error::raw(clap::error::ErrorKind::InvalidSubcommand, format!("The subcommand '{}' wasn't recognized", #subcommand_name_var)))
+            ::std::result::Result::Err(clap::Error::raw(clap::error::ErrorKind::InvalidSubcommand, format!("the subcommand '{}' wasn't recognized", #subcommand_name_var)))
         },
     };
 
@@ -565,7 +565,7 @@ fn gen_from_arg_matches(variants: &[(&Variant, Item)]) -> Result<TokenStream, sy
 
                 #wildcard
             } else {
-                ::std::result::Result::Err(clap::Error::raw(clap::error::ErrorKind::MissingSubcommand, "A subcommand is required but one was not provided."))
+                ::std::result::Result::Err(clap::Error::raw(clap::error::ErrorKind::MissingSubcommand, "a subcommand is required but one was not provided"))
             }
         }
     })
