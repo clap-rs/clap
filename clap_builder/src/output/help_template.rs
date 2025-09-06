@@ -805,7 +805,8 @@ impl HelpTemplate<'_, '_> {
                 .join(" ");
 
             spec_vals.push(format!(
-                "{ctx}[default: {ctx:#}{ctx_val}{dvs}{ctx_val:#}{ctx}]{ctx:#}"
+                "{ctx}[{}: {ctx:#}{ctx_val}{dvs}{ctx_val:#}{ctx}]{ctx:#}",
+                a.get_default_heading().unwrap_or("default")
             ));
         }
 

@@ -90,6 +90,7 @@ pub struct Arg {
     pub(crate) help_heading: Option<Option<Str>>,
     pub(crate) ext: Extensions,
     pub(crate) aliases_heading: Option<Str>,
+    pub(crate) default_heading: Option<Str>,
 }
 
 /// # Basic API
@@ -1888,6 +1889,38 @@ impl Arg {
             self.default_vals.clear();
             self
         }
+    }
+
+    /// # Examples
+    ///
+    /// First we use the default value without providing any value at runtime.
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, Arg, parser::ValueSource};
+    /// Command::new("prog")
+    ///     .arg(Arg::new("opt")
+    ///         .long("myopt")
+    ///         .default_value("myval")
+    ///         .default_heading("another default"))
+    ///     .print_help()
+    ///     .unwrap()
+    ///```
+    ///
+    /// get result:
+    ///
+    /// ```text
+    /// Usage: prog [OPTIONS]
+    ///
+    /// Options:
+    ///  --myopt <opt>  [default: myval]
+    ///  -h, --help         Print help
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn default_heading(mut self, heading: impl IntoResettable<Str>) -> Self {
+        self.default_heading = heading.into_resettable().into_option();
+        self
     }
 
     #[inline]
@@ -4198,6 +4231,12 @@ impl Arg {
     #[inline]
     pub fn get_aliases_heading(&self) -> Option<&str> {
         self.aliases_heading.as_deref()
+    }
+
+    /// Get default heading
+    #[inline]
+    pub fn get_default_heading(&self) -> Option<&str> {
+        self.default_heading.as_deref()
     }
 
     /// Get *all* short aliases for this argument, if any, both visible and hidden.
