@@ -89,6 +89,7 @@ pub struct Arg {
     pub(crate) index: Option<usize>,
     pub(crate) help_heading: Option<Option<Str>>,
     pub(crate) ext: Extensions,
+    pub(crate) aliases_heading: Option<Str>,
 }
 
 /// # Basic API
@@ -463,6 +464,40 @@ impl Arg {
             debug_assert!(n != '-', "short alias name cannot be `-`");
             self.short_aliases.push((n, true));
         }
+        self
+    }
+
+    /// Set arg aliases heading
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, Arg, ArgAction};
+    /// let m = Command::new("myprog")
+    ///             .arg(Arg::new("test")
+    ///                 .long("test")
+    ///                 .action(ArgAction::SetTrue)
+    ///                 .visible_alias("b")
+    ///                 .aliases_heading("another heading")
+    ///             )
+    ///         .print_help();
+    ///```
+    ///
+    /// will produce
+    ///
+    /// ```text
+    /// myprog
+    ///
+    /// Usage: myprog [OPTIONS]
+    ///
+    /// Options:
+    ///      --test  [b: --b]
+    ///  -h, --help  Print help
+    /// ```
+    #[must_use]
+    pub fn aliases_heading(mut self, heading: impl IntoResettable<Str>) -> Self {
+        self.aliases_heading = heading.into_resettable().into_option();
         self
     }
 
@@ -4157,6 +4192,12 @@ impl Arg {
                     .collect(),
             )
         }
+    }
+
+    /// Get aliases heading
+    #[inline]
+    pub fn get_aliases_heading(&self) -> Option<&str> {
+        self.aliases_heading.as_deref()
     }
 
     /// Get *all* short aliases for this argument, if any, both visible and hidden.

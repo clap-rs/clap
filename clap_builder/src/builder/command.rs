@@ -104,6 +104,7 @@ pub struct Command {
     current_disp_ord: Option<usize>,
     subcommand_value_name: Option<Str>,
     subcommand_heading: Option<Str>,
+    aliases_heading: Option<Str>,
     external_value_parser: Option<super::ValueParser>,
     long_help_exists: bool,
     deferred: Option<fn(Command) -> Command>,
@@ -2275,6 +2276,46 @@ impl Command {
         self
     }
 
+    /// Sets the aliases heading used for subcommands when printing usage and help.
+    ///
+    /// By default, this is "COMMAND".
+    ///
+    /// See also [`Command::subcommand_help_heading`]
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, Arg};
+    /// Command::new("myprog")
+    ///     .subcommand(Command::new("sub1"))
+    ///     .subcommand_aliases_heading("another aliases")
+    ///     .print_help()
+    /// # ;
+    /// ```
+    ///
+    /// will produce
+    ///
+    /// ```text
+    /// myprog
+    ///
+    /// Usage: myprog [COMMAND]
+    ///
+    /// Commands:
+    ///     help    Print this message or the help of the given subcommand(s)
+    ///     sub1    [another aliases: sub2]
+    ///
+    /// Options:
+    ///     -h, --help       Print help
+    ///     -V, --version    Print version
+    /// ```
+    #[must_use]
+    #[cfg(feature = "help")]
+    pub fn subcommand_aliases_heading(mut self, s: impl IntoResettable<Str>) -> Self {
+        self.aliases_heading = s.into_resettable().into_option();
+        self
+    }
+
     #[inline]
     #[must_use]
     pub(crate) fn setting(mut self, setting: AppSettings) -> Self {
@@ -3873,6 +3914,12 @@ impl Command {
         }
     }
 
+    /// Return aliases heading
+    #[inline]
+    pub fn get_subcommand_aliases_heading(&self) -> Option<&str> {
+        self.aliases_heading.as_deref()
+    }
+
     /// Return the current `Styles` for the `Command`
     #[inline]
     pub fn get_styles(&self) -> &Styles {
@@ -5187,6 +5234,7 @@ impl Default for Command {
             #[cfg(feature = "unstable-ext")]
             ext: Default::default(),
             app_ext: Default::default(),
+            aliases_heading: Default::default(),
         }
     }
 }
