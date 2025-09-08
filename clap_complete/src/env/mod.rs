@@ -47,7 +47,7 @@
 //!
 //! Fish
 //! ```fish
-//! echo "source (COMPLETE=fish your_program | psub)" >> ~/.config/fish/config.fish
+//! echo "COMPLETE=fish your_program | source" >> ~/.config/fish/config.fish
 //! ```
 //!
 //! Powershell
