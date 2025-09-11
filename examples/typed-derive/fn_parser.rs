@@ -5,7 +5,7 @@ use clap::Args;
 #[derive(Args, Debug)]
 pub(crate) struct FnParser {
     /// Hand-written parser for tuples
-    #[arg(short = 'D', value_parser = parse_key_val::<String, i32>)]
+    #[arg(short = 'D', value_name = "KEY=VALUE", value_parser = parse_key_val::<String, i32>)]
     defines: Vec<(String, i32)>,
 }
 
