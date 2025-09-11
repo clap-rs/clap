@@ -1,6 +1,7 @@
 use clap::Parser;
 
 mod builtin;
+mod custom;
 mod fn_parser;
 mod foreign_crate;
 mod implicit;
@@ -11,6 +12,7 @@ enum Cli {
     Implicit(implicit::ImplicitParsers),
     Builtin(builtin::BuiltInParsers),
     FnParser(fn_parser::FnParser),
+    Custom(custom::CustomParser),
 }
 
 fn main() {
