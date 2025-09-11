@@ -8,6 +8,7 @@ mod implicit;
 
 #[derive(Parser, Debug)] // requires `derive` feature
 #[command(term_width = 0)] // Just to make testing across clap features easier
+#[command(bin_name = "typed-derive")] // Make testing easier by avoiding `.exe` in Usage on Windows
 enum Cli {
     Implicit(implicit::ImplicitParsers),
     Builtin(builtin::BuiltInParsers),
