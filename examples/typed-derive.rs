@@ -1,10 +1,18 @@
 use clap::builder::TypedValueParser as _;
+use clap::Args;
 use clap::Parser;
 use std::error::Error;
 
 #[derive(Parser, Debug)] // requires `derive` feature
 #[command(term_width = 0)] // Just to make testing across clap features easier
-struct Args {
+enum Cli {
+    Implicit(ImplicitParsers),
+    Builtin(BuiltInParsers),
+    FnParser(FnParser),
+}
+
+#[derive(Args, Debug)]
+struct ImplicitParsers {
     /// Implicitly using `std::str::FromStr`
     #[arg(short = 'O')]
     optimization: Option<usize>,
@@ -20,11 +28,10 @@ struct Args {
     /// Allow human-readable durations
     #[arg(long)]
     sleep: Option<jiff::SignedDuration>,
+}
 
-    /// Hand-written parser for tuples
-    #[arg(short = 'D', value_parser = parse_key_val::<String, i32>)]
-    defines: Vec<(String, i32)>,
-
+#[derive(Args, Debug)]
+struct BuiltInParsers {
     /// Support for discrete numbers
     #[arg(
         long,
@@ -42,6 +49,13 @@ struct Args {
             .map(|s| s.parse::<foreign_crate::LogLevel>().unwrap()),
     )]
     log_level: foreign_crate::LogLevel,
+}
+
+#[derive(Args, Debug)]
+struct FnParser {
+    /// Hand-written parser for tuples
+    #[arg(short = 'D', value_parser = parse_key_val::<String, i32>)]
+    defines: Vec<(String, i32)>,
 }
 
 /// Parse a single key-value pair
@@ -97,6 +111,6 @@ mod foreign_crate {
 }
 
 fn main() {
-    let args = Args::parse();
-    println!("{args:?}");
+    let cli = Cli::parse();
+    println!("{cli:?}");
 }
