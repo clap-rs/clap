@@ -40,7 +40,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       # Reduce amount of data cached
-      CARGO_PROFILE_DEV_DEBUG=line-tables-only
+      CARGO_PROFILE_DEV_DEBUG: line-tables-only
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
