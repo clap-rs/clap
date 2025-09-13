@@ -3201,6 +3201,28 @@ impl Arg {
         self
     }
 
+    /// Specifies multiple values and conditions in the same manner as [`Arg::default_values_if`].
+    ///
+    /// See [`Arg::default_values_if`].
+    ///
+    /// [`Arg::default_values_if`]: Arg::default_values_if()
+    #[must_use]
+    pub fn default_values_ifs(
+        mut self,
+        ifs: impl IntoIterator<
+            Item = (
+                impl Into<Id>,
+                impl Into<ArgPredicate>,
+                impl IntoIterator<Item = impl IntoResettable<OsStr>>,
+            ),
+        >,
+    ) -> Self {
+        for (arg, predicate, default) in ifs {
+            self = self.default_values_if(arg, predicate, default);
+        }
+        self
+    }
+
     #[must_use]
     #[doc(hidden)]
     #[cfg_attr(
