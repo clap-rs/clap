@@ -279,7 +279,6 @@ fn suggest_subcommand_positional_after_escape() {
 hello-world	Say hello to the world
 hello-moon
 goodbye-world
---help	Print help (see more with '--help')
 "#]],
     );
 }
@@ -1055,8 +1054,6 @@ comma,tab
 a_pos
 b_pos
 c_pos
---delimiter
---help	Print help
 "#]]
     );
 
