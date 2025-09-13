@@ -264,6 +264,27 @@ goodbye-world
 }
 
 #[test]
+fn suggest_subcommand_positional_after_escape() {
+    let mut cmd = Command::new("exhaustive").subcommand(Command::new("hello-world").arg(
+        clap::Arg::new("hello-world").value_parser([
+            PossibleValue::new("hello-world").help("Say hello to the world"),
+            "hello-moon".into(),
+            "goodbye-world".into(),
+        ]),
+    ));
+
+    assert_data_eq!(
+        complete!(cmd, "hello-world -- [TAB]"),
+        snapbox::str![[r#"
+hello-world	Say hello to the world
+hello-moon
+goodbye-world
+--help	Print help (see more with '--help')
+"#]],
+    );
+}
+
+#[test]
 fn suggest_argument_value() {
     let mut cmd = Command::new("dynamic")
         .arg(
