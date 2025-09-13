@@ -81,7 +81,7 @@ pub struct Arg {
     pub(crate) num_vals: Option<ValueRange>,
     pub(crate) val_delim: Option<char>,
     pub(crate) default_vals: Vec<OsStr>,
-    pub(crate) default_vals_ifs: Vec<(Id, ArgPredicate, Option<OsStr>)>,
+    pub(crate) default_vals_ifs: Vec<(Id, ArgPredicate, Vec<Option<OsStr>>)>,
     pub(crate) default_missing_vals: Vec<OsStr>,
     #[cfg(feature = "env")]
     pub(crate) env: Option<(OsStr, Option<OsString>)>,
@@ -3050,16 +3050,32 @@ impl Arg {
     /// [`Arg::default_value`]: Arg::default_value()
     #[must_use]
     pub fn default_value_if(
-        mut self,
+        self,
         arg_id: impl Into<Id>,
         predicate: impl Into<ArgPredicate>,
         default: impl IntoResettable<OsStr>,
     ) -> Self {
-        self.default_vals_ifs.push((
-            arg_id.into(),
-            predicate.into(),
-            default.into_resettable().into_option(),
-        ));
+        self.default_values_if(arg_id, predicate, [default])
+    }
+
+    /// Specifies the values of the argument if `arg` has been used at runtime.
+    ///
+    /// See [`Arg::default_value_if`].
+    ///
+    /// [`Arg::default_value_if`]: Arg::default_value_if()
+    #[must_use]
+    pub fn default_values_if(
+        mut self,
+        arg_id: impl Into<Id>,
+        predicate: impl Into<ArgPredicate>,
+        defaults: impl IntoIterator<Item = impl IntoResettable<OsStr>>,
+    ) -> Self {
+        let default_vals = defaults
+            .into_iter()
+            .map(|s| s.into_resettable().into_option())
+            .collect();
+        self.default_vals_ifs
+            .push((arg_id.into(), predicate.into(), default_vals));
         self
     }
 
