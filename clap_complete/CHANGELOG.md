@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Documentation
 
-- *(dynamic/fish)* Simplify setup instrictions
+- *(dynamic/fish)* Simplify setup instructions
 
 ## [4.5.57] - 2025-08-11
 
