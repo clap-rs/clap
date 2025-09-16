@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.58] - 2025-09-16
+
 ### Features
 
 - Recognize that after `--`, options should not be completed
@@ -598,7 +600,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.57...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.58...HEAD
+[4.5.58]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.57...clap_complete-v4.5.58
 [4.5.57]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.56...clap_complete-v4.5.57
 [4.5.56]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.55...clap_complete-v4.5.56
 [4.5.55]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.54...clap_complete-v4.5.55
