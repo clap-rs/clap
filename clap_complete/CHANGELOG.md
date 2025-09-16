@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Recognize that after `--`, options should not be completed
+
+### Documentation
+
+- *(dynamic/fish)* Simplify setup instrictions
+
 ## [4.5.57] - 2025-08-11
 
 ### Features
