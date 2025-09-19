@@ -902,6 +902,28 @@ fn issue_3880_allow_long_flag_hyphen_value_for_positional_arg() {
 }
 
 #[test]
+fn issue_6134_positional_with_leading_dash_fails_without_allow_hyphen_values() {
+    // Reproduces the exact issue: positional arg that looks like "-foo" fails
+    let result = Command::new("prog")
+        .arg(Arg::new("my_arg").required(true))
+        .try_get_matches_from(vec!["prog", "-foo"]);
+
+    assert!(result.is_err());
+    assert_eq!(result.unwrap_err().kind(), ErrorKind::UnknownArgument);
+}
+
+#[test]
+fn issue_6134_positional_with_leading_dash_works_with_allow_hyphen_values() {
+    // Solution: same case works with allow_hyphen_values = true
+    let m = Command::new("prog")
+        .arg(Arg::new("my_arg").allow_hyphen_values(true).required(true))
+        .try_get_matches_from(vec!["prog", "-foo"])
+        .unwrap();
+
+    assert_eq!(m.get_one::<String>("my_arg").unwrap(), "-foo");
+}
+
+#[test]
 fn issue_1093_allow_ext_sc() {
     let cmd = Command::new("clap-test")
         .version("v1.4.8")
