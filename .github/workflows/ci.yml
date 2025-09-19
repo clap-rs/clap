@@ -23,7 +23,7 @@ jobs:
     permissions:
       contents: none
     name: CI
-    needs: [test, check, lockfile, docs, rustfmt, clippy, minimal-versions, cffconvert]
+    needs: [test, shell-integration, shell-integration-nu, check, ui, minimal-versions, lockfile, docs, rustfmt, clippy, cffconvert]
     runs-on: ubuntu-latest
     if: "always()"
     steps:
