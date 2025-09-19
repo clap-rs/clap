@@ -1,6 +1,6 @@
 name: Feature request
 description: Suggest an idea for this project
-labels: 'C-enhancement'
+labels: ["C-enhancement", "S-triage"]
 body:
   - type: checkboxes
     attributes:
