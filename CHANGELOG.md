@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Documentation
+
+- Add a new CLI Concepts document as another way of framing clap
+- Expand the `typed_derive` cookbook entry
+
 ## [4.5.47] - 2025-09-02
 
 ### Features
