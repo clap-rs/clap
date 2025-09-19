@@ -1251,7 +1251,7 @@ impl Command {
         }
     }
 
-    /// Disables the automatic delimiting of values after `--` or when [`Arg::trailing_var_arg`]
+    /// Disables the automatic [delimiting of values][Arg::value_delimiter] after `--` or when [`Arg::trailing_var_arg`]
     /// was used.
     ///
     /// <div class="warning">
