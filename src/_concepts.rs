@@ -50,12 +50,12 @@
 //! 1. If it starts with a `--`,
 //!    then that is a long Flag and all remaining text up to a `=` or the end is
 //!    matched to a [`Arg::long`], [`Command::long_flag`], or alias.
-//!    - Everything after the `=` is taken as a value and parsing a new argument is examined.
+//!    - Everything after the `=` is taken as a Value and parsing a new argument is examined.
 //!    - If no `=` is present, then Values will be taken according to [`Arg::num_args`]
-//!    - We generally call a flag that takes a value an "option"
+//!    - We generally call a Flag that takes a Value an Option
 //! 2. If it starts with a `-`,
 //!    then that is a sequence of short Flags where each character is matched against a [`Arg::short`], [`Command::short_flag`] or
-//!    alias until `=`, the end, or a short Flag takes values (see [`Arg::num_args`])
+//!    alias until `=`, the end, or a short Flag takes Values (see [`Arg::num_args`])
 //! 3. If its a `--`, that is an escape and all future arguments are considered to be a Value, even if
 //!    they start with `--` or `-`
 //! 4. If it matches a [`Command::name`],
@@ -68,9 +68,9 @@
 //!
 //! There are many settings that tweak this behavior, including:
 //! - [`Arg::last(true)`]: a positional that can only come after `--`
-//! - [`Arg::trailing_var_arg(true)`]: all further arguments are captured as additional values
+//! - [`Arg::trailing_var_arg(true)`]: all further arguments are captured as additional Values
 //! - [`Arg::allow_hyphen_values(true)`] and [`Arg::allow_negative_numbers`]: assumes arguments
-//!   starting with `-` are values and not flags.
+//!   starting with `-` are Values and not Flags.
 //! - [`Command::subcommand_precedence_over_arg`]: when an [`Arg::num_args`] takes Values,
 //!   stop if one matches a subCommand
 //! - [`Command::allow_missing_positional`]: in limited cases a [`Arg::index`] may be skipped
