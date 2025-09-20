@@ -33,7 +33,7 @@
 //! - On Windows, you will need to handle globbing yourself if desired
 //!   - [`wild`](https://docs.rs/wild) can help with that
 //!
-//! ### Parsing
+//! ### Argument Parsing
 //!
 //! The first argument of [`std::env::args_os`] is the [`Command::bin_name`]
 //! which is usually limited to affecting [`Command::render_usage`].
@@ -87,8 +87,22 @@
 //!   and [`Command::allow_external_subcommands`]
 //!   all affect the parser in similar but slightly different ways and which to use depends on your
 //!   application
+//!
+//! ### Value Parsing
+//!
+//! When reacting to a Flag (no Value),
+//! [`Arg::default_missing_values`] will be applied.
+//!
+//! The Value will be split by [`Arg::value_delimiter`].
+//!
+//! The Value will then be stored according to its [`ArgAction`].
+//! For most [`ArgAction`]s,
+//! the Value will be parsed according to [`ValueParser`]
+//! and stored in the [`ArgMatches`].
 
 #![allow(unused_imports)]
+use clap_builder::builder::ValueParser;
 use clap_builder::Arg;
 use clap_builder::ArgAction;
+use clap_builder::ArgMatches;
 use clap_builder::Command;
