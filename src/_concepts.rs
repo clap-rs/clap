@@ -67,9 +67,9 @@
 //! all further arguments are parsed by that [`Command`].
 //!
 //! There are many settings that tweak this behavior, including:
-//! - [`Arg::last(true)`]: a positional that can only come after `--`
-//! - [`Arg::trailing_var_arg(true)`]: all further arguments are captured as additional Values
-//! - [`Arg::allow_hyphen_values(true)`] and [`Arg::allow_negative_numbers`]: assumes arguments
+//! - [`Arg::last`]: a positional that can only come after `--`
+//! - [`Arg::trailing_var_arg`]: all further arguments are captured as additional Values
+//! - [`Arg::allow_hyphen_values`] and [`Arg::allow_negative_numbers`]: assumes arguments
 //!   starting with `-` are Values and not Flags.
 //! - [`Command::subcommand_precedence_over_arg`]: when an [`Arg::num_args`] takes Values,
 //!   stop if one matches a subCommand
@@ -80,7 +80,7 @@
 //! Takeaways
 //! - Values that start with a `-` either need to be escaped by the user with `--`
 //!   (if a positional),
-//!   or you need to set [`Arg::allow_hyphen_values(true)`] or [`Arg::allow_negative_numbers`]
+//!   or you need to set [`Arg::allow_hyphen_values`] or [`Arg::allow_negative_numbers`]
 //! - [`Arg::num_args`],
 //!   [`ArgAction::Append`] (on a positional),
 //!   [`Arg::trailing_var_arg`],
