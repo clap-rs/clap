@@ -356,8 +356,7 @@ pub(crate) fn help_headings(name: &'static str) -> clap::Command {
 }
 
 pub(crate) fn value_with_required_equals(name: &'static str) -> clap::Command {
-    clap::Command::new(name)
-    .arg(
+    clap::Command::new(name).arg(
         clap::Arg::new("config")
             .long("config")
             .value_name("FILE")
@@ -367,8 +366,7 @@ pub(crate) fn value_with_required_equals(name: &'static str) -> clap::Command {
 }
 
 pub(crate) fn optional_value_with_required_equals(name: &'static str) -> clap::Command {
-    clap::Command::new(name)
-    .arg(
+    clap::Command::new(name).arg(
         clap::Arg::new("config")
             .long("config")
             .value_name("FILE")
@@ -379,8 +377,7 @@ pub(crate) fn optional_value_with_required_equals(name: &'static str) -> clap::C
 }
 
 pub(crate) fn optional_value(name: &'static str) -> clap::Command {
-    clap::Command::new(name)
-    .arg(
+    clap::Command::new(name).arg(
         clap::Arg::new("config")
             .long("config")
             .value_name("FILE")
@@ -390,8 +387,7 @@ pub(crate) fn optional_value(name: &'static str) -> clap::Command {
 }
 
 pub(crate) fn multiple_optional_values(name: &'static str) -> clap::Command {
-    clap::Command::new(name)
-    .arg(
+    clap::Command::new(name).arg(
         clap::Arg::new("config")
             .long("config")
             .value_names(["FILE1", "FILE2"])
@@ -401,8 +397,7 @@ pub(crate) fn multiple_optional_values(name: &'static str) -> clap::Command {
 }
 
 pub(crate) fn variadic_values(name: &'static str) -> clap::Command {
-    clap::Command::new(name)
-    .arg(
+    clap::Command::new(name).arg(
         clap::Arg::new("config")
             .long("config")
             .value_names(["FILE1", "FILE2"])
@@ -410,4 +405,14 @@ pub(crate) fn variadic_values(name: &'static str) -> clap::Command {
             .num_args(3)
             .help("Optional config file"),
     )
+}
+
+pub(crate) fn display_order(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+        .next_display_order(None)
+        .arg(clap::Arg::new("c").short('c'))
+        .arg(clap::Arg::new("b").short('b'))
+        .arg(clap::Arg::new("a").short('a'))
+        .arg(clap::Arg::new("aa").long("aa"))
+        .arg(clap::Arg::new("0").short('0'))
 }

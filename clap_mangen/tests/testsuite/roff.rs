@@ -15,6 +15,13 @@ fn feature_sample() {
 }
 
 #[test]
+fn feature_sample_display_order() {
+    let name = "my-app";
+    let cmd = common::display_order(name);
+    common::assert_matches(snapbox::file!["../snapshots/display_order.bash.roff"], cmd);
+}
+
+#[test]
 fn special_commands() {
     let name = "my-app";
     let cmd = common::special_commands_command(name);
@@ -137,10 +144,7 @@ fn optional_value_with_required_equals() {
 fn optional_value() {
     let name = "my-app";
     let cmd = common::optional_value(name);
-    common::assert_matches(
-        snapbox::file!["../snapshots/optional_value.bash.roff"],
-        cmd,
-    );
+    common::assert_matches(snapbox::file!["../snapshots/optional_value.bash.roff"], cmd);
 }
 
 #[test]

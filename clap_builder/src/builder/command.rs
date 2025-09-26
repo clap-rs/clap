@@ -24,6 +24,7 @@ use crate::error::ErrorKind;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::MKeyMap;
 use crate::output::fmt::Stream;
+use crate::output::HelpTemplate;
 use crate::output::{fmt::Colorizer, write_help, Usage};
 use crate::parser::{ArgMatcher, ArgMatches, Parser};
 use crate::util::ChildGraph;
@@ -4002,6 +4003,16 @@ impl Command {
     #[inline]
     pub fn get_arguments(&self) -> impl Iterator<Item = &Arg> {
         self.args.args()
+    }
+
+    #[inline]
+    /// Iterate through the set of arguments sorted by display order.
+    pub fn get_arguments_sorted(&self) -> impl Iterator<Item = &Arg> {
+        let mut sorted = self.args.args().collect::<Vec<_>>();
+        sorted.sort_by(|a, b| {
+            HelpTemplate::option_sort_key(a).cmp(&HelpTemplate::option_sort_key(b))
+        });
+        sorted.into_iter()
     }
 
     /// Iterate through the *positionals* arguments.

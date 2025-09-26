@@ -82,17 +82,17 @@ fn sub_subcommands() {
     );
 }
 
-	#[test]
-	fn external_subcommands() {
-		let name = "my-app";
-		let cmd = common::external_subcommand(name);
-		common::assert_matches(
-			snapbox::file!["../snapshots/external_subcommands.bash"],
-			clap_complete::shells::Bash,
-			cmd,
-			name,
-		);
-	}
+#[test]
+fn external_subcommands() {
+    let name = "my-app";
+    let cmd = common::external_subcommand(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/external_subcommands.bash"],
+        clap_complete::shells::Bash,
+        cmd,
+        name,
+    );
+}
 
 #[test]
 fn custom_bin_name() {
@@ -175,7 +175,7 @@ fn complete() {
 
     let input = "exhaustive \t\t";
     let expected = snapbox::str![[r#"
-% 
+%
 -h              --empty-choice  empty           action          value           last            hint
 --generate      --help          global          quote           pacman          alias           help
 "#]];
@@ -214,8 +214,8 @@ fn complete() {
     // Trigger completion from empty space
     let input = "exhaustive quote --choice  b\x1b[D\x1b[D\t\t";
     let expected = snapbox::str![[r#"
-% 
-another  shell    bash     fish     zsh      
+%
+another  shell    bash     fish     zsh
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -223,8 +223,8 @@ another  shell    bash     fish     zsh
     // Trigger completion immediately after "--"
     let input = "exhaustive -- hint\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\t\t";
     let expected = snapbox::str![[r#"
-% 
---generate      --empty-choice  --help          
+%
+--generate      --empty-choice  --help
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -312,9 +312,9 @@ fn complete_dynamic_env_toplevel() {
 
     let input = "exhaustive \t\t";
     let expected = snapbox::str![[r#"
-% 
+%
 empty           action          value           last            hint            --generate      --help
-global          quote           pacman          alias           help            --empty-choice  
+global          quote           pacman          alias           help            --empty-choice
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -333,10 +333,10 @@ fn complete_dynamic_env_quoted_help() {
 
     let input = "exhaustive quote \t\t";
     let expected = snapbox::str![[r#"
-% 
+%
 cmd-single-quotes  cmd-backslash      escape-help        --double-quotes    --brackets         --help
-cmd-double-quotes  cmd-brackets       help               --backticks        --expansions       
-cmd-backticks      cmd-expansions     --single-quotes    --backslash        --choice           
+cmd-double-quotes  cmd-brackets       help               --backticks        --expansions
+cmd-backticks      cmd-expansions     --single-quotes    --backslash        --choice
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -356,8 +356,8 @@ fn complete_dynamic_env_option_value() {
     let input = "exhaustive action --choice=\t\t";
     let expected = snapbox::str![
         r#"
-% 
-first   second  
+%
+first   second
 "#
     ];
     let actual = runtime.complete(input, &term).unwrap();
@@ -382,8 +382,8 @@ fn complete_dynamic_env_quoted_value() {
 
     let input = "exhaustive quote --choice \t\t";
     let expected = snapbox::str![[r#"
-% 
-another shell  bash           fish           zsh            
+%
+another shell  bash           fish           zsh
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -468,8 +468,8 @@ fn complete_dynamic_middle_of_word() {
     // Trigger completion from empty space
     let input = "exhaustive quote --choice  b\x1b[D\x1b[D\t\t";
     let expected = snapbox::str![[r#"
-% 
-another shell  bash           fish           zsh            
+%
+another shell  bash           fish           zsh
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -477,8 +477,8 @@ another shell  bash           fish           zsh
     // Trigger completion immediately after "--"
     let input = "exhaustive -- hint\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\t\t";
     let expected = snapbox::str![[r#"
-% 
---generate      --empty-choice  --help          
+%
+--generate      --empty-choice  --help
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);

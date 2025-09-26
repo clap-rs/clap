@@ -33,7 +33,7 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
     let name = cmd.get_bin_name().unwrap_or_else(|| cmd.get_name());
     let mut line = vec![bold(name), roman(" ")];
 
-    for opt in cmd.get_arguments().filter(|i| !i.is_hide_set()) {
+    for opt in cmd.get_arguments_sorted().filter(|i| !i.is_hide_set()) {
         let (lhs, rhs) = option_markers(opt);
         match (opt.get_short(), opt.get_long()) {
             (Some(short), Some(long)) => {
