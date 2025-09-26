@@ -351,3 +351,36 @@ fn app_has_subcommands(cmd: &clap::Command) -> bool {
 #[doc = include_str!("../README.md")]
 #[cfg(doctest)]
 pub struct ReadmeDoctests;
+
+#[cfg(test)]
+mod tests {
+    use crate::Man;
+
+    #[test]
+    fn respect_order() {
+        let mut cmd = clap::Command::new("mybin")
+            .next_display_order(None) // mark all following args with display_order `None`
+            .arg(clap::arg!(-n --name <NAME>))
+            .arg(clap::arg!(-c --count <NUM>));
+
+        let help_message = cmd.render_help().to_string();
+        let name_position = help_message.find("--name").expect("Flag must be in output");
+        let count_position = help_message
+            .find("--count")
+            .expect("Flag must be in output");
+
+        // As we can see, clap sorts args with alphabetically for args with display_order `None`
+        assert!(count_position < name_position);
+
+        let man = Man::new(cmd);
+        let mut buffer: Vec<u8> = Default::default();
+        man.render(&mut buffer).unwrap();
+
+        let result = str::from_utf8(&buffer).unwrap();
+        let name_position = result.find("-\\-name").expect("Flag must be in output");
+        let count_position = result.find("-\\-count").expect("Flag must be in output");
+
+        // clap_mangen must also respect display_order
+        assert!(count_position < name_position);
+    }
+}

@@ -2,6 +2,7 @@ use std::iter::Iterator;
 use std::ops::Index;
 
 use crate::builder::OsStr;
+use crate::output::HelpTemplate;
 use crate::Arg;
 use crate::INTERNAL_ERROR_MSG;
 
@@ -93,6 +94,10 @@ impl MKeyMap {
     /// Push an argument in the map.
     pub(crate) fn push(&mut self, new_arg: Arg) {
         self.args.push(new_arg);
+
+        self.args.sort_by(|a, b| {
+            HelpTemplate::option_sort_key(a).cmp(&HelpTemplate::option_sort_key(b))
+        });
     }
 
     /// Find the arg have corresponding key in this map, we can search the key

@@ -220,7 +220,7 @@ impl<'cmd, 'writer> HelpTemplate<'cmd, 'writer> {
                         self.write_args(
                             &self.cmd.get_non_positionals().collect::<Vec<_>>(),
                             "options",
-                            option_sort_key,
+                            HelpTemplate::option_sort_key,
                         );
                     }
                     "positionals" => {
@@ -432,7 +432,7 @@ impl HelpTemplate<'_, '_> {
             first = false;
             let help_heading = "Options";
             let _ = write!(self.writer, "{header}{help_heading}:{header:#}\n",);
-            self.write_args(&non_pos, "Options", option_sort_key);
+            self.write_args(&non_pos, "Options", HelpTemplate::option_sort_key);
         }
         if !custom_headings.is_empty() {
             for heading in custom_headings {
@@ -454,7 +454,7 @@ impl HelpTemplate<'_, '_> {
                     }
                     first = false;
                     let _ = write!(self.writer, "{header}{heading}:{header:#}\n",);
-                    self.write_args(&args, heading, option_sort_key);
+                    self.write_args(&args, heading, HelpTemplate::option_sort_key);
                 }
             }
         }
@@ -928,7 +928,7 @@ impl HelpTemplate<'_, '_> {
                 term_w: self.term_w,
                 use_long: self.use_long,
             };
-            sub_help.write_args(&args, heading, option_sort_key);
+            sub_help.write_args(&args, heading, HelpTemplate::option_sort_key);
             if subcommand.is_flatten_help_set() {
                 sub_help.write_flat_subcommands(subcommand, first);
             }
@@ -1076,6 +1076,29 @@ impl HelpTemplate<'_, '_> {
             self.write_padding(padding);
         }
     }
+
+    pub(crate) fn option_sort_key(arg: &Arg) -> (usize, String) {
+        // Formatting key like this to ensure that:
+        // 1. Argument has long flags are printed just after short flags.
+        // 2. For two args both have short flags like `-c` and `-C`, the
+        //    `-C` arg is printed just after the `-c` arg
+        // 3. For args without short or long flag, print them at last(sorted
+        //    by arg name).
+        // Example order: -a, -b, -B, -s, --select-file, --select-folder, -x
+
+        let key = if let Some(x) = arg.get_short() {
+            let mut s = x.to_ascii_lowercase().to_string();
+            s.push(if x.is_ascii_lowercase() { '0' } else { '1' });
+            s
+        } else if let Some(x) = arg.get_long() {
+            x.to_string()
+        } else {
+            let mut s = '{'.to_string();
+            s.push_str(arg.get_id().as_str());
+            s
+        };
+        (arg.get_display_order(), key)
+    }
 }
 
 const NEXT_LINE_INDENT: &str = "        ";
@@ -1084,29 +1107,6 @@ type ArgSortKey = fn(arg: &Arg) -> (usize, String);
 
 fn positional_sort_key(arg: &Arg) -> (usize, String) {
     (arg.get_index().unwrap_or(0), String::new())
-}
-
-fn option_sort_key(arg: &Arg) -> (usize, String) {
-    // Formatting key like this to ensure that:
-    // 1. Argument has long flags are printed just after short flags.
-    // 2. For two args both have short flags like `-c` and `-C`, the
-    //    `-C` arg is printed just after the `-c` arg
-    // 3. For args without short or long flag, print them at last(sorted
-    //    by arg name).
-    // Example order: -a, -b, -B, -s, --select-file, --select-folder, -x
-
-    let key = if let Some(x) = arg.get_short() {
-        let mut s = x.to_ascii_lowercase().to_string();
-        s.push(if x.is_ascii_lowercase() { '0' } else { '1' });
-        s
-    } else if let Some(x) = arg.get_long() {
-        x.to_string()
-    } else {
-        let mut s = '{'.to_string();
-        s.push_str(arg.get_id().as_str());
-        s
-    };
-    (arg.get_display_order(), key)
 }
 
 pub(crate) fn dimensions() -> (Option<usize>, Option<usize>) {
