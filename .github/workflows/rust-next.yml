@@ -57,6 +57,9 @@ jobs:
           features: "next"
     continue-on-error: ${{ matrix.rust != 'stable' }}
     runs-on: ${{ matrix.os }}
+    env:
+      # Reduce amount of data cached
+      CARGO_PROFILE_DEV_DEBUG: line-tables-only
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
