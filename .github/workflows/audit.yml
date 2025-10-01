@@ -31,7 +31,7 @@ jobs:
     continue-on-error: true
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     - uses: actions-rs/audit-check@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
@@ -46,7 +46,7 @@ jobs:
         checks:
           - bans licenses sources
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - uses: EmbarkStudios/cargo-deny-action@v2
       with:
         command: check ${{ matrix.checks }}
