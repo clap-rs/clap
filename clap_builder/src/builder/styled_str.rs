@@ -245,7 +245,10 @@ mod wrap_tests {
         actual.wrap(20);
         assert_data_eq!(
             actual.ansi().to_string(),
-            str!["[1m12345[0m [1m12345[0m [1m12345[0m [1m12345[0m"]
+            str![[r#"
+[1m12345[0m [1m12345[0m [1m12345[0m [1m
+12345[0m
+"#]]
         );
     }
 }

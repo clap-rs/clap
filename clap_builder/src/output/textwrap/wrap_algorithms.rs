@@ -22,7 +22,9 @@ impl<'w> LineWrapper<'w> {
     }
 
     pub(crate) fn wrap(&mut self, mut words: Vec<&'w str>) -> Vec<&'w str> {
+        let mut first_word = false;
         if self.indentation.is_none() {
+            first_word = true;
             if let Some(word) = words.first() {
                 if word.trim().is_empty() {
                     self.indentation = Some(*word);
@@ -38,7 +40,10 @@ impl<'w> LineWrapper<'w> {
             let trimmed = word.trim_end();
             let word_width = display_width(trimmed);
             let trimmed_delta = word.len() - trimmed.len();
-            if i != 0 && self.hard_width < self.line_width + word_width {
+            if first_word && 0 < word_width {
+                // Never try to wrap the first word
+                first_word = false;
+            } else if self.hard_width < self.line_width + word_width {
                 if 0 < i {
                     let prev = i - 1;
                     let trimmed = words[prev].trim_end();
