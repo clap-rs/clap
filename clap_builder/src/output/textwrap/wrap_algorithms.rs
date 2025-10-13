@@ -40,9 +40,9 @@ impl<'w> LineWrapper<'w> {
             let trimmed_delta = word.len() - trimmed.len();
             if i != 0 && self.hard_width < self.line_width + word_width {
                 if 0 < i {
-                    let last = i - 1;
-                    let trimmed = words[last].trim_end();
-                    words[last] = trimmed;
+                    let prev = i - 1;
+                    let trimmed = words[prev].trim_end();
+                    words[prev] = trimmed;
                 }
 
                 self.line_width = 0;
