@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(help)* Correctly wrap when ANSI escape codes are present
+
 ## [4.5.48] - 2025-09-19
 
 ### Documentation
