@@ -4,7 +4,7 @@ use super::core::display_width;
 pub(crate) struct LineWrapper<'w> {
     hard_width: usize,
     line_width: usize,
-    carryover: Option<&'w str>,
+    indentation: Option<&'w str>,
 }
 
 impl<'w> LineWrapper<'w> {
@@ -12,22 +12,22 @@ impl<'w> LineWrapper<'w> {
         Self {
             hard_width,
             line_width: 0,
-            carryover: None,
+            indentation: None,
         }
     }
 
     pub(crate) fn reset(&mut self) {
         self.line_width = 0;
-        self.carryover = None;
+        self.indentation = None;
     }
 
     pub(crate) fn wrap(&mut self, mut words: Vec<&'w str>) -> Vec<&'w str> {
-        if self.carryover.is_none() {
+        if self.indentation.is_none() {
             if let Some(word) = words.first() {
                 if word.trim().is_empty() {
-                    self.carryover = Some(*word);
+                    self.indentation = Some(*word);
                 } else {
-                    self.carryover = Some("");
+                    self.indentation = Some("");
                 }
             }
         }
@@ -48,9 +48,9 @@ impl<'w> LineWrapper<'w> {
                 self.line_width = 0;
                 words.insert(i, "\n");
                 i += 1;
-                if let Some(carryover) = self.carryover {
-                    words.insert(i, carryover);
-                    self.line_width += carryover.len();
+                if let Some(indentation) = self.indentation {
+                    words.insert(i, indentation);
+                    self.line_width += indentation.len();
                     i += 1;
                 }
             }
