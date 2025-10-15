@@ -137,10 +137,7 @@ fn optional_value_with_required_equals() {
 fn optional_value() {
     let name = "my-app";
     let cmd = common::optional_value(name);
-    common::assert_matches(
-        snapbox::file!["../snapshots/optional_value.bash.roff"],
-        cmd,
-    );
+    common::assert_matches(snapbox::file!["../snapshots/optional_value.bash.roff"], cmd);
 }
 
 #[test]
@@ -159,6 +156,36 @@ fn variadic_values() {
     let cmd = common::variadic_values(name);
     common::assert_matches(
         snapbox::file!["../snapshots/variadic_values.bash.roff"],
+        cmd,
+    );
+}
+
+#[test]
+fn configured_display_order_args() {
+    let name = "my-app";
+    let cmd = common::configured_display_order_args(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/configured_display_order_args.roff"],
+        cmd,
+    );
+}
+
+#[test]
+fn configured_subcmd_order() {
+    let name = "my-app";
+    let cmd = common::configured_subcmd_order(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/configured_subcmd_order.roff"],
+        cmd,
+    );
+}
+
+#[test]
+fn default_subcmd_order() {
+    let name = "my-app";
+    let cmd = common::default_subcmd_order(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/default_subcmd_order.roff"],
         cmd,
     );
 }
