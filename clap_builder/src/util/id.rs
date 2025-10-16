@@ -1,4 +1,5 @@
 use crate::builder::Str;
+use std::borrow::Cow;
 
 /// [`Arg`][crate::Arg] or [`ArgGroup`][crate::ArgGroup] identifier
 ///
@@ -67,6 +68,13 @@ impl From<&'static str> for Id {
 
 impl From<&'_ &'static str> for Id {
     fn from(name: &'_ &'static str) -> Self {
+        Self(name.into())
+    }
+}
+
+#[cfg(feature = "string")]
+impl From<Cow<'static, str>> for Id {
+    fn from(name: Cow<'static, str>) -> Self {
         Self(name.into())
     }
 }

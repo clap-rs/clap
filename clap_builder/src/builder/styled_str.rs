@@ -1,5 +1,7 @@
 #![cfg_attr(not(feature = "usage"), allow(dead_code))]
 
+use std::borrow::Cow;
+
 /// Terminal-styling container
 ///
 /// Styling may be encoded as [ANSI Escape Code](https://en.wikipedia.org/wiki/ANSI_escape_code)
@@ -182,6 +184,15 @@ impl From<&'static str> for StyledStr {
 impl From<&'_ &'static str> for StyledStr {
     fn from(name: &'_ &'static str) -> Self {
         StyledStr::from(*name)
+    }
+}
+
+impl From<Cow<'static, str>> for StyledStr {
+    fn from(cow: Cow<'static, str>) -> Self {
+        match cow {
+            Cow::Borrowed(s) => StyledStr::from(s),
+            Cow::Owned(s) => StyledStr::from(s),
+        }
     }
 }
 

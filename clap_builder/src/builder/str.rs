@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 /// A UTF-8-encoded fixed string
 ///
 /// <div class="warning">
@@ -71,6 +73,16 @@ impl From<&'static str> for Str {
 impl From<&'_ &'static str> for Str {
     fn from(name: &'_ &'static str) -> Self {
         Self::from_static_ref(name)
+    }
+}
+
+#[cfg(feature = "string")]
+impl From<Cow<'static, str>> for Str {
+    fn from(cow: Cow<'static, str>) -> Self {
+        match cow {
+            Cow::Borrowed(s) => Self::from(s),
+            Cow::Owned(s) => Self::from(s),
+        }
     }
 }
 

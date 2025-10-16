@@ -1,4 +1,5 @@
 use crate::builder::Str;
+use std::borrow::Cow;
 
 /// A UTF-8-encoded fixed string
 ///
@@ -123,6 +124,16 @@ impl From<&'static str> for OsStr {
 impl From<&'_ &'static str> for OsStr {
     fn from(name: &'_ &'static str) -> Self {
         Self::from_static_ref((*name).as_ref())
+    }
+}
+
+#[cfg(feature = "string")]
+impl From<Cow<'static, str>> for OsStr {
+    fn from(cow: Cow<'static, str>) -> Self {
+        match cow {
+            Cow::Borrowed(s) => Self::from(s),
+            Cow::Owned(s) => Self::from(s),
+        }
     }
 }
 
