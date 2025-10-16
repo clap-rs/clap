@@ -1,4 +1,5 @@
 #![cfg_attr(not(feature = "usage"), allow(dead_code))]
+use std::borrow::Cow;
 
 /// Terminal-styling container
 ///
@@ -185,6 +186,15 @@ impl From<&'_ &'static str> for StyledStr {
     }
 }
 
+impl From<Cow<'static, str>> for StyledStr {
+    fn from(cow: Cow<'static, str>) -> Self {
+        match cow {
+            Cow::Borrowed(s) => StyledStr::from(s),
+            Cow::Owned(s) => StyledStr::from(s),
+        }
+    }
+}
+
 impl std::fmt::Write for StyledStr {
     #[inline]
     fn write_str(&mut self, s: &str) -> Result<(), std::fmt::Error> {
@@ -250,5 +260,24 @@ mod wrap_tests {
 12345[0m
 "#]]
         );
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn from_cow_borrowed() {
+        let cow = Cow::Borrowed("hello");
+        let styled = StyledStr::from(cow);
+        assert_eq!(styled, StyledStr::from("hello"));
+    }
+
+    #[test]
+    fn from_cow_owned() {
+        let cow = Cow::Owned("world".to_string());
+        let styled = StyledStr::from(cow);
+        assert_eq!(styled, StyledStr::from("world"));
     }
 }
