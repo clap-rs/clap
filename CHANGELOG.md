@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Accept `Cow` where `String` and `&str` are accepted
+
 ## [4.5.49] - 2025-10-13
 
 ### Fixes
