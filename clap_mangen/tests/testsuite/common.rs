@@ -324,6 +324,40 @@ pub(crate) fn value_name_without_arg(name: &'static str) -> clap::Command {
     )
 }
 
+pub(crate) fn configured_display_order_args(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+        .arg(clap::Arg::new("1st").help("1st"))
+        .arg(clap::Arg::new("2nd").help("2nd"))
+        .arg(clap::Arg::new("3rd").help("3rd").last(true))
+        .arg(
+            clap::Arg::new("c")
+                .long("third")
+                .short('Q')
+                .display_order(3)
+                .help("Should be 3rd"),
+        )
+        .arg(
+            clap::Arg::new("d")
+                .long("fourth")
+                .display_order(4)
+                .help("Should be 4th"),
+        )
+        .arg(
+            clap::Arg::new("a")
+                .long("first")
+                .short('O')
+                .display_order(1)
+                .help("Should be 1st"),
+        )
+        .arg(
+            clap::Arg::new("b")
+                .long("second")
+                .short('P')
+                .display_order(2)
+                .help("Should be 2nd"),
+        )
+}
+
 pub(crate) fn help_headings(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .arg(
@@ -356,8 +390,7 @@ pub(crate) fn help_headings(name: &'static str) -> clap::Command {
 }
 
 pub(crate) fn value_with_required_equals(name: &'static str) -> clap::Command {
-    clap::Command::new(name)
-    .arg(
+    clap::Command::new(name).arg(
         clap::Arg::new("config")
             .long("config")
             .value_name("FILE")
@@ -367,8 +400,7 @@ pub(crate) fn value_with_required_equals(name: &'static str) -> clap::Command {
 }
 
 pub(crate) fn optional_value_with_required_equals(name: &'static str) -> clap::Command {
-    clap::Command::new(name)
-    .arg(
+    clap::Command::new(name).arg(
         clap::Arg::new("config")
             .long("config")
             .value_name("FILE")
@@ -379,8 +411,7 @@ pub(crate) fn optional_value_with_required_equals(name: &'static str) -> clap::C
 }
 
 pub(crate) fn optional_value(name: &'static str) -> clap::Command {
-    clap::Command::new(name)
-    .arg(
+    clap::Command::new(name).arg(
         clap::Arg::new("config")
             .long("config")
             .value_name("FILE")
@@ -390,8 +421,7 @@ pub(crate) fn optional_value(name: &'static str) -> clap::Command {
 }
 
 pub(crate) fn multiple_optional_values(name: &'static str) -> clap::Command {
-    clap::Command::new(name)
-    .arg(
+    clap::Command::new(name).arg(
         clap::Arg::new("config")
             .long("config")
             .value_names(["FILE1", "FILE2"])
@@ -401,8 +431,7 @@ pub(crate) fn multiple_optional_values(name: &'static str) -> clap::Command {
 }
 
 pub(crate) fn variadic_values(name: &'static str) -> clap::Command {
-    clap::Command::new(name)
-    .arg(
+    clap::Command::new(name).arg(
         clap::Arg::new("config")
             .long("config")
             .value_names(["FILE1", "FILE2"])
@@ -410,4 +439,37 @@ pub(crate) fn variadic_values(name: &'static str) -> clap::Command {
             .num_args(3)
             .help("Optional config file"),
     )
+}
+
+pub(crate) fn configured_subcmd_order(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+        .version("1")
+        .next_display_order(None)
+        .subcommands(vec![
+            clap::Command::new("b1").about("blah b1").arg(
+                clap::Arg::new("test")
+                    .short('t')
+                    .action(clap::ArgAction::SetTrue),
+            ),
+            clap::Command::new("a1").about("blah a1").arg(
+                clap::Arg::new("roster")
+                    .short('r')
+                    .action(clap::ArgAction::SetTrue),
+            ),
+        ])
+}
+
+pub(crate) fn default_subcmd_order(name: &'static str) -> clap::Command {
+    clap::Command::new(name).version("1").subcommands(vec![
+        clap::Command::new("b1").about("blah b1").arg(
+            clap::Arg::new("test")
+                .short('t')
+                .action(clap::ArgAction::SetTrue),
+        ),
+        clap::Command::new("a1").about("blah a1").arg(
+            clap::Arg::new("roster")
+                .short('r')
+                .action(clap::ArgAction::SetTrue),
+        ),
+    ])
 }
