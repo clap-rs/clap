@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Reuse display order of `--help`
+
 ## [0.2.30] - 2025-10-13
 
 ## [0.2.29] - 2025-07-29
