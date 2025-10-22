@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [0.2.31] - 2025-10-22
+
 ### Fixes
 
 - Reuse display order of `--help`
@@ -164,7 +166,8 @@ MSRV changed to 1.64.0
 - Expanded the documentation
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.30...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.31...HEAD
+[0.2.31]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.30...clap_mangen-v0.2.31
 [0.2.30]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.29...clap_mangen-v0.2.30
 [0.2.29]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.28...clap_mangen-v0.2.29
 [0.2.28]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.27...clap_mangen-v0.2.28
