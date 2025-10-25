@@ -201,6 +201,11 @@ automod = "1.0.14"
 clap-cargo = { version = "0.15.0", default-features = false }
 semver = "1.0.26"
 
+# Used for the figment example
+figment = { version = "0.10.19", features = ["toml"] }
+serde = { version = "1.0.228", features = ["serde_derive"] }
+serde_default_utils = { version = "0.3.1", features = ["inline"] }
+
 [[example]]
 name = "demo"
 required-features = ["derive"]
@@ -525,6 +530,12 @@ doc-scrape-examples = true
 [[example]]
 name = "interop_flatten_hand_args"
 path = "examples/derive_ref/flatten_hand_args.rs"
+required-features = ["derive"]
+doc-scrape-examples = true
+
+[[example]]
+name = "figment"
+path = "examples/figment.rs"
 required-features = ["derive"]
 doc-scrape-examples = true
 

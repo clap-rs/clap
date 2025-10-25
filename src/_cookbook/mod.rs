@@ -61,3 +61,4 @@ pub mod pacman;
 pub mod repl;
 pub mod repl_derive;
 pub mod typed_derive;
+pub mod figment;
