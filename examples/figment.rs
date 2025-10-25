@@ -1,3 +1,4 @@
+use std::path::PathBuf;
 use clap::{CommandFactory, Parser, error::ErrorKind};
 use figment::{Figment, providers::{Serialized, Toml, Format}};
 use serde::{Serialize, Deserialize};
@@ -21,8 +22,10 @@ pub struct AppConfig {
 }
 
 fn main() {
+    let cfgpath = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("examples").join("figment_config.toml");
+
     let config: AppConfig = Figment::new()
-        .merge(Toml::file("figment_config.toml"))
+        .merge(Toml::file(cfgpath))
         .merge(Serialized::defaults(AppConfig::parse()))
         .extract().unwrap();
 

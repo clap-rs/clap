@@ -16,7 +16,6 @@ serde_default_utils = { version = "*", features = ["inline"] }
 Help:
 ```console
 $ figment --help
-
 A demo showing the use of figment with clap
 
 Usage: figment[EXE] [OPTIONS]
@@ -25,15 +24,16 @@ Options:
   -n, --name <NAME>    Name of the person to greet
   -c, --count <COUNT>  Number of times to greet - default value of 1
   -h, --help           Print help
+
 ```
 *(version number and `.exe` extension on windows replaced by placeholders)*
 
 A basic argument:
 ```console
 $ figment --count 4
-
 Name: HelloWorld
 Count: 4
+
 ```
 
 ## Optional Fields
