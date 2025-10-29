@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(help)* Correctly calculate padding for short flags that take a value
+- *(help)* Don't panic on short flags using `ArgAction::Count`
+
 ## [4.5.50] - 2025-10-20
 
 ### Features
