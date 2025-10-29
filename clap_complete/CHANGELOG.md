@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.60] - 2025-10-29
+
 ### Fixes
 
 - *(dynamic/powershell)* don't repeat previous words when completing
@@ -606,7 +608,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.59...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.60...HEAD
+[4.5.60]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.59...clap_complete-v4.5.60
 [4.5.59]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.58...clap_complete-v4.5.59
 [4.5.58]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.57...clap_complete-v4.5.58
 [4.5.57]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.56...clap_complete-v4.5.57
