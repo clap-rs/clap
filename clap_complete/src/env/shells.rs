@@ -286,8 +286,15 @@ Register-ArgumentCompleter -Native -CommandName {bin} -ScriptBlock {{
 
     $prev = $env:{var};
     $env:{var} = "powershell";
+
+    $args = $commandAst.Extent.Text
+    $args = $args.Substring(0, [math]::Min($cursorPosition, $args.Length));
+    if ($wordToComplete -eq "") {{
+        $args += " ''";
+    }}
+
     $results = Invoke-Expression @"
-& {completer} -- $commandAst
+& {completer} -- $args
 "@;
     if ($null -eq $prev) {{
         Remove-Item Env:\{var};
