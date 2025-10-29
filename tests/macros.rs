@@ -308,8 +308,8 @@ mod arg {
 Usage: test [OPTIONS]
 
 Options:
-  -p [<NUM>]      
-  -h, --help      Print help
+  -p [<NUM>]  
+  -h, --help  Print help
 
 "#]]
         );

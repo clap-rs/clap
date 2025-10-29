@@ -2417,6 +2417,52 @@ Options:
 }
 
 #[test]
+fn short_with_value() {
+    let cmd = Command::new("demo").arg(
+        Arg::new("baz")
+            .short('z')
+            .value_name("BAZ")
+            .help("Short only")
+            .help_heading("Baz"),
+    );
+
+    let expected = str![[r#"
+Usage: demo [OPTIONS]
+
+Options:
+  -h, --help  Print help
+
+Baz:
+  -z <BAZ>  Short only
+
+"#]];
+    utils::assert_output(cmd, "demo -h", expected, false);
+}
+
+#[test]
+fn short_with_count() {
+    let cmd = Command::new("demo").arg(
+        Arg::new("baz")
+            .short('z')
+            .action(ArgAction::Count)
+            .help("Short only")
+            .help_heading("Baz"),
+    );
+
+    let expected = str![[r#"
+Usage: demo [OPTIONS]
+
+Options:
+  -h, --help  Print help
+
+Baz:
+  -z...  Short only
+
+"#]];
+    utils::assert_output(cmd, "demo -h", expected, false);
+}
+
+#[test]
 fn issue_1487() {
     let cmd = Command::new("test")
         .arg(Arg::new("arg1").group("group1"))
