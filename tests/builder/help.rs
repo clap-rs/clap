@@ -2433,14 +2433,13 @@ Options:
   -h, --help  Print help
 
 Baz:
-  -z <BAZ>      Short only
+  -z <BAZ>  Short only
 
 "#]];
     utils::assert_output(cmd, "demo -h", expected, false);
 }
 
 #[test]
-#[should_panic]
 fn short_with_count() {
     let cmd = Command::new("demo").arg(
         Arg::new("baz")

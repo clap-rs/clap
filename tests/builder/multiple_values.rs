@@ -480,8 +480,8 @@ fn optional_value() {
 Usage: test [OPTIONS]
 
 Options:
-  -p [<NUM>]      
-  -h, --help      Print help
+  -p [<NUM>]  
+  -h, --help  Print help
 
 "#]]
     );
