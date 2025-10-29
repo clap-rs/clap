@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(dynamic/powershell)* don't repeat previous words when completing
+
 ## [4.5.59] - 2025-10-13
 
 ## [4.5.58] - 2025-09-16
