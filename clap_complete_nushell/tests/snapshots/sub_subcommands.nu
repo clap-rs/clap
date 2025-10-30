@@ -6,13 +6,13 @@ module completions {
 
   # Tests completions
   export extern my-app [
-    file?: path               # some input file
     --config(-c)              # some config file with another line
     --conf                    # some config file with another line
     -C                        # some config file with another line
-    choice?: string@"nu-complete my-app choice"
     --help(-h)                # Print help
     --version(-V)             # Print version
+    file?: path               # some input file
+    choice?: string@"nu-complete my-app choice"
   ]
 
   # tests things

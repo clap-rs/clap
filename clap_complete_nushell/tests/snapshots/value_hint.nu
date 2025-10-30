@@ -14,12 +14,12 @@ module completions {
     --exe(-e): path
     --cmd-name: string
     --cmd(-c): string
-    command_with_args?: string
     --user(-u): string
     --host(-H): string
     --url: string
     --email: string
     --help(-h)                # Print help
+    command_with_args?: string
   ]
 
 }
