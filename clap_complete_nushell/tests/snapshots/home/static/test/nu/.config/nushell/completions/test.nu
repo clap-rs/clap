@@ -111,10 +111,10 @@ module completions {
     --delim: string
     --tuple: string
     --require-eq: string
-    ...term: string
     --global                  # everywhere
     --help(-h)                # Print help
     --version(-V)             # Print version
+    ...term: string
   ]
 
   export extern "test pacman" [
@@ -150,11 +150,11 @@ module completions {
   ]
 
   export extern "test last" [
-    first?: string
-    free?: string
     --global                  # everywhere
     --help(-h)                # Print help
     --version(-V)             # Print version
+    first?: string
+    free?: string
   ]
 
   export extern "test alias" [
@@ -164,10 +164,10 @@ module completions {
     --option(-o): string      # cmd option
     --opt: string             # cmd option
     -O: string                # cmd option
-    positional?: string
     --global                  # everywhere
     --help(-h)                # Print help
     --version(-V)             # Print version
+    positional?: string
   ]
 
   def "nu-complete test hint choice" [] {
@@ -184,7 +184,6 @@ module completions {
     --exe(-e): path
     --cmd-name: string
     --cmd(-c): string
-    command_with_args?: string
     --user(-u): string
     --host(-H): string
     --url: string
@@ -192,6 +191,7 @@ module completions {
     --global                  # everywhere
     --help(-h)                # Print help
     --version(-V)             # Print version
+    command_with_args?: string
   ]
 
   # Print this message or the help of the given subcommand(s)
