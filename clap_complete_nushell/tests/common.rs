@@ -168,6 +168,29 @@ pub(crate) fn sub_subcommands_command(name: &'static str) -> Command {
     )
 }
 
+pub(crate) fn positional_index_command(name: &'static str) -> Command {
+    Command::new(name)
+        .version("3.0")
+        .about("Tests positional argument index ordering")
+        .arg(
+            Arg::new("flag")
+                .short('f')
+                .long("flag")
+                .action(ArgAction::SetTrue)
+                .help("some flag"),
+        )
+        .arg(Arg::new("third").index(3).help("third positional"))
+        .arg(Arg::new("first").index(1).help("first positional"))
+        .arg(
+            Arg::new("option")
+                .short('o')
+                .long("option")
+                .action(ArgAction::Set)
+                .help("some option"),
+        )
+        .arg(Arg::new("second").index(2).help("second positional"))
+}
+
 pub(crate) fn value_hint_command(name: &'static str) -> Command {
     Command::new(name)
         .arg(
