@@ -492,7 +492,7 @@ impl Arg {
     ///
     /// <div class="warning">
     ///
-    /// **NOTE:** When utilized with [`Arg::num_args(1..)`], only the **last** positional argument
+    /// **NOTE:** When utilized with [`Arg::num_args(1..)`][Arg::num_args], only the **last** positional argument
     /// may be defined as having a variable number of arguments (i.e. with the highest index)
     ///
     /// </div>
@@ -1359,7 +1359,7 @@ impl Arg {
     ///
     /// <div class="warning">
     ///
-    /// **NOTE:** implicitly sets [`Arg::action(ArgAction::Set)`].
+    /// **NOTE:** implicitly sets [`Arg::action(ArgAction::Set)`][ArgAction::Set].
     ///
     /// </div>
     ///
@@ -1487,7 +1487,7 @@ impl Arg {
     ///
     /// **WARNING:** Prior arguments with `allow_hyphen_values(true)` get precedence over known
     /// flags but known flags get precedence over the next possible positional argument with
-    /// `allow_hyphen_values(true)`.  When combined with [`Arg::num_args(..)`],
+    /// `allow_hyphen_values(true)`.  When combined with [`Arg::num_args(..)`][Arg::num_args],
     /// [`Arg::value_terminator`] is one way to ensure processing stops.
     ///
     /// </div>
