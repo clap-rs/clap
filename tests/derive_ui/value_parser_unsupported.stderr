@@ -37,6 +37,7 @@ note: the traits `From`, `FromStr`, `ValueEnum`,  and `ValueParserFactory` must 
      |
  293 | pub trait ValueEnum: Sized + Clone {
      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
     --> $RUST/core/src/convert/mod.rs
     --> $RUST/core/src/str/traits.rs
      = note: this error originates in the macro `clap::value_parser` (in Nightly builds, run with -Z macro-backtrace for more info)
