@@ -41,16 +41,14 @@ fn basic() {
 #[test]
 fn default_value() {
     #[derive(clap::ValueEnum, PartialEq, Debug, Clone)]
+    #[derive(Default)]
     enum ArgChoice {
         Foo,
+        #[default]
         Bar,
     }
 
-    impl Default for ArgChoice {
-        fn default() -> Self {
-            Self::Bar
-        }
-    }
+    
 
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
