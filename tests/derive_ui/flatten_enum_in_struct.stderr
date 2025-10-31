@@ -2,8 +2,13 @@ error[E0277]: the trait bound `SubCmd: clap::Args` is not satisfied
  --> tests/derive_ui/flatten_enum_in_struct.rs:4:10
   |
 4 |     sub: SubCmd,
-  |          ^^^^^^ the trait `clap::Args` is not implemented for `SubCmd`
+  |          ^^^^^^ unsatisfied trait bound
   |
+help: the trait `clap::Args` is not implemented for `SubCmd`
+ --> tests/derive_ui/flatten_enum_in_struct.rs:8:1
+  |
+8 | enum SubCmd {}
+  | ^^^^^^^^^^^
   = help: the following other types implement trait `clap::Args`:
             ()
             Box<T>
