@@ -219,7 +219,16 @@ fn generate_completion(completions: &mut String, cmd: &Command, is_subcommand: b
         completions.push_str(format!("  export extern {name} [\n").as_str());
     }
 
-    for arg in cmd.get_arguments() {
+    let flags: Vec<_> = cmd.get_arguments().filter(|a| !a.is_positional()).collect();
+    let mut positionals: Vec<_> = cmd.get_positionals().collect();
+
+    positionals.sort_by_key(|arg| arg.get_index());
+
+    for arg in flags {
+        append_argument(arg, name, completions);
+    }
+
+    for arg in positionals {
         append_argument(arg, name, completions);
     }
 

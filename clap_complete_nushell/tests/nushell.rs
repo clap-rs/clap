@@ -83,3 +83,15 @@ fn value_hint() {
         name,
     );
 }
+
+#[test]
+fn positional_index() {
+    let name = "my-app";
+    let cmd = common::positional_index_command(name);
+    common::assert_matches(
+        snapbox::file!["snapshots/positional_index.nu"],
+        clap_complete_nushell::Nushell,
+        cmd,
+        name,
+    );
+}
