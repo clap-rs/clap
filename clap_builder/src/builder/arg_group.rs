@@ -9,6 +9,9 @@ use crate::util::Id;
 /// - validate relationships between an argument and a group, like [conflicts] or [requirements]
 /// - check which argument in a group was specified on the command-line
 ///
+/// For visually grouping arguments in help, see instead
+/// [`Arg::help_heading`][crate::Arg::help_heading].
+///
 /// # Examples
 ///
 /// The following example demonstrates using an `ArgGroup` to ensure that one, and only one, of
