@@ -2410,9 +2410,10 @@ impl Arg {
         self
     }
 
-    /// Override the [current] help section.
+    /// Override the `--help` section this appears in.
     ///
-    /// [current]: crate::Command::next_help_heading
+    /// For more on the default help heading, see
+    /// [`Command::next_help_heading`][crate::Command::next_help_heading].
     #[inline]
     #[must_use]
     pub fn help_heading(mut self, heading: impl IntoResettable<Str>) -> Self {
