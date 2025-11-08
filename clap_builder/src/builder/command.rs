@@ -74,10 +74,10 @@ impl DeferFn {
         self.0(cmd)
     }
 
-    /// Chain next_fn with the current deferred function.
+    /// Chain `next_fn` with the current deferred function.
     ///
     /// Using this function always allocates memory since it creates a new closure that captures
-    /// next_fn & self
+    /// `next_fn` & `self.0`
     #[inline(always)]
     fn then<F>(self, next_fn: F) -> Self
     where
