@@ -35,11 +35,14 @@ use crate::builder::debug_asserts::assert_app;
 
 // Allows DeferFn to implement Clone but remain object safe
 // see https://stackoverflow.com/a/30353928
-trait CloneDynFn : FnOnce(Command) -> Command + Send + Sync {
+trait CloneDynFn: FnOnce(Command) -> Command + Send + Sync {
     fn clone_in_box(&self) -> Box<dyn CloneDynFn>;
 }
 
-impl<F> CloneDynFn for F where F: FnOnce(Command) -> Command + Send + Sync + 'static + Clone {
+impl<F> CloneDynFn for F
+where
+    F: FnOnce(Command) -> Command + Send + Sync + 'static + Clone,
+{
     #[inline(always)]
     fn clone_in_box(&self) -> Box<dyn CloneDynFn> {
         Box::new(self.clone())
@@ -58,7 +61,10 @@ struct DeferFn(Box<dyn CloneDynFn>);
 
 impl DeferFn {
     #[inline(always)]
-    fn new<F>(func: F) -> Self where F: FnOnce(Command) -> Command + Send + Sync + Clone + 'static {
+    fn new<F>(func: F) -> Self
+    where
+        F: FnOnce(Command) -> Command + Send + Sync + Clone + 'static,
+    {
         DeferFn(Box::new(func))
     }
 
@@ -73,7 +79,10 @@ impl DeferFn {
     /// Using this function always allocates memory since it creates a new closure that captures
     /// next_fn & self
     #[inline(always)]
-    fn then<F>(self, next_fn: F) -> Self where F: FnOnce(Command) -> Command + Send + Sync + 'static + Clone {
+    fn then<F>(self, next_fn: F) -> Self
+    where
+        F: FnOnce(Command) -> Command + Send + Sync + 'static + Clone,
+    {
         Self::new(move |cmd| next_fn(self.0(cmd)))
     }
 }
@@ -642,7 +651,10 @@ impl Command {
     ///     )
     /// # ;
     /// ```
-    pub fn defer<F>(mut self, deferred: F) -> Self where F: FnOnce(Command) -> Command + Send + Sync + 'static + Clone {
+    pub fn defer<F>(mut self, deferred: F) -> Self
+    where
+        F: FnOnce(Command) -> Command + Send + Sync + 'static + Clone,
+    {
         let defer_fn = match self.deferred {
             Some(existing_fn) => existing_fn.then(deferred),
             None => DeferFn::new(deferred),
