@@ -1,9 +1,9 @@
 use clap::Command;
 
 fn main() {
-    let mut root = Command::new("test").defer(|root| add_sub_commands(root, 1));
+    let root = Command::new("test").defer(|root| add_sub_commands(root, 1));
 
-    let m = root.get_matches();
+    let _m = root.get_matches();
 }
 
 fn add_sub_commands(parent: Command, level: usize) -> Command {
