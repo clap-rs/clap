@@ -1,6 +1,7 @@
 use clap::{Arg, ArgAction, ArgMatches, Command};
 
 fn get_app() -> Command {
+    let captured_name = "inner1";
     Command::new("myprog")
         .arg(
             Arg::new("GLOBAL_ARG")
@@ -17,7 +18,9 @@ fn get_app() -> Command {
                 .global(true)
                 .action(ArgAction::Count),
         )
-        .subcommand(Command::new("outer").defer(|cmd| cmd.subcommand(Command::new("inner"))))
+        .subcommand(Command::new("outer")
+            .defer(|cmd| cmd.subcommand(Command::new("inner")))
+            .defer(move |cmd| cmd.subcommand(Command::new(captured_name))))
 }
 
 fn get_matches(cmd: Command, argv: &'static str) -> ArgMatches {
@@ -36,12 +39,25 @@ fn get_inner_matches(m: &ArgMatches) -> &ArgMatches {
         .expect("could not access inner subcommand")
 }
 
+fn get_inner_capture_matches(m: &ArgMatches) -> &ArgMatches {
+    get_outer_matches(m)
+        .subcommand_matches("inner1")
+        .expect("could not access inner1 subcommand")
+}
+
 fn top_can_access_arg<T: Into<Option<&'static str>>>(m: &ArgMatches, val: T) -> bool {
     m.get_one::<String>("GLOBAL_ARG").map(|v| v.as_str()) == val.into()
 }
 
 fn inner_can_access_arg<T: Into<Option<&'static str>>>(m: &ArgMatches, val: T) -> bool {
     get_inner_matches(m)
+        .get_one::<String>("GLOBAL_ARG")
+        .map(|v| v.as_str())
+        == val.into()
+}
+
+fn inner_capture_can_access_arg<T: Into<Option<&'static str>>>(m: &ArgMatches, val: T) -> bool {
+    get_inner_capture_matches(m)
         .get_one::<String>("GLOBAL_ARG")
         .map(|v| v.as_str())
         == val.into()
@@ -65,6 +81,12 @@ fn inner_can_access_flag(m: &ArgMatches, present: bool, occurrences: u8) -> bool
         && (m.get_one::<u8>("GLOBAL_FLAG").copied() == Some(occurrences))
 }
 
+fn inner_capture_can_access_flag(m: &ArgMatches, present: bool, occurrences: u8) -> bool {
+    let m = get_inner_capture_matches(m);
+    (m.contains_id("GLOBAL_FLAG") == present)
+        && (m.get_one::<u8>("GLOBAL_FLAG").copied() == Some(occurrences))
+}
+
 fn outer_can_access_flag(m: &ArgMatches, present: bool, occurrences: u8) -> bool {
     let m = get_outer_matches(m);
     (m.contains_id("GLOBAL_FLAG") == present)
@@ -78,6 +100,12 @@ fn global_arg_used_top_level() {
     assert!(top_can_access_arg(&m, "some_value"));
     assert!(inner_can_access_arg(&m, "some_value"));
     assert!(outer_can_access_arg(&m, "some_value"));
+
+    let m = get_matches(get_app(), "myprog --global-arg=some_value outer inner1");
+
+    assert!(top_can_access_arg(&m, "some_value"));
+    assert!(inner_capture_can_access_arg(&m, "some_value"));
+    assert!(outer_can_access_arg(&m, "some_value"));
 }
 
 #[test]
@@ -86,6 +114,12 @@ fn global_arg_used_outer() {
 
     assert!(top_can_access_arg(&m, "some_value"));
     assert!(inner_can_access_arg(&m, "some_value"));
+    assert!(outer_can_access_arg(&m, "some_value"));
+
+    let m = get_matches(get_app(), "myprog outer --global-arg=some_value inner1");
+
+    assert!(top_can_access_arg(&m, "some_value"));
+    assert!(inner_capture_can_access_arg(&m, "some_value"));
     assert!(outer_can_access_arg(&m, "some_value"));
 }
 
@@ -96,6 +130,12 @@ fn global_arg_used_inner() {
     assert!(top_can_access_arg(&m, "some_value"));
     assert!(inner_can_access_arg(&m, "some_value"));
     assert!(outer_can_access_arg(&m, "some_value"));
+
+    let m = get_matches(get_app(), "myprog outer inner1 --global-arg=some_value");
+
+    assert!(top_can_access_arg(&m, "some_value"));
+    assert!(inner_capture_can_access_arg(&m, "some_value"));
+    assert!(outer_can_access_arg(&m, "some_value"));
 }
 
 #[test]
@@ -104,6 +144,12 @@ fn global_arg_default_value() {
 
     assert!(top_can_access_arg(&m, "default_value"));
     assert!(inner_can_access_arg(&m, "default_value"));
+    assert!(outer_can_access_arg(&m, "default_value"));
+
+    let m = get_matches(get_app(), "myprog outer inner1");
+
+    assert!(top_can_access_arg(&m, "default_value"));
+    assert!(inner_capture_can_access_arg(&m, "default_value"));
     assert!(outer_can_access_arg(&m, "default_value"));
 }
 
@@ -114,6 +160,12 @@ fn global_flag_used_top_level() {
     assert!(top_can_access_flag(&m, true, 1));
     assert!(inner_can_access_flag(&m, true, 1));
     assert!(outer_can_access_flag(&m, true, 1));
+
+    let m = get_matches(get_app(), "myprog --global-flag outer inner1");
+
+    assert!(top_can_access_flag(&m, true, 1));
+    assert!(inner_capture_can_access_flag(&m, true, 1));
+    assert!(outer_can_access_flag(&m, true, 1));
 }
 
 #[test]
@@ -122,6 +174,12 @@ fn global_flag_used_outer() {
 
     assert!(top_can_access_flag(&m, true, 1));
     assert!(inner_can_access_flag(&m, true, 1));
+    assert!(outer_can_access_flag(&m, true, 1));
+
+    let m = get_matches(get_app(), "myprog outer --global-flag inner1");
+
+    assert!(top_can_access_flag(&m, true, 1));
+    assert!(inner_capture_can_access_flag(&m, true, 1));
     assert!(outer_can_access_flag(&m, true, 1));
 }
 
@@ -132,6 +190,12 @@ fn global_flag_used_inner() {
     assert!(top_can_access_flag(&m, true, 1));
     assert!(inner_can_access_flag(&m, true, 1));
     assert!(outer_can_access_flag(&m, true, 1));
+
+    let m = get_matches(get_app(), "myprog outer inner1 --global-flag");
+
+    assert!(top_can_access_flag(&m, true, 1));
+    assert!(inner_capture_can_access_flag(&m, true, 1));
+    assert!(outer_can_access_flag(&m, true, 1));
 }
 
 #[test]
@@ -141,6 +205,12 @@ fn global_flag_2x_used_top_level() {
     assert!(top_can_access_flag(&m, true, 2));
     assert!(inner_can_access_flag(&m, true, 2));
     assert!(outer_can_access_flag(&m, true, 2));
+
+    let m = get_matches(get_app(), "myprog --global-flag --global-flag outer inner1");
+
+    assert!(top_can_access_flag(&m, true, 2));
+    assert!(inner_capture_can_access_flag(&m, true, 2));
+    assert!(outer_can_access_flag(&m, true, 2));
 }
 
 #[test]
@@ -149,5 +219,11 @@ fn global_flag_2x_used_inner() {
 
     assert!(top_can_access_flag(&m, true, 2));
     assert!(inner_can_access_flag(&m, true, 2));
+    assert!(outer_can_access_flag(&m, true, 2));
+
+    let m = get_matches(get_app(), "myprog outer inner1 --global-flag --global-flag");
+
+    assert!(top_can_access_flag(&m, true, 2));
+    assert!(inner_capture_can_access_flag(&m, true, 2));
     assert!(outer_can_access_flag(&m, true, 2));
 }

@@ -33,6 +33,57 @@ use crate::{Error, INTERNAL_ERROR_MSG};
 #[cfg(debug_assertions)]
 use crate::builder::debug_asserts::assert_app;
 
+// Allows DeferFn to implement Clone but remain object safe
+// see https://stackoverflow.com/a/30353928
+trait CloneDynFn : FnOnce(Command) -> Command + Send + Sync {
+    fn clone_in_box(&self) -> Box<dyn CloneDynFn>;
+}
+
+impl<F> CloneDynFn for F where F: FnOnce(Command) -> Command + Send + Sync + 'static + Clone {
+    #[inline(always)]
+    fn clone_in_box(&self) -> Box<dyn CloneDynFn> {
+        Box::new(self.clone())
+    }
+}
+
+impl Clone for Box<dyn CloneDynFn> {
+    #[inline(always)]
+    fn clone(&self) -> Box<dyn CloneDynFn> {
+        self.clone_in_box()
+    }
+}
+
+#[derive(Clone)]
+struct DeferFn(Box<dyn CloneDynFn>);
+
+impl DeferFn {
+    #[inline(always)]
+    fn new<F>(func: F) -> Self where F: FnOnce(Command) -> Command + Send + Sync + Clone + 'static {
+        DeferFn(Box::new(func))
+    }
+
+    /// Calls the stored function
+    #[inline(always)]
+    fn call(self, cmd: Command) -> Command {
+        self.0(cmd)
+    }
+
+    /// Chain next_fn with the current deferred function.
+    ///
+    /// Using this function always allocates memory since it creates a new closure that captures
+    /// next_fn & self
+    #[inline(always)]
+    fn then<F>(self, next_fn: F) -> Self where F: FnOnce(Command) -> Command + Send + Sync + 'static + Clone {
+        Self::new(move |cmd| next_fn(self.0(cmd)))
+    }
+}
+
+impl core::fmt::Debug for DeferFn {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_tuple("DeferFn").field(&"..").finish()
+    }
+}
+
 /// Build a command-line interface.
 ///
 /// This includes defining arguments, subcommands, parser behavior, and help output.
@@ -106,7 +157,7 @@ pub struct Command {
     subcommand_heading: Option<Str>,
     external_value_parser: Option<super::ValueParser>,
     long_help_exists: bool,
-    deferred: Option<fn(Command) -> Command>,
+    deferred: Option<DeferFn>,
     #[cfg(feature = "unstable-ext")]
     ext: Extensions,
     app_ext: Extensions,
@@ -567,22 +618,36 @@ impl Command {
     /// This is useful for large applications to delay definitions of subcommands until they are
     /// being invoked.
     ///
+    /// Calling this function multiple times will chain the calls to each function provided.
+    ///
+    /// This function will allocate on the heap in the following situations:
+    /// 1. when using the chaining feature.
+    /// 2. when the `deferred` argument is a capturing closure
+    ///
     /// # Examples
     ///
     /// ```rust
     /// # use clap_builder as clap;
     /// # use clap::{Command, arg};
+    /// let version = "1.0.0";
     /// Command::new("myprog")
     ///     .subcommand(Command::new("config")
     ///         .about("Controls configuration features")
     ///         .defer(|cmd| {
     ///             cmd.arg(arg!(<config> "Required configuration file to use"))
     ///         })
+    ///         .defer(move |cmd| {
+    ///             cmd.version(version)
+    ///         })
     ///     )
     /// # ;
     /// ```
-    pub fn defer(mut self, deferred: fn(Command) -> Command) -> Self {
-        self.deferred = Some(deferred);
+    pub fn defer<F>(mut self, deferred: F) -> Self where F: FnOnce(Command) -> Command + Send + Sync + 'static + Clone {
+        let defer_fn = match self.deferred {
+            Some(existing_fn) => existing_fn.then(deferred),
+            None => DeferFn::new(deferred),
+        };
+        self.deferred = Some(defer_fn);
         self
     }
 
@@ -4392,7 +4457,7 @@ impl Command {
         debug!("Command::_build: name={:?}", self.get_name());
         if !self.settings.is_set(AppSettings::Built) {
             if let Some(deferred) = self.deferred.take() {
-                *self = (deferred)(std::mem::take(self));
+                *self = deferred.call(std::mem::take(self));
             }
 
             // Make sure all the globally set flags apply to us as well
