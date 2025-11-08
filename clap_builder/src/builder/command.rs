@@ -33,29 +33,13 @@ use crate::{Error, INTERNAL_ERROR_MSG};
 #[cfg(debug_assertions)]
 use crate::builder::debug_asserts::assert_app;
 
-// Allows DeferFn to implement Clone but remain object safe
+/// Allows [`DeferFn`] to implement [`Clone`]
 // see https://stackoverflow.com/a/30353928
-trait CloneDynFn: FnOnce(Command) -> Command + Send + Sync {
-    fn clone_in_box(&self) -> Box<dyn CloneDynFn>;
-}
+trait CloneDynFn: dyn_clone::DynClone + FnOnce(Command) -> Command + Send + Sync {}
+impl<F> CloneDynFn for F where F: dyn_clone::DynClone + FnOnce(Command) -> Command + Send + Sync {}
+dyn_clone::clone_trait_object!(CloneDynFn);
 
-impl<F> CloneDynFn for F
-where
-    F: FnOnce(Command) -> Command + Send + Sync + 'static + Clone,
-{
-    #[inline(always)]
-    fn clone_in_box(&self) -> Box<dyn CloneDynFn> {
-        Box::new(self.clone())
-    }
-}
-
-impl Clone for Box<dyn CloneDynFn> {
-    #[inline(always)]
-    fn clone(&self) -> Box<dyn CloneDynFn> {
-        self.clone_in_box()
-    }
-}
-
+/// Wraps a function that when called will update a [`Command`] object.
 #[derive(Clone)]
 struct DeferFn(Box<dyn CloneDynFn>);
 
@@ -87,7 +71,7 @@ impl DeferFn {
     }
 }
 
-impl core::fmt::Debug for DeferFn {
+impl fmt::Debug for DeferFn {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_tuple("DeferFn").field(&"..").finish()
     }
