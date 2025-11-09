@@ -52,10 +52,13 @@
 //!
 //! **Powershell**
 //! ```powershell
-//! $env:COMPLETE = "powershell"
-//! echo "your_program | Out-String | Invoke-Expression" >> $PROFILE
-//! Remove-Item Env:\COMPLETE
+//! echo '$env:COMPLETE = "powershell"; your_program | Out-String | Invoke-Expression; Remove-Item Env:\COMPLETE' >> $PROFILE
 //! ```
+//! Note that to execute scripts in PowerShell on Windows, including [`$PROFILE`][$Profile],
+//! the [execution policy][ExecutionPolicies] needs to be set to `RemoteSigned` at minimum.
+//!
+//! [$Profile]: https://learn.microsoft.com/en-us/powershell/scripting/learn/shell/creating-profiles
+//! [ExecutionPolicies]: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies
 //!
 //! **Zsh**
 //! ```zsh
