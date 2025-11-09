@@ -35,29 +35,29 @@
 //!
 //! </div>
 //!
-//! Bash
+//! **Bash**
 //! ```bash
 //! echo "source <(COMPLETE=bash your_program)" >> ~/.bashrc
 //! ```
 //!
-//! Elvish
+//! **Elvish**
 //! ```elvish
 //! echo "eval (E:COMPLETE=elvish your_program | slurp)" >> ~/.elvish/rc.elv
 //! ```
 //!
-//! Fish
+//! **Fish**
 //! ```fish
 //! echo "COMPLETE=fish your_program | source" >> ~/.config/fish/config.fish
 //! ```
 //!
-//! Powershell
+//! **Powershell**
 //! ```powershell
 //! $env:COMPLETE = "powershell"
 //! echo "your_program | Out-String | Invoke-Expression" >> $PROFILE
 //! Remove-Item Env:\COMPLETE
 //! ```
 //!
-//! Zsh
+//! **Zsh**
 //! ```zsh
 //! echo "source <(COMPLETE=zsh your_program)" >> ~/.zshrc
 //! ```
