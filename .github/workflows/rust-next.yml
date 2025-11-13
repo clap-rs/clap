@@ -46,7 +46,10 @@ jobs:
       run: cargo hack test --each-feature --workspace
   latest:
     name: "Check latest dependencies"
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: ["ubuntu-latest"]
+    runs-on: ${{ matrix.os }}
     env:
       CARGO_RESOLVER_INCOMPATIBLE_RUST_VERSIONS: allow
     steps:
