@@ -1461,8 +1461,13 @@ impl<'cmd> Parser<'cmd> {
                     };
 
                     if add {
-                        if let Some(default) = default {
-                            let arg_values = vec![default.to_os_string()];
+                        let arg_values: Vec<_> = default
+                            .iter()
+                            .filter_map(|option_val| {
+                                option_val.as_ref().map(|val| val.to_os_string())
+                            })
+                            .collect();
+                        if !arg_values.is_empty() {
                             let trailing_idx = None;
                             let _ = ok!(self.react(
                                 None,
