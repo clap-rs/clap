@@ -47,6 +47,8 @@ jobs:
   latest:
     name: "Check latest dependencies"
     runs-on: ubuntu-latest
+    env:
+      CARGO_RESOLVER_INCOMPATIBLE_RUST_VERSIONS: allow
     steps:
     - name: Checkout repository
       uses: actions/checkout@v5
