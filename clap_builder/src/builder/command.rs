@@ -33,6 +33,38 @@ use crate::{Error, INTERNAL_ERROR_MSG};
 #[cfg(debug_assertions)]
 use crate::builder::debug_asserts::assert_app;
 
+/// Allows [`DeferFn`] to implement [`Clone`]
+// see https://stackoverflow.com/a/30353928
+trait CloneDynFn: dyn_clone::DynClone + FnOnce(Command) -> Command + Send + Sync {}
+impl<F> CloneDynFn for F where F: dyn_clone::DynClone + FnOnce(Command) -> Command + Send + Sync {}
+dyn_clone::clone_trait_object!(CloneDynFn);
+
+/// Wraps a function that when called will update a [`Command`] object.
+#[derive(Clone)]
+struct DeferFn(Box<dyn CloneDynFn>);
+
+impl DeferFn {
+    #[inline(always)]
+    fn new<F>(func: F) -> Self
+    where
+        F: FnOnce(Command) -> Command + Send + Sync + Clone + 'static,
+    {
+        DeferFn(Box::new(func))
+    }
+
+    /// Calls the stored function
+    #[inline(always)]
+    fn call(self, cmd: Command) -> Command {
+        self.0(cmd)
+    }
+}
+
+impl fmt::Debug for DeferFn {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_tuple("DeferFn").field(&"..").finish()
+    }
+}
+
 /// Build a command-line interface.
 ///
 /// This includes defining arguments, subcommands, parser behavior, and help output.
@@ -106,7 +138,7 @@ pub struct Command {
     subcommand_heading: Option<Str>,
     external_value_parser: Option<super::ValueParser>,
     long_help_exists: bool,
-    deferred: Option<fn(Command) -> Command>,
+    deferred: Option<DeferFn>,
     #[cfg(feature = "unstable-ext")]
     ext: Extensions,
     app_ext: Extensions,
@@ -567,11 +599,16 @@ impl Command {
     /// This is useful for large applications to delay definitions of subcommands until they are
     /// being invoked.
     ///
+    /// Calling this function multiple times will replace existing deferred calls.
+    ///
+    /// This function will allocate on the heap if the `deferred` argument is a capturing closure
+    ///
     /// # Examples
     ///
     /// ```rust
     /// # use clap_builder as clap;
     /// # use clap::{Command, arg};
+    /// let version = "1.0.0";
     /// Command::new("myprog")
     ///     .subcommand(Command::new("config")
     ///         .about("Controls configuration features")
@@ -581,8 +618,11 @@ impl Command {
     ///     )
     /// # ;
     /// ```
-    pub fn defer(mut self, deferred: fn(Command) -> Command) -> Self {
-        self.deferred = Some(deferred);
+    pub fn defer<F>(mut self, deferred: F) -> Self
+    where
+        F: FnOnce(Command) -> Command + Send + Sync + 'static + Clone,
+    {
+        self.deferred = Some(DeferFn::new(deferred));
         self
     }
 
@@ -4392,7 +4432,7 @@ impl Command {
         debug!("Command::_build: name={:?}", self.get_name());
         if !self.settings.is_set(AppSettings::Built) {
             if let Some(deferred) = self.deferred.take() {
-                *self = (deferred)(std::mem::take(self));
+                *self = deferred.call(std::mem::take(self));
             }
 
             // Make sure all the globally set flags apply to us as well

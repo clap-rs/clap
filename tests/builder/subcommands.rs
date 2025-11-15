@@ -559,7 +559,8 @@ Options:
         .propagate_version(true)
         .multicall(true)
         .subcommand(Command::new("foo").defer(|cmd| {
-            cmd.subcommand(Command::new("bar").defer(|cmd| cmd.arg(Arg::new("value"))))
+            cmd.subcommand(Command::new("bar")
+                .defer(|cmd| cmd.arg(Arg::new("value"))))
         }));
     utils::assert_output(cmd, "foo bar --help", EXPECTED, false);
 }

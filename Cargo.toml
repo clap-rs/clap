@@ -212,6 +212,11 @@ required-features = ["cargo", "color"]
 doc-scrape-examples = true
 
 [[example]]
+name = "defer-capture"
+required-features = ["string"]
+doc-scrape-examples = true
+
+[[example]]
 name = "cargo-example-derive"
 required-features = ["derive", "color"]
 doc-scrape-examples = true
