@@ -545,11 +545,10 @@ fn cant_have_args_with_multicall() {
 #[test]
 fn multicall_help_flag() {
     static EXPECTED: &str = "\
-Usage: foo bar [value] [value1]
+Usage: foo bar [value]
 
 Arguments:
-  [value]   
-  [value1]  
+  [value]  
 
 Options:
   -h, --help     Print help
@@ -561,8 +560,7 @@ Options:
         .multicall(true)
         .subcommand(Command::new("foo").defer(|cmd| {
             cmd.subcommand(Command::new("bar")
-                .defer(|cmd| cmd.arg(Arg::new("value")))
-                .defer(|cmd| cmd.arg(Arg::new("value1"))))
+                .defer(|cmd| cmd.arg(Arg::new("value"))))
         }));
     utils::assert_output(cmd, "foo bar --help", EXPECTED, false);
 }

@@ -57,18 +57,6 @@ impl DeferFn {
     fn call(self, cmd: Command) -> Command {
         self.0(cmd)
     }
-
-    /// Chain `next_fn` with the current deferred function.
-    ///
-    /// Using this function always allocates memory since it creates a new closure that captures
-    /// `next_fn` & `self.0`
-    #[inline(always)]
-    fn then<F>(self, next_fn: F) -> Self
-    where
-        F: FnOnce(Command) -> Command + Send + Sync + 'static + Clone,
-    {
-        Self::new(move |cmd| next_fn(self.0(cmd)))
-    }
 }
 
 impl fmt::Debug for DeferFn {
@@ -611,11 +599,9 @@ impl Command {
     /// This is useful for large applications to delay definitions of subcommands until they are
     /// being invoked.
     ///
-    /// Calling this function multiple times will chain the calls to each function provided.
+    /// Calling this function multiple times will replace existing deferred calls.
     ///
-    /// This function will allocate on the heap in the following situations:
-    /// 1. when using the chaining feature.
-    /// 2. when the `deferred` argument is a capturing closure
+    /// This function will allocate on the heap if the `deferred` argument is a capturing closure
     ///
     /// # Examples
     ///
@@ -629,9 +615,6 @@ impl Command {
     ///         .defer(|cmd| {
     ///             cmd.arg(arg!(<config> "Required configuration file to use"))
     ///         })
-    ///         .defer(move |cmd| {
-    ///             cmd.version(version)
-    ///         })
     ///     )
     /// # ;
     /// ```
@@ -639,11 +622,7 @@ impl Command {
     where
         F: FnOnce(Command) -> Command + Send + Sync + 'static + Clone,
     {
-        let defer_fn = match self.deferred {
-            Some(existing_fn) => existing_fn.then(deferred),
-            None => DeferFn::new(deferred),
-        };
-        self.deferred = Some(defer_fn);
+        self.deferred = Some(DeferFn::new(deferred));
         self
     }
 
