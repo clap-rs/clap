@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Don't panic when `args_conflicts_with_subcommands` conflicts with an `ArgGroup`
+
 ## [4.5.51] - 2025-10-29
 
 ### Fixes
