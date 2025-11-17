@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.52] - 2025-11-17
+
 ### Fixes
 
 - Don't panic when `args_conflicts_with_subcommands` conflicts with an `ArgGroup`
@@ -4868,7 +4870,8 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/clap-rs/clap/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/v4.5.51...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/v4.5.52...HEAD
+[4.5.52]: https://github.com/clap-rs/clap/compare/v4.5.51...v4.5.52
 [4.5.51]: https://github.com/clap-rs/clap/compare/v4.5.50...v4.5.51
 [4.5.50]: https://github.com/clap-rs/clap/compare/v4.5.49...v4.5.50
 [4.5.49]: https://github.com/clap-rs/clap/compare/v4.5.48...v4.5.49
