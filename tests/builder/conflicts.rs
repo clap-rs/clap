@@ -988,3 +988,18 @@ fn args_negate_subcommands_two_levels() {
         Some("sub2")
     );
 }
+
+#[test]
+#[should_panic]
+fn group_conrflicts_with_subcommands() {
+    let c = Command::new("test")
+        .args_conflicts_with_subcommands(true)
+        .arg(arg!(-g --directory <PATH>).global(true))
+        .arg(arg!(<start>))
+        .group(ArgGroup::new("Cli").arg("directory").arg("start"))
+        .subcommand(Command::new("delete").short_flag('d'));
+    let res = c.try_get_matches_from(["test", "-g", "./", "-d"]);
+    assert!(res.is_err());
+    let err = res.err().unwrap();
+    assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
+}
