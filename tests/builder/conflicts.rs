@@ -990,7 +990,6 @@ fn args_negate_subcommands_two_levels() {
 }
 
 #[test]
-#[should_panic]
 fn group_conrflicts_with_subcommands() {
     let c = Command::new("test")
         .args_conflicts_with_subcommands(true)

@@ -483,7 +483,8 @@ impl<'cmd> Parser<'cmd> {
                     pos_sc_name.clone(),
                     matcher
                         .arg_ids()
-                        .map(|id| self.cmd.find(id).unwrap().to_string())
+                        // skip groups
+                        .filter_map(|id| self.cmd.find(id).map(|a| a.to_string()))
                         .collect(),
                     Usage::new(self.cmd).create_usage_with_title(&[]),
                 ));
