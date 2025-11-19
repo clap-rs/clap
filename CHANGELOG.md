@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Add `default_values_if`, `default_values_ifs`
+
 ## [4.5.52] - 2025-11-17
 
 ### Fixes
