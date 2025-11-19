@@ -81,7 +81,7 @@ pub struct Arg {
     pub(crate) num_vals: Option<ValueRange>,
     pub(crate) val_delim: Option<char>,
     pub(crate) default_vals: Vec<OsStr>,
-    pub(crate) default_vals_ifs: Vec<(Id, ArgPredicate, Option<OsStr>)>,
+    pub(crate) default_vals_ifs: Vec<(Id, ArgPredicate, Option<Vec<OsStr>>)>,
     pub(crate) default_missing_vals: Vec<OsStr>,
     #[cfg(feature = "env")]
     pub(crate) env: Option<(OsStr, Option<OsString>)>,
@@ -3061,7 +3061,53 @@ impl Arg {
         self.default_vals_ifs.push((
             arg_id.into(),
             predicate.into(),
-            default.into_resettable().into_option(),
+            default
+                .into_resettable()
+                .into_option()
+                .map(|os_str| vec![os_str]),
+        ));
+        self
+    }
+
+    /// Specifies the values of the argument if `arg` has been used at runtime.
+    ///
+    /// See [`Arg::default_value_if`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use clap_builder::arg;
+    /// use clap_builder::Command;
+    /// use clap_builder::Arg;
+    /// let r = Command::new("df")
+    ///    .arg(arg!(--opt <FILE> "some arg"))
+    ///    .arg(
+    ///        Arg::new("args")
+    ///            .long("args")
+    ///            .num_args(2)
+    ///            .default_values_if("opt", "value", ["df1","df2"]),
+    ///    )
+    ///    .try_get_matches_from(vec!["", "--opt", "value"]);
+    ///
+    /// let m = r.unwrap();
+    /// assert_eq!(
+    ///    m.get_many::<String>("args").unwrap().collect::<Vec<_>>(),
+    ///    ["df1", "df2"]
+    /// );
+    /// ```
+    ///
+    /// [`Arg::default_value_if`]: Arg::default_value_if()
+    #[must_use]
+    pub fn default_values_if(
+        mut self,
+        arg_id: impl Into<Id>,
+        predicate: impl Into<ArgPredicate>,
+        defaults: impl IntoIterator<Item = impl Into<OsStr>>,
+    ) -> Self {
+        self.default_vals_ifs.push((
+            arg_id.into(),
+            predicate.into(),
+            Some(defaults.into_iter().map(|item| item.into()).collect()),
         ));
         self
     }
@@ -3184,6 +3230,28 @@ impl Arg {
     ) -> Self {
         for (arg, predicate, default) in ifs {
             self = self.default_value_if(arg, predicate, default);
+        }
+        self
+    }
+
+    /// Specifies multiple values and conditions in the same manner as [`Arg::default_values_if`].
+    ///
+    /// See [`Arg::default_values_if`].
+    ///
+    /// [`Arg::default_values_if`]: Arg::default_values_if()
+    #[must_use]
+    pub fn default_values_ifs(
+        mut self,
+        ifs: impl IntoIterator<
+            Item = (
+                impl Into<Id>,
+                impl Into<ArgPredicate>,
+                impl IntoIterator<Item = impl Into<OsStr>>,
+            ),
+        >,
+    ) -> Self {
+        for (arg, predicate, default) in ifs {
+            self = self.default_values_if(arg, predicate, default);
         }
         self
     }
