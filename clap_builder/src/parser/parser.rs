@@ -1462,7 +1462,8 @@ impl<'cmd> Parser<'cmd> {
 
                     if add {
                         if let Some(default) = default {
-                            let arg_values = vec![default.to_os_string()];
+                            let arg_values =
+                                default.iter().map(|os_str| os_str.to_os_string()).collect();
                             let trailing_idx = None;
                             let _ = ok!(self.react(
                                 None,
