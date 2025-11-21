@@ -4754,3 +4754,207 @@ Options:
 "#]];
     utils::assert_output(cmd, "myprog --help", expected, false);
 }
+
+#[test]
+fn test_multiple_commands_mixed_standard_and_custom_headers() {
+    static VISIBLE_ALIAS_HELP: &str = "\
+Usage: clap-test [COMMAND]
+
+Help Section:
+  help      Print this message or the help of the given subcommand(s)
+
+Commands:
+  def_cmd1  First command under default command heading
+  def_cmd4  Fourth command under default command heading
+  def_cmd3  Third command under default command heading
+  def_cmd2  Second command under default command heading
+
+First Custom:
+  ch1_cmd1  First command under first custom command heading
+  ch1_cmd2  Second command under first custom command heading
+  ch1_cmd4  Fourth command under first custom command heading
+  ch1_cmd3  Third command under first custom command heading
+
+Second Custom:
+  ch2_cmd3  Third command under second custom command heading
+  ch2_cmd4  Fourth command under second custom command heading
+  ch2_cmd2  Second command under second custom command heading
+  ch2_cmd1  First command under second custom command heading
+
+Options:
+  -h, --help     Print help
+  -V, --version  Print version
+";
+    
+        let cmd = Command::new("clap-test")
+            .version("2.6")
+            .subcommand_help_heading("Help Section")
+            .subcommand(
+                Command::new("def_cmd1")
+                    .about("First command under default command heading")
+                    .help_heading("Commands"),
+            )
+            .subcommand(
+                Command::new("def_cmd4")
+                    .about("Fourth command under default command heading")
+                    .help_heading("Commands"),
+            )
+            .subcommand(
+                Command::new("def_cmd3")
+                .about("Third command under default command heading")
+                .help_heading("Commands"),
+            )
+            .subcommand(
+                Command::new("def_cmd2")
+                    .about("Second command under default command heading")
+                    .help_heading("Commands"),
+            )
+            .subcommand(
+                Command::new("ch1_cmd1")
+                    .about("First command under first custom command heading")
+                    .help_heading("First Custom"),
+            )
+            .subcommand(
+                Command::new("ch2_cmd3")
+                    .about("Third command under second custom command heading")
+                    .help_heading("Second Custom"),
+            )
+            .subcommand(
+                Command::new("ch1_cmd2")
+                    .about("Second command under first custom command heading")
+                    .help_heading("First Custom"),
+            )
+            .subcommand(
+                Command::new("ch1_cmd4")
+                .about("Fourth command under first custom command heading")
+                .help_heading("First Custom"),
+            )
+            .subcommand(
+                Command::new("ch2_cmd4")
+                .about("Fourth command under second custom command heading")
+                .help_heading("Second Custom"),
+            )
+            .subcommand(
+                Command::new("ch2_cmd2")
+                .about("Second command under second custom command heading")
+                .help_heading("Second Custom"),
+            )
+            .subcommand(
+                Command::new("ch2_cmd1")
+                .about("First command under second custom command heading")
+                .help_heading("Second Custom"),
+            )
+            .subcommand(
+                Command::new("ch1_cmd3")
+                    .about("Third command under first custom command heading")
+                    .help_heading("First Custom"),
+            );
+    
+        utils::assert_output(cmd, "clap-test --help", VISIBLE_ALIAS_HELP, false);
+    }
+
+#[test]
+fn test_multiple_commands_mixed_headings_flatten() {
+    static VISIBLE_ALIAS_HELP: &str = "\
+Usage: clap-test
+       clap-test def_cmd1
+       clap-test def_cmd2
+       clap-test cust_cmd1
+       clap-test cust_cmd2 --child <child>
+       clap-test other_cmd1
+       clap-test other_cmd2 --child <child>
+       clap-test help [COMMAND]...
+
+Options:
+  -h, --help     Print help
+  -V, --version  Print version
+
+clap-test def_cmd1:
+Def_cmd1 under default command heading
+  -h, --help  Print help
+
+clap-test def_cmd2:
+Def_cmd2 under default command heading
+  -h, --help  Print help
+
+clap-test help:
+Print this message or the help of the given subcommand(s)
+  [COMMAND]...  Print help for the subcommand(s)
+
+clap-test cust_cmd1:
+Cust_cmd1 under custom command heading
+  -h, --help  Print help
+
+clap-test cust_cmd2:
+Cust_cmd2 under custom command heading
+      --child <child>  child help
+  -h, --help           Print help
+
+clap-test other_cmd1:
+Other_cmd1 under other command heading
+  -h, --help  Print help
+
+clap-test other_cmd2:
+Other_cmd2 under other command heading
+      --child <child>  
+  -h, --help           Print help
+";
+    
+    let cmd = Command::new("clap-test")
+        .version("2.6")
+        .flatten_help(true)
+        .subcommand(
+            Command::new("def_cmd1")
+                .about("Def_cmd1 under default command heading")
+        )
+        .subcommand(
+            Command::new("cust_cmd1")
+            .about("Cust_cmd1 under custom command heading")
+            .help_heading("Custom Heading"),
+        )
+        .subcommand(
+            Command::new("other_cmd1")
+            .about("Other_cmd1 under other command heading")
+            .help_heading("Other Heading"),
+        )
+        .subcommand(
+            Command::new("other_cmd2")
+            .about("Other_cmd2 under other command heading")
+            .help_heading("Other Heading")
+            .arg(Arg::new("child").long("child").required(true)),
+        )
+        .subcommand(
+            Command::new("def_cmd2")
+                .about("Def_cmd2 under default command heading")
+        )
+        .subcommand(
+            Command::new("cust_cmd2")
+                .about("Cust_cmd2 under custom command heading")
+                .help_heading("Custom Heading")
+                .arg(Arg::new("child").long("child").required(true).help("child help")),
+        );
+
+    utils::assert_output(cmd, "clap-test --help", VISIBLE_ALIAS_HELP, false);
+}
+
+
+#[test]
+fn test_help_header_hide_commands_header() {
+    static VISIBLE_ALIAS_HELP: &str = "\
+Usage: clap-test [COMMAND]
+
+Test commands:
+  test  Some help
+
+Options:
+  -h, --help     Print help
+  -V, --version  Print version
+";
+
+    let cmd = Command::new("clap-test")
+        .version("2.6")
+        .disable_help_subcommand(true)
+        .subcommand_help_heading("Test commands")
+        .subcommand(Command::new("test").about("Some help"));
+    utils::assert_output(cmd, "clap-test --help", VISIBLE_ALIAS_HELP, false);
+}

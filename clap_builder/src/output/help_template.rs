@@ -892,7 +892,18 @@ impl HelpTemplate<'_, '_> {
                 subcommand,
             );
         }
-        for (_, subcommand) in ord_v {
+
+        let custom_headings = self
+            .cmd
+            .get_subcommands()
+            .filter_map(|cmd| cmd.get_help_heading())
+            .collect::<FlatSet<_>>();
+
+        // Write commands that have no custom heading
+        for (_, subcommand) in ord_v
+            .iter()
+            .filter(|item| item.1.get_help_heading().is_none())
+        {
             if !*first {
                 self.writer.push_str("\n\n");
             }
@@ -931,6 +942,71 @@ impl HelpTemplate<'_, '_> {
                 sub_help.write_flat_subcommands(subcommand, first);
             }
         }
+
+        // Commands under custom headings
+        if !custom_headings.is_empty() {
+            for heading in custom_headings {
+                let cmds = self
+                    .cmd
+                    .get_subcommands()
+                    .filter(|sc| {
+                        if let Some(help_heading) = sc.get_help_heading() {
+                            return help_heading == heading;
+                        }
+                        false
+                    })
+                    .filter(|sc| should_show_subcommand(sc))
+                    .collect::<Vec<_>>();
+
+                if !cmds.is_empty() {
+                    for (_, subcommand) in ord_v
+                        .clone()
+                        .into_iter()
+                        .filter(|item| item.1.get_help_heading() == Some(heading))
+                    {
+                        if !*first {
+                            self.writer.push_str("\n\n");
+                        }
+                        *first = false;
+
+                        let heading = subcommand.get_usage_name_fallback();
+                        let about = subcommand
+                            .get_about()
+                            .or_else(|| subcommand.get_long_about())
+                            .unwrap_or_default();
+
+                        let _ = write!(self.writer, "{header}{heading}:{header:#}",);
+                        if !about.is_empty() {
+                            let _ = write!(self.writer, "\n{about}",);
+                        }
+
+                        let args = subcommand
+                            .get_arguments()
+                            .filter(|arg| {
+                                should_show_arg(self.use_long, arg) && !arg.is_global_set()
+                            })
+                            .collect::<Vec<_>>();
+                        if !args.is_empty() {
+                            self.writer.push_str("\n");
+                        }
+
+                        let mut sub_help = HelpTemplate {
+                            writer: self.writer,
+                            cmd: subcommand,
+                            styles: self.styles,
+                            usage: self.usage,
+                            next_line_help: self.next_line_help,
+                            term_w: self.term_w,
+                            use_long: self.use_long,
+                        };
+                        sub_help.write_args(&args, heading, option_sort_key);
+                        if subcommand.is_flatten_help_set() {
+                            sub_help.write_flat_subcommands(subcommand, first);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /// Writes help for subcommands of a Parser Object to the wrapped stream.
@@ -938,9 +1014,11 @@ impl HelpTemplate<'_, '_> {
         debug!("HelpTemplate::write_subcommands");
         use std::fmt::Write as _;
         let literal = &self.styles.get_literal();
+        let header = &self.styles.get_header();
 
         // The shortest an arg can legally be is 2 (i.e. '-x')
         let mut longest = 2;
+        // let mut has_heading = false;
         let mut ord_v = BTreeMap::new();
         for subcommand in cmd
             .get_subcommands()
@@ -955,6 +1033,9 @@ impl HelpTemplate<'_, '_> {
             if let Some(long) = subcommand.get_long_flag() {
                 let _ = write!(styled, ", {literal}--{long}{literal:#}",);
             }
+            // if subcommand.get_help_heading().is_some() {
+            //     has_heading = true;
+            // }
             longest = longest.max(styled.display_width());
             ord_v.insert((subcommand.get_display_order(), styled), subcommand);
         }
@@ -963,11 +1044,62 @@ impl HelpTemplate<'_, '_> {
 
         let next_line_help = self.will_subcommands_wrap(cmd.get_subcommands(), longest);
 
-        for (i, (sc_str, sc)) in ord_v.into_iter().enumerate() {
+        let custom_headings = self
+            .cmd
+            .get_subcommands()
+            .filter_map(|cmd| cmd.get_help_heading())
+            .collect::<FlatSet<_>>();
+
+        // First for the commands that don't have a heading
+        for (i, (sc_str, sc)) in ord_v
+            .clone()
+            .into_iter()
+            .filter(|item| item.1.get_help_heading().is_none())
+            .enumerate()
+        {
+            debug!("Processing without heading {}", sc.get_name());
             if 0 < i {
                 self.writer.push_str("\n");
             }
             self.write_subcommand(sc_str.1, sc, next_line_help, longest);
+        }
+
+        // Commands under custom headings
+        if !custom_headings.is_empty() {
+            for heading in custom_headings {
+                let cmds = self
+                    .cmd
+                    .get_subcommands()
+                    .filter(|sc| {
+                        if let Some(help_heading) = sc.get_help_heading() {
+                            return help_heading == heading;
+                        }
+                        false
+                    })
+                    .filter(|sc| should_show_subcommand(sc))
+                    .collect::<Vec<_>>();
+
+                if !cmds.is_empty() {
+                    self.writer.push_str("\n\n");
+                    let _ = write!(self.writer, "{header}{heading}:{header:#}\n",);
+                    for (i, (sc_str, sc)) in ord_v
+                        .clone()
+                        .into_iter()
+                        .filter(|item| item.1.get_help_heading() == Some(heading))
+                        .enumerate()
+                    {
+                        debug!(
+                            "Processing with heading: name {}, heading {}",
+                            sc.get_name(),
+                            heading
+                        );
+                        if 0 < i {
+                            self.writer.push_str("\n");
+                        }
+                        self.write_subcommand(sc_str.1, sc, next_line_help, longest);
+                    }
+                }
+            }
         }
     }
 
