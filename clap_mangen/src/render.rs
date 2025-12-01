@@ -1,6 +1,11 @@
 use clap::{Arg, ArgAction};
 use roff::{bold, italic, roman, Inline, Roff};
 
+#[derive(Default)]
+pub(crate) struct Parameters {
+    pub keep_line_breaks: bool,
+}
+
 pub(crate) fn subcommand_heading(cmd: &clap::Command) -> &str {
     match cmd.get_subcommand_help_heading() {
         Some(title) => title,
@@ -92,7 +97,7 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
     roff.text(line);
 }
 
-pub(crate) fn options(roff: &mut Roff, items: &[&Arg]) {
+pub(crate) fn options(roff: &mut Roff, items: &[&Arg], params: &Parameters) {
     let mut sorted_items = items.to_vec();
     sorted_items.sort_by_key(|opt| option_sort_key(opt));
 
@@ -140,7 +145,17 @@ pub(crate) fn options(roff: &mut Roff, items: &[&Arg]) {
         let mut arg_help_written = false;
         if let Some(help) = option_help(opt) {
             arg_help_written = true;
-            body.push(roman(help.to_string()));
+            let help = help.to_string();
+            if params.keep_line_breaks {
+                for (i, line) in help.lines().enumerate() {
+                    if i != 0 {
+                        body.push(Inline::LineBreak);
+                    }
+                    body.push(roman(line));
+                }
+            } else {
+                body.push(roman(help));
+            }
         }
 
         roff.control("TP", []);

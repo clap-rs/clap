@@ -22,6 +22,7 @@ pub struct Man {
     date: String,
     source: String,
     manual: String,
+    keep_line_breaks: bool,
 }
 
 /// Build a [`Man`]
@@ -48,6 +49,7 @@ impl Man {
             date,
             source,
             manual,
+            keep_line_breaks: false,
         }
     }
 
@@ -94,6 +96,18 @@ impl Man {
     pub fn manual(mut self, manual: impl Into<String>) -> Self {
         self.manual = manual.into();
         self
+    }
+
+    /// Keep line breaks in arguments help
+    pub fn keep_line_breaks(mut self, keep: bool) -> Self {
+        self.keep_line_breaks = keep;
+        self
+    }
+
+    fn settings(&self) -> render::Parameters {
+        render::Parameters {
+            keep_line_breaks: self.keep_line_breaks,
+        }
     }
 }
 
@@ -265,7 +279,7 @@ impl Man {
 
         if !args.is_empty() {
             roff.control("SH", ["OPTIONS"]);
-            render::options(roff, &args);
+            render::options(roff, &args, &self.settings());
         }
 
         for heading in help_headings {
@@ -275,7 +289,7 @@ impl Man {
                 .partition(|&a| a.get_help_heading() == Some(heading));
 
             roff.control("SH", [heading.to_uppercase().as_str()]);
-            render::options(roff, &args);
+            render::options(roff, &args, &self.settings());
         }
     }
 

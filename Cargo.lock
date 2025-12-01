@@ -549,7 +549,7 @@ dependencies = [
 
 [[package]]
 name = "clap_mangen"
-version = "0.2.31"
+version = "0.2.32-alpha.1"
 dependencies = [
  "automod",
  "clap 4.5.53",
