@@ -27,6 +27,7 @@ use crate::output::fmt::Stream;
 use crate::output::{fmt::Colorizer, write_help, Usage};
 use crate::parser::{ArgMatcher, ArgMatches, Parser};
 use crate::util::ChildGraph;
+use crate::util::FlatSet;
 use crate::util::{color::ColorChoice, Id};
 use crate::{Error, INTERNAL_ERROR_MSG};
 
@@ -104,6 +105,7 @@ pub struct Command {
     current_disp_ord: Option<usize>,
     subcommand_value_name: Option<Str>,
     subcommand_heading: Option<Str>,
+    help_heading: Option<Option<Str>>,
     external_value_parser: Option<super::ValueParser>,
     long_help_exists: bool,
     deferred: Option<fn(Command) -> Command>,
@@ -3701,6 +3703,82 @@ impl Command {
         self.subcommand_heading = heading.into_resettable().into_option();
         self
     }
+
+    /// Set a custom help heading
+    ///
+    /// To place the `help` subcommand under a custom heading amend the default
+    /// heading using [`Command::subcommand_help_heading`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, Arg};
+    ///   Command::new("myprog")
+    ///     .version("2.6")
+    ///     .subcommand(
+    ///        Command::new("show")
+    ///          .about("Help for show")
+    ///     )
+    ///     .print_help()
+    /// # ;
+    /// ```
+    ///
+    /// will produce
+    ///
+    /// ```text
+    /// myprog
+    ///
+    /// Usage: myprog [COMMAND]
+    ///
+    /// Commands:
+    ///     help    Print this message or the help of the given subcommand(s)
+    ///     show    Help for show
+    ///
+    /// Options:
+    ///     -h, --help       Print help
+    ///     -V, --version    Print version
+    /// ```
+    ///
+    /// but usage of `help_heading`
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, Arg};
+    ///   Command::new("myprog")
+    ///     .version("2.6")
+    ///     .subcommand(
+    ///         Command::new("show")
+    ///             .about("Help for show")
+    ///             .help_heading("Custom heading"),
+    ///     )
+    ///     .print_help()
+    /// # ;
+    /// ```
+    ///
+    /// will produce
+    ///
+    /// ```text
+    /// myprog
+    ///
+    /// Usage: myprog [COMMAND]
+    ///
+    /// Commands:
+    ///     help    Print this message or the help of the given subcommand(s)
+    ///
+    /// Custom heading:
+    ///     show    Help for show
+    ///
+    /// Options:
+    ///     -h, --help       Print help
+    ///     -V, --version    Print version
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn help_heading(mut self, heading: impl IntoResettable<Str>) -> Self {
+        self.help_heading = Some(heading.into_resettable().into_option());
+        self
+    }
 }
 
 /// # Reflection
@@ -3938,6 +4016,15 @@ impl Command {
     #[inline]
     pub fn get_subcommand_help_heading(&self) -> Option<&str> {
         self.subcommand_heading.as_deref()
+    }
+
+    /// Get the help heading specified for this command, if any
+    #[inline]
+    pub fn get_help_heading(&self) -> Option<&str> {
+        self.help_heading
+            .as_ref()
+            .map(|s| s.as_deref())
+            .unwrap_or_default()
     }
 
     /// Returns the subcommand value name.
@@ -4339,6 +4426,13 @@ impl Command {
                 used_sub.get_used_global_args(matches, global_arg_vec);
             }
         }
+    }
+
+    #[allow(dead_code)] // overcome clippy minimal report that it is unused.
+    pub(crate) fn get_subcommand_custom_help_headings(&self) -> FlatSet<&str> {
+        self.get_subcommands()
+            .filter_map(|sc| sc.get_help_heading())
+            .collect::<FlatSet<_>>()
     }
 
     fn _do_parse(
@@ -5218,6 +5312,7 @@ impl Default for Command {
             current_disp_ord: Some(0),
             subcommand_value_name: Default::default(),
             subcommand_heading: Default::default(),
+            help_heading: Default::default(),
             external_value_parser: Default::default(),
             long_help_exists: false,
             deferred: None,
