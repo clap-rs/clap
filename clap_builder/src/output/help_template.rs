@@ -389,7 +389,7 @@ impl HelpTemplate<'_, '_> {
             .collect::<Vec<_>>();
         let subcmds = self.cmd.has_visible_subcommands();
 
-        let custom_headings = self
+        let custom_arg_headings = self
             .cmd
             .get_arguments()
             .filter_map(|arg| arg.get_help_heading())
@@ -434,8 +434,8 @@ impl HelpTemplate<'_, '_> {
             let _ = write!(self.writer, "{header}{help_heading}:{header:#}\n",);
             self.write_args(&non_pos, "Options", option_sort_key);
         }
-        if !custom_headings.is_empty() {
-            for heading in custom_headings {
+        if !custom_arg_headings.is_empty() {
+            for heading in custom_arg_headings {
                 let args = self
                     .cmd
                     .get_arguments()
