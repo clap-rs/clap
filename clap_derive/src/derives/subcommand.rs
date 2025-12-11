@@ -282,7 +282,7 @@ fn gen_augment(
                     Named(ref fields) => {
                         // Defer to `gen_augment` for adding cmd methods
                         let fields = collect_args_fields(item, fields)?;
-                        args::gen_augment(&fields, &subcommand_var, item, override_required)?
+                        args::gen_augment(&fields, &subcommand_var, item, &[], override_required)?
                     }
                     Unit => {
                         let arg_block = quote!( #subcommand_var );
