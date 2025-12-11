@@ -8,7 +8,7 @@
 #![cfg(feature = "unstable-derive-ui-tests")]
 
 #[cfg(feature = "derive")]
-#[rustversion::attr(not(stable(1.91)), ignore)] // STABLE
+#[rustversion::attr(not(stable(1.92)), ignore)] // STABLE
 #[test]
 fn ui() {
     let t = trybuild::TestCases::new();
