@@ -446,3 +446,55 @@ impl Zsh {
         string.replace('\\', "\\\\")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use snapbox::assert_data_eq;
+
+    // This test verifies that fish shell path quoting works with or without spaces in the path.
+    #[test]
+    #[cfg(all(unix, feature = "unstable-dynamic"))]
+    #[cfg(feature = "unstable-shell-tests")]
+    fn fish_env_completer_path_quoting_works() {
+        // Returns the dynamic registration line for the fish shell, for example:
+        // complete --keep-order --exclusive --command my-bin --arguments "(COMPLETE=fish /path/to/my-bin ... )"
+        let get_fish_registration = |completer_bin: &str| {
+            let mut buf = Vec::new();
+            let fish = Fish;
+            fish.write_registration(
+                "IGNORED_VAR",
+                "ignored-name",
+                "/ignored/bin",
+                completer_bin,
+                &mut buf,
+            )
+            .expect("write_registration failed");
+            return String::from_utf8(buf).expect("Invalid UTF-8");
+        };
+
+        let script = get_fish_registration("completer");
+        assert_data_eq!(
+            script.trim(),
+            snapbox::str![r#"complete [..] "([..] "'completer'"[..])""#]
+        );
+
+        let script = get_fish_registration("/path/completer");
+        assert_data_eq!(
+            script.trim(),
+            snapbox::str![r#"complete [..] "([..] "'/path/completer'"[..])""#]
+        );
+
+        // This case demonstrates the existing bug when handling paths with spaces as described in
+        // https://github.com/clap-rs/clap/issues/6196
+        // The problem shown here is:
+        // * The double quote started at `"(` is closed by the double quote before the path
+        // * Then we have an empty pair of single quotes
+        // * Then we have the _unquoted_ path with a space, which is problematic
+        let script = get_fish_registration("/path with a space/completer");
+        assert_data_eq!(
+            script.trim(),
+            snapbox::str![r#"complete [..] "([..] "''/path with a space/completer''"[..])""#]
+        );
+    }
+}
