@@ -224,7 +224,7 @@ impl EnvCompleter for Fish {
 
         writeln!(
             buf,
-            r#"complete --keep-order --exclusive --command {bin} --arguments "({var}=fish "'{completer}'" -- (commandline --current-process --tokenize --cut-at-cursor) (commandline --current-token))""#
+            r#"complete --keep-order --exclusive --command {bin} --arguments "({var}=fish {completer} -- (commandline --current-process --tokenize --cut-at-cursor) (commandline --current-token))""#
         )
     }
     fn write_complete(
@@ -476,25 +476,19 @@ mod tests {
         let script = get_fish_registration("completer");
         assert_data_eq!(
             script.trim(),
-            snapbox::str![r#"complete [..] "([..] "'completer'"[..])""#]
+            snapbox::str![r#"complete [..] "([..] completer [..])""#]
         );
 
         let script = get_fish_registration("/path/completer");
         assert_data_eq!(
             script.trim(),
-            snapbox::str![r#"complete [..] "([..] "'/path/completer'"[..])""#]
+            snapbox::str![r#"complete [..] "([..] /path/completer [..])""#]
         );
 
-        // This case demonstrates the existing bug when handling paths with spaces as described in
-        // https://github.com/clap-rs/clap/issues/6196
-        // The problem shown here is:
-        // * The double quote started at `"(` is closed by the double quote before the path
-        // * Then we have an empty pair of single quotes
-        // * Then we have the _unquoted_ path with a space, which is problematic
         let script = get_fish_registration("/path with a space/completer");
         assert_data_eq!(
             script.trim(),
-            snapbox::str![r#"complete [..] "([..] "''/path with a space/completer''"[..])""#]
+            snapbox::str![r#"complete [..] "([..] '/path with a space/completer' [..])""#]
         );
     }
 }
