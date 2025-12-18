@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.62] - 2025-12-18
+
 ### Fixes
 
 - *(dynamic/fish)* Properly escape binaries with spaces in them
@@ -614,7 +616,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.61...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.62...HEAD
+[4.5.62]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.61...clap_complete-v4.5.62
 [4.5.61]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.60...clap_complete-v4.5.61
 [4.5.60]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.59...clap_complete-v4.5.60
 [4.5.59]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.58...clap_complete-v4.5.59
