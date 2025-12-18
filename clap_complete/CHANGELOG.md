@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(dynamic/fish)* Properly escape binaries with spaces in them
+
 ## [4.5.61] - 2025-11-19
 
 ## [4.5.60] - 2025-10-29
