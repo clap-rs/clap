@@ -370,3 +370,32 @@ help                                -- Print this message or the help of the giv
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+fn complete_dynamic_dir_no_trailing_space() {
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+
+    // First, complete to the directory name with slash.
+    // A trailing slash should not be added after the slash.
+    let input = "exhaustive hint --file tes\t\t";
+    let expected = snapbox::str!["% exhaustive hint --file tests/"];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
+    // Verify hitting tab again shows the directory contents.
+    // This only works if there is no trailing space after the slash.
+    let input = "exhaustive hint --file tests/\t\t";
+    let expected = snapbox::str![[r#"
+% exhaustive hint --file tests/
+tests/examples.rs  tests/snapshots    tests/testsuite
+"#]];
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
