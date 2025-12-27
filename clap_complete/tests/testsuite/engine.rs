@@ -690,11 +690,13 @@ fn suggest_value_hint_file_path_symlink_to_dir() {
     fs::write(testdir_path.join("real_dir/file.txt"), "").unwrap();
     symlink("real_dir", testdir_path.join("link_dir")).unwrap();
 
-    // BUG: Symlink to directory not shown - entry.metadata() returns symlink metadata,
-    // so is_dir() is false and it fails the is_file() filter
+    // Symlink to directory should appear with trailing slash
     assert_data_eq!(
         complete!(cmd, "--input [TAB]", current_dir = Some(testdir_path)),
-        snapbox::str!["real_dir/"],
+        snapbox::str![[r#"
+link_dir/
+real_dir/
+"#]],
     );
 
     // Should be able to complete through the symlink
@@ -752,12 +754,12 @@ fn suggest_value_hint_dir_path_symlink() {
     symlink("real_dir", testdir_path.join("link_dir")).unwrap();
     symlink("real_file.txt", testdir_path.join("link_file.txt")).unwrap();
 
-    // Symlink to directory currently lacks trailing slash (entry.metadata() returns symlink metadata)
+    // Symlink to directory should have trailing slash
     assert_data_eq!(
         complete!(cmd, "--input [TAB]", current_dir = Some(testdir_path)),
         snapbox::str![[r#"
 .
-link_dir
+link_dir/
 real_dir/
 "#]],
     );
