@@ -671,6 +671,153 @@ d_dir/
     );
 }
 
+#[cfg(unix)]
+#[test]
+fn suggest_value_hint_file_path_symlink_to_dir() {
+    use std::os::unix::fs::symlink;
+
+    let mut cmd = Command::new("dynamic").arg(
+        clap::Arg::new("input")
+            .long("input")
+            .short('i')
+            .value_hint(clap::ValueHint::FilePath),
+    );
+
+    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+    let testdir_path = testdir.path().unwrap();
+
+    fs::create_dir_all(testdir_path.join("real_dir")).unwrap();
+    fs::write(testdir_path.join("real_dir/file.txt"), "").unwrap();
+    symlink("real_dir", testdir_path.join("link_dir")).unwrap();
+
+    // BUG: Symlink to directory not shown - entry.metadata() returns symlink metadata,
+    // so is_dir() is false and it fails the is_file() filter
+    assert_data_eq!(
+        complete!(cmd, "--input [TAB]", current_dir = Some(testdir_path)),
+        snapbox::str!["real_dir/"],
+    );
+
+    // Should be able to complete through the symlink
+    assert_data_eq!(
+        complete!(cmd, "--input link_dir/[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str!["link_dir/file.txt"],
+    );
+}
+
+#[cfg(unix)]
+#[test]
+fn suggest_value_hint_file_path_symlink_to_file() {
+    use std::os::unix::fs::symlink;
+
+    let mut cmd = Command::new("dynamic").arg(
+        clap::Arg::new("input")
+            .long("input")
+            .short('i')
+            .value_hint(clap::ValueHint::FilePath),
+    );
+
+    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+    let testdir_path = testdir.path().unwrap();
+
+    fs::write(testdir_path.join("real_file.txt"), "").unwrap();
+    symlink("real_file.txt", testdir_path.join("link_file.txt")).unwrap();
+
+    // Symlink to file should appear without trailing slash
+    assert_data_eq!(
+        complete!(cmd, "--input [TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![[r#"
+link_file.txt
+real_file.txt
+"#]],
+    );
+}
+
+#[cfg(unix)]
+#[test]
+fn suggest_value_hint_dir_path_symlink() {
+    use std::os::unix::fs::symlink;
+
+    let mut cmd = Command::new("dynamic").arg(
+        clap::Arg::new("input")
+            .long("input")
+            .short('i')
+            .value_hint(clap::ValueHint::DirPath),
+    );
+
+    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+    let testdir_path = testdir.path().unwrap();
+
+    fs::create_dir_all(testdir_path.join("real_dir")).unwrap();
+    fs::write(testdir_path.join("real_file.txt"), "").unwrap();
+    symlink("real_dir", testdir_path.join("link_dir")).unwrap();
+    symlink("real_file.txt", testdir_path.join("link_file.txt")).unwrap();
+
+    // Symlink to directory currently lacks trailing slash (entry.metadata() returns symlink metadata)
+    assert_data_eq!(
+        complete!(cmd, "--input [TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![[r#"
+.
+link_dir
+real_dir/
+"#]],
+    );
+}
+
+#[cfg(unix)]
+#[test]
+fn suggest_value_hint_file_path_broken_symlink() {
+    use std::os::unix::fs::symlink;
+
+    let mut cmd = Command::new("dynamic").arg(
+        clap::Arg::new("input")
+            .long("input")
+            .short('i')
+            .value_hint(clap::ValueHint::FilePath),
+    );
+
+    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+    let testdir_path = testdir.path().unwrap();
+
+    fs::write(testdir_path.join("real_file.txt"), "").unwrap();
+    symlink("nonexistent", testdir_path.join("broken_link")).unwrap();
+
+    // Broken symlink should not appear for FilePath (target doesn't exist)
+    // but should not cause a crash
+    assert_data_eq!(
+        complete!(cmd, "--input [TAB]", current_dir = Some(testdir_path)),
+        snapbox::str!["real_file.txt"],
+    );
+}
+
+#[cfg(unix)]
+#[test]
+fn suggest_value_hint_any_path_broken_symlink() {
+    use std::os::unix::fs::symlink;
+
+    let mut cmd = Command::new("dynamic").arg(
+        clap::Arg::new("input")
+            .long("input")
+            .short('i')
+            .value_hint(clap::ValueHint::AnyPath),
+    );
+
+    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+    let testdir_path = testdir.path().unwrap();
+
+    fs::write(testdir_path.join("real_file.txt"), "").unwrap();
+    symlink("nonexistent", testdir_path.join("broken_link")).unwrap();
+
+    // Broken symlink should appear for AnyPath since filter is |_| true
+    assert_data_eq!(
+        complete!(cmd, "--input [TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![[r#"
+.
+broken_link
+real_file.txt
+"#]],
+    );
+}
+
 #[test]
 fn suggest_custom_arg_value() {
     fn custom_completer() -> Vec<CompletionCandidate> {
