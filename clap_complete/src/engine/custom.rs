@@ -332,7 +332,7 @@ pub(crate) fn complete_path(
             continue;
         }
 
-        if entry.metadata().map(|m| m.is_dir()).unwrap_or(false) {
+        if entry.path().is_dir() {
             let mut suggestion = prefix.join(&raw_file_name);
             suggestion.push(""); // Ensure trailing `/`
             let candidate = CompletionCandidate::new(suggestion.as_os_str().to_owned())
