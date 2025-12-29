@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(dynamic)* Complete symlinks as their target's file type
+
 ## [4.5.62] - 2025-12-18
 
 ### Fixes
