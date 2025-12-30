@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(dynamic/zsh)* Remove trailing space after directory completions
+
 ## [4.5.63] - 2025-12-29
 
 ### Fixes
