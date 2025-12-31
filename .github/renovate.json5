@@ -6,8 +6,8 @@
   commitMessageLowerCase: 'never',
   configMigration: true,
   dependencyDashboard: true,
-  pre-commit: {
-    "enabled": true
+  "pre-commit": {
+    enabled: true
   },
   customManagers: [
     {
