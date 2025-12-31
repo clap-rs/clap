@@ -657,11 +657,13 @@ impl HelpTemplate<'_, '_> {
         help.indent("", &trailing_indent);
         self.writer.push_styled(&help);
 
+        let mut has_possible_values = false;
         if let Some(arg) = arg {
             if !arg.is_hide_possible_values_set() && self.use_long_pv(arg) {
                 const DASH_SPACE: usize = "- ".len();
                 let possible_vals = arg.get_possible_values();
                 if !possible_vals.is_empty() {
+                    has_possible_values = true;
                     debug!("HelpTemplate::help: Found possible vals...{possible_vals:?}");
                     let longest = possible_vals
                         .iter()
@@ -709,6 +711,10 @@ impl HelpTemplate<'_, '_> {
 
         if !spec_vals.is_empty() && next_line_specs {
             let mut help = StyledStr::new();
+
+            if has_possible_values {
+                let _ = write!(self.writer, "\n{:spaces$}", "");
+            }
             if !help_is_empty {
                 let sep = "\n\n";
                 help.push_str(sep);
