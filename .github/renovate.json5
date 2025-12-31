@@ -6,6 +6,9 @@
   commitMessageLowerCase: 'never',
   configMigration: true,
   dependencyDashboard: true,
+  pre-commit: {
+    "enabled": true
+  },
   customManagers: [
     {
       customType: 'regex',
