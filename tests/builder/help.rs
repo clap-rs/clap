@@ -3131,7 +3131,9 @@ Options:
   -c, --config <MODE>
           Possible values:
           - fast
-          - slow: slower than fast[default: fast]
+          - slow: slower than fast
+          
+          [default: fast]
 
   -h, --help
           Print help (see a summary with '-h')
