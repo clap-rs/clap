@@ -14,6 +14,6 @@ repos:
     hooks:
     - id: typos
   - repo: https://github.com/crate-ci/committed
-    rev: v1.1.7
+    rev: v1.1.9
     hooks:
     - id: committed
