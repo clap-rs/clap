@@ -3108,6 +3108,41 @@ fn too_many_value_names_panics() {
 }
 
 #[test]
+fn help_enum_arg_with_no_description() {
+    let cmd = Command::new("test").arg(
+        Arg::new("config")
+            .action(ArgAction::Set)
+            // .help("No help description for this argument")
+            .short('c')
+            .long("config")
+            .value_name("MODE")
+            .value_parser([
+                PossibleValue::new("fast"),
+                PossibleValue::new("slow").help("slower than fast"),
+                PossibleValue::new("secret speed").hide(true),
+            ])
+            .default_value("fast"),
+    );
+
+    let expected = str![[r#"
+Usage: test [OPTIONS]
+
+Options:
+  -c, --config <MODE>
+          Possible values:
+          - fast
+          - slow: slower than fast
+          
+          [default: fast]
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+"#]];
+    utils::assert_output(cmd, "test --help", expected, false);
+}
+
+#[test]
 fn disabled_help_flag() {
     let res = Command::new("foo")
         .subcommand(Command::new("sub"))
