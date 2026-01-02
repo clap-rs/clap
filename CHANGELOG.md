@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(help)* Move `[default]` to its own paragraph when `PossibleValue::help` is present in `--help`
+
 ## [4.5.53] - 2025-11-19
 
 ### Features
