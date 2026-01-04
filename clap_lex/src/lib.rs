@@ -135,7 +135,7 @@ impl RawArgs {
     ///
     /// <div class="warning">
     ///
-    /// **NOTE:** The argument returned will be the current binary.
+    /// **NOTE:** The first argument returned will be the current binary.
     ///
     /// </div>
     ///
