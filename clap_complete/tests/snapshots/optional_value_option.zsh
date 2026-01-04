@@ -15,7 +15,7 @@ _my-app() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" : \
-'--options=[optional value option]' \
+'--options=[optional value option]:: :_default' \
 '-h[Print help]' \
 '--help[Print help]' \
 && ret=0

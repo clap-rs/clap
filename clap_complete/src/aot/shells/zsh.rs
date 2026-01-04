@@ -479,7 +479,10 @@ fn write_opts_of(p: &Command, p_global: Option<&Command>) -> String {
             Some(val) => format!(":{vn}:{val}"),
             None => format!(":{vn}: "),
         };
-        let vc = vc.repeat(o.get_num_args().expect("built").min_values());
+        let vc = match o.get_num_args().expect("built").min_values() {
+            0 => format!(":{vc}"),
+            min_value => vc.repeat(min_value),
+        };
 
         if let Some(shorts) = o.get_short_and_visible_aliases() {
             for short in shorts {
