@@ -3,7 +3,7 @@
 use std::env;
 use std::ffi::OsStr;
 
-use clap::{arg, builder::FalseyValueParser, Arg, ArgAction, Command};
+use clap::{arg, builder::FalseyValueParser, value_parser, Arg, ArgAction, ArgGroup, Command};
 
 #[test]
 fn env() {
@@ -64,6 +64,51 @@ fn env_bool_literal() {
     assert!(*m.get_one::<bool>("present").expect("defaulted by clap"));
     assert!(!*m.get_one::<bool>("negated").expect("defaulted by clap"));
     assert!(!*m.get_one::<bool>("absent").expect("defaulted by clap"));
+}
+
+#[test]
+fn env_false_flag_is_not_explicit() {
+    env::set_var("CLP_TEST_MEMORY_STORAGE", "false");
+    env::set_var(
+        "CLP_TEST_POSTGRES_CONNECTION_STRING",
+        "postgres://user:password@localhost:5432/db",
+    );
+
+    let r = Command::new("sample")
+        .group(
+            ArgGroup::new("storage")
+                .args(["memory-storage", "postgres"])
+                .multiple(false)
+                .required(true),
+        )
+        .arg(
+            arg!(--"memory-storage" "Use an in-memory storage backend")
+                .value_parser(value_parser!(bool))
+                .env("CLP_TEST_MEMORY_STORAGE"),
+        )
+        .arg(
+            arg!(-p --postgres <CONNECTION_STRING> "A postgreSQL connection string")
+                .env("CLP_TEST_POSTGRES_CONNECTION_STRING"),
+        )
+        .try_get_matches_from(vec!["sample"]);
+
+    assert!(r.is_ok(), "{}", r.unwrap_err());
+    let m = r.unwrap();
+    assert!(!m.get_flag("memory-storage"));
+    assert_eq!(
+        m.value_source("memory-storage"),
+        Some(clap::parser::ValueSource::DefaultValue)
+    );
+    assert_eq!(
+        m.get_one::<String>("postgres")
+            .map(|v| v.as_str())
+            .unwrap(),
+        "postgres://user:password@localhost:5432/db"
+    );
+    assert_eq!(
+        m.value_source("postgres"),
+        Some(clap::parser::ValueSource::EnvVariable)
+    );
 }
 
 #[test]

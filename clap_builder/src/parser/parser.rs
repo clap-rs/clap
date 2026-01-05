@@ -1418,6 +1418,10 @@ impl<'cmd> Parser<'cmd> {
             debug!("Parser::add_env: Checking arg `{arg}`");
             if let Some((_, Some(ref val))) = arg.env {
                 debug!("Parser::add_env: Found an opt with value={val:?}");
+                if !ok!(self.should_use_env(arg, val)) {
+                    debug!("Parser::add_env: Skipping `{arg}` because env matches default");
+                    continue;
+                }
                 let arg_values = vec![val.to_owned()];
                 let trailing_idx = None;
                 let _ = ok!(self.react(
@@ -1432,6 +1436,40 @@ impl<'cmd> Parser<'cmd> {
         }
 
         Ok(())
+    }
+
+    #[cfg(feature = "env")]
+    fn should_use_env(&self, arg: &Arg, val: &OsString) -> ClapResult<bool> {
+        // Only boolean flags are treated as "not explicit" when env matches the default.
+        if !matches!(arg.get_action(), ArgAction::SetTrue | ArgAction::SetFalse) {
+            return Ok(true);
+        }
+
+        let parsed = ok!(arg.get_value_parser().parse_ref(
+            self.cmd,
+            Some(arg),
+            val.as_os_str(),
+            ValueSource::EnvVariable,
+        ));
+        let Some(flag) = parsed.downcast_ref::<bool>() else {
+            return Ok(true);
+        };
+
+        let default_value = if let Some(default) = arg.get_default_values().first() {
+            ok!(arg.get_value_parser().parse_ref(
+                self.cmd,
+                Some(arg),
+                default,
+                ValueSource::DefaultValue,
+            ))
+            .downcast_ref::<bool>()
+            .copied()
+        } else {
+            None
+        }
+        .unwrap_or(matches!(arg.get_action(), ArgAction::SetFalse));
+
+        Ok(*flag != default_value)
     }
 
     fn add_defaults(&self, matcher: &mut ArgMatcher) -> ClapResult<()> {
@@ -1675,4 +1713,60 @@ pub(crate) enum Identifier {
     Short,
     Long,
     Index,
+}
+
+#[cfg(all(test, feature = "env"))]
+mod tests {
+    use super::Parser;
+    use crate::{Arg, ArgAction, Command};
+
+    #[test]
+    fn should_use_env_skips_default_flag_value() {
+        let mut cmd = Command::new("prog")
+            .arg(
+                Arg::new("flag_true")
+                    .long("flag-true")
+                    .action(ArgAction::SetTrue)
+                    .value_parser(crate::value_parser!(bool)),
+            )
+            .arg(
+                Arg::new("flag_false")
+                    .long("flag-false")
+                    .action(ArgAction::SetFalse)
+                    .value_parser(crate::value_parser!(bool)),
+            );
+        cmd._build_self(false);
+
+        let parser = Parser::new(&mut cmd);
+        let flag_true = parser
+            .cmd
+            .get_arguments()
+            .find(|arg| arg.get_id() == "flag_true")
+            .expect("flag_true arg exists");
+        let flag_false = parser
+            .cmd
+            .get_arguments()
+            .find(|arg| arg.get_id() == "flag_false")
+            .expect("flag_false arg exists");
+
+        let use_env_false = parser
+            .should_use_env(flag_true, &std::ffi::OsString::from("false"))
+            .expect("env parse succeeds");
+        assert!(!use_env_false);
+
+        let use_env_true = parser
+            .should_use_env(flag_true, &std::ffi::OsString::from("true"))
+            .expect("env parse succeeds");
+        assert!(use_env_true);
+
+        let use_env_true = parser
+            .should_use_env(flag_false, &std::ffi::OsString::from("true"))
+            .expect("env parse succeeds");
+        assert!(!use_env_true);
+
+        let use_env_false = parser
+            .should_use_env(flag_false, &std::ffi::OsString::from("false"))
+            .expect("env parse succeeds");
+        assert!(use_env_false);
+    }
 }
