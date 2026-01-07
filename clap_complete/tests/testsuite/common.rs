@@ -273,6 +273,33 @@ pub(crate) fn value_terminator_command(name: &'static str) -> clap::Command {
     )
 }
 
+pub(crate) fn multi_value_option_command(name: &'static str) -> clap::Command {
+    clap::Command::new(name).arg(
+        clap::Arg::new("options")
+            .long("options")
+            .help("multi-valued option")
+            .num_args(4..),
+    )
+}
+
+pub(crate) fn optional_value_option_command(name: &'static str) -> clap::Command {
+    clap::Command::new(name).arg(
+        clap::Arg::new("options")
+            .long("options")
+            .help("optional value option")
+            .num_args(0..=1),
+    )
+}
+
+pub(crate) fn optional_multi_value_option_command(name: &'static str) -> clap::Command {
+    clap::Command::new(name).arg(
+        clap::Arg::new("options")
+            .long("options")
+            .help("optional multi-value option")
+            .num_args(0..),
+    )
+}
+
 pub(crate) fn two_multi_valued_arguments_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .arg(

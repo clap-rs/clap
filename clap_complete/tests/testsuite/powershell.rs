@@ -122,6 +122,42 @@ fn value_terminator() {
 }
 
 #[test]
+fn multi_value_option() {
+    let name = "my-app";
+    let cmd = common::multi_value_option_command(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/multi_value_option.ps1"],
+        clap_complete::shells::PowerShell,
+        cmd,
+        name,
+    );
+}
+
+#[test]
+fn optional_value_option() {
+    let name = "my-app";
+    let cmd = common::optional_value_option_command(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/optional_value_option.ps1"],
+        clap_complete::shells::PowerShell,
+        cmd,
+        name,
+    );
+}
+
+#[test]
+fn optional_multi_value_option() {
+    let name = "my-app";
+    let cmd = common::optional_multi_value_option_command(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/optional_multi_value_option.ps1"],
+        clap_complete::shells::PowerShell,
+        cmd,
+        name,
+    );
+}
+
+#[test]
 fn two_multi_valued_arguments() {
     let name = "my-app";
     let cmd = common::two_multi_valued_arguments_command(name);
