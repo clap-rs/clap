@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(zsh)* Correctly complete zero values for `num_args(0..)`
+
 ## [4.5.64] - 2025-12-30
 
 ### Fixes
