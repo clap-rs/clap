@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.5.65] - 2026-01-07
+
 ### Fixes
 
 - *(zsh)* Correctly complete zero values for `num_args(0..)`
@@ -632,7 +634,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.64...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.65...HEAD
+[4.5.65]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.64...clap_complete-v4.5.65
 [4.5.64]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.63...clap_complete-v4.5.64
 [4.5.63]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.62...clap_complete-v4.5.63
 [4.5.62]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.61...clap_complete-v4.5.62
