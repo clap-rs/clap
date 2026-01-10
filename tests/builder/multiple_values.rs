@@ -1687,17 +1687,17 @@ fn issue_5040_value_terminator_doesnt_work_as_first_argument() {
     let m = res.unwrap();
     let cmd1: Vec<_> = m
         .get_many::<String>("cmd1")
-        .unwrap()
-        .map(|v| v.as_str())
-        .collect();
-    assert_eq!(&cmd1, &["ls", "-l"]);
+        .map(|v| v.map(|v| v.as_str()).collect())
+        .unwrap_or_default();
+    let expected_cmd1: Vec<&str> = Vec::new();
+    assert_eq!(cmd1, expected_cmd1);
 
     let cmd2: Vec<_> = m
         .get_many::<String>("cmd2")
-        .map(|v| v.map(|v| v.as_str()).collect())
-        .unwrap_or_default();
-    let expected_cmd2: Vec<&str> = Vec::new();
-    assert_eq!(cmd2, expected_cmd2);
+        .unwrap()
+        .map(|v| v.as_str())
+        .collect();
+    assert_eq!(&cmd2, &["ls", "-l"]);
 }
 
 #[test]
