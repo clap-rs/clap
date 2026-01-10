@@ -1659,6 +1659,48 @@ fn value_terminator_restores_escaping_disabled_by_allow_hyphen_values() {
 }
 
 #[test]
+fn escape_as_value_terminator_with_empty_list() {
+
+    // We expect that the value terminator `--` in "program -- ls -l"
+    // results in:
+    //   opts = [] and cmdline = ["ls", "-l"]
+    // instead of: 
+    //   opts = ["ls", "-l"] and cmdline = []
+
+    let res = Command::new("program")
+        .arg(
+            Arg::new("cmd1")
+                .action(ArgAction::Set)
+                .num_args(0..)
+                .allow_hyphen_values(true)
+                .value_terminator("--"),
+        )
+        .arg(
+            Arg::new("cmd2")
+                .action(ArgAction::Set)
+                .num_args(0..)
+                .allow_hyphen_values(true),
+        )
+        .try_get_matches_from(vec!["program", "--", "ls", "-l"]);
+    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
+
+    let m = res.unwrap();
+    let cmd1: Vec<_> = m
+        .get_many::<String>("cmd1")
+        .unwrap()
+        .map(|v| v.as_str())
+        .collect();
+    assert_eq!(&cmd1, &["ls", "-l"]);
+
+    let cmd2: Vec<_> = m
+        .get_many::<String>("cmd2")
+        .map(|v| v.map(|v| v.as_str()).collect())
+        .unwrap_or_default();
+    let expected_cmd2: Vec<&str> = Vec::new();
+    assert_eq!(cmd2, expected_cmd2);
+}
+
+#[test]
 fn issue_1480_max_values_consumes_extra_arg_1() {
     let res = Command::new("prog")
         .arg(Arg::new("field").num_args(..=1).long("field"))
