@@ -14,20 +14,21 @@
 
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::{format_ident, quote, quote_spanned};
+use syn::{punctuated::Punctuated, spanned::Spanned, token::Comma, Generics};
 use syn::{
-    punctuated::Punctuated, spanned::Spanned, token::Comma, Data, DataStruct, DeriveInput, Field,
-    Fields, FieldsNamed, Generics,
+    DataStructWithDefault, DataWithDefault, DeriveInputWithDefault, FieldWithDefault,
+    FieldsNamedWithDefault, FieldsWithDefault,
 };
 
 use crate::item::{Item, Kind, Name};
 use crate::utils::{inner_type, sub_type, Sp, Ty};
 
-pub(crate) fn derive_args(input: &DeriveInput) -> Result<TokenStream, syn::Error> {
+pub(crate) fn derive_args(input: &DeriveInputWithDefault) -> Result<TokenStream, syn::Error> {
     let ident = &input.ident;
 
     match input.data {
-        Data::Struct(DataStruct {
-            fields: Fields::Named(ref fields),
+        DataWithDefault::Struct(DataStructWithDefault {
+            fields: FieldsWithDefault::Named(ref fields),
             ..
         }) => {
             let name = Name::Derived(ident.clone());
@@ -35,13 +36,13 @@ pub(crate) fn derive_args(input: &DeriveInput) -> Result<TokenStream, syn::Error
             let fields = collect_args_fields(&item, fields)?;
             gen_for_struct(&item, ident, &input.generics, &fields)
         }
-        Data::Struct(DataStruct {
-            fields: Fields::Unit,
+        DataWithDefault::Struct(DataStructWithDefault {
+            fields: FieldsWithDefault::Unit,
             ..
         }) => {
             let name = Name::Derived(ident.clone());
             let item = Item::from_args_struct(input, name)?;
-            let fields = Punctuated::<Field, Comma>::new();
+            let fields = Punctuated::<FieldWithDefault, Comma>::new();
             let fields = fields
                 .iter()
                 .map(|field| {
@@ -59,7 +60,7 @@ pub(crate) fn gen_for_struct(
     item: &Item,
     item_name: &Ident,
     generics: &Generics,
-    fields: &[(&Field, Item)],
+    fields: &[(&FieldWithDefault, Item)],
 ) -> Result<TokenStream, syn::Error> {
     if !matches!(&*item.kind(), Kind::Command(_)) {
         abort! { item.kind().span(),
@@ -167,7 +168,7 @@ pub(crate) fn gen_for_struct(
 /// Generate a block of code to add arguments/subcommands corresponding to
 /// the `fields` to an cmd.
 pub(crate) fn gen_augment(
-    fields: &[(&Field, Item)],
+    fields: &[(&FieldWithDefault, Item)],
     app_var: &Ident,
     parent_item: &Item,
     override_required: bool,
@@ -440,7 +441,9 @@ pub(crate) fn gen_augment(
     }})
 }
 
-pub(crate) fn gen_constructor(fields: &[(&Field, Item)]) -> Result<TokenStream, syn::Error> {
+pub(crate) fn gen_constructor(
+    fields: &[(&FieldWithDefault, Item)],
+) -> Result<TokenStream, syn::Error> {
     let fields = fields.iter().map(|(field, item)| {
         let field_name = field.ident.as_ref().unwrap();
         let kind = item.kind();
@@ -552,7 +555,7 @@ pub(crate) fn gen_constructor(fields: &[(&Field, Item)]) -> Result<TokenStream, 
 }
 
 pub(crate) fn gen_updater(
-    fields: &[(&Field, Item)],
+    fields: &[(&FieldWithDefault, Item)],
     use_self: bool,
 ) -> Result<TokenStream, syn::Error> {
     let mut genned_fields = Vec::new();
@@ -661,7 +664,7 @@ fn gen_parsers(
     item: &Item,
     ty: &Sp<Ty>,
     field_name: &Ident,
-    field: &Field,
+    field: &FieldWithDefault,
     update: Option<&TokenStream>,
 ) -> Result<TokenStream, syn::Error> {
     let span = ty.span();
@@ -776,8 +779,8 @@ pub(crate) fn raw_deprecated() -> TokenStream {
 
 pub(crate) fn collect_args_fields<'a>(
     item: &'a Item,
-    fields: &'a FieldsNamed,
-) -> Result<Vec<(&'a Field, Item)>, syn::Error> {
+    fields: &'a FieldsNamedWithDefault,
+) -> Result<Vec<(&'a FieldWithDefault, Item)>, syn::Error> {
     fields
         .named
         .iter()
