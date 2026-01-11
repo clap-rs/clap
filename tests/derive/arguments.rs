@@ -49,6 +49,20 @@ fn argument_with_default() {
 }
 
 #[test]
+fn argument_with_field_default() {
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        arg: i32 = 42,
+    }
+    assert_eq!(
+        Opt { arg: 24 },
+        Opt::try_parse_from(["test", "24"]).unwrap()
+    );
+    assert_eq!(Opt { arg: 42 }, Opt::try_parse_from(["test"]).unwrap());
+    assert!(Opt::try_parse_from(["test", "42", "24"]).is_err());
+}
+
+#[test]
 fn auto_value_name() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
