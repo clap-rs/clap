@@ -18,7 +18,7 @@ use heck::{ToKebabCase, ToLowerCamelCase, ToShoutySnakeCase, ToSnakeCase, ToUppe
 use proc_macro2::{self, Span, TokenStream};
 use quote::{format_ident, quote, quote_spanned, ToTokens};
 use syn::{self, ext::IdentExt, spanned::Spanned, Attribute, Ident, LitStr, Type, Variant};
-use syn::{DeriveInput, DeriveInputWithDefault, FieldWithDefault, VariantWithDefault};
+use syn::{DeriveInput, DeriveInputWithDefault, Expr, FieldWithDefault, VariantWithDefault};
 
 use crate::attr::{AttrKind, AttrValue, ClapAttr, MagicAttrName};
 use crate::utils::{extract_doc_comment, format_doc_comment, inner_type, is_simple_ty, Sp, Ty};
@@ -222,6 +222,23 @@ impl Item {
         res.push_attrs(&parsed_attrs)?;
         if matches!(&*res.kind, Kind::Arg(_)) {
             res.push_doc_comment(&field.attrs, "help", Some("long_help"));
+        }
+        if res.find_default_method().is_none() {
+            if let Some((_, ref default)) = field.default {
+                let val = quote!(#default);
+                let ty = &field.ty;
+                let val = quote_spanned!(default.span()=> {
+                    static DEFAULT_VALUE: ::std::sync::OnceLock<String> = ::std::sync::OnceLock::new();
+                    let s = DEFAULT_VALUE.get_or_init(|| {
+                        let val: #ty = #val;
+                        ::std::string::ToString::to_string(&val)
+                    });
+                    let s: &'static str = &*s;
+                    s
+                });
+                let raw_ident = Ident::new("default_value", default.span());
+                res.methods.push(Method::new(raw_ident, val));
+            }
         }
 
         match &*res.kind {
