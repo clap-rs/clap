@@ -1546,6 +1546,19 @@ impl Arg {
         }
     }
 
+    /// Allow a bare `--` to be treated as a value when parsing.
+    ///
+    /// Defaults to `true` to preserve existing `allow_hyphen_values` behavior.
+    #[inline]
+    #[must_use]
+    pub fn allow_dash_dash_as_value(self, yes: bool) -> Self {
+        if yes {
+            self.unset_setting(ArgSettings::ForbidDashDashAsValue)
+        } else {
+            self.setting(ArgSettings::ForbidDashDashAsValue)
+        }
+    }
+
     /// Allows negative numbers to pass as values.
     ///
     /// This is similar to [`Arg::allow_hyphen_values`] except that it only allows numbers,
@@ -4447,6 +4460,11 @@ impl Arg {
     /// Report whether [`Arg::allow_hyphen_values`] is set
     pub fn is_allow_hyphen_values_set(&self) -> bool {
         self.is_set(ArgSettings::AllowHyphenValues)
+    }
+
+    /// Report whether [`Arg::allow_dash_dash_as_value`] is set
+    pub fn is_allow_dash_dash_as_value_set(&self) -> bool {
+        !self.is_set(ArgSettings::ForbidDashDashAsValue)
     }
 
     /// Report whether [`Arg::allow_negative_numbers`] is set
