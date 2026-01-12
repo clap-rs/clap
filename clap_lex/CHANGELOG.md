@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Be more specific on lifetimes
+
 ## [0.7.6] - 2025-10-13
 
 ## [0.7.5] - 2025-06-09
