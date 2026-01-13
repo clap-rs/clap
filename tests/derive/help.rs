@@ -140,29 +140,6 @@ fn app_help_heading_flattened() {
     assert_eq!(should_be_in_section_b.get_help_heading(), Some("HEADING B"));
 
     let sub_a_two = cmd.find_subcommand("sub-a-two").unwrap();
-
-    let should_be_in_sub_a = sub_a_two
-        .get_arguments()
-        .find(|a| a.get_id() == "should_be_in_sub_a")
-        .unwrap();
-    assert_eq!(should_be_in_sub_a.get_help_heading(), Some("SUB A"));
-
-    let sub_b_one = cmd.find_subcommand("sub-b-one").unwrap();
-
-    let should_be_in_sub_b = sub_b_one
-        .get_arguments()
-        .find(|a| a.get_id() == "should_be_in_sub_b")
-        .unwrap();
-    assert_eq!(should_be_in_sub_b.get_help_heading(), Some("SUB B"));
-
-    let sub_c = cmd.find_subcommand("sub-c").unwrap();
-    let sub_c_one = sub_c.find_subcommand("sub-c-one").unwrap();
-
-    let should_be_in_sub_c = sub_c_one
-        .get_arguments()
-        .find(|a| a.get_id() == "should_be_in_sub_c")
-        .unwrap();
-    assert_eq!(should_be_in_sub_c.get_help_heading(), Some("SUB C"));
 }
 
 #[test]

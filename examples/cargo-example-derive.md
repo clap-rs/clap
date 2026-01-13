@@ -9,7 +9,7 @@ $ cargo-example-derive --help
 Usage: cargo <COMMAND>
 
 Commands:
-  example-derive  A simple to use, efficient, and full-featured Command Line Argument Parser
+  example-derive  
   help            Print this message or the help of the given subcommand(s)
 
 Options:

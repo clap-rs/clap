@@ -261,16 +261,22 @@ fn gen_augment(
                 } else {
                     quote!()
                 };
+
+                // Set all metadata BEFORE .defer() so it's available without materialization
+                // Only the recursive augment call is deferred
                 let subcommand = quote! {
                     let #app_var = #app_var.subcommand({
                         #deprecations;
-                        let #subcommand_var = clap::Command::new(#name);
-                        let #subcommand_var = #subcommand_var
-                            .subcommand_required(true)
-                            .arg_required_else_help(true);
-                        let #subcommand_var = #subcommand_var #initial_app_methods;
-                        let #subcommand_var = #arg_block;
-                        #subcommand_var #final_from_attrs #override_methods
+                        clap::Command::new(#name)
+                            #initial_app_methods
+                            #final_from_attrs
+                            .defer(|#subcommand_var| {
+                                let #subcommand_var = #subcommand_var
+                                    .subcommand_required(true)
+                                    .arg_required_else_help(true);
+                                let #subcommand_var = #arg_block;
+                                #subcommand_var #override_methods
+                            })
                     });
                 };
                 Some(subcommand)
@@ -285,36 +291,18 @@ fn gen_augment(
                         args::gen_augment(&fields, &subcommand_var, item, override_required)?
                     }
                     Unit => {
-                        let arg_block = quote!( #subcommand_var );
-                        let initial_app_methods = item.initial_top_level_methods();
-                        let final_from_attrs = item.final_top_level_methods();
-                        quote! {
-                            let #subcommand_var = #subcommand_var #initial_app_methods;
-                            let #subcommand_var = #arg_block;
-                            #subcommand_var #final_from_attrs
-                        }
+                        quote!( #subcommand_var )
                     }
                     Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
                         let ty = &unnamed[0].ty;
-                        let arg_block = if override_required {
+                        if override_required {
                             quote_spanned! { ty.span()=>
-                                {
-                                    <#ty as clap::Args>::augment_args_for_update(#subcommand_var)
-                                }
+                                <#ty as clap::Args>::augment_args_for_update(#subcommand_var)
                             }
                         } else {
                             quote_spanned! { ty.span()=>
-                                {
-                                    <#ty as clap::Args>::augment_args(#subcommand_var)
-                                }
+                                <#ty as clap::Args>::augment_args(#subcommand_var)
                             }
-                        };
-                        let initial_app_methods = item.initial_top_level_methods();
-                        let final_from_attrs = item.final_top_level_methods();
-                        quote! {
-                            let #subcommand_var = #subcommand_var #initial_app_methods;
-                            let #subcommand_var = #arg_block;
-                            #subcommand_var #final_from_attrs
                         }
                     }
                     Unnamed(..) => {
@@ -328,11 +316,20 @@ fn gen_augment(
                     quote!()
                 };
                 let name = item.cased_name();
+                let initial_app_methods = item.initial_top_level_methods();
+                let final_from_attrs = item.final_top_level_methods();
+
+                // Set all metadata BEFORE .defer() so it's available without materialization
+                // Only the recursive augment call is deferred
                 let subcommand = quote! {
                     let #app_var = #app_var.subcommand({
-                        #deprecations
-                        let #subcommand_var = clap::Command::new(#name);
-                        #sub_augment
+                        #deprecations;
+                        clap::Command::new(#name)
+                            #initial_app_methods
+                            #final_from_attrs
+                            .defer(|#subcommand_var| {
+                                #sub_augment
+                            })
                     });
                 };
                 Some(subcommand)
