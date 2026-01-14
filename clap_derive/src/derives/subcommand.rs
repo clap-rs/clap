@@ -157,9 +157,7 @@ fn gen_augment(
 
                     _ => abort!(
                         variant,
-                        "The enum variant marked with `external_subcommand` must be \
-                             a single-typed tuple, and the type must be either `Vec<String>` \
-                             or `Vec<OsString>`."
+                        "invalid type for `#[command(external_subcommand)]`, expected a newtype variant with either a `Vec<String>` or `Vec<OsString>`"
                     ),
                 };
                 let deprecations = if !override_required {
@@ -170,8 +168,7 @@ fn gen_augment(
                 let subty = subty_if_name(ty, "Vec").ok_or_else(|| {
                     format_err!(
                         ty.span(),
-                        "The type must be `Vec<_>` \
-                             to be used with `external_subcommand`."
+                        "invalid type for `#[command(external_subcommand)]`, expected a `Vec<_>`"
                     )
                 })?;
                 let subcommand = quote_spanned! { kind.span()=>
@@ -448,9 +445,7 @@ fn gen_from_arg_matches(variants: &[(&Variant, Item)]) -> Result<TokenStream, sy
 
                     _ => abort!(
                         variant,
-                        "The enum variant marked with `external_subcommand` must be \
-                         a single-typed tuple, and the type must be either `Vec<String>` \
-                         or `Vec<OsString>`."
+                        "invalid type for `#[command(external_subcommand)]`, expected a newtype variant with either a `Vec<String>` or `Vec<OsString>`"
                     ),
                 };
 
@@ -463,16 +458,14 @@ fn gen_from_arg_matches(variants: &[(&Variant, Item)]) -> Result<TokenStream, sy
                         } else {
                             abort!(
                                 ty.span(),
-                                "The type must be either `Vec<String>` or `Vec<OsString>` \
-                                 to be used with `external_subcommand`."
+                                "invalid type for `#[command(external_subcommand)]`, expected a `Vec<String>` or `Vec<OsString>`"
                             );
                         }
                     }
 
                     None => abort!(
                         ty.span(),
-                        "The type must be either `Vec<String>` or `Vec<OsString>` \
-                         to be used with `external_subcommand`."
+                        "invalid type for `#[command(external_subcommand)]`, expected a `Vec<String>` or `Vec<OsString>`"
                     ),
                 };
 
