@@ -1,4 +1,4 @@
-error: Only one variant can be marked with `external_subcommand`, this is the second
+error: `#[command(external_subcommand)] can only be specified once and has already been specified
   --> tests/derive_ui/multiple_external_subcommand.rs:14:15
    |
 14 |     #[command(external_subcommand)]

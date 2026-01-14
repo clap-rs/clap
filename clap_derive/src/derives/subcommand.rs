@@ -51,7 +51,7 @@ pub(crate) fn gen_for_enum(
 ) -> Result<TokenStream, syn::Error> {
     if !matches!(&*item.kind(), Kind::Command(_)) {
         abort! { item.kind().span(),
-            "`{}` cannot be used with `command`",
+            "`{}` cannot be used with `#[command]`",
             item.kind().name(),
         }
     }
@@ -157,9 +157,7 @@ fn gen_augment(
 
                     _ => abort!(
                         variant,
-                        "The enum variant marked with `external_subcommand` must be \
-                             a single-typed tuple, and the type must be either `Vec<String>` \
-                             or `Vec<OsString>`."
+                        "invalid type for `#[command(external_subcommand)]`, expected a newtype variant with either a `Vec<String>` or `Vec<OsString>`"
                     ),
                 };
                 let deprecations = if !override_required {
@@ -170,8 +168,7 @@ fn gen_augment(
                 let subty = subty_if_name(ty, "Vec").ok_or_else(|| {
                     format_err!(
                         ty.span(),
-                        "The type must be `Vec<_>` \
-                             to be used with `external_subcommand`."
+                        "invalid type for `#[command(external_subcommand)]`, expected a `Vec<_>`"
                     )
                 })?;
                 let subcommand = quote_spanned! { kind.span()=>
@@ -213,7 +210,7 @@ fn gen_augment(
                 }
                 _ => abort!(
                     variant,
-                    "`flatten` is usable only with single-typed tuple variants"
+                    "invalid variant for `#[command(flatten)]`, expected a newtype variant"
                 ),
             },
 
@@ -221,7 +218,7 @@ fn gen_augment(
                 let subcommand_var = Ident::new("__clap_subcommand", Span::call_site());
                 let arg_block = match variant.fields {
                     Named(_) => {
-                        abort!(variant, "non single-typed tuple enums are not supported")
+                        abort!(variant, "invalid variant for `#[command(subcommand)]`, expected a newtype variant")
                     }
                     Unit => quote!( #subcommand_var ),
                     Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
@@ -241,7 +238,7 @@ fn gen_augment(
                         }
                     }
                     Unnamed(..) => {
-                        abort!(variant, "non single-typed tuple enums are not supported")
+                        abort!(variant, "invalid variant for `#[command(subcommand)]`, expected a newtype variant")
                     }
                 };
 
@@ -318,7 +315,7 @@ fn gen_augment(
                         }
                     }
                     Unnamed(..) => {
-                        abort!(variant, "non single-typed tuple enums are not supported")
+                        abort!(variant, "invalid variant for `#[command(subcommand)]`, expected a newtype variant")
                     }
                 };
 
@@ -401,7 +398,7 @@ fn gen_has_subcommand(variants: &[(&Variant, Item)]) -> Result<TokenStream, syn:
             }
             _ => abort!(
                 variant,
-                "`flatten` is usable only with single-typed tuple variants"
+                "invalid variant for `#[command(flatten)]`, expected newtype variant"
             ),
         })
         .collect::<Result<Vec<_>, syn::Error>>()?;
@@ -438,8 +435,7 @@ fn gen_from_arg_matches(variants: &[(&Variant, Item)]) -> Result<TokenStream, sy
                 if ext_subcmd.is_some() {
                     abort!(
                         item.kind().span(),
-                        "Only one variant can be marked with `external_subcommand`, \
-                         this is the second"
+                        "`#[command(external_subcommand)] can only be specified once and has already been specified"
                     );
                 }
 
@@ -448,9 +444,7 @@ fn gen_from_arg_matches(variants: &[(&Variant, Item)]) -> Result<TokenStream, sy
 
                     _ => abort!(
                         variant,
-                        "The enum variant marked with `external_subcommand` must be \
-                         a single-typed tuple, and the type must be either `Vec<String>` \
-                         or `Vec<OsString>`."
+                        "invalid type for `#[command(external_subcommand)]`, expected a newtype variant with either a `Vec<String>` or `Vec<OsString>`"
                     ),
                 };
 
@@ -463,16 +457,14 @@ fn gen_from_arg_matches(variants: &[(&Variant, Item)]) -> Result<TokenStream, sy
                         } else {
                             abort!(
                                 ty.span(),
-                                "The type must be either `Vec<String>` or `Vec<OsString>` \
-                                 to be used with `external_subcommand`."
+                                "invalid type for `#[command(external_subcommand)]`, expected a `Vec<String>` or `Vec<OsString>`"
                             );
                         }
                     }
 
                     None => abort!(
                         ty.span(),
-                        "The type must be either `Vec<String>` or `Vec<OsString>` \
-                         to be used with `external_subcommand`."
+                        "invalid type for `#[command(external_subcommand)]`, expected a `Vec<String>` or `Vec<OsString>`"
                     ),
                 };
 
@@ -528,7 +520,7 @@ fn gen_from_arg_matches(variants: &[(&Variant, Item)]) -> Result<TokenStream, sy
             }
             _ => abort!(
                 variant,
-                "`flatten` is usable only with single-typed tuple variants"
+                "invalid variant for `#[command(flatten)]`, expected newtype variant"
             ),
         }
     }).collect::<Result<Vec<_>, syn::Error>>()?;
@@ -646,7 +638,7 @@ fn gen_update_from_arg_matches(variants: &[(&Variant, Item)]) -> Result<TokenStr
             }
             _ => abort!(
                 variant,
-                "`flatten` is usable only with single-typed tuple variants"
+                "invalid variant for `#[command(flatten)]`, expected newtype variant"
             ),
         }
     }).collect::<Result<Vec<_>, _>>()?;

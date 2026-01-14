@@ -435,7 +435,7 @@ impl Item {
                 _ if attr.kind != expected_attr_kind => {
                     abort!(
                         attr.kind.span(),
-                        "Expected `{}` attribute instead of `{}`",
+                        "expected `{}` attribute instead of `{}`",
                         expected_attr_kind.as_str(),
                         actual_attr_kind.as_str()
                     );
@@ -1339,7 +1339,7 @@ fn assert_attr_kind(attr: &ClapAttr, possible_kind: &[AttrKind]) -> Result<(), s
             .collect::<Vec<_>>();
         abort!(
             attr.name,
-            "Unknown `#[{}({})]` attribute ({} exists)",
+            "unknown `#[{}({})]` attribute ({} exists)",
             attr.kind.as_str(),
             attr.name,
             options.join(", ")

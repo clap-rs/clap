@@ -1,4 +1,4 @@
-error: `flatten` is usable only with single-typed tuple variants
+error: invalid variant for `#[command(flatten)]`, expected newtype variant
   --> tests/derive_ui/enum_flatten.rs:14:5
    |
 14 | /     #[command(flatten)]
