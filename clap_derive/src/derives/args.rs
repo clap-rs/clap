@@ -527,7 +527,7 @@ pub(crate) fn gen_constructor(fields: &[(&Field, Item)]) -> Result<TokenStream, 
                     Ty::OptionVecVec => {
                         abort!(
                             ty.span(),
-                            "{} types are not supported for flatten",
+                            "`{}` is an invalid `#[command(flatten)]` type",
                             ty.as_str()
                         );
                     }

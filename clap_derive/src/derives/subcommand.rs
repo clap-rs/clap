@@ -210,7 +210,7 @@ fn gen_augment(
                 }
                 _ => abort!(
                     variant,
-                    "`flatten` is usable only with single-typed tuple variants"
+                    "invalid variant for `#[command(flatten)]`, expected a newtype variant"
                 ),
             },
 
@@ -218,7 +218,7 @@ fn gen_augment(
                 let subcommand_var = Ident::new("__clap_subcommand", Span::call_site());
                 let arg_block = match variant.fields {
                     Named(_) => {
-                        abort!(variant, "non single-typed tuple enums are not supported")
+                        abort!(variant, "invalid variant for `#[command(subcommand)]`, expected a newtype variant")
                     }
                     Unit => quote!( #subcommand_var ),
                     Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
@@ -238,7 +238,7 @@ fn gen_augment(
                         }
                     }
                     Unnamed(..) => {
-                        abort!(variant, "non single-typed tuple enums are not supported")
+                        abort!(variant, "invalid variant for `#[command(subcommand)]`, expected a newtype variant")
                     }
                 };
 
@@ -315,7 +315,7 @@ fn gen_augment(
                         }
                     }
                     Unnamed(..) => {
-                        abort!(variant, "non single-typed tuple enums are not supported")
+                        abort!(variant, "invalid variant for `#[command(subcommand)]`, expected a newtype variant")
                     }
                 };
 
@@ -398,7 +398,7 @@ fn gen_has_subcommand(variants: &[(&Variant, Item)]) -> Result<TokenStream, syn:
             }
             _ => abort!(
                 variant,
-                "`flatten` is usable only with single-typed tuple variants"
+                "invalid variant for `#[command(flatten)]`, expected newtype variant"
             ),
         })
         .collect::<Result<Vec<_>, syn::Error>>()?;
@@ -520,7 +520,7 @@ fn gen_from_arg_matches(variants: &[(&Variant, Item)]) -> Result<TokenStream, sy
             }
             _ => abort!(
                 variant,
-                "`flatten` is usable only with single-typed tuple variants"
+                "invalid variant for `#[command(flatten)]`, expected newtype variant"
             ),
         }
     }).collect::<Result<Vec<_>, syn::Error>>()?;
@@ -638,7 +638,7 @@ fn gen_update_from_arg_matches(variants: &[(&Variant, Item)]) -> Result<TokenStr
             }
             _ => abort!(
                 variant,
-                "`flatten` is usable only with single-typed tuple variants"
+                "invalid variant for `#[command(flatten)]`, expected newtype variant"
             ),
         }
     }).collect::<Result<Vec<_>, _>>()?;
