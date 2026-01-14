@@ -41,7 +41,7 @@ pub(crate) fn gen_for_enum(
 ) -> Result<TokenStream, syn::Error> {
     if !matches!(&*item.kind(), Kind::Value) {
         abort! { item.kind().span(),
-            "`{}` cannot be used with `value`",
+            "`{}` cannot be used with `#[value]`",
             item.kind().name(),
         }
     }

@@ -51,7 +51,7 @@ pub(crate) fn gen_for_enum(
 ) -> Result<TokenStream, syn::Error> {
     if !matches!(&*item.kind(), Kind::Command(_)) {
         abort! { item.kind().span(),
-            "`{}` cannot be used with `command`",
+            "`{}` cannot be used with `#[command]`",
             item.kind().name(),
         }
     }

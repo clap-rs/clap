@@ -63,7 +63,7 @@ pub(crate) fn gen_for_struct(
 ) -> Result<TokenStream, syn::Error> {
     if !matches!(&*item.kind(), Kind::Command(_)) {
         abort! { item.kind().span(),
-            "`{}` cannot be used with `command`",
+            "`{}` cannot be used with `#[command]`",
             item.kind().name(),
         }
     }
@@ -450,7 +450,7 @@ pub(crate) fn gen_constructor(fields: &[(&Field, Item)]) -> Result<TokenStream, 
             | Kind::Value
             | Kind::ExternalSubcommand => {
                 abort! { kind.span(),
-                    "`{}` cannot be used with `arg`",
+                    "`{}` cannot be used with `#[arg]`",
                     kind.name(),
                 }
             }
@@ -573,7 +573,7 @@ pub(crate) fn gen_updater(
         let genned = match &*kind {
             Kind::Command(_) | Kind::Value | Kind::ExternalSubcommand => {
                 abort! { kind.span(),
-                    "`{}` cannot be used with `arg`",
+                    "`{}` cannot be used with `#[arg]`",
                     kind.name(),
                 }
             }
