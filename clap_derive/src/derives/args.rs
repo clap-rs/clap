@@ -486,7 +486,7 @@ pub(crate) fn gen_constructor(fields: &[(&Field, Item)]) -> Result<TokenStream, 
                     Ty::OptionVecVec => {
                         abort!(
                             ty.span(),
-                            "{} types are not supported for subcommand",
+                            "`{}` is an invalid `#[command(subcommand)]` type",
                             ty.as_str()
                         );
                     }
