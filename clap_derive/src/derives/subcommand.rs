@@ -435,8 +435,7 @@ fn gen_from_arg_matches(variants: &[(&Variant, Item)]) -> Result<TokenStream, sy
                 if ext_subcmd.is_some() {
                     abort!(
                         item.kind().span(),
-                        "Only one variant can be marked with `external_subcommand`, \
-                         this is the second"
+                        "`#[command(external_subcommand)] can only be specified once and has already been specified"
                     );
                 }
 
