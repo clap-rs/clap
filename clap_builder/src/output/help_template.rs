@@ -806,7 +806,8 @@ impl HelpTemplate<'_, '_> {
                 .join(" ");
 
             spec_vals.push(format!(
-                "{ctx}[default: {ctx:#}{ctx_val}{dvs}{ctx_val:#}{ctx}]{ctx:#}"
+                "{ctx}[{}: {ctx:#}{ctx_val}{dvs}{ctx_val:#}{ctx}]{ctx:#}",
+                a.get_default_heading().unwrap_or("default")
             ));
         }
 
@@ -833,7 +834,8 @@ impl HelpTemplate<'_, '_> {
 
         if !als.is_empty() {
             let als = als.join(&val_sep);
-            spec_vals.push(format!("{ctx}[aliases: {ctx:#}{als}{ctx}]{ctx:#}"));
+            let help_heading = a.get_aliases_heading().unwrap_or("aliases");
+            spec_vals.push(format!("{ctx}[{help_heading}: {ctx:#}{als}{ctx}]{ctx:#}"));
         }
 
         if !a.is_hide_possible_values_set() && !self.use_long_pv(a) {
@@ -1042,7 +1044,10 @@ impl HelpTemplate<'_, '_> {
                 "HelpTemplate::spec_vals: Found long flag aliases...{:?}",
                 a.get_all_long_flag_aliases().collect::<Vec<_>>()
             );
-            spec_vals.push(format!("{ctx}[aliases: {ctx:#}{all_als}{ctx}]{ctx:#}"));
+            let help_heading = a.get_subcommand_aliases_heading().unwrap_or("aliases");
+            spec_vals.push(format!(
+                "{ctx}[{help_heading}: {ctx:#}{all_als}{ctx}]{ctx:#}",
+            ));
         }
 
         spec_vals.join(" ")
