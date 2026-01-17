@@ -23,7 +23,7 @@ pub(crate) fn description(roff: &mut Roff, cmd: &clap::Command) {
             if line.trim().is_empty() {
                 roff.control("PP", []);
             } else {
-                roff.text([roman(line)]);
+                roff.extend([anstyle_roff::to_roff(line)]);
             }
         }
     }
@@ -140,7 +140,7 @@ pub(crate) fn options(roff: &mut Roff, items: &[&Arg]) {
         let mut arg_help_written = false;
         if let Some(help) = option_help(opt) {
             arg_help_written = true;
-            body.push(roman(help.to_string()));
+            body.push(roman(help.ansi().to_string()));
         }
 
         roff.control("TP", []);
@@ -174,7 +174,7 @@ pub(crate) fn options(roff: &mut Roff, items: &[&Arg]) {
         let mut body = vec![];
         let mut arg_help_written = false;
         if let Some(help) = option_help(pos) {
-            body.push(roman(help.to_string()));
+            body.push(roman(help.ansi().to_string()));
             arg_help_written = true;
         }
 
@@ -229,7 +229,7 @@ pub(crate) fn subcommands(roff: &mut Roff, cmd: &clap::Command, section: &str) {
 
         if let Some(about) = sub.get_about().or_else(|| sub.get_long_about()) {
             for line in about.to_string().lines() {
-                roff.text([roman(line)]);
+                roff.extend([anstyle_roff::to_roff(line)]);
             }
         }
     }
@@ -247,7 +247,7 @@ pub(crate) fn version(cmd: &clap::Command) -> String {
 pub(crate) fn after_help(roff: &mut Roff, cmd: &clap::Command) {
     if let Some(about) = cmd.get_after_long_help().or_else(|| cmd.get_after_help()) {
         for line in about.to_string().lines() {
-            roff.text([roman(line)]);
+            roff.extend([anstyle_roff::to_roff(line)]);
         }
     }
 }
@@ -368,7 +368,8 @@ fn format_possible_values(possibles: &Vec<&clap::builder::PossibleValue>) -> Vec
         let val_name = value.get_name();
         match value.get_help() {
             Some(help) => {
-                roff.text([roman(format!("{val_name}: {help}"))]);
+                roff.text([roman(val_name.to_owned()), roman(": ")]);
+                roff.extend([anstyle_roff::to_roff(&help.to_string())]);
             }
             None => {
                 roff.text([roman(val_name.to_owned())]);
@@ -397,4 +398,18 @@ fn option_sort_key(arg: &Arg) -> (usize, String) {
         s
     };
     (arg.get_display_order(), key)
+}
+
+#[cfg(feature = "ansi")]
+fn style(s: &clap::StyledStr) -> Roff {
+    #[cfg(feature = "ansi")]
+    {
+        anstyle_roff::to_roff(&s.to_string())
+    }
+    #[cfg(not(feature = "ansi"))]
+    {
+        let mut roff = Roff::default();
+        roff.text([roman(s.to_string())]);
+        roff
+    }
 }
