@@ -1,7 +1,7 @@
 default_install_hook_types: ["pre-commit", "commit-msg"]
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
     - id: check-yaml
     - id: check-json
@@ -10,10 +10,10 @@ repos:
     - id: check-case-conflict
     - id: detect-private-key
   - repo: https://github.com/crate-ci/typos
-    rev: v1.41.0
+    rev: v1.42.1
     hooks:
     - id: typos
   - repo: https://github.com/crate-ci/committed
-    rev: v1.1.9
+    rev: v1.1.10
     hooks:
     - id: committed
