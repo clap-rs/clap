@@ -1,7 +1,11 @@
 error[E0277]: the trait bound `bool: ValueEnum` is not satisfied
  --> tests/derive_ui/bool_value_enum.rs:6:30
   |
-6 |     #[arg(short, value_enum, default_value_t)]
-  |                              ^^^^^^^^^^^^^^^ the trait `ValueEnum` is not implemented for `bool`
-  |
-  = help: the trait `ValueEnum` is implemented for `ColorChoice`
+ 6 |     #[arg(short, value_enum, default_value_t)]
+   |                              ^^^^^^^^^^^^^^^ the trait `ValueEnum` is not implemented for `bool`
+   |
+help: the trait `ValueEnum` is implemented for `ColorChoice`
+  --> clap_builder/src/util/color.rs
+   |
+   | impl ValueEnum for ColorChoice {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
