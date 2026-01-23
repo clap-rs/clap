@@ -274,10 +274,7 @@ impl<'s, F: Fn() -> clap::Command> CompleteEnv<'s, F> {
                         let _ = write!(&mut seed, "{prefix}`{name}`");
                         seed
                     });
-            std::io::Error::new(
-                std::io::ErrorKind::Other,
-                format!("unknown shell `{name}`, expected one of {shells}"),
-            )
+            std::io::Error::other(format!("unknown shell `{name}`, expected one of {shells}"))
         })?;
         Ok(shell)
     }

@@ -117,10 +117,7 @@ pub fn complete(
         }
     }
 
-    Err(std::io::Error::new(
-        std::io::ErrorKind::Other,
-        "no completion generated",
-    ))
+    Err(std::io::Error::other("no completion generated"))
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
