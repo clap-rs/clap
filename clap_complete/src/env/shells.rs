@@ -101,10 +101,11 @@ fi
 }
 
 /// Type of completion attempted that caused a completion function to be called
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Default, Copy, Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 enum CompType {
     /// Normal completion
+    #[default]
     Normal,
     /// List completions after successive tabs
     Successive,
@@ -128,12 +129,6 @@ impl FromStr for CompType {
             "37" => Ok(Self::Menu),
             _ => Err(format!("unsupported COMP_TYPE `{s}`")),
         }
-    }
-}
-
-impl Default for CompType {
-    fn default() -> Self {
-        Self::Normal
     }
 }
 
@@ -488,7 +483,7 @@ mod tests {
                 &mut buf,
             )
             .expect("write_registration failed");
-            return String::from_utf8(buf).expect("Invalid UTF-8");
+            String::from_utf8(buf).expect("Invalid UTF-8")
         };
 
         let script = get_fish_registration("completer");

@@ -1,14 +1,19 @@
 error[E0277]: the trait bound `SubCmd: clap::Args` is not satisfied
  --> tests/derive_ui/enum_variant_not_args.rs:3:9
   |
-3 |     Sub(SubCmd),
-  |         ^^^^^^ unsatisfied trait bound
-  |
+  3 |     Sub(SubCmd),
+    |         ^^^^^^ unsatisfied trait bound
+    |
 help: the trait `clap::Args` is not implemented for `SubCmd`
- --> tests/derive_ui/enum_variant_not_args.rs:7:1
-  |
-7 | enum SubCmd {}
-  | ^^^^^^^^^^^
-  = help: the following other types implement trait `clap::Args`:
-            ()
-            Box<T>
+   --> tests/derive_ui/enum_variant_not_args.rs:7:1
+    |
+  7 | enum SubCmd {}
+    | ^^^^^^^^^^^
+help: the following other types implement trait `clap::Args`
+   --> clap_builder/src/derive.rs
+    |
+    | impl<T: Args> Args for Box<T> {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `Box<T>`
+...
+    | impl Args for () {
+    | ^^^^^^^^^^^^^^^^ `()`
