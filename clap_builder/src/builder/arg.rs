@@ -2212,6 +2212,178 @@ impl Arg {
     pub fn env_os(self, name: impl Into<OsStr>) -> Self {
         self.env(name)
     }
+
+    /// Read from `names` environment variable when argument is not present.
+    ///
+    /// If it is not present in the environment, then default
+    /// rules will apply.
+    ///
+    /// If user sets the argument in the environment:
+    /// - When [`Arg::action(ArgAction::Set)`] is not set, the flag is considered raised.
+    /// - When [`Arg::action(ArgAction::Set)`] is set,
+    ///   [`ArgMatches::get_one`][crate::ArgMatches::get_one] will
+    ///   return value of the environment variable.
+    ///
+    /// If user doesn't set the argument in the environment:
+    /// - When [`Arg::action(ArgAction::Set)`] is not set, the flag is considered off.
+    /// - When [`Arg::action(ArgAction::Set)`] is set,
+    ///   [`ArgMatches::get_one`][crate::ArgMatches::get_one] will
+    ///   return the default specified.
+    ///
+    /// Like with command-line values, this will be split by [`Arg::value_delimiter`].
+    ///
+    /// # Examples
+    ///
+    /// In this example, we show the variable coming from the environment.
+    /// Note that because of the first `MY_FLAG` has a value, so the next environment variable is not valid again.
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use std::env;
+    /// # use clap::{Command, Arg, ArgAction};
+    ///
+    /// env::set_var("MY_FLAG", "one");
+    /// env::set_var("MY_SECOND_FLAG", "two");
+    ///
+    /// let m = Command::new("prog")
+    ///     .arg(Arg::new("flag")
+    ///         .long("flag")
+    ///         .envs(["MY_FLAG", "MY_SECOND_FLAG"])
+    ///         .action(ArgAction::Set))
+    ///     .get_matches_from(vec![
+    ///         "prog"
+    ///     ]);
+    ///
+    /// assert_eq!(m.get_one::<String>("flag").unwrap(), "one");
+    /// ```
+    ///
+    /// In this example, because `prog` is a flag that accepts an optional, case-insensitive
+    /// boolean literal.
+    ///
+    /// Note that the value parser controls how flags are parsed.  In this case we've selected
+    /// [`FalseyValueParser`][crate::builder::FalseyValueParser].  A `false` literal is `n`, `no`,
+    /// `f`, `false`, `off` or `0`.  An absent environment variable will also be considered as
+    /// `false`.  Anything else will considered as `true`.
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use std::env;
+    /// # use clap::{Command, Arg, ArgAction};
+    /// # use clap::builder::FalseyValueParser;
+    ///
+    /// env::set_var("TRUE_FLAG", "true");
+    /// env::set_var("FALSE_FLAG", "0");
+    ///
+    /// let m = Command::new("prog")
+    ///     .arg(Arg::new("true_flag")
+    ///         .long("true_flag")
+    ///         .action(ArgAction::SetTrue)
+    ///         .value_parser(FalseyValueParser::new())
+    ///         .envs(["TRUE_FLAG"]))
+    ///     .arg(Arg::new("false_flag")
+    ///         .long("false_flag")
+    ///         .action(ArgAction::SetTrue)
+    ///         .value_parser(FalseyValueParser::new())
+    ///         .envs(["FALSE_FLAG"]))
+    ///     .arg(Arg::new("absent_flag")
+    ///         .long("absent_flag")
+    ///         .action(ArgAction::SetTrue)
+    ///         .value_parser(FalseyValueParser::new())
+    ///         .envs(["ABSENT_FLAG"]))
+    ///     .get_matches_from(vec![
+    ///         "prog"
+    ///     ]);
+    ///
+    /// assert!(m.get_flag("true_flag"));
+    /// assert!(!m.get_flag("false_flag"));
+    /// assert!(!m.get_flag("absent_flag"));
+    /// ```
+    ///
+    /// In this example, we show the variable coming from an option on the CLI:
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use std::env;
+    /// # use clap::{Command, Arg, ArgAction};
+    ///
+    /// env::set_var("MY_FLAG", "env");
+    ///
+    /// let m = Command::new("prog")
+    ///     .arg(Arg::new("flag")
+    ///         .long("flag")
+    ///         .envs(["MY_FLAG"])
+    ///         .action(ArgAction::Set))
+    ///     .get_matches_from(vec![
+    ///         "prog", "--flag", "opt"
+    ///     ]);
+    ///
+    /// assert_eq!(m.get_one::<String>("flag").unwrap(), "opt");
+    /// ```
+    ///
+    /// In this example, we show the variable coming from the environment even with the
+    /// presence of a default:
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use std::env;
+    /// # use clap::{Command, Arg, ArgAction};
+    ///
+    /// env::set_var("MY_FLAG", "env");
+    ///
+    /// let m = Command::new("prog")
+    ///     .arg(Arg::new("flag")
+    ///         .long("flag")
+    ///         .envs(["MY_FLAG"])
+    ///         .action(ArgAction::Set)
+    ///         .default_value("default"))
+    ///     .get_matches_from(vec![
+    ///         "prog"
+    ///     ]);
+    ///
+    /// assert_eq!(m.get_one::<String>("flag").unwrap(), "env");
+    /// ```
+    ///
+    /// In this example, we show the use of multiple values in a single environment variable:
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use std::env;
+    /// # use clap::{Command, Arg, ArgAction};
+    ///
+    /// env::set_var("MY_FLAG_MULTI", "env1,env2");
+    ///
+    /// let m = Command::new("prog")
+    ///     .arg(Arg::new("flag")
+    ///         .long("flag")
+    ///         .envs(["MY_FLAG_MULTI"])
+    ///         .action(ArgAction::Set)
+    ///         .num_args(1..)
+    ///         .value_delimiter(','))
+    ///     .get_matches_from(vec![
+    ///         "prog"
+    ///     ]);
+    ///
+    /// assert_eq!(m.get_many::<String>("flag").unwrap().collect::<Vec<_>>(), vec!["env1", "env2"]);
+    /// ```
+    /// [`Arg::action(ArgAction::Set)`]: Arg::action()
+    /// [`Arg::value_delimiter(',')`]: Arg::value_delimiter()
+    #[cfg(feature = "env")]
+    #[inline]
+    #[must_use]
+    pub fn envs(mut self, names: impl IntoIterator<Item = impl Into<OsStr>>) -> Self {
+        for name in names {
+            if let Some(name) = name.into_resettable().into_option() {
+                if let Some(value) = env::var_os(&name) {
+                    self.env = Some((name, Some(value)));
+                    break;
+                }
+            } else {
+                self.env = None;
+                break;
+            }
+        }
+        self
+    }
 }
 
 /// # Help
