@@ -39,6 +39,11 @@ jobs:
       run: "git remote add template ${{ env.TEMPLATE_URL }} && git fetch template ${{ env.TEMPLATE_BRANCH }}"
     - name: Merge template
       run: "git checkout -b template-update && git merge template/${{ env.TEMPLATE_BRANCH }} -m 'chore: Update from template'"
+    - name: Clear any existing branch
+      run: "git push origin --delete template-update"
+      continue-on-error: true
+      env:
+        GH_TOKEN: ${{ github.token }}
     - name: Push branch
       run: "git push --set-upstream origin template-update"
       env:
