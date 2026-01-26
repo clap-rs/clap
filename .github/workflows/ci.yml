@@ -132,7 +132,7 @@ jobs:
         components: rustfmt
     - uses: Swatinem/rust-cache@v2
     - name: Check formatting
-      run: cargo fmt --all -- --check
+      run: cargo fmt --check
   clippy:
     name: clippy
     runs-on: ubuntu-latest
