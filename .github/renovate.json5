@@ -6,6 +6,9 @@
   commitMessageLowerCase: 'never',
   configMigration: true,
   dependencyDashboard: true,
+  "pre-commit": {
+    enabled: true
+  },
   customManagers: [
     {
       customType: 'regex',
@@ -27,6 +30,18 @@
       packageNameTemplate: 'rust-lang/rust',
       datasourceTemplate: 'github-releases',
     },
+    {
+      customType: 'regex',
+      managerFilePatterns: [
+        '/^\\.github/workflows/pre-commit.yml$/',
+      ],
+      matchStrings: [
+        'prek-version.*?(?<currentValue>\\d+\\.\\d+(\\.\\d+)?)',
+      ],
+      depNameTemplate: 'prek',
+      packageNameTemplate: 'j178/prek',
+      datasourceTemplate: 'github-releases',
+    },
   ],
   packageRules: [
     {
@@ -38,6 +53,20 @@
         'STABLE',
       ],
       extractVersion: '^(?<version>\\d+\\.\\d+)',  // Drop the patch version
+      schedule: [
+        '* * * * *',
+      ],
+      automerge: true,
+    },
+    {
+      commitMessageTopic: 'Prek',
+      matchManagers: [
+        'custom.regex',
+      ],
+      matchDepNames: [
+        'prek',
+      ],
+      extractVersion: '^(?<version>\\d+\\.\\d+\\.\\d+)',
       schedule: [
         '* * * * *',
       ],

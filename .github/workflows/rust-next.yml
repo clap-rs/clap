@@ -93,6 +93,8 @@ jobs:
           rust: "stable"
           features: "full"
     runs-on: ${{ matrix.os }}
+    env:
+      CARGO_RESOLVER_INCOMPATIBLE_RUST_VERSIONS: allow
     steps:
     - name: Checkout repository
       uses: actions/checkout@v6
