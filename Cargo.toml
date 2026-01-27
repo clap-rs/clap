@@ -108,7 +108,7 @@ lto = true
 
 [package]
 name = "clap"
-version = "4.5.54"
+version = "4.5.55"
 description = "A simple to use, efficient, and full-featured Command Line Argument Parser"
 categories = ["command-line-interface"]
 keywords = [
@@ -185,8 +185,8 @@ unstable-markdown = ["clap_derive/unstable-markdown"]
 bench = false
 
 [dependencies]
-clap_builder = { path = "./clap_builder", version = "=4.5.54", default-features = false }
-clap_derive = { path = "./clap_derive", version = "=4.5.49", optional = true }
+clap_builder = { path = "./clap_builder", version = "=4.5.55", default-features = false }
+clap_derive = { path = "./clap_derive", version = "=4.5.55", optional = true }
 
 [dev-dependencies]
 trybuild = "1.0.91"
