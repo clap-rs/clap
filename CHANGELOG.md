@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Fix inconsistency in precedence between positionals with a `value_terminator("--")` and escapes (`--`) where `./foo -- bar` means the first arg is empty, rather than escaping future args
+
 ## [4.5.54] - 2026-01-02
 
 ### Fixes
