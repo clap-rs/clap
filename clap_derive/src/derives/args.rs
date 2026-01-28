@@ -172,6 +172,25 @@ pub(crate) fn gen_augment(
     parent_item: &Item,
     override_required: bool,
 ) -> Result<TokenStream, syn::Error> {
+    gen_augment_with_defer(
+        fields,
+        app_var,
+        parent_item,
+        override_required,
+        parent_item.defer(),
+    )
+}
+
+/// Generate a block of code to add arguments/subcommands corresponding to
+/// the `fields` to an cmd with explicit control over whether to defer args
+/// evaluation.
+pub(crate) fn gen_augment_with_defer(
+    fields: &[(&Field, Item)],
+    app_var: &Ident,
+    parent_item: &Item,
+    override_required: bool,
+    defer: bool,
+) -> Result<TokenStream, syn::Error> {
     let mut subcommand_specified = false;
     let mut args = Vec::new();
     for (field, item) in fields {
@@ -429,14 +448,26 @@ pub(crate) fn gen_augment(
             )
         )
     };
+    let args_init = if defer {
+        quote! {
+            #app_var.defer(|#app_var| {
+                #( #args )*
+                #app_var
+            }) #final_app_methods
+        }
+    } else {
+        quote! {
+            #( #args )*
+            #app_var #final_app_methods
+        }
+    };
     Ok(quote! {{
         #deprecations
         let #app_var = #app_var
             #initial_app_methods
             #group_app_methods
             ;
-        #( #args )*
-        #app_var #final_app_methods
+        #args_init
     }})
 }
 

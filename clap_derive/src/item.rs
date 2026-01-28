@@ -50,6 +50,7 @@ pub(crate) struct Item {
     group_id: Name,
     group_methods: Vec<Method>,
     kind: Sp<Kind>,
+    defer: bool,
 }
 
 impl Item {
@@ -279,6 +280,7 @@ impl Item {
             group_id,
             group_methods: vec![],
             kind,
+            defer: cfg!(feature = "unstable-v5"),
         }
     }
 
@@ -863,6 +865,23 @@ impl Item {
                     abort!(expr, "attribute `{}` does not accept a value", attr.name);
                 }
 
+                Some(MagicAttrName::Defer) => {
+                    assert_attr_kind(attr, &[AttrKind::Command])?;
+
+                    if !matches!(&*self.kind, Kind::Command(_)) {
+                        abort!(
+                            attr.name.span(),
+                            "`#[command(defer)]` can only be used on top-level structs and enums"
+                        );
+                    }
+
+                    self.defer = if attr.value.is_some() {
+                        attr.lit_bool_or_abort()?
+                    } else {
+                        true
+                    };
+                }
+
                 // Kinds
                 Some(MagicAttrName::FromGlobal)
                 | Some(MagicAttrName::Subcommand)
@@ -1089,6 +1108,10 @@ impl Item {
 
     pub(crate) fn skip_group(&self) -> bool {
         self.skip_group
+    }
+
+    pub(crate) fn defer(&self) -> bool {
+        self.defer
     }
 }
 

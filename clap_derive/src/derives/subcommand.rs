@@ -258,6 +258,9 @@ fn gen_augment(
                 } else {
                     quote!()
                 };
+                // Note: Kind::Subcommand contains augment_subcommands calls which register
+                // nested subcommands. We should NOT defer this - defer only applies to .arg() calls.
+                // The nested subcommand's own defer setting will handle deferring its args.
                 let subcommand = quote! {
                     let #app_var = #app_var.subcommand({
                         #deprecations;
@@ -279,7 +282,13 @@ fn gen_augment(
                     Named(ref fields) => {
                         // Defer to `gen_augment` for adding cmd methods
                         let fields = collect_args_fields(item, fields)?;
-                        args::gen_augment(&fields, &subcommand_var, item, override_required)?
+                        args::gen_augment_with_defer(
+                            &fields,
+                            &subcommand_var,
+                            item,
+                            override_required,
+                            parent_item.defer(),
+                        )?
                     }
                     Unit => {
                         let arg_block = quote!( #subcommand_var );
