@@ -69,6 +69,12 @@ pub fn complete(
             (next_state, pos_index) =
                 parse_positional(current_cmd, pos_index, is_escaped, current_state);
         } else if arg.is_escape() {
+            if let ParseState::Opt((opt, count)) = current_state {
+                if opt.is_allow_hyphen_values_set() && opt.is_allow_dash_dash_as_value_set() {
+                    next_state = parse_opt_value(opt, count);
+                    continue;
+                }
+            }
             is_escaped = true;
         } else if opt_allows_hyphen(&current_state, &arg) {
             match current_state {
