@@ -189,3 +189,10 @@ fn default_subcmd_order() {
         cmd,
     );
 }
+
+#[test]
+fn styled() {
+    let name = "my-app";
+    let cmd = common::styled(name);
+    common::assert_matches(snapbox::file!["../snapshots/styled.bash.roff"], cmd);
+}
