@@ -389,7 +389,7 @@ impl HelpTemplate<'_, '_> {
             .collect::<Vec<_>>();
         let subcmds = self.cmd.has_visible_subcommands();
 
-        let custom_headings = self
+        let custom_arg_headings = self
             .cmd
             .get_arguments()
             .filter_map(|arg| arg.get_help_heading())
@@ -434,8 +434,8 @@ impl HelpTemplate<'_, '_> {
             let _ = write!(self.writer, "{header}{help_heading}:{header:#}\n",);
             self.write_args(&non_pos, "Options", option_sort_key);
         }
-        if !custom_headings.is_empty() {
-            for heading in custom_headings {
+        if !custom_arg_headings.is_empty() {
+            for heading in custom_arg_headings {
                 let args = self
                     .cmd
                     .get_arguments()
@@ -882,8 +882,6 @@ impl HelpTemplate<'_, '_> {
             cmd.get_name(),
             *first
         );
-        use std::fmt::Write as _;
-        let header = &self.styles.get_header();
 
         let mut ord_v = BTreeMap::new();
         for subcommand in cmd
@@ -895,44 +893,95 @@ impl HelpTemplate<'_, '_> {
                 subcommand,
             );
         }
-        for (_, subcommand) in ord_v {
-            if !*first {
-                self.writer.push_str("\n\n");
-            }
-            *first = false;
 
-            let heading = subcommand.get_usage_name_fallback();
-            let about = subcommand
-                .get_about()
-                .or_else(|| subcommand.get_long_about())
-                .unwrap_or_default();
+        let custom_sc_headings = self.cmd.get_subcommand_custom_help_headings();
 
-            let _ = write!(self.writer, "{header}{heading}:{header:#}",);
-            if !about.is_empty() {
-                let _ = write!(self.writer, "\n{about}",);
-            }
+        // Commands under default heading
+        self.write_flat_subcommands_under_heading(&ord_v, None, first, false);
 
-            let args = subcommand
-                .get_arguments()
-                .filter(|arg| should_show_arg(self.use_long, arg) && !arg.is_global_set())
-                .collect::<Vec<_>>();
-            if !args.is_empty() {
-                self.writer.push_str("\n");
-            }
+        // Commands under custom headings
+        for heading in custom_sc_headings {
+            self.write_flat_subcommands_under_heading(&ord_v, Some(heading), first, false);
+        }
 
-            let mut sub_help = HelpTemplate {
-                writer: self.writer,
-                cmd: subcommand,
-                styles: self.styles,
-                usage: self.usage,
-                next_line_help: self.next_line_help,
-                term_w: self.term_w,
-                use_long: self.use_long,
-            };
-            sub_help.write_args(&args, heading, option_sort_key);
-            if subcommand.is_flatten_help_set() {
-                sub_help.write_flat_subcommands(subcommand, first);
-            }
+        // Help command
+        self.write_flat_subcommands_under_heading(&ord_v, None, first, true);
+    }
+
+    fn write_flat_subcommands_under_heading(
+        &mut self,
+        ord_v: &BTreeMap<(usize, &str), &Command>,
+        heading: Option<&str>,
+        first: &mut bool,
+        include_help: bool,
+    ) {
+        debug!("help_template::write subcommand under heading: `{heading:?}`");
+        // If a custom heading is set ignore the include help flag
+        let bt: Vec<(&(usize, &str), &&Command)> = if heading.is_some() {
+            ord_v
+                .iter()
+                .filter(|item| item.1.get_help_heading() == heading)
+                .collect()
+        } else {
+            ord_v
+                .iter()
+                .filter(|item| item.1.get_help_heading() == heading)
+                .filter(|item| {
+                    if include_help {
+                        item.1.get_name() == "help"
+                    } else {
+                        item.1.get_name() != "help"
+                    }
+                })
+                .collect()
+        };
+
+        for (_, subcommand) in bt {
+            self.write_flat_subcommand(subcommand, first);
+        }
+    }
+
+    fn write_flat_subcommand(&mut self, subcommand: &Command, first: &mut bool) {
+        use std::fmt::Write as _;
+        let header = &self.styles.get_header();
+
+        if !*first {
+            self.writer.push_str("\n\n");
+        }
+
+        *first = false;
+
+        let heading = subcommand.get_usage_name_fallback();
+        let about = subcommand
+            .get_about()
+            .or_else(|| subcommand.get_long_about())
+            .unwrap_or_default();
+
+        let _ = write!(self.writer, "{header}{heading}:{header:#}",);
+        if !about.is_empty() {
+            let _ = write!(self.writer, "\n{about}",);
+        }
+
+        let args = subcommand
+            .get_arguments()
+            .filter(|arg| should_show_arg(self.use_long, arg) && !arg.is_global_set())
+            .collect::<Vec<_>>();
+        if !args.is_empty() {
+            self.writer.push_str("\n");
+        }
+
+        let mut sub_help = HelpTemplate {
+            writer: self.writer,
+            cmd: subcommand,
+            styles: self.styles,
+            usage: self.usage,
+            next_line_help: self.next_line_help,
+            term_w: self.term_w,
+            use_long: self.use_long,
+        };
+        sub_help.write_args(&args, heading, option_sort_key);
+        if subcommand.is_flatten_help_set() {
+            sub_help.write_flat_subcommands(subcommand, first);
         }
     }
 
@@ -966,7 +1015,39 @@ impl HelpTemplate<'_, '_> {
 
         let next_line_help = self.will_subcommands_wrap(cmd.get_subcommands(), longest);
 
-        for (i, (sc_str, sc)) in ord_v.into_iter().enumerate() {
+        let custom_sc_headings = self.cmd.get_subcommand_custom_help_headings();
+
+        // User commands without heading
+        self.write_subcommands_under_heading(&ord_v, None, next_line_help, longest);
+
+        // User commands with heading
+        for heading in custom_sc_headings {
+            self.write_subcommands_under_heading(&ord_v, Some(heading), next_line_help, longest);
+        }
+    }
+
+    fn write_subcommands_under_heading(
+        &mut self,
+        ord_v: &BTreeMap<(usize, StyledStr), &Command>,
+        heading: Option<&str>,
+        next_line_help: bool,
+        longest: usize,
+    ) {
+        debug!("help_template::write subcommand under heading: `{heading:?}`");
+        use std::fmt::Write as _;
+        let header = &self.styles.get_header();
+
+        if let Some(heading) = heading {
+            self.writer.push_str("\n\n");
+            let _ = write!(self.writer, "{header}{heading}:{header:#}\n",);
+        }
+
+        for (i, (sc_str, sc)) in ord_v
+            .clone()
+            .into_iter()
+            .filter(|item| item.1.get_help_heading() == heading)
+            .enumerate()
+        {
             if 0 < i {
                 self.writer.push_str("\n");
             }
