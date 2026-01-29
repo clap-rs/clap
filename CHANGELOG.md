@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- On conflict error, don't show conflicting arguments in the usage
+
 ## [4.5.55] - 2026-01-27
 
 ### Fixes
