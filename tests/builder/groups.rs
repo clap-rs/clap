@@ -217,6 +217,31 @@ For more information, try '--help'.
 }
 
 #[test]
+fn conflict_with_group() {
+    let cmd = Command::new("prog")
+        .group(ArgGroup::new("group").multiple(true))
+        .arg(arg!(--a).group("group"))
+        .arg(arg!(--b).group("group"))
+        .arg(arg!(--conflict).conflicts_with("group"));
+
+    utils::assert_output(
+        cmd,
+        "prog --a --conflict",
+        str![[r#"
+error: the argument '--conflict' cannot be used with:
+  --a
+  --b
+
+Usage: prog --a --conflict
+
+For more information, try '--help'.
+
+"#]],
+        true,
+    );
+}
+
+#[test]
 fn required_group_multiple_args() {
     let result = Command::new("group")
         .arg(arg!(-f --flag "some flag").action(ArgAction::SetTrue))
