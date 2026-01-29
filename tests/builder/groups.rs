@@ -232,7 +232,7 @@ error: the argument '--conflict' cannot be used with:
   --a
   --b
 
-Usage: prog --a --conflict
+Usage: prog --conflict
 
 For more information, try '--help'.
 
