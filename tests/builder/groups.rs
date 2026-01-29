@@ -1,4 +1,5 @@
 use clap::{arg, error::ErrorKind, Arg, ArgAction, ArgGroup, Command, Id};
+use snapbox::str;
 
 use super::utils;
 
@@ -131,14 +132,6 @@ fn empty_group() {
 #[test]
 #[cfg(feature = "error-context")]
 fn req_group_usage_string() {
-    static REQ_GROUP_USAGE: &str = "error: the following required arguments were not provided:
-  <base|--delete>
-
-Usage: clap-test <base|--delete>
-
-For more information, try '--help'.
-";
-
     let cmd = Command::new("req_group")
         .arg(arg!([base] "Base commit"))
         .arg(arg!(
@@ -150,20 +143,25 @@ For more information, try '--help'.
                 .required(true),
         );
 
-    utils::assert_output(cmd, "clap-test", REQ_GROUP_USAGE, true);
+    utils::assert_output(
+        cmd,
+        "clap-test",
+        str![[r#"
+error: the following required arguments were not provided:
+  <base|--delete>
+
+Usage: clap-test <base|--delete>
+
+For more information, try '--help'.
+
+"#]],
+        true,
+    );
 }
 
 #[test]
 #[cfg(feature = "error-context")]
 fn req_group_with_conflict_usage_string() {
-    static REQ_GROUP_CONFLICT_USAGE: &str = "\
-error: the argument '--delete' cannot be used with '[base]'
-
-Usage: clap-test <base|--delete>
-
-For more information, try '--help'.
-";
-
     let cmd = Command::new("req_group")
         .arg(arg!([base] "Base commit").conflicts_with("delete"))
         .arg(arg!(
@@ -178,7 +176,14 @@ For more information, try '--help'.
     utils::assert_output(
         cmd,
         "clap-test --delete base",
-        REQ_GROUP_CONFLICT_USAGE,
+        str![[r#"
+error: the argument '--delete' cannot be used with '[base]'
+
+Usage: clap-test <base|--delete>
+
+For more information, try '--help'.
+
+"#]],
         true,
     );
 }
@@ -186,14 +191,6 @@ For more information, try '--help'.
 #[test]
 #[cfg(feature = "error-context")]
 fn req_group_with_conflict_usage_string_only_options() {
-    static REQ_GROUP_CONFLICT_ONLY_OPTIONS: &str = "\
-error: the argument '--delete' cannot be used with '--all'
-
-Usage: clap-test <--all|--delete>
-
-For more information, try '--help'.
-";
-
     let cmd = Command::new("req_group")
         .arg(arg!(-a --all "All").conflicts_with("delete"))
         .arg(arg!(
@@ -207,7 +204,14 @@ For more information, try '--help'.
     utils::assert_output(
         cmd,
         "clap-test --delete --all",
-        REQ_GROUP_CONFLICT_ONLY_OPTIONS,
+        str![[r#"
+error: the argument '--delete' cannot be used with '--all'
+
+Usage: clap-test <--all|--delete>
+
+For more information, try '--help'.
+
+"#]],
         true,
     );
 }
@@ -264,7 +268,13 @@ fn group_overrides_required() {
 
 #[test]
 fn group_usage_use_val_name() {
-    static GROUP_USAGE_USE_VAL_NAME: &str = "\
+    let cmd = Command::new("prog")
+        .arg(Arg::new("a").value_name("A"))
+        .group(ArgGroup::new("group").arg("a").required(true));
+    utils::assert_output(
+        cmd,
+        "prog --help",
+        str![[r#"
 Usage: prog <A>
 
 Arguments:
@@ -272,11 +282,10 @@ Arguments:
 
 Options:
   -h, --help  Print help
-";
-    let cmd = Command::new("prog")
-        .arg(Arg::new("a").value_name("A"))
-        .group(ArgGroup::new("group").arg("a").required(true));
-    utils::assert_output(cmd, "prog --help", GROUP_USAGE_USE_VAL_NAME, false);
+
+"#]],
+        false,
+    );
 }
 
 #[test]
@@ -304,34 +313,29 @@ fn group_acts_like_arg() {
 
 #[test]
 fn conflict_with_overlapping_group_in_error() {
-    static ERR: &str = "\
-error: the argument '--major' cannot be used with '--minor'
-
-Usage: prog --major
-
-For more information, try '--help'.
-";
-
     let cmd = Command::new("prog")
         .group(ArgGroup::new("all").multiple(true))
         .arg(arg!(--major).group("vers").group("all"))
         .arg(arg!(--minor).group("vers").group("all"))
         .arg(arg!(--other).group("all"));
 
-    utils::assert_output(cmd, "prog --major --minor", ERR, true);
+    utils::assert_output(
+        cmd,
+        "prog --major --minor",
+        str![[r#"
+error: the argument '--major' cannot be used with '--minor'
+
+Usage: prog --major
+
+For more information, try '--help'.
+
+"#]],
+        true,
+    );
 }
 
 #[test]
 fn requires_group_with_overlapping_group_in_error() {
-    static ERR: &str = "\
-error: the following required arguments were not provided:
-  <--in|--spec>
-
-Usage: prog --config <--in|--spec>
-
-For more information, try '--help'.
-";
-
     let cmd = Command::new("prog")
         .group(ArgGroup::new("all").multiple(true))
         .group(ArgGroup::new("input").required(true))
@@ -339,7 +343,20 @@ For more information, try '--help'.
         .arg(arg!(--spec).group("input").group("all"))
         .arg(arg!(--config).requires("input").group("all"));
 
-    utils::assert_output(cmd, "prog --config", ERR, true);
+    utils::assert_output(
+        cmd,
+        "prog --config",
+        str![[r#"
+error: the following required arguments were not provided:
+  <--in|--spec>
+
+Usage: prog --config <--in|--spec>
+
+For more information, try '--help'.
+
+"#]],
+        true,
+    );
 }
 
 /* This is used to be fixed in a hack, we need to find a better way to fix it.
