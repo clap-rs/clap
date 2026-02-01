@@ -15,7 +15,7 @@ repos:
     - id: check-case-conflict
     - id: detect-private-key
   - repo: https://github.com/crate-ci/typos
-    rev: v1.42.1
+    rev: v1.42.3
     hooks:
     - id: typos
   - repo: https://github.com/crate-ci/committed
