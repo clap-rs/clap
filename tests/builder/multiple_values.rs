@@ -1560,28 +1560,99 @@ fn multiple_value_terminator_option() {
 }
 
 #[test]
-fn all_multiple_value_terminator() {
-    let m = Command::new("lip")
+fn multiple_value_terminator_positional() {
+    let mut cmd = Command::new("lip")
         .arg(
             Arg::new("files")
                 .value_terminator(";")
                 .action(ArgAction::Set)
                 .num_args(0..),
         )
-        .arg(Arg::new("other").num_args(0..))
-        .try_get_matches_from(vec!["test", "value", ";"]);
+        .arg(Arg::new("other"))
+        .arg(Arg::new("stop").short('X').action(ArgAction::SetTrue));
 
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
+    // Terminated
+    let m = cmd.try_get_matches_from_mut(vec!["lip", ";", "otherval"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
+    assert!(!m.contains_id("files"));
+    assert!(m.contains_id("other"));
+    assert!(!m.get_flag("stop"));
+    assert_eq!(
+        m.get_one::<String>("other").map(|v| v.as_str()),
+        Some("otherval")
+    );
 
+    let m = cmd.try_get_matches_from_mut(vec!["lip", "val1", "val2", ";", "otherval"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    let m = m.unwrap();
     assert!(m.contains_id("files"));
-    assert!(!m.contains_id("other"));
+    assert!(m.contains_id("other"));
+    assert!(!m.get_flag("stop"));
     assert_eq!(
         m.get_many::<String>("files")
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        ["value".to_owned()],
+        ["val1", "val2"]
+    );
+    assert_eq!(
+        m.get_one::<String>("other").map(|v| v.as_str()),
+        Some("otherval")
+    );
+
+    // Unterminated
+    let m = cmd.try_get_matches_from_mut(vec!["lip"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    let m = m.unwrap();
+    assert!(!m.contains_id("files"));
+    assert!(!m.contains_id("other"));
+    assert!(!m.get_flag("stop"));
+
+    let m = cmd.try_get_matches_from_mut(vec!["lip", "val1", "val2"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    let m = m.unwrap();
+    assert!(m.contains_id("files"));
+    assert!(!m.contains_id("other"));
+    assert!(!m.get_flag("stop"));
+    assert_eq!(
+        m.get_many::<String>("files")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["val1", "val2"]
+    );
+
+    // Terminated by flag
+    let m = cmd.try_get_matches_from_mut(vec!["lip", "-X", "otherval"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    let m = m.unwrap();
+    assert!(m.contains_id("files"));
+    assert!(!m.contains_id("other"));
+    assert!(m.get_flag("stop"));
+    assert_eq!(
+        m.get_many::<String>("files")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["otherval"]
+    );
+
+    let m = cmd.try_get_matches_from_mut(vec!["lip", "val1", "val2", "-X", "otherval"]);
+    assert!(m.is_err());
+    let err = m.unwrap_err();
+    utils::assert_error(
+        err,
+        ErrorKind::ArgumentConflict,
+        str![[r#"
+error: the argument '[files]...' cannot be used multiple times
+
+Usage: lip [OPTIONS] [files]... [other]
+
+For more information, try '--help'.
+
+"#]],
+        true,
     );
 }
 
