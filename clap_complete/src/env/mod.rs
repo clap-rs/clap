@@ -47,7 +47,7 @@
 //!
 //! **Fish**
 //! ```fish
-//! echo "COMPLETE=fish your_program | source" >> ~/.config/fish/config.fish
+//! echo "COMPLETE=fish your_program | source" >> ~/.config/fish/completions/your_program.fish
 //! ```
 //!
 //! **Powershell**
