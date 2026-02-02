@@ -1783,6 +1783,72 @@ fn value_terminator_has_higher_precedence_than_allow_hyphen_values() {
 }
 
 #[test]
+fn escape_like_value_terminator() {
+    let mut cmd = Command::new("do")
+        .arg(
+            Arg::new("cmd1")
+                .action(ArgAction::Set)
+                .num_args(1..)
+                .value_terminator("--"),
+        )
+        .arg(Arg::new("cmd2").action(ArgAction::Set).num_args(1..));
+
+    let res = cmd.try_get_matches_from_mut(vec!["do"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert!(!m.contains_id("cmd1"));
+    assert!(!m.contains_id("cmd2"));
+
+    let res = cmd.try_get_matches_from_mut(vec!["do", "--"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert!(!m.contains_id("cmd1"));
+    assert!(!m.contains_id("cmd2"));
+
+    let res = cmd.try_get_matches_from_mut(vec!["do", "--", "after"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert!(!m.contains_id("cmd1"));
+    assert_eq!(
+        m.get_many::<String>("cmd2")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["after"]
+    );
+
+    let res = cmd.try_get_matches_from_mut(vec!["do", "before", "--"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert_eq!(
+        m.get_many::<String>("cmd1")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["before"]
+    );
+    assert!(!m.contains_id("cmd2"));
+
+    let res = cmd.try_get_matches_from_mut(vec!["do", "before", "--", "after"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert_eq!(
+        m.get_many::<String>("cmd1")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["before"]
+    );
+    assert_eq!(
+        m.get_many::<String>("cmd2")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["after"]
+    );
+}
+
+#[test]
 fn escape_like_value_terminator_and_allow_hyphen_values() {
     let mut cmd = Command::new("do")
         .arg(
