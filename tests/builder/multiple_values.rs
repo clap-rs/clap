@@ -1971,13 +1971,13 @@ fn escape_like_value_terminator_and_last() {
     assert!(!m.contains_id("cmd1"));
     assert!(!m.contains_id("cmd2"));
 
-    let res = cmd.try_get_matches_from_mut(vec!["do", "--", "--"]);
+    let res = cmd.try_get_matches_from_mut(vec!["do", "--"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(!m.contains_id("cmd1"));
     assert!(!m.contains_id("cmd2"));
 
-    let res = cmd.try_get_matches_from_mut(vec!["do", "--", "--", "after"]);
+    let res = cmd.try_get_matches_from_mut(vec!["do", "--", "after"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert!(!m.contains_id("cmd1"));
@@ -1989,7 +1989,7 @@ fn escape_like_value_terminator_and_last() {
         ["after"]
     );
 
-    let res = cmd.try_get_matches_from_mut(vec!["do", "before", "--", "--"]);
+    let res = cmd.try_get_matches_from_mut(vec!["do", "before", "--"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert_eq!(
@@ -2001,7 +2001,7 @@ fn escape_like_value_terminator_and_last() {
     );
     assert!(!m.contains_id("cmd2"));
 
-    let res = cmd.try_get_matches_from_mut(vec!["do", "before", "--", "--", "after"]);
+    let res = cmd.try_get_matches_from_mut(vec!["do", "before", "--", "after"]);
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
     assert_eq!(
