@@ -17,7 +17,7 @@ jobs:
         build: [linux]
         include:
         - build: linux
-          os: buildjet-8vcpu-ubuntu-2204
+          os: ubuntu-latest
     runs-on: "${{ matrix.os }}"
     steps:
     - name: Checkout repository

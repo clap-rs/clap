@@ -37,7 +37,7 @@ jobs:
         build: [linux, windows, mac, minimal, default, next]
         include:
         - build: linux
-          os: buildjet-8vcpu-ubuntu-2204
+          os: ubuntu-latest
           rust: "stable"
           features: "full"
         - build: windows
@@ -49,15 +49,15 @@ jobs:
           rust: "stable"
           features: "full"
         - build: minimal
-          os: buildjet-8vcpu-ubuntu-2204
+          os: ubuntu-latest
           rust: "stable"
           features: "minimal"
         - build: default
-          os: buildjet-8vcpu-ubuntu-2204
+          os: ubuntu-latest
           rust: "stable"
           features: "default"
         - build: next
-          os: buildjet-8vcpu-ubuntu-2204
+          os: ubuntu-latest
           rust: "stable"
           features: "next"
     continue-on-error: ${{ matrix.rust != 'stable' }}
@@ -86,7 +86,7 @@ jobs:
       run: cargo test -p clap_complete -F unstable-dynamic
   shell-integration:
     name: Shell Integration
-    runs-on: buildjet-8vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
       uses: actions/checkout@v6
@@ -102,7 +102,7 @@ jobs:
       run: cargo test -p clap_complete -F unstable-dynamic -F unstable-shell-tests
   shell-integration-nu:
     name: Nushell Integration
-    runs-on: buildjet-8vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
       uses: actions/checkout@v6
