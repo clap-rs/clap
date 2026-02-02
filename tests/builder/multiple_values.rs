@@ -180,14 +180,19 @@ fn option_exact_less() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    utils::assert_error(err, ErrorKind::WrongNumberOfValues, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::WrongNumberOfValues,
+        str![[r#"
 error: 3 values required for '-o <option> <option> <option>' but 1 was provided
 
 Usage: multiple_values [OPTIONS]
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 }
 
 #[test]
@@ -207,14 +212,19 @@ fn option_exact_more() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    utils::assert_error(err, ErrorKind::WrongNumberOfValues, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::WrongNumberOfValues,
+        str![[r#"
 error: 3 values required for '-o <option> <option> <option>' but 1 was provided
 
 Usage: multiple_values [OPTIONS]
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 }
 
 #[test]
@@ -257,14 +267,19 @@ fn option_min_less() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    utils::assert_error(err, ErrorKind::TooFewValues, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::TooFewValues,
+        str![[r#"
 error: 3 values required by '-o <option> <option> <option>...'; only 2 were provided
 
 Usage: multiple_values [OPTIONS]
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 }
 
 #[test]
@@ -387,12 +402,17 @@ fn option_max_zero() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    utils::assert_error(err, ErrorKind::InvalidValue, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::InvalidValue,
+        str![[r#"
 error: a value is required for '-o <option>...' but none was supplied
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 }
 
 #[test]
@@ -436,14 +456,19 @@ fn option_max_more() {
     assert!(m.is_err());
     let err = m.unwrap_err();
     // Can end up being TooManyValues or UnknownArgument
-    utils::assert_error(err, ErrorKind::UnknownArgument, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::UnknownArgument,
+        str![[r#"
 error: unexpected argument 'val4' found
 
 Usage: multiple_values [OPTIONS]
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 }
 
 #[test]
@@ -539,14 +564,19 @@ fn positional_exact_less() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    utils::assert_error(err, ErrorKind::WrongNumberOfValues, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::WrongNumberOfValues,
+        str![[r#"
 error: 3 values required for '[pos] [pos] [pos]' but 2 were provided
 
 Usage: myprog [pos] [pos] [pos]
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 }
 
 #[test]
@@ -558,14 +588,19 @@ fn positional_exact_more() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    utils::assert_error(err, ErrorKind::WrongNumberOfValues, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::WrongNumberOfValues,
+        str![[r#"
 error: 3 values required for '[pos] [pos] [pos]' but 4 were provided
 
 Usage: myprog [pos] [pos] [pos]
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 }
 
 #[test]
@@ -596,14 +631,19 @@ fn positional_min_less() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    utils::assert_error(err, ErrorKind::TooFewValues, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::TooFewValues,
+        str![[r#"
 error: 3 values required by '[pos] [pos] [pos]...'; only 2 were provided
 
 Usage: myprog [pos] [pos] [pos]...
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 }
 
 #[test]
@@ -672,14 +712,19 @@ fn positional_max_more() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    utils::assert_error(err, ErrorKind::TooManyValues, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::TooManyValues,
+        str![[r#"
 error: unexpected value 'val4' for '[pos]...' found; no more were expected
 
 Usage: myprog [pos]...
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 }
 
 #[test]
@@ -1660,11 +1705,10 @@ fn value_terminator_restores_escaping_disabled_by_allow_hyphen_values() {
 
 #[test]
 fn escape_as_value_terminator_with_empty_list() {
-
     // We expect that the value terminator `--` in "program -- ls -l"
     // results in:
     //   opts = [] and cmdline = ["ls", "-l"]
-    // instead of: 
+    // instead of:
     //   opts = ["ls", "-l"] and cmdline = []
 
     let res = Command::new("program")
@@ -1719,14 +1763,19 @@ fn issue_1480_max_values_consumes_extra_arg_2() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    utils::assert_error(err, ErrorKind::UnknownArgument, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::UnknownArgument,
+        str![[r#"
 error: unexpected argument '2' found
 
 Usage: prog [OPTIONS]
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 }
 
 #[test]
@@ -1738,14 +1787,19 @@ fn issue_1480_max_values_consumes_extra_arg_3() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    utils::assert_error(err, ErrorKind::UnknownArgument, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::UnknownArgument,
+        str![[r#"
 error: unexpected argument '2' found
 
 Usage: prog [OPTIONS]
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 }
 
 #[test]
@@ -1874,14 +1928,19 @@ fn issue_2229() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    utils::assert_error(err, ErrorKind::WrongNumberOfValues, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::WrongNumberOfValues,
+        str![[r#"
 error: 3 values required for '[pos] [pos] [pos]' but 6 were provided
 
 Usage: myprog [pos] [pos] [pos]
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 }
 
 #[test]
