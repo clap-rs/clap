@@ -1783,8 +1783,8 @@ fn value_terminator_has_higher_precedence_than_allow_hyphen_values() {
 }
 
 #[test]
-fn value_terminator_restores_escaping_disabled_by_allow_hyphen_values() {
-    let res = Command::new("do")
+fn escape_like_value_terminator_and_allow_hyphen_values() {
+    let mut cmd = Command::new("do")
         .arg(
             Arg::new("cmd1")
                 .action(ArgAction::Set)
@@ -1798,74 +1798,89 @@ fn value_terminator_restores_escaping_disabled_by_allow_hyphen_values() {
                 .num_args(1..)
                 .allow_hyphen_values(true)
                 .value_terminator(";"),
-        )
-        .try_get_matches_from(vec![
-            "do",
-            "find",
-            "-type",
-            "f",
-            "-name",
-            "special",
-            "--",
-            "/home/clap",
-            "foo",
-        ]);
-    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
+        );
 
+    let res = cmd.try_get_matches_from_mut(vec!["do"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    let cmd1: Vec<_> = m
-        .get_many::<String>("cmd1")
-        .unwrap()
-        .map(|v| v.as_str())
-        .collect();
-    assert_eq!(&cmd1, &["find", "-type", "f", "-name", "special"]);
-    let cmd2: Vec<_> = m
-        .get_many::<String>("cmd2")
-        .unwrap()
-        .map(|v| v.as_str())
-        .collect();
-    assert_eq!(&cmd2, &["/home/clap", "foo"]);
-}
+    assert!(!m.contains_id("cmd1"));
+    assert!(!m.contains_id("cmd2"));
 
-#[test]
-fn escape_as_value_terminator_with_empty_list() {
-    // We expect that the value terminator `--` in "program -- ls -l"
-    // results in:
-    //   opts = [] and cmdline = ["ls", "-l"]
-    // instead of:
-    //   opts = ["ls", "-l"] and cmdline = []
-
-    let res = Command::new("program")
-        .arg(
-            Arg::new("cmd1")
-                .action(ArgAction::Set)
-                .num_args(0..)
-                .allow_hyphen_values(true)
-                .value_terminator("--"),
-        )
-        .arg(
-            Arg::new("cmd2")
-                .action(ArgAction::Set)
-                .num_args(0..)
-                .allow_hyphen_values(true),
-        )
-        .try_get_matches_from(vec!["program", "--", "ls", "-l"]);
-    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
-
+    let res = cmd.try_get_matches_from_mut(vec!["do", "--"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    let cmd1: Vec<_> = m
-        .get_many::<String>("cmd1")
-        .map(|v| v.map(|v| v.as_str()).collect())
-        .unwrap_or_default();
-    let expected_cmd1: Vec<&str> = Vec::new();
-    assert_eq!(cmd1, expected_cmd1);
+    assert!(!m.contains_id("cmd1"));
+    assert!(!m.contains_id("cmd2"));
 
-    let cmd2: Vec<_> = m
-        .get_many::<String>("cmd2")
-        .unwrap()
-        .map(|v| v.as_str())
-        .collect();
-    assert_eq!(&cmd2, &["ls", "-l"]);
+    let res = cmd.try_get_matches_from_mut(vec!["do", "--", "after"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert!(!m.contains_id("cmd1"));
+    assert_eq!(
+        m.get_many::<String>("cmd2")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["after"]
+    );
+
+    let res = cmd.try_get_matches_from_mut(vec!["do", "before", "--"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert_eq!(
+        m.get_many::<String>("cmd1")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["before"]
+    );
+    assert!(!m.contains_id("cmd2"));
+
+    let res = cmd.try_get_matches_from_mut(vec!["do", "before", "--", "after"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert_eq!(
+        m.get_many::<String>("cmd1")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["before"]
+    );
+    assert_eq!(
+        m.get_many::<String>("cmd2")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["after"]
+    );
+
+    let res = cmd.try_get_matches_from_mut(vec![
+        "do",
+        "find",
+        "-type",
+        "f",
+        "-name",
+        "special",
+        "--",
+        "/home/clap",
+        "foo",
+    ]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert_eq!(
+        m.get_many::<String>("cmd1")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["find", "-type", "f", "-name", "special"]
+    );
+    assert_eq!(
+        m.get_many::<String>("cmd2")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["/home/clap", "foo"]
+    );
 }
 
 #[test]
