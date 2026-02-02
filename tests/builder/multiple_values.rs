@@ -1444,22 +1444,42 @@ fn low_index_positional_with_extra_flags() {
 
 #[test]
 fn multiple_value_terminator_option() {
-    let m = Command::new("lip")
+    let mut cmd = Command::new("lip")
         .arg(
             Arg::new("files")
                 .short('f')
                 .value_terminator(";")
                 .action(ArgAction::Set)
-                .num_args(1..),
+                .num_args(0..),
         )
         .arg(Arg::new("other"))
-        .try_get_matches_from(vec!["lip", "-f", "val1", "val2", ";", "otherval"]);
+        .arg(Arg::new("stop").short('X').action(ArgAction::SetTrue));
 
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
+    // Terminated
+    let m = cmd.try_get_matches_from_mut(vec!["lip", "-f", ";", "otherval"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
-
-    assert!(m.contains_id("other"));
     assert!(m.contains_id("files"));
+    assert!(m.contains_id("other"));
+    assert!(!m.get_flag("stop"));
+    assert_eq!(
+        m.get_many::<String>("files")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        Vec::<String>::new(),
+    );
+    assert_eq!(
+        m.get_one::<String>("other").map(|v| v.as_str()),
+        Some("otherval")
+    );
+
+    let m = cmd.try_get_matches_from_mut(vec!["lip", "-f", "val1", "val2", ";", "otherval"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    let m = m.unwrap();
+    assert!(m.contains_id("files"));
+    assert!(m.contains_id("other"));
+    assert!(!m.get_flag("stop"));
     assert_eq!(
         m.get_many::<String>("files")
             .unwrap()
@@ -1471,27 +1491,61 @@ fn multiple_value_terminator_option() {
         m.get_one::<String>("other").map(|v| v.as_str()),
         Some("otherval")
     );
-}
 
-#[test]
-fn multiple_value_terminator_option_other_arg() {
-    let m = Command::new("lip")
-        .arg(
-            Arg::new("files")
-                .short('f')
-                .value_terminator(";")
-                .action(ArgAction::Set)
-                .num_args(1..),
-        )
-        .arg(Arg::new("other"))
-        .arg(Arg::new("flag").short('F').action(ArgAction::SetTrue))
-        .try_get_matches_from(vec!["lip", "-f", "val1", "val2", "-F", "otherval"]);
-
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
+    // Unterminated
+    let m = cmd.try_get_matches_from_mut(vec!["lip", "-f"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
-
-    assert!(m.contains_id("other"));
     assert!(m.contains_id("files"));
+    assert!(!m.contains_id("other"));
+    assert!(!m.get_flag("stop"));
+    assert_eq!(
+        m.get_many::<String>("files")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        Vec::<String>::new(),
+    );
+
+    let m = cmd.try_get_matches_from_mut(vec!["lip", "-f", "val1", "val2"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    let m = m.unwrap();
+    assert!(m.contains_id("files"));
+    assert!(!m.contains_id("other"));
+    assert!(!m.get_flag("stop"));
+    assert_eq!(
+        m.get_many::<String>("files")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["val1", "val2"]
+    );
+
+    // Terminated by flag
+    let m = cmd.try_get_matches_from_mut(vec!["lip", "-f", "-X", "otherval"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    let m = m.unwrap();
+    assert!(m.contains_id("files"));
+    assert!(m.contains_id("other"));
+    assert!(m.get_flag("stop"));
+    assert_eq!(
+        m.get_many::<String>("files")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        Vec::<String>::new(),
+    );
+    assert_eq!(
+        m.get_one::<String>("other").map(|v| v.as_str()),
+        Some("otherval")
+    );
+
+    let m = cmd.try_get_matches_from_mut(vec!["lip", "-f", "val1", "val2", "-X", "otherval"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    let m = m.unwrap();
+    assert!(m.contains_id("files"));
+    assert!(m.contains_id("other"));
+    assert!(m.get_flag("stop"));
     assert_eq!(
         m.get_many::<String>("files")
             .unwrap()
@@ -1503,7 +1557,6 @@ fn multiple_value_terminator_option_other_arg() {
         m.get_one::<String>("other").map(|v| v.as_str()),
         Some("otherval")
     );
-    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
 }
 
 #[test]
