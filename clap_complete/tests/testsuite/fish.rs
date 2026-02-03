@@ -282,7 +282,7 @@ fn complete_dynamic_env_quoted_help() {
 
     let input = "exhaustive quote \t\t";
     let expected = snapbox::str![[r#"
-% exhaustive quote 
+% exhaustive quote cmd-single-quotes 
 cmd-single-quotes           (Can be 'always', 'auto', or 'never')
 cmd-double-quotes           (Can be "always", "auto", or "never")
 cmd-backticks              (For more information see `echo test`)
