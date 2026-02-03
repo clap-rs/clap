@@ -180,14 +180,19 @@ fn option_exact_less() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    utils::assert_error(err, ErrorKind::WrongNumberOfValues, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::WrongNumberOfValues,
+        str![[r#"
 error: 3 values required for '-o <option> <option> <option>' but 1 was provided
 
 Usage: multiple_values [OPTIONS]
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 }
 
 #[test]
@@ -207,14 +212,19 @@ fn option_exact_more() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    utils::assert_error(err, ErrorKind::WrongNumberOfValues, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::WrongNumberOfValues,
+        str![[r#"
 error: 3 values required for '-o <option> <option> <option>' but 1 was provided
 
 Usage: multiple_values [OPTIONS]
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 }
 
 #[test]
@@ -257,14 +267,19 @@ fn option_min_less() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    utils::assert_error(err, ErrorKind::TooFewValues, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::TooFewValues,
+        str![[r#"
 error: 3 values required by '-o <option> <option> <option>...'; only 2 were provided
 
 Usage: multiple_values [OPTIONS]
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 }
 
 #[test]
@@ -387,12 +402,17 @@ fn option_max_zero() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    utils::assert_error(err, ErrorKind::InvalidValue, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::InvalidValue,
+        str![[r#"
 error: a value is required for '-o <option>...' but none was supplied
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 }
 
 #[test]
@@ -436,14 +456,19 @@ fn option_max_more() {
     assert!(m.is_err());
     let err = m.unwrap_err();
     // Can end up being TooManyValues or UnknownArgument
-    utils::assert_error(err, ErrorKind::UnknownArgument, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::UnknownArgument,
+        str![[r#"
 error: unexpected argument 'val4' found
 
 Usage: multiple_values [OPTIONS]
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 }
 
 #[test]
@@ -539,14 +564,19 @@ fn positional_exact_less() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    utils::assert_error(err, ErrorKind::WrongNumberOfValues, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::WrongNumberOfValues,
+        str![[r#"
 error: 3 values required for '[pos] [pos] [pos]' but 2 were provided
 
 Usage: myprog [pos] [pos] [pos]
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 }
 
 #[test]
@@ -558,14 +588,19 @@ fn positional_exact_more() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    utils::assert_error(err, ErrorKind::WrongNumberOfValues, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::WrongNumberOfValues,
+        str![[r#"
 error: 3 values required for '[pos] [pos] [pos]' but 4 were provided
 
 Usage: myprog [pos] [pos] [pos]
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 }
 
 #[test]
@@ -596,14 +631,19 @@ fn positional_min_less() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    utils::assert_error(err, ErrorKind::TooFewValues, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::TooFewValues,
+        str![[r#"
 error: 3 values required by '[pos] [pos] [pos]...'; only 2 were provided
 
 Usage: myprog [pos] [pos] [pos]...
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 }
 
 #[test]
@@ -672,14 +712,19 @@ fn positional_max_more() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    utils::assert_error(err, ErrorKind::TooManyValues, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::TooManyValues,
+        str![[r#"
 error: unexpected value 'val4' for '[pos]...' found; no more were expected
 
 Usage: myprog [pos]...
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 }
 
 #[test]
@@ -1399,22 +1444,108 @@ fn low_index_positional_with_extra_flags() {
 
 #[test]
 fn multiple_value_terminator_option() {
-    let m = Command::new("lip")
+    let mut cmd = Command::new("lip")
         .arg(
             Arg::new("files")
                 .short('f')
                 .value_terminator(";")
                 .action(ArgAction::Set)
-                .num_args(1..),
+                .num_args(0..),
         )
         .arg(Arg::new("other"))
-        .try_get_matches_from(vec!["lip", "-f", "val1", "val2", ";", "otherval"]);
+        .arg(Arg::new("stop").short('X').action(ArgAction::SetTrue));
 
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
+    // Terminated
+    let m = cmd.try_get_matches_from_mut(vec!["lip", "-f", ";", "otherval"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
-
-    assert!(m.contains_id("other"));
     assert!(m.contains_id("files"));
+    assert!(m.contains_id("other"));
+    assert!(!m.get_flag("stop"));
+    assert_eq!(
+        m.get_many::<String>("files")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        Vec::<String>::new(),
+    );
+    assert_eq!(
+        m.get_one::<String>("other").map(|v| v.as_str()),
+        Some("otherval")
+    );
+
+    let m = cmd.try_get_matches_from_mut(vec!["lip", "-f", "val1", "val2", ";", "otherval"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    let m = m.unwrap();
+    assert!(m.contains_id("files"));
+    assert!(m.contains_id("other"));
+    assert!(!m.get_flag("stop"));
+    assert_eq!(
+        m.get_many::<String>("files")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["val1", "val2"]
+    );
+    assert_eq!(
+        m.get_one::<String>("other").map(|v| v.as_str()),
+        Some("otherval")
+    );
+
+    // Unterminated
+    let m = cmd.try_get_matches_from_mut(vec!["lip", "-f"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    let m = m.unwrap();
+    assert!(m.contains_id("files"));
+    assert!(!m.contains_id("other"));
+    assert!(!m.get_flag("stop"));
+    assert_eq!(
+        m.get_many::<String>("files")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        Vec::<String>::new(),
+    );
+
+    let m = cmd.try_get_matches_from_mut(vec!["lip", "-f", "val1", "val2"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    let m = m.unwrap();
+    assert!(m.contains_id("files"));
+    assert!(!m.contains_id("other"));
+    assert!(!m.get_flag("stop"));
+    assert_eq!(
+        m.get_many::<String>("files")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["val1", "val2"]
+    );
+
+    // Terminated by flag
+    let m = cmd.try_get_matches_from_mut(vec!["lip", "-f", "-X", "otherval"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    let m = m.unwrap();
+    assert!(m.contains_id("files"));
+    assert!(m.contains_id("other"));
+    assert!(m.get_flag("stop"));
+    assert_eq!(
+        m.get_many::<String>("files")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        Vec::<String>::new(),
+    );
+    assert_eq!(
+        m.get_one::<String>("other").map(|v| v.as_str()),
+        Some("otherval")
+    );
+
+    let m = cmd.try_get_matches_from_mut(vec!["lip", "-f", "val1", "val2", "-X", "otherval"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    let m = m.unwrap();
+    assert!(m.contains_id("files"));
+    assert!(m.contains_id("other"));
+    assert!(m.get_flag("stop"));
     assert_eq!(
         m.get_many::<String>("files")
             .unwrap()
@@ -1429,61 +1560,99 @@ fn multiple_value_terminator_option() {
 }
 
 #[test]
-fn multiple_value_terminator_option_other_arg() {
-    let m = Command::new("lip")
-        .arg(
-            Arg::new("files")
-                .short('f')
-                .value_terminator(";")
-                .action(ArgAction::Set)
-                .num_args(1..),
-        )
-        .arg(Arg::new("other"))
-        .arg(Arg::new("flag").short('F').action(ArgAction::SetTrue))
-        .try_get_matches_from(vec!["lip", "-f", "val1", "val2", "-F", "otherval"]);
-
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
-    let m = m.unwrap();
-
-    assert!(m.contains_id("other"));
-    assert!(m.contains_id("files"));
-    assert_eq!(
-        m.get_many::<String>("files")
-            .unwrap()
-            .map(|v| v.as_str())
-            .collect::<Vec<_>>(),
-        ["val1", "val2"]
-    );
-    assert_eq!(
-        m.get_one::<String>("other").map(|v| v.as_str()),
-        Some("otherval")
-    );
-    assert!(*m.get_one::<bool>("flag").expect("defaulted by clap"));
-}
-
-#[test]
-fn all_multiple_value_terminator() {
-    let m = Command::new("lip")
+fn multiple_value_terminator_positional() {
+    let mut cmd = Command::new("lip")
         .arg(
             Arg::new("files")
                 .value_terminator(";")
                 .action(ArgAction::Set)
                 .num_args(0..),
         )
-        .arg(Arg::new("other").num_args(0..))
-        .try_get_matches_from(vec!["test", "value", ";"]);
+        .arg(Arg::new("other"))
+        .arg(Arg::new("stop").short('X').action(ArgAction::SetTrue));
 
-    assert!(m.is_ok(), "{:?}", m.unwrap_err().kind());
+    // Terminated
+    let m = cmd.try_get_matches_from_mut(vec!["lip", ";", "otherval"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
     let m = m.unwrap();
+    assert!(!m.contains_id("files"));
+    assert!(m.contains_id("other"));
+    assert!(!m.get_flag("stop"));
+    assert_eq!(
+        m.get_one::<String>("other").map(|v| v.as_str()),
+        Some("otherval")
+    );
 
+    let m = cmd.try_get_matches_from_mut(vec!["lip", "val1", "val2", ";", "otherval"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    let m = m.unwrap();
     assert!(m.contains_id("files"));
-    assert!(!m.contains_id("other"));
+    assert!(m.contains_id("other"));
+    assert!(!m.get_flag("stop"));
     assert_eq!(
         m.get_many::<String>("files")
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),
-        ["value".to_owned()],
+        ["val1", "val2"]
+    );
+    assert_eq!(
+        m.get_one::<String>("other").map(|v| v.as_str()),
+        Some("otherval")
+    );
+
+    // Unterminated
+    let m = cmd.try_get_matches_from_mut(vec!["lip"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    let m = m.unwrap();
+    assert!(!m.contains_id("files"));
+    assert!(!m.contains_id("other"));
+    assert!(!m.get_flag("stop"));
+
+    let m = cmd.try_get_matches_from_mut(vec!["lip", "val1", "val2"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    let m = m.unwrap();
+    assert!(m.contains_id("files"));
+    assert!(!m.contains_id("other"));
+    assert!(!m.get_flag("stop"));
+    assert_eq!(
+        m.get_many::<String>("files")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["val1", "val2"]
+    );
+
+    // Terminated by flag
+    let m = cmd.try_get_matches_from_mut(vec!["lip", "-X", "otherval"]);
+    assert!(m.is_ok(), "{}", m.unwrap_err());
+    let m = m.unwrap();
+    assert!(m.contains_id("files"));
+    assert!(!m.contains_id("other"));
+    assert!(m.get_flag("stop"));
+    assert_eq!(
+        m.get_many::<String>("files")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["otherval"]
+    );
+
+    let m = cmd.try_get_matches_from_mut(vec!["lip", "val1", "val2", "-X", "otherval"]);
+    assert!(m.is_err());
+    let err = m.unwrap_err();
+    utils::assert_error(
+        err,
+        ErrorKind::ArgumentConflict,
+        str![[r#"
+error: the argument '[files]...' cannot be used multiple times
+
+Usage: lip [OPTIONS] [files]... [other]
+
+For more information, try '--help'.
+
+"#]],
+        true,
     );
 }
 
@@ -1614,8 +1783,74 @@ fn value_terminator_has_higher_precedence_than_allow_hyphen_values() {
 }
 
 #[test]
-fn value_terminator_restores_escaping_disabled_by_allow_hyphen_values() {
-    let res = Command::new("do")
+fn escape_like_value_terminator() {
+    let mut cmd = Command::new("do")
+        .arg(
+            Arg::new("cmd1")
+                .action(ArgAction::Set)
+                .num_args(1..)
+                .value_terminator("--"),
+        )
+        .arg(Arg::new("cmd2").action(ArgAction::Set).num_args(1..));
+
+    let res = cmd.try_get_matches_from_mut(vec!["do"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert!(!m.contains_id("cmd1"));
+    assert!(!m.contains_id("cmd2"));
+
+    let res = cmd.try_get_matches_from_mut(vec!["do", "--"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert!(!m.contains_id("cmd1"));
+    assert!(!m.contains_id("cmd2"));
+
+    let res = cmd.try_get_matches_from_mut(vec!["do", "--", "after"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert!(!m.contains_id("cmd1"));
+    assert_eq!(
+        m.get_many::<String>("cmd2")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["after"]
+    );
+
+    let res = cmd.try_get_matches_from_mut(vec!["do", "before", "--"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert_eq!(
+        m.get_many::<String>("cmd1")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["before"]
+    );
+    assert!(!m.contains_id("cmd2"));
+
+    let res = cmd.try_get_matches_from_mut(vec!["do", "before", "--", "after"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert_eq!(
+        m.get_many::<String>("cmd1")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["before"]
+    );
+    assert_eq!(
+        m.get_many::<String>("cmd2")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["after"]
+    );
+}
+
+#[test]
+fn escape_like_value_terminator_and_allow_hyphen_values() {
+    let mut cmd = Command::new("do")
         .arg(
             Arg::new("cmd1")
                 .action(ArgAction::Set)
@@ -1629,75 +1864,160 @@ fn value_terminator_restores_escaping_disabled_by_allow_hyphen_values() {
                 .num_args(1..)
                 .allow_hyphen_values(true)
                 .value_terminator(";"),
-        )
-        .try_get_matches_from(vec![
-            "do",
-            "find",
-            "-type",
-            "f",
-            "-name",
-            "special",
-            "--",
-            "/home/clap",
-            "foo",
-        ]);
-    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
+        );
 
+    let res = cmd.try_get_matches_from_mut(vec!["do"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    let cmd1: Vec<_> = m
-        .get_many::<String>("cmd1")
-        .unwrap()
-        .map(|v| v.as_str())
-        .collect();
-    assert_eq!(&cmd1, &["find", "-type", "f", "-name", "special"]);
-    let cmd2: Vec<_> = m
-        .get_many::<String>("cmd2")
-        .unwrap()
-        .map(|v| v.as_str())
-        .collect();
-    assert_eq!(&cmd2, &["/home/clap", "foo"]);
+    assert!(!m.contains_id("cmd1"));
+    assert!(!m.contains_id("cmd2"));
+
+    let res = cmd.try_get_matches_from_mut(vec!["do", "--"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert!(!m.contains_id("cmd1"));
+    assert!(!m.contains_id("cmd2"));
+
+    let res = cmd.try_get_matches_from_mut(vec!["do", "--", "after"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert!(!m.contains_id("cmd1"));
+    assert_eq!(
+        m.get_many::<String>("cmd2")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["after"]
+    );
+
+    let res = cmd.try_get_matches_from_mut(vec!["do", "before", "--"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert_eq!(
+        m.get_many::<String>("cmd1")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["before"]
+    );
+    assert!(!m.contains_id("cmd2"));
+
+    let res = cmd.try_get_matches_from_mut(vec!["do", "before", "--", "after"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert_eq!(
+        m.get_many::<String>("cmd1")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["before"]
+    );
+    assert_eq!(
+        m.get_many::<String>("cmd2")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["after"]
+    );
+
+    let res = cmd.try_get_matches_from_mut(vec![
+        "do",
+        "find",
+        "-type",
+        "f",
+        "-name",
+        "special",
+        "--",
+        "/home/clap",
+        "foo",
+    ]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert_eq!(
+        m.get_many::<String>("cmd1")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["find", "-type", "f", "-name", "special"]
+    );
+    assert_eq!(
+        m.get_many::<String>("cmd2")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["/home/clap", "foo"]
+    );
 }
 
 #[test]
-fn escape_as_value_terminator_with_empty_list() {
-
-    // We expect that the value terminator `--` in "program -- ls -l"
-    // results in:
-    //   opts = [] and cmdline = ["ls", "-l"]
-    // instead of: 
-    //   opts = ["ls", "-l"] and cmdline = []
-
-    let res = Command::new("program")
+fn escape_like_value_terminator_and_last() {
+    let mut cmd = Command::new("do")
         .arg(
             Arg::new("cmd1")
                 .action(ArgAction::Set)
-                .num_args(0..)
-                .allow_hyphen_values(true)
+                .num_args(1..)
                 .value_terminator("--"),
         )
         .arg(
             Arg::new("cmd2")
                 .action(ArgAction::Set)
-                .num_args(0..)
-                .allow_hyphen_values(true),
-        )
-        .try_get_matches_from(vec!["program", "--", "ls", "-l"]);
-    assert!(res.is_ok(), "{:?}", res.unwrap_err().kind());
+                .num_args(1..)
+                .last(true),
+        );
 
+    let res = cmd.try_get_matches_from_mut(vec!["do"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
-    let cmd1: Vec<_> = m
-        .get_many::<String>("cmd1")
-        .map(|v| v.map(|v| v.as_str()).collect())
-        .unwrap_or_default();
-    let expected_cmd1: Vec<&str> = Vec::new();
-    assert_eq!(cmd1, expected_cmd1);
+    assert!(!m.contains_id("cmd1"));
+    assert!(!m.contains_id("cmd2"));
 
-    let cmd2: Vec<_> = m
-        .get_many::<String>("cmd2")
-        .unwrap()
-        .map(|v| v.as_str())
-        .collect();
-    assert_eq!(&cmd2, &["ls", "-l"]);
+    let res = cmd.try_get_matches_from_mut(vec!["do", "--"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert!(!m.contains_id("cmd1"));
+    assert!(!m.contains_id("cmd2"));
+
+    let res = cmd.try_get_matches_from_mut(vec!["do", "--", "after"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert!(!m.contains_id("cmd1"));
+    assert_eq!(
+        m.get_many::<String>("cmd2")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["after"]
+    );
+
+    let res = cmd.try_get_matches_from_mut(vec!["do", "before", "--"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert_eq!(
+        m.get_many::<String>("cmd1")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["before"]
+    );
+    assert!(!m.contains_id("cmd2"));
+
+    let res = cmd.try_get_matches_from_mut(vec!["do", "before", "--", "after"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+    assert_eq!(
+        m.get_many::<String>("cmd1")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["before"]
+    );
+    assert_eq!(
+        m.get_many::<String>("cmd2")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["after"]
+    );
 }
 
 #[test]
@@ -1719,14 +2039,19 @@ fn issue_1480_max_values_consumes_extra_arg_2() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    utils::assert_error(err, ErrorKind::UnknownArgument, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::UnknownArgument,
+        str![[r#"
 error: unexpected argument '2' found
 
 Usage: prog [OPTIONS]
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 }
 
 #[test]
@@ -1738,14 +2063,19 @@ fn issue_1480_max_values_consumes_extra_arg_3() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    utils::assert_error(err, ErrorKind::UnknownArgument, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::UnknownArgument,
+        str![[r#"
 error: unexpected argument '2' found
 
 Usage: prog [OPTIONS]
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 }
 
 #[test]
@@ -1874,14 +2204,19 @@ fn issue_2229() {
 
     assert!(m.is_err());
     let err = m.unwrap_err();
-    utils::assert_error(err, ErrorKind::WrongNumberOfValues, str![[r#"
+    utils::assert_error(
+        err,
+        ErrorKind::WrongNumberOfValues,
+        str![[r#"
 error: 3 values required for '[pos] [pos] [pos]' but 6 were provided
 
 Usage: myprog [pos] [pos] [pos]
 
 For more information, try '--help'.
 
-"#]], true);
+"#]],
+        true,
+    );
 }
 
 #[test]
