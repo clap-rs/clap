@@ -432,11 +432,11 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.5.56"
+version = "4.5.57"
 dependencies = [
  "automod",
  "clap-cargo",
- "clap_builder 4.5.56",
+ "clap_builder 4.5.57",
  "clap_derive",
  "jiff",
  "rustversion",
@@ -460,7 +460,7 @@ dependencies = [
 name = "clap_bench"
 version = "0.0.0"
 dependencies = [
- "clap 4.5.56",
+ "clap 4.5.57",
  "divan",
  "lazy_static",
 ]
@@ -480,7 +480,7 @@ dependencies = [
 
 [[package]]
 name = "clap_builder"
-version = "4.5.56"
+version = "4.5.57"
 dependencies = [
  "anstream",
  "anstyle",
@@ -501,7 +501,7 @@ name = "clap_complete"
 version = "4.5.65"
 dependencies = [
  "automod",
- "clap 4.5.56",
+ "clap 4.5.57",
  "clap_lex 0.7.7",
  "completest",
  "completest-pty",
@@ -515,7 +515,7 @@ dependencies = [
 name = "clap_complete_nushell"
 version = "4.5.10"
 dependencies = [
- "clap 4.5.56",
+ "clap 4.5.57",
  "clap_complete",
  "completest",
  "completest-nu",
@@ -552,7 +552,7 @@ name = "clap_mangen"
 version = "0.2.31"
 dependencies = [
  "automod",
- "clap 4.5.56",
+ "clap 4.5.57",
  "roff",
  "snapbox",
 ]
