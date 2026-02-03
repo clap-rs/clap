@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Regression from 4.5.55 where having an argument with `.value_terminator("--")` caused problems with an argument with `.last(true)`
+
 ## [4.5.56] - 2026-01-29
 
 ### Fixes
