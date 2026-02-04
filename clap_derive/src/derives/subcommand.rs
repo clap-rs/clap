@@ -275,22 +275,20 @@ fn gen_augment(
 
             Kind::Command(_) => {
                 let subcommand_var = Ident::new("__clap_subcommand", Span::call_site());
-                let sub_augment = match variant.fields {
+                let (sub_augment, initial_app_methods, final_from_attrs) = match variant.fields {
                     Named(ref fields) => {
-                        // Defer to `gen_augment` for adding cmd methods
                         let fields = collect_args_fields(item, fields)?;
-                        args::gen_augment(&fields, &subcommand_var, item, override_required)?
+                        (
+                            args::gen_augment(&fields, &subcommand_var, item, override_required)?,
+                            quote! {},
+                            quote! {},
+                        )
                     }
-                    Unit => {
-                        let arg_block = quote!( #subcommand_var );
-                        let initial_app_methods = item.initial_top_level_methods();
-                        let final_from_attrs = item.final_top_level_methods();
-                        quote! {
-                            let #subcommand_var = #subcommand_var #initial_app_methods;
-                            let #subcommand_var = #arg_block;
-                            #subcommand_var #final_from_attrs
-                        }
-                    }
+                    Unit => (
+                        quote! { #subcommand_var },
+                        item.initial_top_level_methods(),
+                        item.final_top_level_methods(),
+                    ),
                     Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
                         let ty = &unnamed[0].ty;
                         let arg_block = if override_required {
@@ -306,13 +304,11 @@ fn gen_augment(
                                 }
                             }
                         };
-                        let initial_app_methods = item.initial_top_level_methods();
-                        let final_from_attrs = item.final_top_level_methods();
-                        quote! {
-                            let #subcommand_var = #subcommand_var #initial_app_methods;
-                            let #subcommand_var = #arg_block;
-                            #subcommand_var #final_from_attrs
-                        }
+                        (
+                            arg_block,
+                            item.initial_top_level_methods(),
+                            item.final_top_level_methods(),
+                        )
                     }
                     Unnamed(..) => {
                         abort!(variant, "invalid variant for `#[command(subcommand)]`, expected a newtype variant")
@@ -328,8 +324,11 @@ fn gen_augment(
                 let subcommand = quote! {
                     let #app_var = #app_var.subcommand({
                         #deprecations
-                        let #subcommand_var = clap::Command::new(#name);
-                        #sub_augment
+                        let #subcommand_var = clap::Command::new(#name)
+                            #initial_app_methods;
+                        let #subcommand_var = #sub_augment;
+                        #subcommand_var
+                            #final_from_attrs
                     });
                 };
                 Some(subcommand)
