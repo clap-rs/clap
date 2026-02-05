@@ -278,11 +278,17 @@ fn gen_augment(
                 let (sub_augment, initial_app_methods, final_from_attrs) = match variant.fields {
                     Named(ref fields) => {
                         let fields = collect_args_fields(item, fields)?;
-                        (
-                            args::gen_augment(&fields, &subcommand_var, item, override_required)?,
-                            quote! {},
-                            quote! {},
-                        )
+                        let sub_augment =
+                            args::gen_augment(&fields, &subcommand_var, item, override_required)?;
+                        if parent_item.defer() {
+                            (
+                                sub_augment,
+                                item.initial_top_level_methods(),
+                                item.final_top_level_methods(),
+                            )
+                        } else {
+                            (sub_augment, quote! {}, quote! {})
+                        }
                     }
                     Unit => (
                         quote! { #subcommand_var },
@@ -313,6 +319,14 @@ fn gen_augment(
                     Unnamed(..) => {
                         abort!(variant, "invalid variant for `#[command(subcommand)]`, expected a newtype variant")
                     }
+                };
+
+                let sub_augment = if parent_item.defer() {
+                    quote! {
+                        #subcommand_var.defer(|#subcommand_var| { #sub_augment })
+                    }
+                } else {
+                    sub_augment
                 };
 
                 let deprecations = if !override_required {

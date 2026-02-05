@@ -8,7 +8,6 @@ use clap::{Args, CommandFactory, Parser, Subcommand};
 
 /// Test that #[command(defer = true)] on a Subcommand enum defers argument creation.
 #[test]
-#[should_panic = "args should be deferred before build, got: [\"file\"]"]
 fn defer_on_subcommand_defers_arguments() {
     #[derive(Parser, Debug)]
     struct Cli {
@@ -87,7 +86,6 @@ fn defer_on_subcommand_defers_arguments() {
 /// - Subcommand variants contain Args structs
 /// - Args structs have nested subcommands
 #[test]
-#[should_panic = "account arguments should be deferred"]
 fn defer_nested_subcommands() {
     #[derive(Parser, Debug, PartialEq)]
     struct Cli {
@@ -190,10 +188,6 @@ fn defer_nested_subcommands() {
 
 /// Test that without defer attribute, arguments are immediately visible on v4 and defered on v5.
 #[test]
-#[cfg_attr(
-    feature = "unstable-v5",
-    should_panic = "args should be not immediately visible without defer = false"
-)]
 fn no_explicit_defer_default_is_applied_properly_for_v4_and_v5() {
     #[derive(Parser, Debug)]
     struct Cli {
