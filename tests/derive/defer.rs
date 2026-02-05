@@ -17,6 +17,7 @@ fn defer_on_subcommand_defers_arguments() {
     }
 
     #[derive(Subcommand, Debug)]
+    #[command(defer = true)]
     enum Commands {
         /// Add a file
         Add {
@@ -95,6 +96,7 @@ fn defer_nested_subcommands() {
     }
 
     #[derive(Subcommand, Debug, PartialEq)]
+    #[command(defer = true)]
     enum TopLevel {
         /// Account operations
         Account(AccountArgs),
@@ -109,6 +111,7 @@ fn defer_nested_subcommands() {
     }
 
     #[derive(Subcommand, Debug, PartialEq)]
+    #[command(defer = true)]
     enum AccountAction {
         /// View account
         View {
