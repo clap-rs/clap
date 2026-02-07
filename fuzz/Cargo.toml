@@ -1,0 +1,61 @@
+[package]
+name = "clap-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = { version = "0.4", features = ["arbitrary-derive"] }
+arbitrary = { version = "1", features = ["derive"] }
+
+[dependencies.clap]
+path = "../clap_builder"
+features = ["default"]
+
+[dependencies.clap_complete]
+path = "../clap_complete"
+
+[[bin]]
+name = "fuzz_arg_parser"
+path = "fuzz_targets/fuzz_arg_parser.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_shell_completion"
+path = "fuzz_targets/fuzz_shell_completion.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_help_generator"
+path = "fuzz_targets/fuzz_help_generator.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_value_parser"
+path = "fuzz_targets/fuzz_value_parser.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_subcommand_parser"
+path = "fuzz_targets/fuzz_subcommand_parser.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_env_parser"
+path = "fuzz_targets/fuzz_env_parser.rs"
+test = false
+doc = false
+bench = false
