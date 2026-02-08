@@ -23,11 +23,25 @@ pub fn all_subcommands(cmd: &Command) -> Vec<(String, String)> {
 /// **NOTE:** `path` should not contain the root `bin_name`.
 ///
 /// </div>
+///
+/// If a subcommand in the path doesn't exist, returns the last valid command found.
+/// This prevents panics when app names contain characters that might be interpreted
+/// as subcommand separators (e.g., `__` in bash completion function names).
 pub fn find_subcommand_with_path<'cmd>(p: &'cmd Command, path: Vec<&str>) -> &'cmd Command {
     let mut cmd = p;
 
     for sc in path {
-        cmd = cmd.find_subcommand(sc).unwrap();
+        match cmd.find_subcommand(sc) {
+            Some(c) => cmd = c,
+            None => {
+                // Invalid path - return the last valid command instead of panicking
+                debug!(
+                    "Subcommand '{}' not found in path, returning current command",
+                    sc
+                );
+                break;
+            }
+        }
     }
 
     cmd
