@@ -64,6 +64,8 @@ pub(crate) fn gen_for_enum(
     let augmentation = gen_augment(variants, item, false)?;
     let augmentation_update = gen_augment(variants, item, true)?;
     let has_subcommand = gen_has_subcommand(variants)?;
+    let initial_app_methods = item.initial_top_level_methods();
+    let final_app_methods = item.final_top_level_methods();
 
     Ok(quote! {
         #[allow(
@@ -123,10 +125,14 @@ pub(crate) fn gen_for_enum(
         #[automatically_derived]
         impl #impl_generics clap::Subcommand for #item_name #ty_generics #where_clause {
             fn augment_subcommands <'b>(__clap_app: clap::Command) -> clap::Command {
-                #augmentation
+                let __clap_app = __clap_app #initial_app_methods;
+                let __clap_app = #augmentation;
+                __clap_app #final_app_methods
             }
             fn augment_subcommands_for_update <'b>(__clap_app: clap::Command) -> clap::Command {
-                #augmentation_update
+                let __clap_app = __clap_app #initial_app_methods;
+                let __clap_app = #augmentation_update;
+                __clap_app #final_app_methods
             }
             fn has_subcommand(__clap_name: &str) -> bool {
                 #has_subcommand
@@ -277,9 +283,16 @@ fn gen_augment(
                 let subcommand_var = Ident::new("__clap_subcommand", Span::call_site());
                 let sub_augment = match variant.fields {
                     Named(ref fields) => {
-                        // Defer to `gen_augment` for adding cmd methods
                         let fields = collect_args_fields(item, fields)?;
-                        args::gen_augment(&fields, &subcommand_var, item, override_required)?
+                        let arg_block =
+                            args::gen_augment(&fields, &subcommand_var, item, override_required)?;
+                        let initial_app_methods = item.initial_top_level_methods();
+                        let final_from_attrs = item.final_top_level_methods();
+                        quote! {
+                            let #subcommand_var = #subcommand_var #initial_app_methods;
+                            let #subcommand_var = #arg_block;
+                            #subcommand_var #final_from_attrs
+                        }
                     }
                     Unit => {
                         let arg_block = quote!( #subcommand_var );
@@ -343,14 +356,11 @@ fn gen_augment(
     } else {
         quote!()
     };
-    let initial_app_methods = parent_item.initial_top_level_methods();
-    let final_app_methods = parent_item.final_top_level_methods();
-    Ok(quote! {
+    Ok(quote! {{
         #deprecations;
-        let #app_var = #app_var #initial_app_methods;
         #( #subcommands )*;
-        #app_var #final_app_methods
-    })
+        #app_var
+    }})
 }
 
 fn gen_has_subcommand(variants: &[(&Variant, Item)]) -> Result<TokenStream, syn::Error> {
