@@ -485,7 +485,7 @@ dependencies = [
  "anstream",
  "anstyle",
  "backtrace",
- "clap_lex 0.7.7",
+ "clap_lex 1.0.0",
  "color-print",
  "snapbox",
  "static_assertions",
@@ -502,7 +502,7 @@ version = "4.5.65"
 dependencies = [
  "automod",
  "clap 4.5.57",
- "clap_lex 0.7.7",
+ "clap_lex 1.0.0",
  "completest",
  "completest-pty",
  "is_executable",
@@ -542,7 +542,7 @@ checksum = "f46ad14479a25103f283c0f10005961cf086d8dc42205bb44c46ac563475dca6"
 
 [[package]]
 name = "clap_lex"
-version = "0.7.7"
+version = "1.0.0"
 dependencies = [
  "automod",
 ]
