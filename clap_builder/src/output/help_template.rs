@@ -796,7 +796,7 @@ impl HelpTemplate<'_, '_> {
                 .iter()
                 .map(|dv| dv.to_string_lossy())
                 .map(|dv| {
-                    if dv.contains(char::is_whitespace) {
+                    if dv.is_empty() || dv.contains(char::is_whitespace) {
                         Cow::from(format!("{dv:?}"))
                     } else {
                         dv
