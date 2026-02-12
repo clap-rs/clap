@@ -1478,3 +1478,97 @@ fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>
         .collect::<Vec<_>>()
         .join("\n")
 }
+
+#[test]
+fn suggest_value_path_with_filter_and_mapper() {
+    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+    let testdir_path = testdir.path().unwrap();
+    fs::write(testdir_path.join("a_file"), "").unwrap();
+    fs::write(testdir_path.join("b_file"), "").unwrap();
+    fs::create_dir_all(testdir_path.join("c_dir")).unwrap();
+    fs::create_dir_all(testdir_path.join("d_dir")).unwrap();
+    
+    fs::write(testdir_path.join("c_dir").join("Cargo.toml"), "").unwrap();
+    
+    let mut cmd = Command::new("dynamic")
+        .arg(
+            clap::Arg::new("input")
+                .long("input")
+                .short('i')
+                .add(ArgValueCompleter::new(
+                    PathCompleter::dir()
+                        .current_dir(testdir_path.to_owned())
+                        .filter(|path| {
+                            path.file_name()
+                                .and_then(|n| n.to_str())
+                                .map_or(false, |name| name.starts_with('c'))
+                        })
+                        .map(|candidate| {
+                            if candidate.get_value().to_string_lossy().contains("c_dir") {
+                                candidate
+                                    .help(Some("Addable cargo package".into()))
+                                    .display_order(Some(0))
+                            } else {
+                                candidate.display_order(Some(1))
+                            }
+                        }),
+                )),
+        )
+        .args_conflicts_with_subcommands(true);
+    
+    assert_data_eq!(
+        complete!(cmd, "--input [TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![[r#"
+c_dir/	Addable cargo package
+d_dir/
+"#]],
+    );
+}
+
+#[test]
+fn suggest_value_file_path_with_mapper() {
+    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+    let testdir_path = testdir.path().unwrap();
+    fs::write(testdir_path.join("a_file.txt"), "").unwrap();
+    fs::write(testdir_path.join("b_file.md"), "").unwrap();
+    fs::write(testdir_path.join("c_file.rs"), "").unwrap();
+    fs::create_dir_all(testdir_path.join("d_dir")).unwrap();
+    
+    let mut cmd = Command::new("dynamic")
+        .arg(
+            clap::Arg::new("input")
+                .long("input")
+                .short('i')
+                .add(ArgValueCompleter::new(
+                    PathCompleter::file()
+                        .current_dir(testdir_path.to_owned())
+                        .map(|candidate| {
+                            let path = Path::new(candidate.get_value());
+                            if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
+                                match ext {
+                                    "rs" => candidate
+                                        .help(Some("Rust source file".into()))
+                                        .display_order(Some(0)),
+                                    "txt" => candidate
+                                        .help(Some("Text file".into()))
+                                        .display_order(Some(1)),
+                                    _ => candidate.display_order(Some(2))
+                                }
+                            } else {
+                                candidate.display_order(Some(3))
+                            }
+                        }),
+                )),
+        )
+        .args_conflicts_with_subcommands(true);
+    
+    assert_data_eq!(
+        complete!(cmd, "--input [TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![[r#"
+c_file.rs	Rust source file
+a_file.txt	Text file
+b_file.md
+d_dir/
+"#]],
+    );
+}
