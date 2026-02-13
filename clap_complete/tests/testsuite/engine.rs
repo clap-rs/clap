@@ -379,6 +379,26 @@ pos_c
 }
 
 #[test]
+fn terminator_after_allow_dash_dash_as_value_false() {
+    let mut cmd = Command::new("exhaustive")
+        .arg(
+            clap::Arg::new("value")
+                .long("value")
+                .action(clap::ArgAction::Set)
+                .allow_hyphen_values(true)
+                .allow_dash_dash_as_value(false),
+        )
+        .arg(
+            clap::Arg::new("pos")
+                .value_parser(["rest"])
+                .num_args(0..)
+                .last(true),
+        );
+
+    assert_data_eq!(complete!(cmd, "--value -- r"), snapbox::str!["rest"]);
+}
+
+#[test]
 fn suggest_argument_multi_values() {
     let mut cmd = Command::new("dynamic")
         .arg(
