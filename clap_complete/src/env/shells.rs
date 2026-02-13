@@ -54,6 +54,15 @@ _clap_complete_NAME() {
     elif [[ $_CLAP_COMPLETE_SPACE == false ]] && [[ "${COMPREPLY-}" =~ [=/:]$ ]]; then
         compopt -o nospace
     fi
+    if [[ -n ${COMP_WORDBREAKS+x} ]]; then
+        # If the current word contains a word break character, we need to strip
+        # the prefix up to that character from each completion
+        local prefix
+        prefix="${2%"${2##*[${COMP_WORDBREAKS}]}"}"
+        if [[ -n "$prefix" ]]; then
+            COMPREPLY=("${COMPREPLY[@]#"$prefix"}")
+        fi
+    fi
 }
 if [[ "${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -ge 4 || "${BASH_VERSINFO[0]}" -gt 4 ]]; then
     complete -o nospace -o bashdefault -o nosort -F _clap_complete_NAME BIN
@@ -478,8 +487,16 @@ mod tests {
         // `--flag=value` would produce `--flag=--flag=value` because Bash splits
         // at `=` and only replaces the part after it.
         assert!(
-            !script.contains("COMP_WORDBREAKS"),
-            "registration script does not yet reference COMP_WORDBREAKS"
+            script.contains("COMP_WORDBREAKS"),
+            "registration script must reference COMP_WORDBREAKS to handle word-break characters"
+        );
+
+        // The script must strip the prefix up to the word-break character from
+        // each completion entry using the `${COMPREPLY[@]#"$prefix"}` pattern.
+        // This is the shell-side fix that prevents double-prefixing.
+        assert!(
+            script.contains(r#"COMPREPLY=("${COMPREPLY[@]#"$prefix"}")"#),
+            "registration script must strip word-break prefix from COMPREPLY entries"
         );
     }
 
@@ -488,6 +505,7 @@ mod tests {
     #[cfg(all(unix, feature = "unstable-dynamic"))]
     #[cfg(feature = "unstable-shell-tests")]
     fn fish_env_completer_path_quoting_works() {
+        use snapbox::assert_data_eq;
         // Returns the dynamic registration line for the fish shell, for example:
         // complete --keep-order --exclusive --command my-bin --arguments "(COMPLETE=fish /path/to/my-bin ... )"
         let get_fish_registration = |completer_bin: &str| {
