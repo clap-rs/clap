@@ -14,18 +14,19 @@
 
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::{format_ident, quote, quote_spanned};
-use syn::{spanned::Spanned, Data, DeriveInput, FieldsUnnamed, Generics, Variant};
+use syn::{spanned::Spanned, Generics};
+use syn::{DataWithDefault, DeriveInputWithDefault, FieldsUnnamedWithDefault, VariantWithDefault};
 
 use crate::derives::args;
 use crate::derives::args::collect_args_fields;
 use crate::item::{Item, Kind, Name};
 use crate::utils::{is_simple_ty, subty_if_name};
 
-pub(crate) fn derive_subcommand(input: &DeriveInput) -> Result<TokenStream, syn::Error> {
+pub(crate) fn derive_subcommand(input: &DeriveInputWithDefault) -> Result<TokenStream, syn::Error> {
     let ident = &input.ident;
 
     match input.data {
-        Data::Enum(ref e) => {
+        DataWithDefault::Enum(ref e) => {
             let name = Name::Derived(ident.clone());
             let item = Item::from_subcommand_enum(input, name)?;
             let variants = e
@@ -47,7 +48,7 @@ pub(crate) fn gen_for_enum(
     item: &Item,
     item_name: &Ident,
     generics: &Generics,
-    variants: &[(&Variant, Item)],
+    variants: &[(&VariantWithDefault, Item)],
 ) -> Result<TokenStream, syn::Error> {
     if !matches!(&*item.kind(), Kind::Command(_)) {
         abort! { item.kind().span(),
@@ -136,11 +137,11 @@ pub(crate) fn gen_for_enum(
 }
 
 fn gen_augment(
-    variants: &[(&Variant, Item)],
+    variants: &[(&VariantWithDefault, Item)],
     parent_item: &Item,
     override_required: bool,
 ) -> Result<TokenStream, syn::Error> {
-    use syn::Fields::{Named, Unit, Unnamed};
+    use syn::FieldsWithDefault::{Named, Unit, Unnamed};
 
     let app_var = Ident::new("__clap_app", Span::call_site());
 
@@ -180,7 +181,7 @@ fn gen_augment(
             }
 
             Kind::Flatten(_) => match variant.fields {
-                Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
+                Unnamed(FieldsUnnamedWithDefault { ref unnamed, .. }) if unnamed.len() == 1 => {
                     let ty = &unnamed[0].ty;
                     let deprecations = if !override_required {
                         item.deprecations()
@@ -221,7 +222,7 @@ fn gen_augment(
                         abort!(variant, "invalid variant for `#[command(subcommand)]`, expected a newtype variant")
                     }
                     Unit => quote!( #subcommand_var ),
-                    Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
+                    Unnamed(FieldsUnnamedWithDefault { ref unnamed, .. }) if unnamed.len() == 1 => {
                         let ty = &unnamed[0].ty;
                         if override_required {
                             quote_spanned! { ty.span()=>
@@ -291,7 +292,7 @@ fn gen_augment(
                             #subcommand_var #final_from_attrs
                         }
                     }
-                    Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
+                    Unnamed(FieldsUnnamedWithDefault { ref unnamed, .. }) if unnamed.len() == 1 => {
                         let ty = &unnamed[0].ty;
                         let arg_block = if override_required {
                             quote_spanned! { ty.span()=>
@@ -353,8 +354,8 @@ fn gen_augment(
     })
 }
 
-fn gen_has_subcommand(variants: &[(&Variant, Item)]) -> Result<TokenStream, syn::Error> {
-    use syn::Fields::Unnamed;
+fn gen_has_subcommand(variants: &[(&VariantWithDefault, Item)]) -> Result<TokenStream, syn::Error> {
+    use syn::FieldsWithDefault::Unnamed;
 
     let mut ext_subcmd = false;
 
@@ -417,8 +418,10 @@ fn gen_has_subcommand(variants: &[(&Variant, Item)]) -> Result<TokenStream, syn:
     Ok(genned)
 }
 
-fn gen_from_arg_matches(variants: &[(&Variant, Item)]) -> Result<TokenStream, syn::Error> {
-    use syn::Fields::{Named, Unit, Unnamed};
+fn gen_from_arg_matches(
+    variants: &[(&VariantWithDefault, Item)],
+) -> Result<TokenStream, syn::Error> {
+    use syn::FieldsWithDefault::{Named, Unit, Unnamed};
 
     let subcommand_name_var = format_ident!("__clap_name");
     let sub_arg_matches_var = format_ident!("__clap_arg_matches");
@@ -563,8 +566,10 @@ fn gen_from_arg_matches(variants: &[(&Variant, Item)]) -> Result<TokenStream, sy
     })
 }
 
-fn gen_update_from_arg_matches(variants: &[(&Variant, Item)]) -> Result<TokenStream, syn::Error> {
-    use syn::Fields::{Named, Unit, Unnamed};
+fn gen_update_from_arg_matches(
+    variants: &[(&VariantWithDefault, Item)],
+) -> Result<TokenStream, syn::Error> {
+    use syn::FieldsWithDefault::{Named, Unit, Unnamed};
 
     let (flatten, variants): (Vec<_>, Vec<_>) = variants
         .iter()

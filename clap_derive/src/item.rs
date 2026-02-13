@@ -17,8 +17,8 @@ use std::env;
 use heck::{ToKebabCase, ToLowerCamelCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use proc_macro2::{self, Span, TokenStream};
 use quote::{format_ident, quote, quote_spanned, ToTokens};
-use syn::DeriveInput;
-use syn::{self, ext::IdentExt, spanned::Spanned, Attribute, Field, Ident, LitStr, Type, Variant};
+use syn::{self, ext::IdentExt, spanned::Spanned, Attribute, Ident, LitStr, Type, Variant};
+use syn::{DeriveInput, DeriveInputWithDefault, Expr, FieldWithDefault, VariantWithDefault};
 
 use crate::attr::{AttrKind, AttrValue, ClapAttr, MagicAttrName};
 use crate::utils::{extract_doc_comment, format_doc_comment, inner_type, is_simple_ty, Sp, Ty};
@@ -53,7 +53,10 @@ pub(crate) struct Item {
 }
 
 impl Item {
-    pub(crate) fn from_args_struct(input: &DeriveInput, name: Name) -> Result<Self, syn::Error> {
+    pub(crate) fn from_args_struct(
+        input: &DeriveInputWithDefault,
+        name: Name,
+    ) -> Result<Self, syn::Error> {
         let ident = input.ident.clone();
         let span = input.ident.span();
         let attrs = &input.attrs;
@@ -71,7 +74,7 @@ impl Item {
     }
 
     pub(crate) fn from_subcommand_enum(
-        input: &DeriveInput,
+        input: &DeriveInputWithDefault,
         name: Name,
     ) -> Result<Self, syn::Error> {
         let ident = input.ident.clone();
@@ -117,7 +120,7 @@ impl Item {
     }
 
     pub(crate) fn from_subcommand_variant(
-        variant: &Variant,
+        variant: &VariantWithDefault,
         struct_casing: Sp<CasingStyle>,
         env_casing: Sp<CasingStyle>,
     ) -> Result<Self, syn::Error> {
@@ -125,12 +128,12 @@ impl Item {
         let ident = variant.ident.clone();
         let span = variant.span();
         let ty = match variant.fields {
-            syn::Fields::Unnamed(syn::FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
-                Ty::from_syn_ty(&unnamed[0].ty)
-            }
-            syn::Fields::Named(_) | syn::Fields::Unnamed(..) | syn::Fields::Unit => {
-                Sp::new(Ty::Other, span)
-            }
+            syn::FieldsWithDefault::Unnamed(syn::FieldsUnnamedWithDefault {
+                ref unnamed, ..
+            }) if unnamed.len() == 1 => Ty::from_syn_ty(&unnamed[0].ty),
+            syn::FieldsWithDefault::Named(_)
+            | syn::FieldsWithDefault::Unnamed(..)
+            | syn::FieldsWithDefault::Unit => Sp::new(Ty::Other, span),
         };
         let kind = Sp::new(Kind::Command(ty), span);
         let mut res = Self::new(
@@ -197,7 +200,7 @@ impl Item {
     }
 
     pub(crate) fn from_args_field(
-        field: &Field,
+        field: &FieldWithDefault,
         struct_casing: Sp<CasingStyle>,
         env_casing: Sp<CasingStyle>,
     ) -> Result<Self, syn::Error> {
@@ -219,6 +222,23 @@ impl Item {
         res.push_attrs(&parsed_attrs)?;
         if matches!(&*res.kind, Kind::Arg(_)) {
             res.push_doc_comment(&field.attrs, "help", Some("long_help"));
+        }
+        if res.find_default_method().is_none() {
+            if let Some((_, ref default)) = field.default {
+                let val = quote!(#default);
+                let ty = &field.ty;
+                let val = quote_spanned!(default.span()=> {
+                    static DEFAULT_VALUE: ::std::sync::OnceLock<String> = ::std::sync::OnceLock::new();
+                    let s = DEFAULT_VALUE.get_or_init(|| {
+                        let val: #ty = #val;
+                        ::std::string::ToString::to_string(&val)
+                    });
+                    let s: &'static str = &*s;
+                    s
+                });
+                let raw_ident = Ident::new("default_value", default.span());
+                res.methods.push(Method::new(raw_ident, val));
+            }
         }
 
         match &*res.kind {
