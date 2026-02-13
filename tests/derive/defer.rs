@@ -1,9 +1,7 @@
-// Tests for subcommand initialization behavior.
+// Tests for #[command(defer = true/false)] attribute.
 //
-// These tests establish the current (eager) behavior as a baseline.
-// A subsequent commit will add `#[command(defer = true)]` to enable lazy
-// initialization, and the test diffs will show how behavior changes.
-//
+// This feature enables lazy initialization of subcommand arguments,
+// dramatically improving CLI startup time for applications with many subcommands.
 // See: https://github.com/clap-rs/clap/issues/4959
 
 use clap::{Args, CommandFactory, Parser, Subcommand};
@@ -17,6 +15,7 @@ fn subcommand_with_named_fields() {
     }
 
     #[derive(Subcommand, Debug)]
+    #[command(defer = true)]
     enum Commands {
         /// Add a file
         Add {
@@ -49,6 +48,24 @@ fn subcommand_with_named_fields() {
         Some("Remove a file".to_string()),
     );
 
+    // Args should be deferred before build
+    let user_args: Vec<_> = add_cmd
+        .get_arguments()
+        .filter(|a| a.get_id() != "help" && a.get_id() != "version")
+        .collect();
+    assert!(
+        user_args.is_empty(),
+        "args should be deferred before build, got: {:?}",
+        user_args.iter().map(|a| a.get_id()).collect::<Vec<_>>()
+    );
+
+    // After build, args should be visible
+    let mut cmd = cmd;
+    cmd.build();
+    let add_cmd = cmd
+        .get_subcommands()
+        .find(|s| s.get_name() == "add")
+        .expect("add subcommand should exist after build");
     let user_args: Vec<_> = add_cmd
         .get_arguments()
         .filter(|a| a.get_id() != "help" && a.get_id() != "version")
@@ -56,7 +73,7 @@ fn subcommand_with_named_fields() {
         .collect();
     assert!(
         user_args.contains(&"file"),
-        "args should be immediately visible, got: {user_args:?}"
+        "args should be visible after build, got: {user_args:?}"
     );
 }
 
@@ -69,6 +86,7 @@ fn nested_subcommands() {
     }
 
     #[derive(Subcommand, Debug, PartialEq)]
+    #[command(defer = true)]
     enum TopLevel {
         /// Account operations
         Account(AccountArgs),
@@ -83,6 +101,7 @@ fn nested_subcommands() {
     }
 
     #[derive(Subcommand, Debug, PartialEq)]
+    #[command(defer = true)]
     enum AccountAction {
         /// View account
         View {
@@ -91,12 +110,28 @@ fn nested_subcommands() {
         },
     }
 
+    // Args should be deferred before build
     let cmd = Cli::command();
-
     let account = cmd
         .get_subcommands()
         .find(|s| s.get_name() == "account")
         .expect("account should exist");
+    let user_args: Vec<_> = account
+        .get_arguments()
+        .filter(|a| a.get_id() != "help" && a.get_id() != "version")
+        .collect();
+    assert!(
+        user_args.is_empty(),
+        "account arguments should be deferred before build"
+    );
+
+    // After build, args and nested subcommands should be visible
+    let mut cmd = cmd;
+    cmd.build();
+    let account = cmd
+        .get_subcommands()
+        .find(|s| s.get_name() == "account")
+        .expect("account should exist after build");
     let args: Vec<_> = account
         .get_arguments()
         .filter(|a| a.get_id() != "help" && a.get_id() != "version")
@@ -104,9 +139,10 @@ fn nested_subcommands() {
         .collect();
     assert!(
         args.contains(&"account_id"),
-        "account_id should be visible, got: {args:?}"
+        "account_id should be visible after build, got: {args:?}"
     );
 
+    // Parsing should still work (triggers build internally)
     let parsed = Cli::try_parse_from(["test", "account", "alice", "view"]).unwrap();
     assert_eq!(
         parsed,
@@ -131,7 +167,7 @@ fn nested_subcommands() {
 }
 
 #[test]
-fn flatten_args_in_subcommand_are_eager() {
+fn flatten_args_in_subcommand_are_deferred() {
     #[derive(Parser, Debug, PartialEq)]
     struct Cli {
         #[command(subcommand)]
@@ -139,6 +175,7 @@ fn flatten_args_in_subcommand_are_eager() {
     }
 
     #[derive(Subcommand, Debug, PartialEq)]
+    #[command(defer = true)]
     enum Commands {
         Add(FlattenedArgs),
     }
@@ -162,6 +199,22 @@ fn flatten_args_in_subcommand_are_eager() {
         .get_subcommands()
         .find(|s| s.get_name() == "add")
         .expect("add should exist");
+
+    let user_args: Vec<_> = add
+        .get_arguments()
+        .filter(|a| a.get_id() != "help" && a.get_id() != "version")
+        .collect();
+    assert!(
+        user_args.is_empty(),
+        "flattened args should be deferred before build"
+    );
+
+    let mut cmd = cmd;
+    cmd.build();
+    let add = cmd
+        .get_subcommands()
+        .find(|s| s.get_name() == "add")
+        .expect("add should exist after build");
 
     let user_args: Vec<_> = add
         .get_arguments()
@@ -199,6 +252,7 @@ fn enum_variant_with_inline_args() {
     }
 
     #[derive(Subcommand, Debug, PartialEq)]
+    #[command(defer = true)]
     enum Cmd {
         Sub {
             #[arg(long)]
@@ -250,8 +304,13 @@ fn default_behavior_is_eager() {
         .filter(|a| a.get_id() != "help" && a.get_id() != "version")
         .map(|a| a.get_id().as_str())
         .collect();
-    assert!(
-        user_args.contains(&"file"),
-        "default: args should be immediately visible"
-    );
+
+    if cfg!(feature = "unstable-v5") {
+        assert!(user_args.is_empty(), "v5 default: args should be deferred");
+    } else {
+        assert!(
+            user_args.contains(&"file"),
+            "v4 default: args should be immediately visible"
+        );
+    }
 }

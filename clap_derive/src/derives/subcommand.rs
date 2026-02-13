@@ -323,6 +323,14 @@ fn gen_augment(
                     }
                 };
 
+                let sub_augment = if parent_item.defer() {
+                    quote! {
+                        #subcommand_var.defer(|#subcommand_var| { #sub_augment })
+                    }
+                } else {
+                    sub_augment
+                };
+
                 let deprecations = if !override_required {
                     item.deprecations()
                 } else {
