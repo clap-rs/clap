@@ -1443,6 +1443,58 @@ pos-c
     );
 }
 
+#[test]
+fn suggest_require_equals() {
+    let mut cmd = Command::new("exhaustive")
+        .arg(
+            clap::Arg::new("format")
+                .long("format")
+                .require_equals(true)
+                .value_parser(["json", "yaml", "toml"]),
+        )
+        .arg(
+            clap::Arg::new("name")
+                .long("name")
+                .short('n'),
+        );
+
+    // When completing after an empty input, --format should appear with = appended
+    assert_data_eq!(
+        complete!(cmd, " [TAB]"),
+        snapbox::str![[r#"
+--format=
+--name
+--help	Print help
+"#]]
+    );
+
+    // Should complete values after --format=
+    assert_data_eq!(
+        complete!(cmd, "--format=[TAB]"),
+        snapbox::str![[r#"
+--format=json
+--format=yaml
+--format=toml
+"#]]
+    );
+
+    // Should complete values after --format=j
+    assert_data_eq!(
+        complete!(cmd, "--format=j[TAB]"),
+        snapbox::str!["--format=json"]
+    );
+
+    // When typing --format (space), should NOT suggest values since require_equals forbids it
+    assert_data_eq!(
+        complete!(cmd, "--format [TAB]"),
+        snapbox::str![[r#"
+--format=
+--name
+--help	Print help
+"#]]
+    );
+}
+
 fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>) -> String {
     let input = args.as_ref();
     let mut args = vec![std::ffi::OsString::from(cmd.get_name())];

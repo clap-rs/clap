@@ -88,7 +88,10 @@ pub fn complete(
                 });
 
                 if let Some(opt) = opt {
-                    if opt.get_num_args().expect("built").takes_values() && value.is_none() {
+                    if opt.get_num_args().expect("built").takes_values()
+                        && value.is_none()
+                        && !opt.is_require_equals_set()
+                    {
                         next_state = ParseState::Opt((opt, 1));
                     };
                 } else if pos_allows_hyphen(current_cmd, pos_index) {
@@ -478,9 +481,16 @@ fn longs_and_visible_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
     p.get_arguments()
         .filter_map(|a| {
             a.get_long_and_visible_aliases().map(|longs| {
-                longs
-                    .into_iter()
-                    .map(|s| populate_arg_candidate(CompletionCandidate::new(format!("--{s}")), a))
+                longs.into_iter().map(|s| {
+                    let suffix = if a.is_require_equals_set()
+                        && a.get_num_args().expect("built").takes_values()
+                    {
+                        "="
+                    } else {
+                        ""
+                    };
+                    populate_arg_candidate(CompletionCandidate::new(format!("--{s}{suffix}")), a)
+                })
             })
         })
         .flatten()
@@ -495,7 +505,15 @@ fn hidden_longs_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
         .filter_map(|a| {
             a.get_aliases().map(|longs| {
                 longs.into_iter().map(|s| {
-                    populate_arg_candidate(CompletionCandidate::new(format!("--{s}")), a).hide(true)
+                    let suffix = if a.is_require_equals_set()
+                        && a.get_num_args().expect("built").takes_values()
+                    {
+                        "="
+                    } else {
+                        ""
+                    };
+                    populate_arg_candidate(CompletionCandidate::new(format!("--{s}{suffix}")), a)
+                        .hide(true)
                 })
             })
         })
