@@ -1479,19 +1479,27 @@ fn suggest_flag_subcommand_completion() {
     // Completing long flag subcommands
     assert_data_eq!(
         complete!(cmd, "--syn[TAB]"),
-        snapbox::str![""]
+        snapbox::str!["--sync"]
     );
 
     // After selecting a short flag subcommand, complete its flags
     assert_data_eq!(
         complete!(cmd, "-S --[TAB]"),
-        snapbox::str!["--help	Print help"]
+        snapbox::str![[r#"
+--search
+--quiet
+--help	Print help
+"#]]
     );
 
     // Combined short flags after flag subcommand: -Ss (sync + search)
     assert_data_eq!(
         complete!(cmd, "-Ss[TAB]"),
-        snapbox::str!["-Ssh	Print help"]
+        snapbox::str![[r#"
+-Sss	--search
+-Ssq	--quiet
+-Ssh	Print help
+"#]]
     );
 }
 
