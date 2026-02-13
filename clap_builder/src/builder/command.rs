@@ -4911,6 +4911,7 @@ impl Command {
             .unroll_args_in_group(g)
             .iter()
             .filter_map(|x| self.find(x))
+            .filter(|x| !x.is_hide_set())
             .map(|x| {
                 if x.is_positional() {
                     // Print val_name for positional arguments. e.g. <file_name>
