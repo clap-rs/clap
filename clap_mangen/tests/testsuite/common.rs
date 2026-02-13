@@ -473,3 +473,26 @@ pub(crate) fn default_subcmd_order(name: &'static str) -> clap::Command {
         ),
     ])
 }
+
+pub(crate) fn styled(name: &'static str) -> clap::Command {
+    const ALL_STYLES: anstyle::Style = anstyle::Style::new()
+        .fg_color(Some(anstyle::Color::Ansi(anstyle::AnsiColor::Red)))
+        .bg_color(Some(anstyle::Color::Ansi(anstyle::AnsiColor::Blue)))
+        .bold()
+        .italic()
+        .underline();
+    clap::Command::new(name)
+        .about(format!("Hello {ALL_STYLES}about{ALL_STYLES:#}!"))
+        .before_help(format!("Hello {ALL_STYLES}before_help{ALL_STYLES:#}!"))
+        .after_help(format!("Hello {ALL_STYLES}after_help{ALL_STYLES:#}!"))
+        .override_usage(format!("Hello {ALL_STYLES}usage{ALL_STYLES:#}!"))
+        .arg(
+            clap::Arg::new("arg")
+                .value_parser([
+                    PossibleValue::new("fast"),
+                    PossibleValue::new("slow")
+                        .help(format!("Hello {ALL_STYLES}PossibleValue{ALL_STYLES:#}!")),
+                ])
+                .help(format!("Hello {ALL_STYLES}help{ALL_STYLES:#}!")),
+        )
+}

@@ -101,9 +101,9 @@ dependencies = [
 
 [[package]]
 name = "anstyle"
-version = "1.0.10"
+version = "1.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "55cc3b69f167a1ef2e161439aa98aed94e6028e5f9a59be9a6ffb47aef1651f9"
+checksum = "862ed96ca487e809f1c8e5a8447f6ee2cf102f846893800b20cebdf541fc6bbd"
 
 [[package]]
 name = "anstyle-lossy"
@@ -130,6 +130,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ad186efb764318d35165f1758e7dcef3b10628e26d41a44bc5550652e6804391"
 dependencies = [
  "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "anstyle-roff"
+version = "0.3.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af32adb801a280c7ee53c38f2ec7125fdceaf974afe841cda2657450fa74d4e3"
+dependencies = [
+ "anstyle",
+ "anstyle-lossy",
+ "cansi",
+ "roff",
 ]
 
 [[package]]
@@ -324,6 +336,12 @@ dependencies = [
  "serde",
  "zip",
 ]
+
+[[package]]
+name = "cansi"
+version = "2.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4bdcae87153686017415ce77e48c53e6818a0a058f0e21b56640d1e944967ef8"
 
 [[package]]
 name = "cc"
@@ -551,6 +569,8 @@ dependencies = [
 name = "clap_mangen"
 version = "0.2.31"
 dependencies = [
+ "anstyle",
+ "anstyle-roff",
  "automod",
  "clap 4.5.58",
  "roff",
