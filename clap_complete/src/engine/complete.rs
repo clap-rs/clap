@@ -77,6 +77,14 @@ pub fn complete(
             }
         } else if let Some((flag, value)) = arg.to_long() {
             if let Ok(flag) = flag {
+                if value.is_none() {
+                    if let Some(subcmd) = find_long_flag_subcmd(current_cmd, flag) {
+                        current_cmd = subcmd;
+                        pos_index = 1;
+                        continue;
+                    }
+                }
+
                 let opt = current_cmd.get_arguments().find(|a| {
                     let longs = a.get_long_and_visible_aliases();
                     let is_find = longs.map(|v| {
@@ -96,15 +104,39 @@ pub fn complete(
                         parse_positional(current_cmd, pos_index, is_escaped, current_state);
                 }
             }
-        } else if let Some(short) = arg.to_short() {
-            let (_, takes_value_opt, mut short) = parse_shortflags(current_cmd, short);
-            if let Some(opt) = takes_value_opt {
-                if short.next_value_os().is_none() {
-                    next_state = ParseState::Opt((opt, 1));
+        } else if let Some(mut short) = arg.to_short() {
+            // Check if the first short flag is a subcommand flag.
+            let mut found_subcmd = false;
+            let mut peek = short.clone();
+            if let Some(Ok(c)) = peek.next_flag() {
+                if let Some(subcmd) = find_short_flag_subcmd(current_cmd, c) {
+                    current_cmd = subcmd;
+                    pos_index = 1;
+                    found_subcmd = true;
+                    // Consume the subcommand flag from the real iterator.
+                    short.next_flag();
+                    // If there are remaining flags, parse them as flags of the subcommand.
+                    if peek.next_flag().is_some() {
+                        let (_, takes_value_opt, remaining) = parse_shortflags(current_cmd, short);
+                        short = remaining;
+                        if let Some(opt) = takes_value_opt {
+                            if short.next_value_os().is_none() {
+                                next_state = ParseState::Opt((opt, 1));
+                            }
+                        }
+                    }
                 }
-            } else if pos_allows_hyphen(current_cmd, pos_index) {
-                (next_state, pos_index) =
-                    parse_positional(current_cmd, pos_index, is_escaped, current_state);
+            }
+            if !found_subcmd {
+                let (_, takes_value_opt, mut short) = parse_shortflags(current_cmd, short);
+                if let Some(opt) = takes_value_opt {
+                    if short.next_value_os().is_none() {
+                        next_state = ParseState::Opt((opt, 1));
+                    }
+                } else if pos_allows_hyphen(current_cmd, pos_index) {
+                    (next_state, pos_index) =
+                        parse_positional(current_cmd, pos_index, is_escaped, current_state);
+                }
             }
         } else {
             match current_state {
@@ -285,10 +317,55 @@ fn complete_option(
                         .into_iter()
                         .filter(|comp| comp.get_value().starts_with(format!("--{flag}").as_str())),
                 );
+                completions.extend(
+                    long_flag_subcommands(cmd)
+                        .into_iter()
+                        .filter(|comp| comp.get_value().starts_with(format!("--{flag}").as_str())),
+                );
             }
         }
     } else if let Some(short) = arg.to_short() {
         if !short.is_negative_number() {
+            // Check if the first short flag is a subcommand flag.
+            let mut peek = short.clone();
+            if let Some(Ok(c)) = peek.next_flag() {
+                if let Some(subcmd) = find_short_flag_subcmd(cmd, c) {
+                    // First flag is a subcommand; complete remaining flags from the subcommand.
+                    let mut inner_short = short.clone();
+                    inner_short.next_flag(); // consume the subcommand flag
+                    let subcmd_prefix = format!("-{c}");
+
+                    let (leading_flags, takes_value_opt, mut remaining) =
+                        parse_shortflags(subcmd, inner_short);
+
+                    if let Some(opt) = takes_value_opt {
+                        let mut peek_remaining = remaining.clone();
+                        let has_equal = if let Some(Ok('=')) = peek_remaining.next_flag() {
+                            remaining.next_flag();
+                            true
+                        } else {
+                            false
+                        };
+
+                        let value = remaining.next_value_os().unwrap_or(OsStr::new(""));
+                        completions.extend(
+                            complete_arg_value(value.to_str().ok_or(value), opt, current_dir)
+                                .into_iter()
+                                .map(|comp| {
+                                    let sep = if has_equal { "=" } else { "" };
+                                    comp.add_prefix(format!("{subcmd_prefix}{leading_flags}{sep}"))
+                                }),
+                        );
+                    } else {
+                        completions.extend(shorts_and_visible_aliases(subcmd).into_iter().map(
+                            |comp| comp.add_prefix(format!("{subcmd_prefix}{leading_flags}")),
+                        ));
+                    }
+
+                    return completions;
+                }
+            }
+
             // Find the first takes_values option.
             let (leading_flags, takes_value_opt, mut short) = parse_shortflags(cmd, short);
 
@@ -503,6 +580,30 @@ fn hidden_longs_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
         .collect()
 }
 
+/// Gets long flag subcommands as `--flag` style completion candidates.
+fn long_flag_subcommands(cmd: &clap::Command) -> Vec<CompletionCandidate> {
+    cmd.get_subcommands()
+        .flat_map(|sc| {
+            let mut candidates = Vec::new();
+            if let Some(long_flag) = sc.get_long_flag() {
+                candidates.push(populate_command_candidate(
+                    CompletionCandidate::new(format!("--{long_flag}")),
+                    cmd,
+                    sc,
+                ));
+            }
+            for alias in sc.get_visible_long_flag_aliases() {
+                candidates.push(populate_command_candidate(
+                    CompletionCandidate::new(format!("--{alias}")),
+                    cmd,
+                    sc,
+                ));
+            }
+            candidates
+        })
+        .collect()
+}
+
 /// Gets all the short options, their visible aliases and flags of a [`clap::Command`].
 /// Includes `h` and `V` depending on the [`clap::Command`] settings.
 fn shorts_and_visible_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
@@ -704,4 +805,18 @@ fn opt_allows_hyphen(state: &ParseState<'_>, arg: &clap_lex::ParsedArg<'_>) -> b
     }
 
     false
+}
+
+/// Find a subcommand by short flag (including aliases).
+fn find_short_flag_subcmd(cmd: &clap::Command, flag: char) -> Option<&clap::Command> {
+    cmd.get_subcommands().find(|sc| {
+        sc.get_short_flag() == Some(flag) || sc.get_all_short_flag_aliases().any(|a| a == flag)
+    })
+}
+
+/// Find a subcommand by long flag (including aliases).
+fn find_long_flag_subcmd<'c>(cmd: &'c clap::Command, flag: &str) -> Option<&'c clap::Command> {
+    cmd.get_subcommands().find(|sc| {
+        sc.get_long_flag() == Some(flag) || sc.get_all_long_flag_aliases().any(|a| a == flag)
+    })
 }
