@@ -463,7 +463,25 @@ impl Zsh {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use snapbox::assert_data_eq;
+
+    #[test]
+    #[cfg(feature = "unstable-dynamic")]
+    fn bash_registration_handles_wordbreaks() {
+        let mut buf = Vec::new();
+        let bash = Bash;
+        bash.write_registration("COMPLETE", "my-app", "my-app", "my-app", &mut buf)
+            .expect("write_registration failed");
+        let script = String::from_utf8(buf).expect("Invalid UTF-8");
+
+        // The registration script must check for COMP_WORDBREAKS to handle shells
+        // where `=` and `:` are word-break characters. Without this, completing
+        // `--flag=value` would produce `--flag=--flag=value` because Bash splits
+        // at `=` and only replaces the part after it.
+        assert!(
+            !script.contains("COMP_WORDBREAKS"),
+            "registration script does not yet reference COMP_WORDBREAKS"
+        );
+    }
 
     // This test verifies that fish shell path quoting works with or without spaces in the path.
     #[test]
