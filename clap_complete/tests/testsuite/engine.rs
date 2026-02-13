@@ -1478,3 +1478,166 @@ fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>
         .collect::<Vec<_>>()
         .join("\n")
 }
+
+/// Like `complete` but includes `[nospace]` marker for candidates with nospace set
+fn complete_with_nospace(
+    cmd: &mut Command,
+    args: impl AsRef<str>,
+    current_dir: Option<&Path>,
+) -> String {
+    let input = args.as_ref();
+    let mut args = vec![std::ffi::OsString::from(cmd.get_name())];
+    let arg_index;
+
+    if let Some((prior, after)) = input.split_once("[TAB]") {
+        args.extend(prior.split_whitespace().map(From::from));
+        if prior.ends_with(char::is_whitespace) {
+            args.push(std::ffi::OsString::default());
+        }
+        arg_index = args.len() - 1;
+        args.extend(after.split_whitespace().map(From::from));
+    } else {
+        args.extend(input.split_whitespace().map(From::from));
+        if input.ends_with(char::is_whitespace) {
+            args.push(std::ffi::OsString::default());
+        }
+        arg_index = args.len() - 1;
+    }
+
+    clap_complete::engine::complete(cmd, args, arg_index, current_dir)
+        .unwrap()
+        .into_iter()
+        .map(|candidate| {
+            let compl = candidate.get_value().to_str().unwrap();
+            let nospace = if candidate.is_nospace_set() {
+                "[nospace]"
+            } else {
+                ""
+            };
+            if let Some(help) = candidate.get_help() {
+                format!("{compl}\t{help}{nospace}")
+            } else if !nospace.is_empty() {
+                format!("{compl}\t{nospace}")
+            } else {
+                compl.to_owned()
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
+#[test]
+fn nospace_on_directory_completions() {
+    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+    let testdir_path = testdir.path().unwrap();
+
+    fs::write(testdir_path.join("a_file"), "").unwrap();
+    fs::create_dir_all(testdir_path.join("b_dir")).unwrap();
+
+    let mut cmd = Command::new("dynamic").arg(
+        clap::Arg::new("input")
+            .long("input")
+            .value_hint(clap::ValueHint::AnyPath),
+    );
+
+    assert_data_eq!(
+        complete_with_nospace(&mut cmd, "--input [TAB]", Some(testdir_path)),
+        snapbox::str![[r#"
+.
+a_file
+b_dir/	[nospace]
+"#]],
+    );
+}
+
+#[test]
+fn nospace_on_equals_value_completions() {
+    let mut cmd = Command::new("dynamic").arg(
+        clap::Arg::new("format")
+            .long("format")
+            .value_parser(["json", "yaml"]),
+    );
+
+    assert_data_eq!(
+        complete_with_nospace(&mut cmd, "--format=[TAB]", None),
+        snapbox::str![[r#"
+--format=json	[nospace]
+--format=yaml	[nospace]
+"#]],
+    );
+}
+
+#[test]
+fn nospace_on_short_equals_value_completions() {
+    let mut cmd = Command::new("dynamic").arg(
+        clap::Arg::new("format")
+            .long("format")
+            .short('F')
+            .value_parser(["json", "yaml"]),
+    );
+
+    assert_data_eq!(
+        complete_with_nospace(&mut cmd, "-F=[TAB]", None),
+        snapbox::str![[r#"
+-F=json	[nospace]
+-F=yaml	[nospace]
+"#]],
+    );
+
+    // Without equals, no nospace
+    assert_data_eq!(
+        complete_with_nospace(&mut cmd, "-F [TAB]", None),
+        snapbox::str![[r#"
+json
+yaml
+"#]],
+    );
+}
+
+#[test]
+fn nospace_on_require_equals_options() {
+    let mut cmd = Command::new("dynamic").arg(
+        clap::Arg::new("format")
+            .long("format")
+            .require_equals(true)
+            .value_parser(["json", "yaml"]),
+    );
+
+    assert_data_eq!(
+        complete_with_nospace(&mut cmd, "--[TAB]", None),
+        snapbox::str![[r#"
+--format=	[nospace]
+--help	Print help
+"#]],
+    );
+}
+
+#[test]
+fn nospace_on_delimiter_completions() {
+    let mut cmd = Command::new("delimiter").arg(
+        clap::Arg::new("delimiter")
+            .long("delimiter")
+            .value_parser(["comma", "space", "tab"])
+            .value_delimiter(','),
+    );
+
+    // First value: no nospace (no prefix)
+    assert_data_eq!(
+        complete_with_nospace(&mut cmd, "--delimiter [TAB]", None),
+        snapbox::str![[r#"
+comma
+space
+tab
+"#]],
+    );
+
+    // After delimiter: nospace because of prefix
+    assert_data_eq!(
+        complete_with_nospace(&mut cmd, "--delimiter comma,[TAB]", None),
+        snapbox::str![[r#"
+comma,comma	[nospace]
+comma,space	[nospace]
+comma,tab	[nospace]
+"#]],
+    );
+}
