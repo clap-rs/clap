@@ -1443,6 +1443,202 @@ pos-c
     );
 }
 
+#[test]
+fn suggest_multi_path_element_prefix() {
+    let mut cmd = Command::new("dynamic")
+        .arg(
+            clap::Arg::new("input")
+                .long("input")
+                .short('i')
+                .value_hint(clap::ValueHint::AnyPath),
+        );
+
+    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+    let testdir_path = testdir.path().unwrap();
+
+    // Create a nested directory structure
+    fs::create_dir_all(testdir_path.join("target/debug/incremental")).unwrap();
+    fs::create_dir_all(testdir_path.join("target/release")).unwrap();
+    fs::create_dir_all(testdir_path.join("tests")).unwrap();
+    fs::write(testdir_path.join("target/debug/binary"), "").unwrap();
+
+    // 1. Single-component abbreviation: standard prefix matching still works
+    assert_data_eq!(
+        complete!(cmd, "--input tar[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str!["target/"]
+    );
+
+    // 2. Two-component abbreviation: "tar/de" matches "target/debug/"
+    assert_data_eq!(
+        complete!(cmd, "--input tar/de[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str!["target/debug/"]
+    );
+
+    // 3. Full abbreviated path: "tar/de/inc" matches "target/debug/incremental/"
+    assert_data_eq!(
+        complete!(cmd, "--input tar/de/inc[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str!["target/debug/incremental/"]
+    );
+
+    // 4. Abbreviated path to a file: "tar/de/bin" matches "target/debug/binary"
+    assert_data_eq!(
+        complete!(cmd, "--input tar/de/bin[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str!["target/debug/binary"]
+    );
+
+    // 5. Multiple matches for last component: "tar/re" matches "target/release/"
+    assert_data_eq!(
+        complete!(cmd, "--input tar/re[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str!["target/release/"]
+    );
+
+    // 6. Single char per component: "t/d/i" matches "target/debug/incremental/"
+    assert_data_eq!(
+        complete!(cmd, "--input t/d/i[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str!["target/debug/incremental/"]
+    );
+}
+
+#[test]
+fn suggest_multi_path_element_prefix_edge_cases() {
+    let mut cmd = Command::new("dynamic")
+        .arg(
+            clap::Arg::new("input")
+                .long("input")
+                .short('i')
+                .value_hint(clap::ValueHint::AnyPath),
+        );
+
+    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+    let testdir_path = testdir.path().unwrap();
+
+    // Create directory structure
+    fs::create_dir_all(testdir_path.join("target/debug/incremental")).unwrap();
+    fs::create_dir_all(testdir_path.join("target/release")).unwrap();
+    fs::create_dir_all(testdir_path.join("tests")).unwrap();
+    fs::write(testdir_path.join("target/debug/binary"), "").unwrap();
+
+    // 7. Non-existent abbreviated path: no match, should return empty
+    assert_data_eq!(
+        complete!(cmd, "--input foo/bar/baz[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![""]
+    );
+
+    // 8. Empty input: should list top-level directory contents (normal behavior)
+    assert_data_eq!(
+        complete!(cmd, "--input [TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![[r#"
+.
+target/
+tests/
+"#]]
+    );
+
+    // 9. Trailing slash on abbreviated component: "tar/" tries to list contents of
+    //    non-existent "tar/" directory, falls back to abbreviated matching
+    assert_data_eq!(
+        complete!(cmd, "--input tar/[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![""]
+    );
+
+    // 10. Single component with no slash: normal prefix completion, no abbreviation needed
+    assert_data_eq!(
+        complete!(cmd, "--input targ[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str!["target/"]
+    );
+
+    // 11. Path with "./" prefix: abbreviated matching should work through dot-prefix
+    assert_data_eq!(
+        complete!(cmd, "--input ./tar/de[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str!["target/debug/"]
+    );
+
+    // 12. Ambiguous first component: both "target/" and "tests/" start with "t",
+    //     but only "target/" has a "d" subdirectory
+    assert_data_eq!(
+        complete!(cmd, "--input t/d[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str!["target/debug/"]
+    );
+}
+
+#[test]
+fn suggest_multi_path_element_prefix_existing_paths() {
+    let mut cmd = Command::new("dynamic")
+        .arg(
+            clap::Arg::new("input")
+                .long("input")
+                .short('i')
+                .value_hint(clap::ValueHint::AnyPath),
+        );
+
+    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+    let testdir_path = testdir.path().unwrap();
+
+    // Create directory structure
+    fs::create_dir_all(testdir_path.join("target/debug/incremental")).unwrap();
+    fs::create_dir_all(testdir_path.join("target/release")).unwrap();
+    fs::create_dir_all(testdir_path.join("tests")).unwrap();
+    fs::write(testdir_path.join("target/debug/binary"), "").unwrap();
+
+    // 13. Normal full path completion: "target/" lists contents of target/
+    assert_data_eq!(
+        complete!(cmd, "--input target/[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![[r#"
+target/debug/
+target/release/
+"#]]
+    );
+
+    // 14. Normal file completion within a real directory path
+    assert_data_eq!(
+        complete!(cmd, "--input target/debug/bin[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str!["target/debug/binary"]
+    );
+
+    // 15. Normal full path prefix completion still works
+    assert_data_eq!(
+        complete!(cmd, "--input target/de[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str!["target/debug/"]
+    );
+}
+
+#[test]
+fn suggest_multi_path_element_prefix_hidden_files() {
+    let mut cmd = Command::new("dynamic")
+        .arg(
+            clap::Arg::new("input")
+                .long("input")
+                .short('i')
+                .value_hint(clap::ValueHint::AnyPath),
+        );
+
+    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+    let testdir_path = testdir.path().unwrap();
+
+    // Create directory structure with hidden directories
+    fs::create_dir_all(testdir_path.join(".config/nvim/lua")).unwrap();
+    fs::create_dir_all(testdir_path.join(".cache/downloads")).unwrap();
+    fs::write(testdir_path.join(".config/nvim/init.lua"), "").unwrap();
+
+    // Hidden directory abbreviated paths: ".c/n" matches ".config/nvim/"
+    assert_data_eq!(
+        complete!(cmd, "--input .c/n[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![".config/nvim/"]
+    );
+
+    // Hidden directory deep abbreviated paths: ".c/n/l" matches ".config/nvim/lua/"
+    assert_data_eq!(
+        complete!(cmd, "--input .c/n/l[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![".config/nvim/lua/"]
+    );
+
+    // Hidden directory abbreviated path to file: ".c/n/i" matches ".config/nvim/init.lua"
+    assert_data_eq!(
+        complete!(cmd, "--input .c/n/i[TAB]", current_dir = Some(testdir_path)),
+        snapbox::str![".config/nvim/init.lua"]
+    );
+}
+
 fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>) -> String {
     let input = args.as_ref();
     let mut args = vec![std::ffi::OsString::from(cmd.get_name())];

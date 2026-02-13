@@ -356,6 +356,98 @@ pub(crate) fn complete_path(
     potential.sort();
     completions.extend(potential);
 
+    // If no results were found and the path contains intermediate components,
+    // try abbreviated path matching where each component is treated as a prefix.
+    if completions.is_empty() && !value_os.is_empty() {
+        let value_path = std::path::Path::new(value_os);
+        let components: Vec<&OsStr> = value_path
+            .iter()
+            .filter(|c| *c != OsStr::new("."))
+            .collect();
+        if components.len() >= 2 {
+            let base_dir = resolve_base_dir(value_path, current_dir);
+            if let Some(base_dir) = base_dir {
+                completions = complete_path_abbreviated(&components, &base_dir, is_wanted);
+                completions.sort();
+            }
+        }
+    }
+
+    completions
+}
+
+/// Resolve the base directory for path completion, handling absolute, home-relative,
+/// and relative paths.
+fn resolve_base_dir(
+    value_path: &std::path::Path,
+    current_dir: Option<&std::path::Path>,
+) -> Option<std::path::PathBuf> {
+    if value_path.is_absolute() {
+        Some(std::path::PathBuf::from("/"))
+    } else if value_path.iter().next() == Some(OsStr::new("~")) {
+        std::env::home_dir()
+    } else {
+        current_dir.map(|d| d.to_owned())
+    }
+}
+
+/// Recursively match each path component as a prefix to support abbreviated paths
+/// like `tar/de/inc` matching `target/debug/incremental`.
+fn complete_path_abbreviated(
+    components: &[&OsStr],
+    search_dir: &std::path::Path,
+    is_wanted: &dyn Fn(&std::path::Path) -> bool,
+) -> Vec<CompletionCandidate> {
+    let mut completions = Vec::new();
+
+    if components.is_empty() {
+        return completions;
+    }
+
+    let current_prefix = components[0].to_string_lossy();
+    let is_last = components.len() == 1;
+
+    let entries = match std::fs::read_dir(search_dir) {
+        Ok(entries) => entries,
+        Err(_) => return completions,
+    };
+
+    for entry in entries.filter_map(Result::ok) {
+        let file_name = entry.file_name();
+        if !file_name.starts_with(&current_prefix) {
+            continue;
+        }
+
+        let entry_path = entry.path();
+
+        if is_last {
+            // Last component: produce final completion candidates
+            if entry_path.is_dir() {
+                let mut suggestion = std::path::PathBuf::from(&file_name);
+                suggestion.push(""); // Ensure trailing `/`
+                let candidate = CompletionCandidate::new(suggestion.as_os_str().to_owned())
+                    .hide(is_hidden(&file_name));
+                if is_wanted(&entry_path) {
+                    completions.push(candidate);
+                }
+            } else if is_wanted(&entry_path) {
+                let candidate =
+                    CompletionCandidate::new(file_name.clone()).hide(is_hidden(&file_name));
+                completions.push(candidate);
+            }
+        } else if entry_path.is_dir() {
+            // Intermediate component: recurse into matching directories
+            let sub_results = complete_path_abbreviated(&components[1..], &entry_path, is_wanted);
+            for sub in sub_results {
+                let full_value = std::path::Path::new(&file_name).join(sub.get_value());
+                completions.push(
+                    CompletionCandidate::new(full_value.as_os_str().to_owned())
+                        .hide(is_hidden(&file_name)),
+                );
+            }
+        }
+    }
+
     completions
 }
 
