@@ -387,3 +387,271 @@ fn complete_dynamic_empty_option_value() {
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
+
+/// Static vs dynamic gap analysis for fish (#3917)
+///
+/// Documents the differences between static (AOT) and dynamic completion
+/// output for systematic comparison before stabilization.
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+mod gap_analysis {
+    use super::*;
+
+    /// Scenario 1: Top-level subcommands
+    #[test]
+    fn toplevel_subcommands() {
+        if !common::has_command(CMD) {
+            return;
+        }
+
+        let term = completest::Term::new();
+
+        let input = "exhaustive \t\t";
+
+        let mut static_runtime = common::load_runtime::<RuntimeBuilder>("static", "exhaustive");
+        let static_actual = static_runtime.complete(input, &term).unwrap();
+        let static_expected = snapbox::str![[r#"
+% exhaustive
+action  empty   help  (Print this message or the help of the given subcommand(s))  last    quote
+alias   global  hint                                                               pacman  value
+"#]];
+        assert_data_eq!(static_actual, static_expected);
+
+        let mut dynamic_runtime =
+            common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+        let dynamic_actual = dynamic_runtime.complete(input, &term).unwrap();
+        let dynamic_expected = snapbox::str![[r#"
+% exhaustive empty
+empty   quote   last   help  (Print this message or the help of the given subcommand(s))  --help  (Print help)
+global  value   alias  --generate                                             (generate)
+action  pacman  hint   --empty-choice
+"#]];
+        assert_data_eq!(dynamic_actual, dynamic_expected);
+    }
+
+    /// Scenario 2: Nested subcommands
+    #[test]
+    fn nested_subcommands() {
+        if !common::has_command(CMD) {
+            return;
+        }
+
+        let term = completest::Term::new();
+
+        let input = "exhaustive global \t\t";
+
+        let mut static_runtime = common::load_runtime::<RuntimeBuilder>("static", "exhaustive");
+        let static_actual = static_runtime.complete(input, &term).unwrap();
+        let static_expected = snapbox::str![[r#"
+% exhaustive global
+help  (Print this message or the help of the given subcommand(s))  one  two
+"#]];
+        assert_data_eq!(static_actual, static_expected);
+
+        let mut dynamic_runtime =
+            common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+        let dynamic_actual = dynamic_runtime.complete(input, &term).unwrap();
+        let dynamic_expected = snapbox::str![[r#"
+% exhaustive global one
+one  two  help  (Print this message or the help of the given subcommand(s))  --global  (everywhere)  --version  (Print version)  --help  (Print help (see more with '--help'))
+"#]];
+        assert_data_eq!(dynamic_actual, dynamic_expected);
+    }
+
+    /// Scenario 3: Long options
+    #[test]
+    fn long_options() {
+        if !common::has_command(CMD) {
+            return;
+        }
+
+        let term = completest::Term::new();
+
+        let input = "exhaustive action --\t\t";
+
+        let mut static_runtime = common::load_runtime::<RuntimeBuilder>("static", "exhaustive");
+        let static_actual = static_runtime.complete(input, &term).unwrap();
+        let static_expected = snapbox::str![[r#"
+% exhaustive action --
+--choice  (enum)  --count  (number)  --help  (Print help)  --set  (value)  --set-true  (bool)
+"#]];
+        assert_data_eq!(static_actual, static_expected);
+
+        let mut dynamic_runtime =
+            common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+        let dynamic_actual = dynamic_runtime.complete(input, &term).unwrap();
+        let dynamic_expected = snapbox::str![[r#"
+% exhaustive action --set-true
+--set-true  (bool)  --set  (value)  --count  (number)  --choice  (enum)  --help  (Print help (see more with '--help'))
+"#]];
+        assert_data_eq!(dynamic_actual, dynamic_expected);
+    }
+
+    /// Scenario 4: Option values with =
+    #[test]
+    fn option_values_equals() {
+        if !common::has_command(CMD) {
+            return;
+        }
+
+        let term = completest::Term::new();
+
+        let input = "exhaustive action --choice=\t\t";
+
+        let mut static_runtime = common::load_runtime::<RuntimeBuilder>("static", "exhaustive");
+        let static_actual = static_runtime.complete(input, &term).unwrap();
+        let static_expected = snapbox::str![[r#"
+% exhaustive action --choice=
+first   second
+"#]];
+        assert_data_eq!(static_actual, static_expected);
+
+        let mut dynamic_runtime =
+            common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+        let dynamic_actual = dynamic_runtime.complete(input, &term).unwrap();
+        let dynamic_expected = snapbox::str![[r#"
+% exhaustive action --choice=first
+first   second
+"#]];
+        assert_data_eq!(dynamic_actual, dynamic_expected);
+    }
+
+    /// Scenario 5: Option values space-separated
+    #[test]
+    fn option_values_space() {
+        if !common::has_command(CMD) {
+            return;
+        }
+
+        let term = completest::Term::new();
+
+        let input = "exhaustive action --choice \t\t";
+
+        let mut static_runtime = common::load_runtime::<RuntimeBuilder>("static", "exhaustive");
+        let static_actual = static_runtime.complete(input, &term).unwrap();
+        let static_expected = snapbox::str![[r#"
+% exhaustive action --choice
+first   second
+"#]];
+        assert_data_eq!(static_actual, static_expected);
+
+        let mut dynamic_runtime =
+            common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+        let dynamic_actual = dynamic_runtime.complete(input, &term).unwrap();
+        let dynamic_expected = snapbox::str![[r#"
+% exhaustive action --choice first
+first   second
+"#]];
+        assert_data_eq!(dynamic_actual, dynamic_expected);
+    }
+
+    /// Scenario 6: Filtered option values
+    #[test]
+    fn filtered_option_values() {
+        if !common::has_command(CMD) {
+            return;
+        }
+
+        let term = completest::Term::new();
+
+        let input = "exhaustive action --choice=f\t";
+
+        let mut static_runtime = common::load_runtime::<RuntimeBuilder>("static", "exhaustive");
+        let static_actual = static_runtime.complete(input, &term).unwrap();
+        let static_expected =
+            snapbox::str!["% exhaustive action --choice=first "];
+        assert_data_eq!(static_actual, static_expected);
+
+        let mut dynamic_runtime =
+            common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+        let dynamic_actual = dynamic_runtime.complete(input, &term).unwrap();
+        let dynamic_expected =
+            snapbox::str!["% exhaustive action --choice=first "];
+        assert_data_eq!(dynamic_actual, dynamic_expected);
+    }
+
+    /// Scenario 9: Empty subcommand
+    #[test]
+    fn empty_subcommand() {
+        if !common::has_command(CMD) {
+            return;
+        }
+
+        let term = completest::Term::new();
+
+        let input = "exhaustive empty \t\t";
+
+        let mut static_runtime = common::load_runtime::<RuntimeBuilder>("static", "exhaustive");
+        let static_actual = static_runtime.complete(input, &term).unwrap();
+        let static_expected = snapbox::str![[r#"
+% exhaustive empty
+Cargo.toml    CONTRIBUTING.md  LICENSE-APACHE  README.md  tests/
+CHANGELOG.md  examples/        LICENSE-MIT     src/
+"#]];
+        assert_data_eq!(static_actual, static_expected);
+
+        let mut dynamic_runtime =
+            common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+        let dynamic_actual = dynamic_runtime.complete(input, &term).unwrap();
+        let dynamic_expected = snapbox::str!["% exhaustive empty "];
+        assert_data_eq!(dynamic_actual, dynamic_expected);
+    }
+
+    /// Scenario 10: Special character handling (quote subcommand)
+    #[test]
+    fn special_characters() {
+        if !common::has_command(CMD) {
+            return;
+        }
+
+        let term = completest::Term::new();
+
+        let input = "exhaustive quote --choice \t\t";
+
+        let mut static_runtime = common::load_runtime::<RuntimeBuilder>("static", "exhaustive");
+        let static_actual = static_runtime.complete(input, &term).unwrap();
+        let static_expected = snapbox::str![[r#"
+% exhaustive quote --choice
+another  bash  (bash (shell))  fish  (fish shell)  shell  (something with a space)  zsh  (zsh shell)
+"#]];
+        assert_data_eq!(static_actual, static_expected);
+
+        let mut dynamic_runtime =
+            common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+        let dynamic_actual = dynamic_runtime.complete(input, &term).unwrap();
+        let dynamic_expected = snapbox::str![[r#"
+% exhaustive quote --choice another/ shell
+another shell  (something with a space)  bash  (bash (shell))  fish  (fish shell)  zsh  (zsh shell)
+"#]];
+        assert_data_eq!(dynamic_actual, dynamic_expected);
+    }
+
+    /// Scenario 12: Aliases
+    #[test]
+    fn aliases() {
+        if !common::has_command(CMD) {
+            return;
+        }
+
+        let term = completest::Term::new();
+
+        let input = "exhaustive alias --\t\t";
+
+        let mut static_runtime = common::load_runtime::<RuntimeBuilder>("static", "exhaustive");
+        let static_actual = static_runtime.complete(input, &term).unwrap();
+        let static_expected = snapbox::str![[r#"
+% exhaustive alias --
+--flag  (cmd flag)  --flg  (cmd flag)  --help  (Print help)  --opt  (cmd option)  --option  (cmd option)
+"#]];
+        assert_data_eq!(static_actual, static_expected);
+
+        let mut dynamic_runtime =
+            common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+        let dynamic_actual = dynamic_runtime.complete(input, &term).unwrap();
+        let dynamic_expected = snapbox::str![[r#"
+% exhaustive alias --flag
+--flag  (cmd flag)  --flg  (cmd flag)  --option  (cmd option)  --opt  (cmd option)  --help  (Print help (see more with '--help'))
+"#]];
+        assert_data_eq!(dynamic_actual, dynamic_expected);
+    }
+}
