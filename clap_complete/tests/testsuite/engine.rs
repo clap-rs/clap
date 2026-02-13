@@ -1468,34 +1468,34 @@ fn suggest_multi_path_element_prefix() {
         snapbox::str!["target/"]
     );
 
-    // 2. Two-component abbreviation: "tar/de" doesn't match without abbreviated path support
+    // 2. Two-component abbreviation: "tar/de" matches "target/debug/"
     assert_data_eq!(
         complete!(cmd, "--input tar/de[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str![""]
+        snapbox::str!["target/debug/"]
     );
 
-    // 3. Full abbreviated path: "tar/de/inc" doesn't match without abbreviated path support
+    // 3. Full abbreviated path: "tar/de/inc" matches "target/debug/incremental/"
     assert_data_eq!(
         complete!(cmd, "--input tar/de/inc[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str![""]
+        snapbox::str!["target/debug/incremental/"]
     );
 
-    // 4. Abbreviated path to a file: "tar/de/bin" doesn't match without abbreviated path support
+    // 4. Abbreviated path to a file: "tar/de/bin" matches "target/debug/binary"
     assert_data_eq!(
         complete!(cmd, "--input tar/de/bin[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str![""]
+        snapbox::str!["target/debug/binary"]
     );
 
-    // 5. Multiple matches for last component: "tar/re" doesn't match without abbreviated path support
+    // 5. Multiple matches for last component: "tar/re" matches "target/release/"
     assert_data_eq!(
         complete!(cmd, "--input tar/re[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str![""]
+        snapbox::str!["target/release/"]
     );
 
-    // 6. Single char per component: "t/d/i" doesn't match without abbreviated path support
+    // 6. Single char per component: "t/d/i" matches "target/debug/incremental/"
     assert_data_eq!(
         complete!(cmd, "--input t/d/i[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str![""]
+        snapbox::str!["target/debug/incremental/"]
     );
 }
 
@@ -1547,16 +1547,17 @@ tests/
         snapbox::str!["target/"]
     );
 
-    // 11. Path with "./" prefix: doesn't work without abbreviated path support
+    // 11. Path with "./" prefix: abbreviated matching should work through dot-prefix
     assert_data_eq!(
         complete!(cmd, "--input ./tar/de[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str![""]
+        snapbox::str!["target/debug/"]
     );
 
-    // 12. Ambiguous first component: doesn't work without abbreviated path support
+    // 12. Ambiguous first component: both "target/" and "tests/" start with "t",
+    //     but only "target/" has a "d" subdirectory
     assert_data_eq!(
         complete!(cmd, "--input t/d[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str![""]
+        snapbox::str!["target/debug/"]
     );
 }
 
@@ -1619,22 +1620,22 @@ fn suggest_multi_path_element_prefix_hidden_files() {
     fs::create_dir_all(testdir_path.join(".cache/downloads")).unwrap();
     fs::write(testdir_path.join(".config/nvim/init.lua"), "").unwrap();
 
-    // Hidden directory abbreviated paths: ".c/n" doesn't match without abbreviated path support
+    // Hidden directory abbreviated paths: ".c/n" matches ".config/nvim/"
     assert_data_eq!(
         complete!(cmd, "--input .c/n[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str![""]
+        snapbox::str![".config/nvim/"]
     );
 
-    // Hidden directory deep abbreviated paths: ".c/n/l" doesn't match without abbreviated path support
+    // Hidden directory deep abbreviated paths: ".c/n/l" matches ".config/nvim/lua/"
     assert_data_eq!(
         complete!(cmd, "--input .c/n/l[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str![""]
+        snapbox::str![".config/nvim/lua/"]
     );
 
-    // Hidden directory abbreviated path to file: ".c/n/i" doesn't match without abbreviated path support
+    // Hidden directory abbreviated path to file: ".c/n/i" matches ".config/nvim/init.lua"
     assert_data_eq!(
         complete!(cmd, "--input .c/n/i[TAB]", current_dir = Some(testdir_path)),
-        snapbox::str![""]
+        snapbox::str![".config/nvim/init.lua"]
     );
 }
 
