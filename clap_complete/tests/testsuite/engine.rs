@@ -1443,6 +1443,79 @@ pos-c
     );
 }
 
+#[test]
+fn suggest_delimiter_with_allow_hyphen() {
+    let mut cmd = Command::new("delimiter")
+        .arg(
+            clap::Arg::new("values")
+                .long("values")
+                .value_parser(["normal", "--special", "-s"])
+                .value_delimiter(',')
+                .allow_hyphen_values(true),
+        );
+
+    // Completing first value
+    assert_data_eq!(
+        complete!(cmd, "--values [TAB]"),
+        snapbox::str![[r#"
+normal
+--special
+-s
+"#]]
+    );
+
+    // Completing second value after delimiter
+    assert_data_eq!(
+        complete!(cmd, "--values normal,[TAB]"),
+        snapbox::str![[r#"
+normal,normal
+normal,--special
+normal,-s
+"#]]
+    );
+
+    // Completing with hyphen prefix after delimiter
+    assert_data_eq!(
+        complete!(cmd, "--values normal,--[TAB]"),
+        snapbox::str!["normal,--special"]
+    );
+}
+
+#[test]
+fn suggest_delimiter_positional_multi() {
+    let mut cmd = Command::new("delimiter")
+        .arg(
+            clap::Arg::new("pos1")
+                .value_parser(["a", "b", "c"])
+                .value_delimiter(','),
+        )
+        .arg(
+            clap::Arg::new("pos2")
+                .value_parser(["x", "y", "z"])
+                .value_delimiter(','),
+        );
+
+    // First positional with delimiter
+    assert_data_eq!(
+        complete!(cmd, "a,[TAB]"),
+        snapbox::str![[r#"
+a,a
+a,b
+a,c
+"#]]
+    );
+
+    // Second positional
+    assert_data_eq!(
+        complete!(cmd, "a x,[TAB]"),
+        snapbox::str![[r#"
+x,x
+x,y
+x,z
+"#]]
+    );
+}
+
 fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>) -> String {
     let input = args.as_ref();
     let mut args = vec![std::ffi::OsString::from(cmd.get_name())];
