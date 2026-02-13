@@ -1462,7 +1462,7 @@ fn suggest_require_equals() {
     assert_data_eq!(
         complete!(cmd, " [TAB]"),
         snapbox::str![[r#"
---format
+--format=
 --name
 --help	Print help
 "#]]
@@ -1485,13 +1485,12 @@ fn suggest_require_equals() {
     );
 
     // When typing --format (space), should NOT suggest values since require_equals forbids it
-    // Current behavior: suggests values (this will change with the fix)
     assert_data_eq!(
         complete!(cmd, "--format [TAB]"),
         snapbox::str![[r#"
-json
-yaml
-toml
+--format=
+--name
+--help	Print help
 "#]]
     );
 }
