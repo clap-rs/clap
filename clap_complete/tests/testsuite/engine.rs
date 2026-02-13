@@ -1443,6 +1443,58 @@ pos-c
     );
 }
 
+#[test]
+fn suggest_flag_subcommand_completion() {
+    let mut cmd = Command::new("pacman")
+        .subcommand_precedence_over_arg(true)
+        .subcommand(
+            Command::new("sync")
+                .short_flag('S')
+                .long_flag("sync")
+                .arg(
+                    clap::Arg::new("search")
+                        .short('s')
+                        .long("search")
+                        .action(clap::ArgAction::Count),
+                )
+                .arg(
+                    clap::Arg::new("quiet")
+                        .short('q')
+                        .long("quiet")
+                        .action(clap::ArgAction::Count),
+                ),
+        )
+        .subcommand(
+            Command::new("query")
+                .short_flag('Q')
+                .long_flag("query")
+                .arg(
+                    clap::Arg::new("info")
+                        .short('i')
+                        .long("info")
+                        .action(clap::ArgAction::Count),
+                ),
+        );
+
+    // Completing long flag subcommands
+    assert_data_eq!(
+        complete!(cmd, "--syn[TAB]"),
+        snapbox::str![""]
+    );
+
+    // After selecting a short flag subcommand, complete its flags
+    assert_data_eq!(
+        complete!(cmd, "-S --[TAB]"),
+        snapbox::str!["--help	Print help"]
+    );
+
+    // Combined short flags after flag subcommand: -Ss (sync + search)
+    assert_data_eq!(
+        complete!(cmd, "-Ss[TAB]"),
+        snapbox::str!["-Ssh	Print help"]
+    );
+}
+
 fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>) -> String {
     let input = args.as_ref();
     let mut args = vec![std::ffi::OsString::from(cmd.get_name())];
