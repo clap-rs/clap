@@ -12,6 +12,7 @@ pub struct CompletionCandidate {
     tag: Option<StyledStr>,
     display_order: Option<usize>,
     hidden: bool,
+    nospace: bool,
 }
 
 impl CompletionCandidate {
@@ -60,6 +61,16 @@ impl CompletionCandidate {
         self
     }
 
+    /// Suppress trailing space after this candidate
+    ///
+    /// This is useful for completions like directory paths (ending in `/`),
+    /// `--flag=` values, and delimiter-separated values where a trailing space
+    /// would be incorrect.
+    pub fn nospace(mut self, nospace: bool) -> Self {
+        self.nospace = nospace;
+        self
+    }
+
     /// Add a prefix to the value of completion candidate
     ///
     /// This is generally used for post-process by [`complete`][crate::engine::complete()] for
@@ -103,6 +114,11 @@ impl CompletionCandidate {
     /// Get the visibility of the completion candidate
     pub fn is_hide_set(&self) -> bool {
         self.hidden
+    }
+
+    /// Get whether trailing space should be suppressed
+    pub fn is_nospace_set(&self) -> bool {
+        self.nospace
     }
 }
 

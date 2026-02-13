@@ -51,8 +51,11 @@ _clap_complete_NAME() {
     ) )
     if [[ $? != 0 ]]; then
         unset COMPREPLY
-    elif [[ $_CLAP_COMPLETE_SPACE == false ]] && [[ "${COMPREPLY-}" =~ [=/:]$ ]]; then
-        compopt -o nospace
+    elif [[ $_CLAP_COMPLETE_SPACE == false ]]; then
+        if [[ ${#COMPREPLY[@]} -gt 0 ]] && [[ "${COMPREPLY[-1]}" == "_CLAP_COMPLETE_NOSPACE" ]]; then
+            unset 'COMPREPLY[-1]'
+            compopt -o nospace
+        fi
     fi
 }
 if [[ "${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -ge 4 || "${BASH_VERSINFO[0]}" -gt 4 ]]; then
@@ -90,11 +93,17 @@ fi
         let ifs: Option<String> = std::env::var("_CLAP_IFS").ok().and_then(|i| i.parse().ok());
         let completions = crate::engine::complete(cmd, args, index, current_dir)?;
 
+        let has_nospace = completions.iter().any(|c| c.is_nospace_set());
+
         for (i, candidate) in completions.iter().enumerate() {
             if i != 0 {
                 write!(buf, "{}", ifs.as_deref().unwrap_or("\n"))?;
             }
             write!(buf, "{}", candidate.get_value().to_string_lossy())?;
+        }
+        if has_nospace && !completions.is_empty() {
+            write!(buf, "{}", ifs.as_deref().unwrap_or("\n"))?;
+            write!(buf, "_CLAP_COMPLETE_NOSPACE")?;
         }
         Ok(())
     }
@@ -160,7 +169,14 @@ set edit:completion:arg-completer[BIN] = { |@words|
     var index = (count $words)
     set index = (- $index 1)
 
-    put (env _CLAP_IFS="\n" _CLAP_COMPLETE_INDEX=(to-string $index) VAR="elvish" COMPLETER -- $@words) | to-lines
+    env _CLAP_IFS="\n" _CLAP_COMPLETE_INDEX=(to-string $index) VAR="elvish" COMPLETER -- $@words | from-lines | each { |line|
+        if (str:has-prefix $line "\x1f") {
+            var value = (str:trim-prefix $line "\x1f")
+            edit:complex-candidate $value &code-suffix=''
+        } else {
+            put $line
+        }
+    }
 }
 "#
         .replace("COMPLETER", &completer)
@@ -187,6 +203,9 @@ set edit:completion:arg-completer[BIN] = { |@words|
         for (i, candidate) in completions.iter().enumerate() {
             if i != 0 {
                 write!(buf, "{}", ifs.as_deref().unwrap_or("\n"))?;
+            }
+            if candidate.is_nospace_set() {
+                write!(buf, "\x1f")?;
             }
             write!(buf, "{}", candidate.get_value().to_string_lossy())?;
         }
@@ -376,24 +395,18 @@ function _clap_dynamic_completer_NAME() {
     )}")
 
     if [[ -n $completions ]]; then
-        local -a dirs=()
+        local -a nospace=()
         local -a other=()
         local completion
         for completion in $completions; do
-            local value="${completion%%:*}"
-            if [[ "$value" == */ ]]; then
-                local dir_no_slash="${value%/}"
-                if [[ "$completion" == *:* ]]; then
-                    local desc="${completion#*:}"
-                    dirs+=("$dir_no_slash:$desc")
-                else
-                    dirs+=("$dir_no_slash")
-                fi
+            if [[ "$completion" == $'\x1f'* ]]; then
+                completion="${completion:1}"
+                nospace+=("$completion")
             else
                 other+=("$completion")
             fi
         done
-        [[ -n $dirs ]] && _describe 'values' dirs -S '/' -r '/'
+        [[ -n $nospace ]] && _describe 'values' nospace -S ''
         [[ -n $other ]] && _describe 'values' other
     fi
 }
@@ -430,6 +443,11 @@ compdef _clap_dynamic_completer_NAME BIN"#
         for (i, candidate) in completions.iter().enumerate() {
             if i != 0 {
                 write!(buf, "{}", ifs.as_deref().unwrap_or("\n"))?;
+            }
+            // Prefix nospace candidates with \x1f so the registration script can
+            // split them into a separate group with -S ''
+            if candidate.is_nospace_set() {
+                write!(buf, "\x1f")?;
             }
             write!(
                 buf,
