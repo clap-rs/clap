@@ -288,10 +288,15 @@ impl HelpTemplate<'_, '_> {
     }
 
     fn write_version(&mut self) {
-        let version = self
-            .cmd
-            .get_version()
-            .or_else(|| self.cmd.get_long_version());
+        let version = if self.use_long {
+            self.cmd
+                .get_long_version()
+                .or_else(|| self.cmd.get_version())
+        } else {
+            self.cmd
+                .get_version()
+                .or_else(|| self.cmd.get_long_version())
+        };
         if let Some(output) = version {
             self.writer.push_string(wrap(output, self.term_w));
         }
