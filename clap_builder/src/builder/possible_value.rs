@@ -186,7 +186,7 @@ impl PossibleValue {
     #[cfg(feature = "help")]
     pub(crate) fn get_visible_quoted_name(&self) -> Option<std::borrow::Cow<'_, str>> {
         if !self.hide {
-            Some(if self.name.contains(char::is_whitespace) {
+            Some(if self.name.is_empty() || self.name.contains(char::is_whitespace) {
                 format!("{:?}", self.name).into()
             } else {
                 self.name.as_str().into()
