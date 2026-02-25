@@ -69,6 +69,7 @@
 
 mod shells;
 
+use std::collections::HashSet;
 use std::ffi::OsString;
 use std::io::Write as _;
 
@@ -104,6 +105,7 @@ pub struct CompleteEnv<'s, F> {
     var: &'static str,
     bin: Option<String>,
     completer: Option<String>,
+    skip_wordbreaks: HashSet<char>,
     shells: Shells<'s>,
 }
 
@@ -152,6 +154,7 @@ impl<'s, F: Fn() -> clap::Command> CompleteEnv<'s, F> {
             var: "COMPLETE",
             bin: None,
             completer: None,
+            skip_wordbreaks: HashSet::from([':', '=']),
             shells: Shells::builtins(),
         }
     }
@@ -181,6 +184,27 @@ impl<'s, F: Fn() -> clap::Command> CompleteEnv<'s, F> {
     /// Override the shells supported for completions
     pub fn shells(mut self, shells: Shells<'s>) -> Self {
         self.shells = shells;
+        self
+    }
+}
+
+impl<'s, F: Fn() -> clap::Command> CompleteEnv<'s, F> {
+    /// Adds individual characters from `wordbreaks` to the set of wordbreaks to skip.
+    pub fn allow_wordbreak(mut self, wordbreak: char) -> Self {
+        self.skip_wordbreaks.insert(wordbreak);
+        self
+    }
+
+    /// Sets the entire set of wordbreaks to skip, replacing any existing ones.
+    /// The input `wordbreaks` string is interpreted as a sequence of individual characters.
+    pub fn allow_wordbreaks(mut self, wordbreaks: &str) -> Self {
+        self.skip_wordbreaks.extend(wordbreaks.chars());
+        self
+    }
+
+    /// Clears all existing wordbreaks to skip.
+    pub fn clear_allowed_wordbreaks(mut self) -> Self {
+        self.skip_wordbreaks.clear();
         self
     }
 }
@@ -288,6 +312,7 @@ impl<'s, F: Fn() -> clap::Command> CompleteEnv<'s, F> {
         buf: &mut dyn std::io::Write,
     ) -> Result<(), std::io::Error> {
         let name = cmd.get_name();
+        let skip_wordbreaks: String = self.skip_wordbreaks.iter().collect();
         let bin = self
             .bin
             .as_deref()
@@ -305,7 +330,7 @@ impl<'s, F: Fn() -> clap::Command> CompleteEnv<'s, F> {
             completer.to_string_lossy().into_owned()
         };
 
-        shell.write_registration(self.var, name, bin, &completer, buf)?;
+        shell.write_registration(self.var, name, bin, &completer, &skip_wordbreaks, buf)?;
 
         Ok(())
     }
@@ -379,6 +404,7 @@ pub trait EnvCompleter {
         name: &str,
         bin: &str,
         completer: &str,
+        skip_wordbreaks: &str,
         buf: &mut dyn std::io::Write,
     ) -> Result<(), std::io::Error>;
     /// Complete the given command

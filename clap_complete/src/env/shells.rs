@@ -20,12 +20,18 @@ impl EnvCompleter for Bash {
         name: &str,
         bin: &str,
         completer: &str,
+        skip_wordbreaks: &str,
         buf: &mut dyn std::io::Write,
     ) -> Result<(), std::io::Error> {
         let escaped_name = name.replace('-', "_");
 
         let completer =
             shlex::try_quote(completer).unwrap_or(std::borrow::Cow::Borrowed(completer));
+
+        let comp_wordbreaks = match skip_wordbreaks {
+            "" => "",
+            s => &format!("COMP_WORDBREAKS=${{COMP_WORDBREAKS//[{}]/}} ", s)
+        };
 
         let script = r#"
 _clap_complete_NAME() {
@@ -56,15 +62,16 @@ _clap_complete_NAME() {
     fi
 }
 if [[ "${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -ge 4 || "${BASH_VERSINFO[0]}" -gt 4 ]]; then
-    complete -o nospace -o bashdefault -o nosort -F _clap_complete_NAME BIN
+    SKIPScomplete -o nospace -o bashdefault -o nosort -F _clap_complete_NAME BIN
 else
-    complete -o nospace -o bashdefault -F _clap_complete_NAME BIN
+    SKIPScomplete -o nospace -o bashdefault -F _clap_complete_NAME BIN
 fi
 "#
         .replace("NAME", &escaped_name)
         .replace("BIN", bin)
         .replace("COMPLETER", &completer)
-        .replace("VAR", var);
+        .replace("VAR", var)
+        .replace("SKIPS", comp_wordbreaks);
 
         writeln!(buf, "{script}")?;
         Ok(())
@@ -149,6 +156,7 @@ impl EnvCompleter for Elvish {
         _name: &str,
         bin: &str,
         completer: &str,
+        _skip_wordbreaks: &str,
         buf: &mut dyn std::io::Write,
     ) -> Result<(), std::io::Error> {
         let bin = shlex::try_quote(bin).unwrap_or(std::borrow::Cow::Borrowed(bin));
@@ -211,6 +219,7 @@ impl EnvCompleter for Fish {
         _name: &str,
         bin: &str,
         completer: &str,
+        _skip_wordbreaks: &str,
         buf: &mut dyn std::io::Write,
     ) -> Result<(), std::io::Error> {
         let bin = shlex::try_quote(bin).unwrap_or(std::borrow::Cow::Borrowed(bin));
@@ -264,6 +273,7 @@ impl EnvCompleter for Powershell {
         _name: &str,
         bin: &str,
         completer: &str,
+        _skip_wordbreaks: &str,
         buf: &mut dyn std::io::Write,
     ) -> Result<(), std::io::Error> {
         let bin = shlex::try_quote(bin).unwrap_or(std::borrow::Cow::Borrowed(bin));
@@ -356,6 +366,7 @@ impl EnvCompleter for Zsh {
         name: &str,
         bin: &str,
         completer: &str,
+        _skip_wordbreaks: &str,
         buf: &mut dyn std::io::Write,
     ) -> Result<(), std::io::Error> {
         let escaped_name = name.replace('-', "_");
