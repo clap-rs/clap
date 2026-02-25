@@ -154,7 +154,7 @@ impl<'s, F: Fn() -> clap::Command> CompleteEnv<'s, F> {
             var: "COMPLETE",
             bin: None,
             completer: None,
-            skip_wordbreaks: HashSet::from([':', '=']),
+            skip_wordbreaks: HashSet::from(['=']),
             shells: Shells::builtins(),
         }
     }

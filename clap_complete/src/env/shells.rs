@@ -491,6 +491,7 @@ mod tests {
                 "ignored-name",
                 "/ignored/bin",
                 completer_bin,
+                "",
                 &mut buf,
             )
             .expect("write_registration failed");
