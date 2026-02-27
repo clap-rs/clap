@@ -41,7 +41,12 @@ use super::CompletionCandidate;
 /// }
 /// ```
 #[derive(Clone)]
-pub struct ArgValueCompleter(Arc<dyn ValueCompleter>);
+pub enum ArgValueCompleter {
+    /// An implementation of ValueCompleter
+    Simple(Arc<dyn ValueCompleter>),
+    /// An implementation of PositionalValueCompleter
+    Complex(Arc<dyn PositionalValueCompleter>),
+}
 
 impl ArgValueCompleter {
     /// Create a new `ArgValueCompleter` with a custom completer
@@ -49,14 +54,26 @@ impl ArgValueCompleter {
     where
         C: ValueCompleter + 'static,
     {
-        Self(Arc::new(completer))
+        Self::Simple(Arc::new(completer))
+    }
+
+    /// Create a new `ArgValueCompleter` with a custom completer
+    pub fn new_positional<C>(completer: C) -> Self
+    where
+        C: PositionalValueCompleter + 'static,
+    {
+        Self::Complex(Arc::new(completer))
     }
 
     /// Candidates that match `current`
     ///
     /// See [`CompletionCandidate`] for more information.
-    pub fn complete(&self, current: &OsStr) -> Vec<CompletionCandidate> {
-        self.0.complete(current)
+    pub fn complete(&self, arg_index: usize, current: &OsStr) -> Vec<CompletionCandidate> {
+        match self {
+            ArgValueCompleter::Simple(vc) => vc.complete(current),
+            // Set arg_index to 0 with -1
+            ArgValueCompleter::Complex(pvc) => pvc.complete_at(arg_index - 1, current),
+        }
     }
 }
 
@@ -71,11 +88,23 @@ impl ArgExt for ArgValueCompleter {}
 /// User-provided completion candidates for an [`Arg`][clap::Arg], see [`ArgValueCompleter`]
 ///
 /// This is useful when predefined value hints are not enough.
+/// Used for simple arg completions
 pub trait ValueCompleter: Send + Sync {
     /// All potential candidates for an argument.
     ///
     /// See [`CompletionCandidate`] for more information.
     fn complete(&self, current: &OsStr) -> Vec<CompletionCandidate>;
+}
+
+/// User-provided completion candidates for an [`Arg`][clap::Arg], see [`ArgValueCompleter`]
+///
+/// This is useful when predefined value hints are not enough.
+/// Used for complex arg completions sending the arg_index in num_args.
+pub trait PositionalValueCompleter: Send + Sync {
+    /// `arg_index` is the index into `num_args` meaning:
+    /// - it is actual argument on the command-line and not values (unaffected by value_delimieter)
+    /// - i is within the context of the current occurrence
+    fn complete_at(&self, arg_index: usize, current: &OsStr) -> Vec<CompletionCandidate>;
 }
 
 impl<F> ValueCompleter for F
@@ -84,6 +113,15 @@ where
 {
     fn complete(&self, current: &OsStr) -> Vec<CompletionCandidate> {
         self(current)
+    }
+}
+
+impl<F> PositionalValueCompleter for F
+where
+    F: Fn(usize, &OsStr) -> Vec<CompletionCandidate> + Send + Sync,
+{
+    fn complete_at(&self, arg_index: usize, current: &OsStr) -> Vec<CompletionCandidate> {
+        self(arg_index, current)
     }
 }
 
