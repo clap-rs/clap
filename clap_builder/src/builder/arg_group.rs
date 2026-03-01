@@ -61,6 +61,29 @@ use crate::util::Id;
 /// );
 /// // we could also alternatively check each arg individually (not shown here)
 /// ```
+/// If you need to choose between an option and a positional while still allowing *later*
+/// positionals, prefer expressing that with `required_unless_present` /
+/// `required_unless_present_any` instead of an `ArgGroup` containing a positional.
+///
+/// ```rust
+/// # use clap_builder as clap;
+/// # use clap::{arg, ArgAction, Command};
+/// let m = Command::new("deno")
+///     .arg(
+///         arg!(--option1 "use option mode")
+///             .action(ArgAction::SetTrue),
+///     )
+///     .arg(
+///         arg!(<pos1> "first positional")
+///             .required_unless_present("option1"),
+///     )
+///     .arg(arg!([pos2] "second positional"))
+///     .try_get_matches_from(["deno", "--option1", "abcd"])
+///     .expect("valid input");
+///
+/// assert!(m.get_flag("option1"));
+/// assert_eq!(m.get_one::<String>("pos2").map(String::as_str), Some("abcd"));
+/// ```
 /// [arguments]: crate::Arg
 /// [conflicts]: crate::Arg::conflicts_with()
 /// [requirements]: crate::Arg::requires()
