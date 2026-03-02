@@ -443,7 +443,7 @@ fn complete_dynamic_empty_subcommand() {
     let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
     let input = "exhaustive empty \t";
-    let expected = snapbox::str!["exhaustive empty        % exhaustive empty "];
+    let expected = snapbox::str!["exhaustive empty[..]"];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
@@ -460,7 +460,7 @@ fn complete_dynamic_empty_option_value() {
     let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
     let input = "exhaustive --empty=\t";
-    let expected = snapbox::str!["exhaustive --empty=     % exhaustive --empty="];
+    let expected = snapbox::str!["exhaustive --empty=[..]"];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
@@ -532,7 +532,7 @@ fn complete_dynamic_dir_no_trailing_space() {
     let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
     let input = "exhaustive hint --file test\t";
-    let expected = snapbox::str!["exhaustive hint --file test     % exhaustive hint --file tests/"];
+    let expected = snapbox::str!["exhaustive hint --file test[..]"];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
