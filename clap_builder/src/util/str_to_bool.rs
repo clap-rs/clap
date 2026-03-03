@@ -19,3 +19,45 @@ pub(crate) fn str_to_bool(val: impl AsRef<str>) -> Option<bool> {
         None
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn true_lit() {
+        for lit in TRUE_LITERALS {
+            assert_eq!(Some(true), str_to_bool(lit));
+        }
+    }
+
+    #[test]
+    fn false_lit() {
+        for lit in FALSE_LITERALS {
+            assert_eq!(Some(false), str_to_bool(lit));
+        }
+    }
+
+    #[test]
+    fn empty_str() {
+        assert_eq!(None, str_to_bool(""));
+        assert_eq!(None, str_to_bool("  "));
+    }
+
+    #[test]
+    fn case_sensitivity() {
+        assert_eq!(Some(true), str_to_bool("TRUE"));
+        assert_eq!(Some(false), str_to_bool("fAlSe"));
+    }
+
+    #[test]
+    fn unrecognized() {
+        assert_eq!(None, str_to_bool("affirmative"));
+        assert_eq!(None, str_to_bool("2"));
+    }
+
+    #[test]
+    fn whitespace() {
+        assert_eq!(None, str_to_bool("  true "));
+        assert_eq!(None, str_to_bool("false  "));
+    }
+}
