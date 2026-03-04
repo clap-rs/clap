@@ -52,7 +52,7 @@ name = "dynamic"
 required-features = ["unstable-dynamic"]
 
 [features]
-default = []
+default = ["unstable-dynamic"]
 unstable-doc = ["unstable-dynamic"] # for docs.rs
 unstable-dynamic = ["dep:clap_lex", "dep:shlex", "dep:is_executable", "clap/unstable-ext"]
 unstable-shell-tests = ["dep:completest", "dep:completest-pty"]
