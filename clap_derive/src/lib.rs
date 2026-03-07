@@ -21,8 +21,10 @@
 #![warn(clippy::print_stdout)]
 
 use proc_macro::TokenStream;
-use syn::{parse_macro_input, DeriveInput};
-use syn::{Data, DataStruct, Fields};
+use syn::{
+    parse_macro_input, DataStructWithDefault, DataWithDefault, DeriveInput, DeriveInputWithDefault,
+    FieldsWithDefault,
+};
 
 #[macro_use]
 mod macros;
@@ -53,19 +55,19 @@ pub fn value_enum(input: TokenStream) -> TokenStream {
 /// context struct.
 #[proc_macro_derive(Parser, attributes(clap, structopt, command, arg, group))]
 pub fn parser(input: TokenStream) -> TokenStream {
-    let input: DeriveInput = parse_macro_input!(input);
+    let input: DeriveInputWithDefault = parse_macro_input!(input);
     derives::derive_parser(&input)
         .unwrap_or_else(|err| {
             let specific_dummy = match input.data {
-                Data::Struct(DataStruct {
-                    fields: Fields::Named(ref _fields),
+                DataWithDefault::Struct(DataStructWithDefault {
+                    fields: FieldsWithDefault::Named(ref _fields),
                     ..
                 }) => Some(dummies::args(&input.ident)),
-                Data::Struct(DataStruct {
-                    fields: Fields::Unit,
+                DataWithDefault::Struct(DataStructWithDefault {
+                    fields: FieldsWithDefault::Unit,
                     ..
                 }) => Some(dummies::args(&input.ident)),
-                Data::Enum(_) => Some(dummies::subcommand(&input.ident)),
+                DataWithDefault::Enum(_) => Some(dummies::subcommand(&input.ident)),
                 _ => None,
             };
             let dummy = specific_dummy
@@ -85,7 +87,7 @@ pub fn parser(input: TokenStream) -> TokenStream {
 /// Generates the `Subcommand` impl.
 #[proc_macro_derive(Subcommand, attributes(clap, command, arg, group))]
 pub fn subcommand(input: TokenStream) -> TokenStream {
-    let input: DeriveInput = parse_macro_input!(input);
+    let input: DeriveInputWithDefault = parse_macro_input!(input);
     derives::derive_subcommand(&input)
         .unwrap_or_else(|err| {
             let dummy = dummies::subcommand(&input.ident);
@@ -97,7 +99,7 @@ pub fn subcommand(input: TokenStream) -> TokenStream {
 /// Generates the `Args` impl.
 #[proc_macro_derive(Args, attributes(clap, command, arg, group))]
 pub fn args(input: TokenStream) -> TokenStream {
-    let input: DeriveInput = parse_macro_input!(input);
+    let input: DeriveInputWithDefault = parse_macro_input!(input);
     derives::derive_args(&input)
         .unwrap_or_else(|err| {
             let dummy = dummies::args(&input.ident);
