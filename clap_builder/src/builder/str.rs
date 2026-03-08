@@ -326,6 +326,21 @@ impl std::hash::Hash for Inner {
     }
 }
 
+#[cfg(feature = "serde")]
+impl serde::Serialize for Str {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        self.as_str().serialize(serializer)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de> serde::Deserialize<'de> for Str {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let s = String::deserialize(deserializer)?;
+        Ok(Str::from(s))
+    }
+}
+
 #[cfg(test)]
 #[cfg(feature = "string")]
 mod tests {

@@ -39,6 +39,7 @@ use crate::util::Escape;
 /// [hide]: PossibleValue::hide()
 /// [help]: PossibleValue::help()
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PossibleValue {
     name: Str,
     help: Option<StyledStr>,

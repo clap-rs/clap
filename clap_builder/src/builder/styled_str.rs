@@ -22,6 +22,7 @@ use std::borrow::Cow;
 /// #   ;
 /// ```
 #[derive(Clone, Default, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct StyledStr(String);
 
 impl StyledStr {

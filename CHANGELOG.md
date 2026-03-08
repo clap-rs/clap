@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(builder)* Add `serde` feature for `Serialize`/`Deserialize` on `Command`, `Arg`, `ArgGroup`, and related types
+
 ## [4.5.60] - 2026-02-19
 
 ### Fixes

@@ -4,6 +4,7 @@ use crate::builder::OsStr;
 ///
 /// These do not apply to [`ValueSource::DefaultValue`][crate::parser::ValueSource::DefaultValue]
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "unstable-v5", non_exhaustive)]
 pub enum ArgPredicate {
     /// Is the argument present?

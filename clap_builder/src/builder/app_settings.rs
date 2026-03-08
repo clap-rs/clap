@@ -4,6 +4,7 @@ use crate::Arg;
 use crate::Command;
 
 #[derive(Default, Copy, Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub(crate) struct AppFlags(u32);
 
 impl AppFlags {

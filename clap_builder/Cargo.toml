@@ -50,6 +50,7 @@ unicode = ["dep:unicode-width", "dep:unicase"]  # Support for unicode characters
 string = []  # Allow runtime generated strings
 
 # In-work features
+serde = ["dep:serde", "string"]
 unstable-v5 = ["deprecated"]
 unstable-ext = []
 unstable-styles = ["color"]  # deprecated
@@ -66,6 +67,7 @@ anstyle = "1.0.8"
 terminal_size = { version = "0.4.0", optional = true }
 backtrace = { version = "0.3.73", optional = true }
 unicode-width = { version = "0.2.0", optional = true }
+serde = { version = "1", features = ["derive"], optional = true }
 
 [dev-dependencies]
 static_assertions = "1.1.0"

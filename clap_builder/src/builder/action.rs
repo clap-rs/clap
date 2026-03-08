@@ -29,6 +29,7 @@ use crate::builder::ValueRange;
 /// # }
 /// ```
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[non_exhaustive]
 #[allow(missing_copy_implementations)] // In the future, we may accept `Box<dyn ...>`
 pub enum ArgAction {

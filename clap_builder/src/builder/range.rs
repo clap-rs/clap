@@ -1,5 +1,6 @@
 /// Values per occurrence for an argument
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ValueRange {
     start_inclusive: usize,
     end_inclusive: usize,

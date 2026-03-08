@@ -71,6 +71,7 @@ use crate::builder::debug_asserts::assert_app;
 /// ```
 /// [`Command::get_matches`]: Command::get_matches()
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Command {
     name: Str,
     long_flag: Option<Str>,
@@ -104,11 +105,15 @@ pub struct Command {
     current_disp_ord: Option<usize>,
     subcommand_value_name: Option<Str>,
     subcommand_heading: Option<Str>,
+    #[cfg_attr(feature = "serde", serde(skip))]
     external_value_parser: Option<super::ValueParser>,
     long_help_exists: bool,
+    #[cfg_attr(feature = "serde", serde(skip))]
     deferred: Option<fn(Command) -> Command>,
     #[cfg(feature = "unstable-ext")]
+    #[cfg_attr(feature = "serde", serde(skip))]
     ext: Extensions,
+    #[cfg_attr(feature = "serde", serde(skip))]
     app_ext: Extensions,
 }
 

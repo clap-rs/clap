@@ -21,6 +21,7 @@
 //! * `unicode`: Turns on support for unicode characters (including emoji) in arguments and help messages.
 //! * ``wrap_help``: Turns on the help text wrapping feature, based on the terminal size.
 //! * `string`: Allow runtime generated strings (e.g. with [`Str`][crate::builder::Str]).
+//! * `serde`: Derives `serde::Serialize` and `serde::Deserialize` on [`Command`][crate::Command], [`Arg`][crate::Arg], [`ArgGroup`][crate::ArgGroup], and related types. Implies `string`.
 //!
 //! #### Experimental features
 //!

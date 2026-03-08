@@ -12,12 +12,14 @@ pub(crate) struct Key {
 }
 
 #[derive(Default, PartialEq, Eq, Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub(crate) struct MKeyMap {
     /// All of the arguments.
     args: Vec<Arg>,
 
     // Cache part:
     /// Will be set after `_build()`.
+    #[cfg_attr(feature = "serde", serde(skip))]
     keys: Vec<Key>,
 }
 

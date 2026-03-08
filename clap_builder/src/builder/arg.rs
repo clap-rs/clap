@@ -57,11 +57,13 @@ use crate::INTERNAL_ERROR_MSG;
 /// let input = arg!(-i --input <FILE> "Provides an input file to the program");
 /// ```
 #[derive(Default, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Arg {
     pub(crate) id: Id,
     pub(crate) help: Option<StyledStr>,
     pub(crate) long_help: Option<StyledStr>,
     pub(crate) action: Option<ArgAction>,
+    #[cfg_attr(feature = "serde", serde(skip))]
     pub(crate) value_parser: Option<super::ValueParser>,
     pub(crate) blacklist: Vec<Id>,
     pub(crate) settings: ArgFlags,
@@ -88,6 +90,7 @@ pub struct Arg {
     pub(crate) terminator: Option<Str>,
     pub(crate) index: Option<usize>,
     pub(crate) help_heading: Option<Option<Str>>,
+    #[cfg_attr(feature = "serde", serde(skip))]
     pub(crate) ext: Extensions,
 }
 

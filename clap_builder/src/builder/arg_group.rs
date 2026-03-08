@@ -65,6 +65,7 @@ use crate::util::Id;
 /// [conflicts]: crate::Arg::conflicts_with()
 /// [requirements]: crate::Arg::requires()
 #[derive(Default, Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ArgGroup {
     pub(crate) id: Id,
     pub(crate) args: Vec<Id>,

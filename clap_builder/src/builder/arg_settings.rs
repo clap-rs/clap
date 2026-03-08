@@ -2,6 +2,7 @@
 use crate::Arg;
 
 #[derive(Default, Copy, Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub(crate) struct ArgFlags(u32);
 
 impl ArgFlags {
