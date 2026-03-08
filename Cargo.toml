@@ -263,6 +263,12 @@ required-features = ["derive"]
 doc-scrape-examples = true
 
 [[example]]
+name = "environment"
+path = "examples/environment.rs"
+required-features = ["derive", "env"]
+doc-scrape-examples = true
+
+[[example]]
 name = "01_quick"
 path = "examples/tutorial_builder/01_quick.rs"
 required-features = ["cargo"]
