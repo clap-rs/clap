@@ -113,12 +113,49 @@ impl Usage<'_> {
             }
             let mut cmd = self.cmd.clone();
             cmd.build();
-            for (i, sub) in cmd
+
+            let mut first = true;
+            // Get the custom headings
+            let custom_sc_headings = cmd.get_subcommand_custom_help_headings();
+
+            // Write commands without headings
+            for sub in cmd
                 .get_subcommands()
                 .filter(|c| !c.is_hide_set())
-                .enumerate()
+                .filter(|c| c.get_help_heading().is_none())
+                .filter(|c| c.get_name() != "help")
             {
-                if i != 0 {
+                if sub.get_name() == "help" {
+                    continue;
+                }
+                if !first {
+                    styled.trim_end();
+                    let _ = write!(styled, "{USAGE_SEP}");
+                }
+                first = false;
+                Usage::new(sub).write_usage_no_title(styled, &[]);
+            }
+
+            // Write commands with headings
+            for heading in custom_sc_headings {
+                for sub in cmd
+                    .get_subcommands()
+                    .filter(|c| !c.is_hide_set())
+                    .filter(|c| c.get_help_heading() == Some(heading))
+                    .filter(|c| c.get_name() != "help")
+                {
+                    if !first {
+                        styled.trim_end();
+                        let _ = write!(styled, "{USAGE_SEP}");
+                    }
+                    first = false;
+                    Usage::new(sub).write_usage_no_title(styled, &[]);
+                }
+            }
+
+            // Write help command last (regardless of custom headings)
+            if let Some(sub) = cmd.find_subcommand("help") {
+                if !first {
                     styled.trim_end();
                     let _ = write!(styled, "{USAGE_SEP}");
                 }
