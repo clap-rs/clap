@@ -14,7 +14,7 @@ members = [
 repository = "https://github.com/clap-rs/clap"
 license = "MIT OR Apache-2.0"
 edition = "2021"
-rust-version = "1.74"  # MSRV
+rust-version = "1.85"  # MSRV
 include = [
   "build.rs",
   "src/**/*",
