@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.6.0] - 2026-03-12
+
 ### Compatibility
 
 - Update MSRV to 1.85
@@ -76,7 +78,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [4.3.0] - 2023-05-24
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.5.11...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.6.0...HEAD
+[4.6.0]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.5.11...clap_complete_nushell-v4.6.0
 [4.5.11]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.5.10...clap_complete_nushell-v4.5.11
 [4.5.10]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.5.9...clap_complete_nushell-v4.5.10
 [4.5.9]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.5.8...clap_complete_nushell-v4.5.9
