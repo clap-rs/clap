@@ -3,8 +3,8 @@ use std::io::{Error, Write};
 use clap::builder::StyledStr;
 use clap::{Arg, Command};
 
-use crate::generator::{utils, Generator};
 use crate::INTERNAL_ERROR_MSG;
+use crate::generator::{Generator, utils};
 
 /// Generate powershell completion file
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]

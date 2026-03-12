@@ -11,7 +11,7 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 use quote::quote_spanned;
-use syn::{spanned::Spanned, Data, DeriveInput, Fields, Ident, Variant};
+use syn::{Data, DeriveInput, Fields, Ident, Variant, spanned::Spanned};
 
 use crate::item::{Item, Kind, Name};
 
@@ -86,7 +86,10 @@ fn lits(variants: &[(&Variant, Item)]) -> Result<Vec<(TokenStream, Ident)>, syn:
             continue;
         }
         if !matches!(variant.fields, Fields::Unit) {
-            abort!(variant.span(), "`#[derive(ValueEnum)]` only supports unit variants. Non-unit variants must be skipped");
+            abort!(
+                variant.span(),
+                "`#[derive(ValueEnum)]` only supports unit variants. Non-unit variants must be skipped"
+            );
         }
         let fields = item.field_methods();
         let deprecations = item.deprecations();

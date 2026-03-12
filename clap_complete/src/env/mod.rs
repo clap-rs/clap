@@ -229,7 +229,11 @@ impl<'s, F: Fn() -> clap::Command> CompleteEnv<'s, F> {
 
         // Ensure any child processes called for custom completers don't activate their own
         // completion logic.
-        std::env::remove_var(self.var);
+        // SAFETY: should only be called during application initialization.  Yeah, this is a weak
+        // argument but the choice is that or staying on the old edition.
+        unsafe {
+            std::env::remove_var(self.var);
+        }
 
         let shell = self.shell(std::path::Path::new(&name))?;
 

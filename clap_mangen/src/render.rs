@@ -1,5 +1,5 @@
 use clap::{Arg, ArgAction};
-use roff::{bold, italic, roman, Inline, Roff};
+use roff::{Inline, Roff, bold, italic, roman};
 
 pub(crate) fn subcommand_heading(cmd: &clap::Command) -> &str {
     match cmd.get_subcommand_help_heading() {
@@ -261,11 +261,7 @@ fn option_markers(opt: &Arg) -> (&'static str, &'static str) {
 }
 
 fn markers(required: bool) -> (&'static str, &'static str) {
-    if required {
-        ("<", ">")
-    } else {
-        ("[", "]")
-    }
+    if required { ("<", ">") } else { ("[", "]") }
 }
 
 fn option_value_markers(arg: &Arg) -> (&'static str, &'static str) {

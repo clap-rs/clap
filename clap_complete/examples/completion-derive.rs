@@ -13,7 +13,7 @@
 //! $ ./target/debug/examples/completion_derive --<TAB>
 //! ```
 use clap::{Args, Command, CommandFactory, Parser, Subcommand, ValueHint};
-use clap_complete::{generate, Generator, Shell};
+use clap_complete::{Generator, Shell, generate};
 use std::ffi::OsString;
 use std::io;
 use std::path::PathBuf;

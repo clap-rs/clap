@@ -1,4 +1,4 @@
-use clap::{builder::PossibleValue, Arg, ArgAction, Command, ValueHint};
+use clap::{Arg, ArgAction, Command, ValueHint, builder::PossibleValue};
 use clap_complete::generate;
 use clap_complete_nushell::Nushell;
 use std::io;

@@ -3,11 +3,11 @@ use std::ffi::OsString;
 
 use clap_lex::OsStrExt as _;
 
-use super::custom::complete_path;
 use super::ArgValueCandidates;
 use super::ArgValueCompleter;
 use super::CompletionCandidate;
 use super::SubcommandCandidates;
+use super::custom::complete_path;
 
 /// Complete the given command, shell-agnostic
 pub fn complete(

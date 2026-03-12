@@ -15,12 +15,12 @@
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::{format_ident, quote, quote_spanned};
 use syn::{
-    punctuated::Punctuated, spanned::Spanned, token::Comma, Data, DataStruct, DeriveInput, Field,
-    Fields, FieldsNamed, Generics,
+    Data, DataStruct, DeriveInput, Field, Fields, FieldsNamed, Generics, punctuated::Punctuated,
+    spanned::Spanned, token::Comma,
 };
 
 use crate::item::{Item, Kind, Name};
-use crate::utils::{inner_type, sub_type, Sp, Ty};
+use crate::utils::{Sp, Ty, inner_type, sub_type};
 
 pub(crate) fn derive_args(input: &DeriveInput) -> Result<TokenStream, syn::Error> {
     let ident = &input.ident;

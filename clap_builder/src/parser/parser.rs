@@ -7,6 +7,8 @@ use std::{
 use clap_lex::OsStrExt as _;
 
 // Internal
+use crate::ArgAction;
+use crate::INTERNAL_ERROR_MSG;
 use crate::builder::{Arg, Command};
 use crate::error::Error as ClapError;
 use crate::error::Result as ClapResult;
@@ -17,8 +19,6 @@ use crate::parser::{ArgMatcher, SubCommand};
 use crate::parser::{Validator, ValueSource};
 use crate::util::AnyValue;
 use crate::util::Id;
-use crate::ArgAction;
-use crate::INTERNAL_ERROR_MSG;
 
 pub(crate) struct Parser<'cmd> {
     cmd: &'cmd mut Command,
@@ -253,9 +253,7 @@ impl<'cmd> Parser<'cmd> {
 
                             debug!(
                                 "Parser::get_matches_with:FlagSubCommandShort: subcmd_name={}, keep_state={}, flag_subcmd_skip={}",
-                                name,
-                                keep_state,
-                                self.flag_subcmd_skip
+                                name, keep_state, self.flag_subcmd_skip
                             );
 
                             subcmd_name = Some(name);
@@ -746,7 +744,9 @@ impl<'cmd> Parser<'cmd> {
                 }
                 if let Err(error) = p.get_matches_with(&mut sc_matcher, raw_args, args_cursor) {
                     if partial_parsing_enabled && error.use_stderr() {
-                        debug!("Parser::parse_subcommand: ignored error in subcommand {sc_name}: {error:?}");
+                        debug!(
+                            "Parser::parse_subcommand: ignored error in subcommand {sc_name}: {error:?}"
+                        );
                     } else {
                         return Err(error);
                     }
@@ -786,7 +786,7 @@ impl<'cmd> Parser<'cmd> {
             Err(long_arg_os) => {
                 return Ok(ParseResult::NoMatchingArg {
                     arg: long_arg_os.to_string_lossy().into_owned(),
-                })
+                });
             }
         };
         if long_arg.is_empty() {

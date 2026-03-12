@@ -4,9 +4,7 @@ use clap::ArgMatches;
 use clap::Command;
 
 macro_rules! create_app {
-    () => {{
-        Command::new("claptests")
-    }};
+    () => {{ Command::new("claptests") }};
 }
 
 #[divan::bench]

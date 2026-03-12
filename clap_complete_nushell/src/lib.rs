@@ -22,9 +22,9 @@
 #![warn(clippy::print_stderr)]
 #![warn(clippy::print_stdout)]
 
-use clap::builder::StyledStr;
 use clap::ValueHint;
-use clap::{builder::PossibleValue, Arg, ArgAction, Command};
+use clap::builder::StyledStr;
+use clap::{Arg, ArgAction, Command, builder::PossibleValue};
 use clap_complete::Generator;
 
 /// Generate Nushell complete file

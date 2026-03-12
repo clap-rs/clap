@@ -17,8 +17,8 @@ use quote::quote;
 use syn::Ident;
 use syn::Variant;
 use syn::{
-    self, punctuated::Punctuated, token::Comma, Data, DataStruct, DeriveInput, Field, Fields,
-    Generics,
+    self, Data, DataStruct, DeriveInput, Field, Fields, Generics, punctuated::Punctuated,
+    token::Comma,
 };
 
 use crate::derives::args::collect_args_fields;
