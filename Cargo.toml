@@ -189,16 +189,16 @@ clap_builder = { path = "./clap_builder", version = "=4.5.60", default-features 
 clap_derive = { path = "./clap_derive", version = "=4.5.55", optional = true }
 
 [dev-dependencies]
-trybuild = "1.0.91"
-rustversion = "1.0.15"
+trybuild = "1.0.111"
+rustversion = "1.0.22"
 # Cutting out `filesystem` feature
-trycmd = { version = "0.15.3", default-features = false, features = ["color-auto", "diff", "examples"] }
-jiff = "0.2.3"
-snapbox = { version = "0.6.16", features = ["term-svg"] }
+trycmd = { version = "0.15.1", default-features = false, features = ["color-auto", "diff", "examples"] }
+jiff = "0.2.23"
+snapbox = { version = "0.6.24", features = ["term-svg"] }
 shlex = "1.3.0"
-automod = "1.0.14"
-clap-cargo = { version = "0.15.0", default-features = false }
-semver = "1.0.26"
+automod = "1.0.16"
+clap-cargo = { version = "0.15.2", default-features = false }
+semver = "1.0.27"
 
 [[example]]
 name = "demo"
