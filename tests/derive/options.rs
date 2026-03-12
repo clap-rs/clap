@@ -14,7 +14,7 @@
 
 #![allow(clippy::option_option)]
 
-use clap::{Parser, Subcommand};
+use clap::{error::ErrorKind, Parser, Subcommand};
 use snapbox::assert_data_eq;
 use snapbox::prelude::*;
 use snapbox::str;
@@ -547,4 +547,21 @@ fn implicit_value_parser() {
         Opt { arg: 42 },
         Opt::try_parse_from(["test", "--arg", "42"]).unwrap()
     );
+}
+
+#[test]
+fn allow_dash_dash_as_value_false_via_attr() {
+    #[derive(Debug, Parser, PartialEq)]
+    struct Opt {
+        #[arg(
+            long,
+            allow_hyphen_values = true,
+            allow_dash_dash_as_value = false
+        )]
+        value: String,
+    }
+
+    let res = Opt::try_parse_from(["test", "--value", "--"]);
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
 }
