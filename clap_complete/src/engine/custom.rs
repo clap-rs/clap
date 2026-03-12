@@ -336,7 +336,8 @@ pub(crate) fn complete_path(
             let mut suggestion = prefix.join(&raw_file_name);
             suggestion.push(""); // Ensure trailing `/`
             let candidate = CompletionCandidate::new(suggestion.as_os_str().to_owned())
-                .hide(is_hidden(&raw_file_name));
+                .hide(is_hidden(&raw_file_name))
+                .nospace(true);
 
             if is_wanted(&entry.path()) {
                 completions.push(candidate);

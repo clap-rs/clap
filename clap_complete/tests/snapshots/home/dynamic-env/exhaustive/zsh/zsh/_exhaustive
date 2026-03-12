@@ -11,24 +11,18 @@ function _clap_dynamic_completer_exhaustive() {
     )}")
 
     if [[ -n $completions ]]; then
-        local -a dirs=()
+        local -a nospace=()
         local -a other=()
         local completion
         for completion in $completions; do
-            local value="${completion%%:*}"
-            if [[ "$value" == */ ]]; then
-                local dir_no_slash="${value%/}"
-                if [[ "$completion" == *:* ]]; then
-                    local desc="${completion#*:}"
-                    dirs+=("$dir_no_slash:$desc")
-                else
-                    dirs+=("$dir_no_slash")
-                fi
+            if [[ "$completion" == $'\x1f'* ]]; then
+                completion="${completion:1}"
+                nospace+=("$completion")
             else
                 other+=("$completion")
             fi
         done
-        [[ -n $dirs ]] && _describe 'values' dirs -S '/' -r '/'
+        [[ -n $nospace ]] && _describe 'values' nospace -S ''
         [[ -n $other ]] && _describe 'values' other
     fi
 }

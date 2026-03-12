@@ -271,7 +271,7 @@ fn complete_option(
                     completions.extend(
                         complete_arg_value(value.to_str().ok_or(value), arg, current_dir)
                             .into_iter()
-                            .map(|comp| comp.add_prefix(format!("--{flag}="))),
+                            .map(|comp| comp.add_prefix(format!("--{flag}=")).nospace(true)),
                     );
                 }
             } else {
@@ -308,7 +308,12 @@ fn complete_option(
                         .into_iter()
                         .map(|comp| {
                             let sep = if has_equal { "=" } else { "" };
-                            comp.add_prefix(format!("-{leading_flags}{sep}"))
+                            let comp = comp.add_prefix(format!("-{leading_flags}{sep}"));
+                            if has_equal {
+                                comp.nospace(true)
+                            } else {
+                                comp
+                            }
                         }),
                 );
             } else {
@@ -393,7 +398,7 @@ fn complete_arg_value(
     if let Some(prefix) = prefix {
         values = values
             .into_iter()
-            .map(|comp| comp.add_prefix(prefix))
+            .map(|comp| comp.add_prefix(prefix).nospace(true))
             .collect();
     }
     values = values
@@ -478,9 +483,14 @@ fn longs_and_visible_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
     p.get_arguments()
         .filter_map(|a| {
             a.get_long_and_visible_aliases().map(|longs| {
-                longs
-                    .into_iter()
-                    .map(|s| populate_arg_candidate(CompletionCandidate::new(format!("--{s}")), a))
+                longs.into_iter().map(|s| {
+                    if a.is_require_equals_set() {
+                        populate_arg_candidate(CompletionCandidate::new(format!("--{s}=")), a)
+                            .nospace(true)
+                    } else {
+                        populate_arg_candidate(CompletionCandidate::new(format!("--{s}")), a)
+                    }
+                })
             })
         })
         .flatten()
@@ -495,7 +505,14 @@ fn hidden_longs_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
         .filter_map(|a| {
             a.get_aliases().map(|longs| {
                 longs.into_iter().map(|s| {
-                    populate_arg_candidate(CompletionCandidate::new(format!("--{s}")), a).hide(true)
+                    if a.is_require_equals_set() {
+                        populate_arg_candidate(CompletionCandidate::new(format!("--{s}=")), a)
+                            .hide(true)
+                            .nospace(true)
+                    } else {
+                        populate_arg_candidate(CompletionCandidate::new(format!("--{s}")), a)
+                            .hide(true)
+                    }
                 })
             })
         })
