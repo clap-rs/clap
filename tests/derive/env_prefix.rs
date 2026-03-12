@@ -1,28 +1,30 @@
 #![cfg(feature = "env")]
+#![cfg(feature = "string")]
 
-use clap::{Args, Parser};
+use clap::{Args, CommandFactory, Parser};
 use std::env;
 
 #[test]
 fn command_next_env_prefix_applied() {
     #[derive(Debug, Clone, Parser)]
+    #[command(next_env_prefix = "MYAPP")]
     struct CliOptions {
-        #[arg(long, env = "MYAPP_CONFIG")]
+        #[arg(long, env = "CONFIG")]
         config: Option<String>,
 
         #[arg(long)]
         verbose: bool,
     }
 
-    let cmd = <CliOptions as clap::CommandFactory>::command();
+    let cmd = CliOptions::command();
 
     let config_arg = cmd
         .get_arguments()
         .find(|a| a.get_id() == "config")
         .unwrap();
     assert_eq!(
-        config_arg.get_env().unwrap(),
-        std::ffi::OsStr::new("MYAPP_CONFIG")
+        config_arg.get_env_prefix(),
+        Some(std::ffi::OsStr::new("MYAPP"))
     );
 }
 
@@ -31,8 +33,9 @@ fn command_next_env_prefix_value_resolved() {
     env::set_var("DERIVE_APP_HOST", "localhost");
 
     #[derive(Debug, Clone, Parser)]
+    #[command(next_env_prefix = "DERIVE_APP")]
     struct CliOptions {
-        #[arg(long, env = "DERIVE_APP_HOST")]
+        #[arg(long, env = "HOST")]
         host: Option<String>,
     }
 
@@ -45,8 +48,9 @@ fn command_next_env_prefix_with_flatten() {
     env::set_var("FLAT_APP_DB", "mydb");
 
     #[derive(Debug, Clone, Args)]
+    #[command(next_env_prefix = "FLAT_APP")]
     struct DbArgs {
-        #[arg(long, env = "FLAT_APP_DB")]
+        #[arg(long, env = "DB")]
         db: Option<String>,
     }
 
@@ -66,13 +70,14 @@ fn flatten_field_with_env_prefix() {
 
     #[derive(Debug, Clone, Args)]
     struct ServerArgs {
-        #[arg(long, env = "FIELD_PFX_PORT")]
+        #[arg(long, env = "PORT")]
         port: Option<String>,
     }
 
     #[derive(Debug, Clone, Parser)]
     struct CliOptions {
         #[command(flatten)]
+        #[command(next_env_prefix = "FIELD_PFX")]
         server: ServerArgs,
     }
 

@@ -475,15 +475,17 @@ fn value_parser_invalid() {
     assert!(r.is_err());
 }
 
+#[cfg(feature = "string")]
 #[test]
 fn env_prefix_basic() {
     env::set_var("MYAPP_CONFIG", "test_value");
 
     let r = Command::new("myapp")
+        .next_env_prefix("MYAPP")
         .arg(
             Arg::new("config")
                 .long("config")
-                .env("MYAPP_CONFIG")
+                .env("CONFIG")
                 .action(ArgAction::Set),
         )
         .try_get_matches_from(vec![""]);
@@ -496,22 +498,24 @@ fn env_prefix_basic() {
     );
 }
 
+#[cfg(feature = "string")]
 #[test]
 fn env_prefix_multiple_args() {
     env::set_var("APP_HOST", "localhost");
     env::set_var("APP_PORT", "8080");
 
     let r = Command::new("app")
+        .next_env_prefix("APP")
         .arg(
             Arg::new("host")
                 .long("host")
-                .env("APP_HOST")
+                .env("HOST")
                 .action(ArgAction::Set),
         )
         .arg(
             Arg::new("port")
                 .long("port")
-                .env("APP_PORT")
+                .env("PORT")
                 .action(ArgAction::Set),
         )
         .try_get_matches_from(vec![""]);
@@ -528,17 +532,20 @@ fn env_prefix_multiple_args() {
     );
 }
 
+#[cfg(feature = "string")]
 #[test]
 fn env_prefix_reset() {
     env::set_var("PFX_FIRST", "val1");
 
     let r = Command::new("app")
+        .next_env_prefix("PFX")
         .arg(
             Arg::new("first")
                 .long("first")
-                .env("PFX_FIRST")
+                .env("FIRST")
                 .action(ArgAction::Set),
         )
+        .next_env_prefix(None)
         .arg(
             Arg::new("second")
                 .long("second")
@@ -560,6 +567,7 @@ fn env_prefix_reset() {
     );
 }
 
+#[cfg(feature = "string")]
 #[test]
 fn env_prefix_arg_level() {
     env::set_var("CUSTOM_DB", "mydb");
@@ -568,7 +576,8 @@ fn env_prefix_arg_level() {
         .arg(
             Arg::new("db")
                 .long("db")
-                .env("CUSTOM_DB")
+                .env("DB")
+                .env_prefix("CUSTOM")
                 .action(ArgAction::Set),
         )
         .try_get_matches_from(vec![""]);
@@ -581,15 +590,18 @@ fn env_prefix_arg_level() {
     );
 }
 
+#[cfg(feature = "string")]
 #[test]
 fn env_prefix_arg_overrides_command() {
     env::set_var("OVERRIDE_HOST", "overridden");
 
     let r = Command::new("app")
+        .next_env_prefix("APP")
         .arg(
             Arg::new("host")
                 .long("host")
-                .env("OVERRIDE_HOST")
+                .env("HOST")
+                .env_prefix("OVERRIDE")
                 .action(ArgAction::Set),
         )
         .try_get_matches_from(vec![""]);
