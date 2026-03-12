@@ -474,3 +474,130 @@ fn value_parser_invalid() {
 
     assert!(r.is_err());
 }
+
+#[test]
+fn env_prefix_basic() {
+    env::set_var("MYAPP_CONFIG", "test_value");
+
+    let r = Command::new("myapp")
+        .arg(
+            Arg::new("config")
+                .long("config")
+                .env("MYAPP_CONFIG")
+                .action(ArgAction::Set),
+        )
+        .try_get_matches_from(vec![""]);
+
+    assert!(r.is_ok(), "{}", r.unwrap_err());
+    let m = r.unwrap();
+    assert_eq!(
+        m.get_one::<String>("config").map(|v| v.as_str()).unwrap(),
+        "test_value"
+    );
+}
+
+#[test]
+fn env_prefix_multiple_args() {
+    env::set_var("APP_HOST", "localhost");
+    env::set_var("APP_PORT", "8080");
+
+    let r = Command::new("app")
+        .arg(
+            Arg::new("host")
+                .long("host")
+                .env("APP_HOST")
+                .action(ArgAction::Set),
+        )
+        .arg(
+            Arg::new("port")
+                .long("port")
+                .env("APP_PORT")
+                .action(ArgAction::Set),
+        )
+        .try_get_matches_from(vec![""]);
+
+    assert!(r.is_ok(), "{}", r.unwrap_err());
+    let m = r.unwrap();
+    assert_eq!(
+        m.get_one::<String>("host").map(|v| v.as_str()).unwrap(),
+        "localhost"
+    );
+    assert_eq!(
+        m.get_one::<String>("port").map(|v| v.as_str()).unwrap(),
+        "8080"
+    );
+}
+
+#[test]
+fn env_prefix_reset() {
+    env::set_var("PFX_FIRST", "val1");
+
+    let r = Command::new("app")
+        .arg(
+            Arg::new("first")
+                .long("first")
+                .env("PFX_FIRST")
+                .action(ArgAction::Set),
+        )
+        .arg(
+            Arg::new("second")
+                .long("second")
+                .env("SECOND")
+                .action(ArgAction::Set)
+                .default_value("default"),
+        )
+        .try_get_matches_from(vec![""]);
+
+    assert!(r.is_ok(), "{}", r.unwrap_err());
+    let m = r.unwrap();
+    assert_eq!(
+        m.get_one::<String>("first").map(|v| v.as_str()).unwrap(),
+        "val1"
+    );
+    assert_eq!(
+        m.get_one::<String>("second").map(|v| v.as_str()).unwrap(),
+        "default"
+    );
+}
+
+#[test]
+fn env_prefix_arg_level() {
+    env::set_var("CUSTOM_DB", "mydb");
+
+    let r = Command::new("app")
+        .arg(
+            Arg::new("db")
+                .long("db")
+                .env("CUSTOM_DB")
+                .action(ArgAction::Set),
+        )
+        .try_get_matches_from(vec![""]);
+
+    assert!(r.is_ok(), "{}", r.unwrap_err());
+    let m = r.unwrap();
+    assert_eq!(
+        m.get_one::<String>("db").map(|v| v.as_str()).unwrap(),
+        "mydb"
+    );
+}
+
+#[test]
+fn env_prefix_arg_overrides_command() {
+    env::set_var("OVERRIDE_HOST", "overridden");
+
+    let r = Command::new("app")
+        .arg(
+            Arg::new("host")
+                .long("host")
+                .env("OVERRIDE_HOST")
+                .action(ArgAction::Set),
+        )
+        .try_get_matches_from(vec![""]);
+
+    assert!(r.is_ok(), "{}", r.unwrap_err());
+    let m = r.unwrap();
+    assert_eq!(
+        m.get_one::<String>("host").map(|v| v.as_str()).unwrap(),
+        "overridden"
+    );
+}
