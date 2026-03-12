@@ -463,11 +463,11 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.5.60"
+version = "4.5.61"
 dependencies = [
  "automod",
  "clap-cargo",
- "clap_builder 4.5.60",
+ "clap_builder 4.5.61",
  "clap_derive",
  "jiff",
  "rustversion",
@@ -491,7 +491,7 @@ dependencies = [
 name = "clap_bench"
 version = "0.0.0"
 dependencies = [
- "clap 4.5.60",
+ "clap 4.5.61",
  "divan",
  "lazy_static",
 ]
@@ -511,12 +511,12 @@ dependencies = [
 
 [[package]]
 name = "clap_builder"
-version = "4.5.60"
+version = "4.5.61"
 dependencies = [
  "anstream 1.0.0",
  "anstyle",
  "backtrace",
- "clap_lex 1.0.0",
+ "clap_lex 1.0.1",
  "color-print",
  "snapbox",
  "static_assertions",
@@ -529,11 +529,11 @@ dependencies = [
 
 [[package]]
 name = "clap_complete"
-version = "4.5.66"
+version = "4.5.67"
 dependencies = [
  "automod",
- "clap 4.5.60",
- "clap_lex 1.0.0",
+ "clap 4.5.61",
+ "clap_lex 1.0.1",
  "completest",
  "completest-pty",
  "is_executable",
@@ -544,9 +544,9 @@ dependencies = [
 
 [[package]]
 name = "clap_complete_nushell"
-version = "4.5.10"
+version = "4.5.11"
 dependencies = [
- "clap 4.5.60",
+ "clap 4.5.61",
  "clap_complete",
  "completest",
  "completest-nu",
@@ -555,7 +555,7 @@ dependencies = [
 
 [[package]]
 name = "clap_derive"
-version = "4.5.55"
+version = "4.5.61"
 dependencies = [
  "anstyle",
  "heck 0.5.0",
@@ -573,17 +573,17 @@ checksum = "f46ad14479a25103f283c0f10005961cf086d8dc42205bb44c46ac563475dca6"
 
 [[package]]
 name = "clap_lex"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "automod",
 ]
 
 [[package]]
 name = "clap_mangen"
-version = "0.2.31"
+version = "0.2.32"
 dependencies = [
  "automod",
- "clap 4.5.60",
+ "clap 4.5.61",
  "roff",
  "snapbox",
 ]

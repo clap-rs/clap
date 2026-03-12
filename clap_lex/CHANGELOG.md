@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [1.0.1] - 2026-03-12
+
 ### Internal
 
 - Update dependencies
@@ -131,7 +133,8 @@ MSRV changed to 1.64.0
 - Drop `memchr` dependency
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_lex-v1.0.0...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_lex-v1.0.1...HEAD
+[1.0.1]: https://github.com/clap-rs/clap/compare/clap_lex-v1.0.0...clap_lex-v1.0.1
 [1.0.0]: https://github.com/clap-rs/clap/compare/clap_lex-v0.7.7...clap_lex-v1.0.0
 [0.7.7]: https://github.com/clap-rs/clap/compare/clap_lex-v0.7.6...clap_lex-v0.7.7
 [0.7.6]: https://github.com/clap-rs/clap/compare/clap_lex-v0.7.5...clap_lex-v0.7.6

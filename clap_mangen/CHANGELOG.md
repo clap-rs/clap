@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [0.2.32] - 2026-03-12
+
 ### Fixes
 
 - Always show possible values as a list
@@ -174,7 +176,8 @@ MSRV changed to 1.64.0
 - Expanded the documentation
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.31...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.32...HEAD
+[0.2.32]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.31...clap_mangen-v0.2.32
 [0.2.31]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.30...clap_mangen-v0.2.31
 [0.2.30]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.29...clap_mangen-v0.2.30
 [0.2.29]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.28...clap_mangen-v0.2.29
