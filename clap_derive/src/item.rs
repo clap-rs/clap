@@ -50,6 +50,7 @@ pub(crate) struct Item {
     group_id: Name,
     group_methods: Vec<Method>,
     kind: Sp<Kind>,
+    defer: bool,
 }
 
 impl Item {
@@ -279,6 +280,7 @@ impl Item {
             group_id,
             group_methods: vec![],
             kind,
+            defer: cfg!(feature = "unstable-v5"),
         }
     }
 
@@ -835,6 +837,11 @@ impl Item {
                     self.skip_group = true;
                 }
 
+                Some(MagicAttrName::Defer) => {
+                    assert_attr_kind(attr, &[AttrKind::Command])?;
+                    self.defer = attr.lit_bool_or_abort()?;
+                }
+
                 None
                 // Magic only for the default, otherwise just forward to the builder
                 | Some(MagicAttrName::Short)
@@ -1089,6 +1096,10 @@ impl Item {
 
     pub(crate) fn skip_group(&self) -> bool {
         self.skip_group
+    }
+
+    pub(crate) fn defer(&self) -> bool {
+        self.defer
     }
 }
 
