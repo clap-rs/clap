@@ -189,7 +189,7 @@ clap_builder = { path = "./clap_builder", version = "=4.5.61", default-features 
 clap_derive = { path = "./clap_derive", version = "=4.5.61", optional = true }
 
 [dev-dependencies]
-trybuild = "1.0.111"
+trybuild = "1.0.116"
 rustversion = "1.0.22"
 # Cutting out `filesystem` feature
 trycmd = { version = "1.1.1", default-features = false, features = ["color-auto", "diff", "examples"] }
