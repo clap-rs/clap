@@ -613,10 +613,8 @@ impl Command {
     ///     cmd().debug_assert();
     /// }
     ///
-    /// fn main() {
-    ///     let m = cmd().get_matches_from(vec!["foo", "-b"]);
-    ///     println!("{}", m.get_flag("bar"));
-    /// }
+    /// let m = cmd().get_matches_from(vec!["foo", "-b"]);
+    /// println!("{}", m.get_flag("bar"));
     /// ```
     #[allow(clippy::test_attr_in_doctest)]
     pub fn debug_assert(mut self) {

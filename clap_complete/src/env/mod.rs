@@ -8,12 +8,10 @@
 //! #   clap::Command::new("empty")
 //! }
 //!
-//! fn main() {
-//!     CompleteEnv::with_factory(cli)
-//!         .complete();
+//! CompleteEnv::with_factory(cli)
+//!     .complete();
 //!
-//!     // ... rest of application logic
-//! }
+//! // ... rest of application logic
 //! ```
 //!
 //! To customize completions, see
@@ -92,12 +90,10 @@ pub use shells::*;
 /// #   clap::Command::new("empty")
 /// }
 ///
-/// fn main() {
-///     CompleteEnv::with_factory(cli)
-///         .complete()
+/// CompleteEnv::with_factory(cli)
+///     .complete()
 ///
-///     // ... rest of application logic
-/// }
+/// // ... rest of application logic
 /// ```
 pub struct CompleteEnv<'s, F> {
     factory: F,
@@ -120,12 +116,10 @@ impl<'s, F: Fn() -> clap::Command> CompleteEnv<'s, F> {
     /// #   clap::Command::new("empty")
     /// }
     ///
-    /// fn main() {
-    ///     CompleteEnv::with_factory(cli)
-    ///         .complete()
+    /// CompleteEnv::with_factory(cli)
+    ///     .complete()
     ///
-    ///     // ... rest of application logic
-    /// }
+    /// // ... rest of application logic
     /// ```
     ///
     /// Derive:
@@ -139,12 +133,10 @@ impl<'s, F: Fn() -> clap::Command> CompleteEnv<'s, F> {
     ///     custom: Option<String>,
     /// }
     ///
-    /// fn main() {
-    ///     CompleteEnv::with_factory(Cli::command)
-    ///         .complete()
+    /// CompleteEnv::with_factory(Cli::command)
+    ///     .complete()
     ///
-    ///     // ... rest of application logic
-    /// }
+    /// // ... rest of application logic
     /// ```
     pub fn with_factory(factory: F) -> Self {
         Self {
