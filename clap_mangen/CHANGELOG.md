@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Always show possible values as a list
+
+### Internal
+
+- Update dependencies
+
 ## [0.2.31] - 2025-10-22
 
 ### Fixes
