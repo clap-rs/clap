@@ -219,31 +219,29 @@ fn complete() {
     assert_data_eq!(actual, expected);
 
     let input = "exhaustive empty \t";
-    let expected = snapbox::str!["exhaustive empty        % exhaustive empty "];
+    let expected = snapbox::str!["[..]% exhaustive empty "];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
     let input = "exhaustive --empty=\t";
-    let expected = snapbox::str!["exhaustive --empty=     % exhaustive --empty="];
+    let expected = snapbox::str!["[..]% exhaustive --empty="];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
     // Issue 5239 (https://github.com/clap-rs/clap/issues/5239)
     let input = "exhaustive hint --file test\t";
-    let expected = snapbox::str!["exhaustive hint --file test     % exhaustive hint --file tests/"];
+    let expected = snapbox::str!["[..]% exhaustive hint --file tests/"];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
     let input = "exhaustive quote --choice 'b\t";
-    let expected =
-        snapbox::str!["exhaustive quote --choice 'b    % exhaustive quote --choice 'bash' "];
+    let expected = snapbox::str!["[..]% exhaustive quote --choice 'bash' "];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
     // Type in "bx", press left arrow, then trigger completion
     let input = "exhaustive quote --choice bx\x1b[D\t";
-    let expected =
-        snapbox::str!["exhaustive quote --choice bx^[[D        % exhaustive quote --choice bashx"];
+    let expected = snapbox::str!["[..]% exhaustive quote --choice bashx"];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
