@@ -5,7 +5,7 @@ use std::{
 
 use clap::{Arg, Command, ValueHint};
 
-use crate::generator::{utils, Generator};
+use crate::generator::{Generator, utils};
 
 /// Generate bash completion file
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]

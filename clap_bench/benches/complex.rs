@@ -1,6 +1,6 @@
 #![allow(elided_lifetimes_in_paths)] // needed for divan
 
-use clap::{arg, ArgMatches, Command};
+use clap::{ArgMatches, Command, arg};
 
 macro_rules! create_app {
     () => {{

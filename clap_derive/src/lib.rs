@@ -21,8 +21,8 @@
 #![warn(clippy::print_stdout)]
 
 use proc_macro::TokenStream;
-use syn::{parse_macro_input, DeriveInput};
 use syn::{Data, DataStruct, Fields};
+use syn::{DeriveInput, parse_macro_input};
 
 #[macro_use]
 mod macros;

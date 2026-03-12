@@ -12,7 +12,7 @@ fn build() -> Command {
 }
 
 mod startup {
-    use super::{build_cli, ArgMatches};
+    use super::{ArgMatches, build_cli};
 
     #[divan::bench]
     fn empty() -> ArgMatches {

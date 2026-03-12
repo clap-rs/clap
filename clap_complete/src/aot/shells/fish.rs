@@ -1,8 +1,8 @@
 use std::io::{Error, Write};
 
-use clap::{builder, Arg, Command, ValueHint};
+use clap::{Arg, Command, ValueHint, builder};
 
-use crate::generator::{utils, Generator};
+use crate::generator::{Generator, utils};
 
 /// Generate fish completion file
 ///

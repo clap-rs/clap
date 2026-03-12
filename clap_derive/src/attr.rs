@@ -1,14 +1,13 @@
 use std::iter::FromIterator;
 
 use proc_macro2::TokenStream;
-use quote::quote;
 use quote::ToTokens;
+use quote::quote;
 use syn::spanned::Spanned;
 use syn::{
-    parenthesized,
+    Attribute, Expr, Ident, LitStr, Token, parenthesized,
     parse::{Parse, ParseStream},
     punctuated::Punctuated,
-    Attribute, Expr, Ident, LitStr, Token,
 };
 
 use crate::utils::Sp;

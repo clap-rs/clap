@@ -7,7 +7,10 @@ use clap::{arg, builder::FalseyValueParser, Arg, ArgAction, Command};
 
 #[test]
 fn env() {
-    env::set_var("CLP_TEST_ENV", "env");
+    // SAFETY: pure rust, nothing going through libc
+    unsafe {
+        env::set_var("CLP_TEST_ENV", "env");
+    }
 
     let r = Command::new("df")
         .arg(
@@ -32,8 +35,11 @@ fn env() {
 
 #[test]
 fn env_bool_literal() {
-    env::set_var("CLP_TEST_FLAG_TRUE", "On");
-    env::set_var("CLP_TEST_FLAG_FALSE", "nO");
+    // SAFETY: pure rust, nothing going through libc
+    unsafe {
+        env::set_var("CLP_TEST_FLAG_TRUE", "On");
+        env::set_var("CLP_TEST_FLAG_FALSE", "nO");
+    }
 
     let r = Command::new("df")
         .arg(
@@ -68,7 +74,10 @@ fn env_bool_literal() {
 
 #[test]
 fn env_os() {
-    env::set_var("CLP_TEST_ENV_OS", "env");
+    // SAFETY: pure rust, nothing going through libc
+    unsafe {
+        env::set_var("CLP_TEST_ENV_OS", "env");
+    }
 
     let r = Command::new("df")
         .arg(
@@ -91,7 +100,10 @@ fn env_os() {
 fn no_env() {
     // All the other tests use the presence of the Environment variable...
     // we need another variable just in case one of the others is running at the same time...
-    env::remove_var("CLP_TEST_ENV_NONE");
+    // SAFETY: pure rust, nothing going through libc
+    unsafe {
+        env::remove_var("CLP_TEST_ENV_NONE");
+    }
 
     let r = Command::new("df")
         .arg(
@@ -112,7 +124,10 @@ fn no_env() {
 fn no_env_no_takes_value() {
     // All the other tests use the presence of the Environment variable...
     // we need another variable just in case one of the others is running at the same time...
-    env::remove_var("CLP_TEST_ENV_NONE");
+    // SAFETY: pure rust, nothing going through libc
+    unsafe {
+        env::remove_var("CLP_TEST_ENV_NONE");
+    }
 
     let r = Command::new("df")
         .arg(arg!([arg] "some opt").env("CLP_TEST_ENV_NONE"))
@@ -127,7 +142,10 @@ fn no_env_no_takes_value() {
 
 #[test]
 fn with_default() {
-    env::set_var("CLP_TEST_ENV_WD", "env");
+    // SAFETY: pure rust, nothing going through libc
+    unsafe {
+        env::set_var("CLP_TEST_ENV_WD", "env");
+    }
 
     let r = Command::new("df")
         .arg(
@@ -153,7 +171,10 @@ fn with_default() {
 
 #[test]
 fn opt_user_override() {
-    env::set_var("CLP_TEST_ENV_OR", "env");
+    // SAFETY: pure rust, nothing going through libc
+    unsafe {
+        env::set_var("CLP_TEST_ENV_OR", "env");
+    }
 
     let r = Command::new("df")
         .arg(
@@ -186,7 +207,10 @@ fn opt_user_override() {
 
 #[test]
 fn positionals() {
-    env::set_var("CLP_TEST_ENV_P", "env");
+    // SAFETY: pure rust, nothing going through libc
+    unsafe {
+        env::set_var("CLP_TEST_ENV_P", "env");
+    }
 
     let r = Command::new("df")
         .arg(
@@ -211,7 +235,10 @@ fn positionals() {
 
 #[test]
 fn positionals_user_override() {
-    env::set_var("CLP_TEST_ENV_POR", "env");
+    // SAFETY: pure rust, nothing going through libc
+    unsafe {
+        env::set_var("CLP_TEST_ENV_POR", "env");
+    }
 
     let r = Command::new("df")
         .arg(
@@ -244,7 +271,10 @@ fn positionals_user_override() {
 
 #[test]
 fn multiple_one() {
-    env::set_var("CLP_TEST_ENV_MO", "env");
+    // SAFETY: pure rust, nothing going through libc
+    unsafe {
+        env::set_var("CLP_TEST_ENV_MO", "env");
+    }
 
     let r = Command::new("df")
         .arg(
@@ -270,7 +300,10 @@ fn multiple_one() {
 
 #[test]
 fn multiple_three() {
-    env::set_var("CLP_TEST_ENV_MULTI1", "env1,env2,env3");
+    // SAFETY: pure rust, nothing going through libc
+    unsafe {
+        env::set_var("CLP_TEST_ENV_MULTI1", "env1,env2,env3");
+    }
 
     let r = Command::new("df")
         .arg(
@@ -296,7 +329,10 @@ fn multiple_three() {
 
 #[test]
 fn multiple_no_delimiter() {
-    env::set_var("CLP_TEST_ENV_MULTI2", "env1 env2 env3");
+    // SAFETY: pure rust, nothing going through libc
+    unsafe {
+        env::set_var("CLP_TEST_ENV_MULTI2", "env1 env2 env3");
+    }
 
     let r = Command::new("df")
         .arg(
@@ -321,7 +357,10 @@ fn multiple_no_delimiter() {
 
 #[test]
 fn possible_value() {
-    env::set_var("CLP_TEST_ENV_PV", "env");
+    // SAFETY: pure rust, nothing going through libc
+    unsafe {
+        env::set_var("CLP_TEST_ENV_PV", "env");
+    }
 
     let r = Command::new("df")
         .arg(
@@ -343,7 +382,10 @@ fn possible_value() {
 
 #[test]
 fn not_possible_value() {
-    env::set_var("CLP_TEST_ENV_NPV", "env");
+    // SAFETY: pure rust, nothing going through libc
+    unsafe {
+        env::set_var("CLP_TEST_ENV_NPV", "env");
+    }
 
     let r = Command::new("df")
         .arg(
@@ -359,7 +401,10 @@ fn not_possible_value() {
 
 #[test]
 fn value_parser() {
-    env::set_var("CLP_TEST_ENV_VDOR", "env");
+    // SAFETY: pure rust, nothing going through libc
+    unsafe {
+        env::set_var("CLP_TEST_ENV_VDOR", "env");
+    }
 
     let r = Command::new("df")
         .arg(
@@ -387,7 +432,10 @@ fn value_parser() {
 
 #[test]
 fn value_parser_output() {
-    env::set_var("CLP_TEST_ENV_VO", "42");
+    // SAFETY: pure rust, nothing going through libc
+    unsafe {
+        env::set_var("CLP_TEST_ENV_VO", "42");
+    }
 
     let m = Command::new("df")
         .arg(
@@ -404,7 +452,10 @@ fn value_parser_output() {
 
 #[test]
 fn value_parser_invalid() {
-    env::set_var("CLP_TEST_ENV_IV", "env");
+    // SAFETY: pure rust, nothing going through libc
+    unsafe {
+        env::set_var("CLP_TEST_ENV_IV", "env");
+    }
 
     let r = Command::new("df")
         .arg(

@@ -1,6 +1,6 @@
 #![allow(dead_code)] // shared with other test modules
 
-use clap::{builder::PossibleValue, Arg, ArgAction, Command, ValueHint};
+use clap::{Arg, ArgAction, Command, ValueHint, builder::PossibleValue};
 use snapbox::prelude::*;
 
 pub(crate) fn basic_command(name: &'static str) -> Command {

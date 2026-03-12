@@ -1,4 +1,4 @@
-use clap::{arg, Command};
+use clap::{Command, arg};
 use clap_mangen::Man;
 use std::io;
 

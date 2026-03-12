@@ -146,11 +146,9 @@ pub trait Generator {
 ///
 /// mod cli;
 ///
-/// fn main() {
-///     let _m = cli::build_cli().get_matches();
+/// let _m = cli::build_cli().get_matches();
 ///
-///     // normal logic continues...
-/// }
+/// // normal logic continues...
 /// ```
 ///
 /// Next, we set up our `Cargo.toml` to use a `build.rs` build script.
@@ -176,24 +174,22 @@ pub trait Generator {
 ///
 /// include!("src/cli.rs");
 ///
-/// fn main() -> Result<(), Error> {
-///     let outdir = match env::var_os("OUT_DIR") {
-///         None => return Ok(()),
-///         Some(outdir) => outdir,
-///     };
+/// let outdir = match env::var_os("OUT_DIR") {
+///     None => return Ok(()),
+///     Some(outdir) => outdir,
+/// };
 ///
-///     let mut cmd = build_cli();
-///     let path = generate_to(
-///         Bash,
-///         &mut cmd, // We need to specify what generator to use
-///         "myapp",  // We need to specify the bin name manually
-///         outdir,   // We need to specify where to write to
-///     )?;
+/// let mut cmd = build_cli();
+/// let path = generate_to(
+///     Bash,
+///     &mut cmd, // We need to specify what generator to use
+///     "myapp",  // We need to specify the bin name manually
+///     outdir,   // We need to specify where to write to
+/// )?;
 ///
-///     println!("cargo:warning=completion file is generated: {path:?}");
+/// println!("cargo:warning=completion file is generated: {path:?}");
 ///
-///     Ok(())
-/// }
+/// Ok(())
 /// ```
 ///
 /// Now, once we compile there will be a `{bin_name}.bash` file in the directory.
@@ -218,19 +214,17 @@ pub trait Generator {
 ///
 /// include!("src/cli.rs");
 ///
-/// fn main() -> Result<(), Error> {
-///     let outdir = match env::var_os("OUT_DIR") {
-///         None => return Ok(()),
-///         Some(outdir) => outdir,
-///     };
+/// let outdir = match env::var_os("OUT_DIR") {
+///     None => return Ok(()),
+///     Some(outdir) => outdir,
+/// };
 ///
-///     let mut cmd = build_cli();
-///     for &shell in Shell::value_variants() {
-///         generate_to(shell, &mut cmd, "myapp", outdir)?;
-///     }
-///
-///     Ok(())
+/// let mut cmd = build_cli();
+/// for &shell in Shell::value_variants() {
+///     generate_to(shell, &mut cmd, "myapp", outdir)?;
 /// }
+///
+/// Ok(())
 /// ```
 pub fn generate_to<G, S, T>(
     generator: G,
@@ -273,16 +267,13 @@ where
 /// use std::io;
 /// use clap_complete::{generate, shells::Bash};
 ///
-/// fn main() {
-///     let matches = cli::build_cli().get_matches();
+/// let matches = cli::build_cli().get_matches();
 ///
-///     if matches.is_present("generate-bash-completions") {
-///         generate(Bash, &mut cli::build_cli(), "myapp", &mut io::stdout());
-///     }
-///
-///     // normal logic continues...
+/// if matches.is_present("generate-bash-completions") {
+///     generate(Bash, &mut cli::build_cli(), "myapp", &mut io::stdout());
 /// }
 ///
+/// // normal logic continues...
 /// ```
 ///
 /// Usage:

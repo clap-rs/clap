@@ -12,8 +12,8 @@
 //! $ . ./completion.fish
 //! $ ./target/debug/examples/completion --<TAB>
 //! ```
-use clap::{value_parser, Arg, Command, ValueHint};
-use clap_complete::{generate, Generator, Shell};
+use clap::{Arg, Command, ValueHint, value_parser};
+use clap_complete::{Generator, Shell, generate};
 use std::io;
 
 fn build_cli() -> Command {

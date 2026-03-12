@@ -1,5 +1,5 @@
 use clap::builder::PossibleValue;
-use clap_complete::{generate, Generator, Shell};
+use clap_complete::{Generator, Shell, generate};
 
 fn main() {
     #[cfg(feature = "unstable-dynamic")]

@@ -1,10 +1,10 @@
 use std::io::{Error, Write};
 
-use clap::builder::StyledStr;
 use clap::Command;
+use clap::builder::StyledStr;
 
-use crate::generator::{utils, Generator};
 use crate::INTERNAL_ERROR_MSG;
+use crate::generator::{Generator, utils};
 
 /// Generate elvish completion file
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]

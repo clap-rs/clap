@@ -37,14 +37,12 @@
 //!     generate(generator, cmd, cmd.get_name().to_string(), &mut io::stdout());
 //! }
 //!
-//! fn main() {
-//!     let matches = build_cli().get_matches();
+//! let matches = build_cli().get_matches();
 //!
-//!     if let Some(generator) = matches.get_one::<Shell>("generator").copied() {
-//!         let mut cmd = build_cli();
-//!         eprintln!("Generating completion file for {generator}...");
-//!         print_completions(generator, &mut cmd);
-//!     }
+//! if let Some(generator) = matches.get_one::<Shell>("generator").copied() {
+//!     let mut cmd = build_cli();
+//!     eprintln!("Generating completion file for {generator}...");
+//!     print_completions(generator, &mut cmd);
 //! }
 //! ```
 

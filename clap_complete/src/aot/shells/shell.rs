@@ -3,11 +3,11 @@ use std::io::Error;
 use std::path::Path;
 use std::str::FromStr;
 
-use clap::builder::PossibleValue;
 use clap::ValueEnum;
+use clap::builder::PossibleValue;
 
-use crate::shells;
 use crate::Generator;
+use crate::shells;
 
 /// Shell with auto-generated completion script available.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]

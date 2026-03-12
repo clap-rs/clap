@@ -122,7 +122,7 @@ jobs:
         build: [msrv, wasm, wasm-wasi, debug, release]
         include:
           - build: msrv
-            rust: "1.74"  # MSRV
+            rust: "1.85"  # MSRV
             target: x86_64-unknown-linux-gnu
             features: full
           - build: wasm

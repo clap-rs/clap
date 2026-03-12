@@ -3,8 +3,8 @@
 use super::spanned::Sp;
 
 use syn::{
-    spanned::Spanned, GenericArgument, Path, PathArguments, PathArguments::AngleBracketed,
-    PathSegment, Type, TypePath,
+    GenericArgument, Path, PathArguments, PathArguments::AngleBracketed, PathSegment, Type,
+    TypePath, spanned::Spanned,
 };
 
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]

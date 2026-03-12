@@ -7,11 +7,11 @@
 
 use std::collections::HashMap;
 
-use clap::{value_parser, Arg, ArgAction, ArgMatches, Command};
+use clap::{Arg, ArgAction, ArgMatches, Command, value_parser};
 use lazy_static::lazy_static;
 
 mod build {
-    use super::{app_long, app_short, Command};
+    use super::{Command, app_long, app_short};
 
     #[divan::bench]
     fn short_help() -> Command {
@@ -41,7 +41,7 @@ mod render_help {
 }
 
 mod startup {
-    use super::{app_short, ArgMatches};
+    use super::{ArgMatches, app_short};
 
     #[divan::bench]
     fn simple() -> ArgMatches {
