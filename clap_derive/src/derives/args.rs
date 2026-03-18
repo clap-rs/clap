@@ -227,6 +227,7 @@ pub(crate) fn gen_augment(
                 };
 
                 let next_help_heading = item.next_help_heading();
+                let next_env_prefix = item.next_env_prefix();
                 let next_display_order = item.next_display_order();
                 let flatten_group_assert = if matches!(**ty, Ty::Option) {
                     quote_spanned! { kind.span()=>
@@ -240,7 +241,8 @@ pub(crate) fn gen_augment(
                         #flatten_group_assert
                         let #app_var = #app_var
                             #next_help_heading
-                            #next_display_order;
+                            #next_display_order
+                            #next_env_prefix;
                         let #app_var = <#inner_type as clap::Args>::augment_args_for_update(#app_var);
                     })
                 } else {
@@ -248,7 +250,8 @@ pub(crate) fn gen_augment(
                         #flatten_group_assert
                         let #app_var = #app_var
                             #next_help_heading
-                            #next_display_order;
+                            #next_display_order
+                            #next_env_prefix;
                         let #app_var = <#inner_type as clap::Args>::augment_args(#app_var);
                     })
                 }
