@@ -41,6 +41,12 @@ _clap_complete_NAME() {
     if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
         words[COMP_CWORD]="$2"
     fi
+    local cur="$2"
+    if type _get_comp_words_by_ref &>/dev/null; then
+        _get_comp_words_by_ref -n : cur words cword
+        _CLAP_COMPLETE_INDEX="$cword"
+        words[cword]="$cur"
+    fi
     COMPREPLY=( $( \
         _CLAP_IFS="$IFS" \
         _CLAP_COMPLETE_INDEX="$_CLAP_COMPLETE_INDEX" \
@@ -53,6 +59,9 @@ _clap_complete_NAME() {
         unset COMPREPLY
     elif [[ $_CLAP_COMPLETE_SPACE == false ]] && [[ "${COMPREPLY-}" =~ [=/:]$ ]]; then
         compopt -o nospace
+    fi
+    if type __ltrim_colon_completions &>/dev/null; then
+        __ltrim_colon_completions "$cur"
     fi
 }
 if [[ "${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -ge 4 || "${BASH_VERSINFO[0]}" -gt 4 ]]; then
