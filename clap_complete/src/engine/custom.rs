@@ -16,7 +16,7 @@ use super::CompletionCandidate;
 /// use clap::Parser;
 /// use clap_complete::engine::{ArgValueCompleter, CompletionCandidate};
 ///
-/// fn custom_completer(current: &std::ffi::OsStr) -> Vec<CompletionCandidate> {
+/// fn custom_completer(current: &std::ffi::OsStr, _position: usize) -> Vec<CompletionCandidate> {
 ///     let mut completions = vec![];
 ///     let Some(current) = current.to_str() else {
 ///         return completions;
@@ -55,8 +55,8 @@ impl ArgValueCompleter {
     /// Candidates that match `current`
     ///
     /// See [`CompletionCandidate`] for more information.
-    pub fn complete(&self, current: &OsStr) -> Vec<CompletionCandidate> {
-        self.0.complete(current)
+    pub fn complete(&self, current: &OsStr, position: usize) -> Vec<CompletionCandidate> {
+        self.0.complete(current, position)
     }
 }
 
@@ -75,15 +75,19 @@ pub trait ValueCompleter: Send + Sync {
     /// All potential candidates for an argument.
     ///
     /// See [`CompletionCandidate`] for more information.
-    fn complete(&self, current: &OsStr) -> Vec<CompletionCandidate>;
+    ///
+    /// The `position` parameter indicates the index of the value being completed
+    /// when an argument accepts multiple values (e.g., `--option value1 value2`).
+    /// Position 0 is the first value, 1 is the second, etc.
+    fn complete(&self, current: &OsStr, position: usize) -> Vec<CompletionCandidate>;
 }
 
 impl<F> ValueCompleter for F
 where
-    F: Fn(&OsStr) -> Vec<CompletionCandidate> + Send + Sync,
+    F: Fn(&OsStr, usize) -> Vec<CompletionCandidate> + Send + Sync,
 {
-    fn complete(&self, current: &OsStr) -> Vec<CompletionCandidate> {
-        self(current)
+    fn complete(&self, current: &OsStr, position: usize) -> Vec<CompletionCandidate> {
+        self(current, position)
     }
 }
 
@@ -267,7 +271,7 @@ impl Default for PathCompleter {
 }
 
 impl ValueCompleter for PathCompleter {
-    fn complete(&self, current: &OsStr) -> Vec<CompletionCandidate> {
+    fn complete(&self, current: &OsStr, _position: usize) -> Vec<CompletionCandidate> {
         let filter = self.filter.as_deref().unwrap_or(&|_| true);
         let mut current_dir_actual = None;
         let current_dir = self.current_dir.as_deref().or_else(|| {
