@@ -235,7 +235,67 @@ pub(crate) fn gen_augment(
                 } else {
                     quote! {}
                 };
-                if override_required {
+
+                if let Some(prefix_lit) = item.flatten_prefix() {
+                    let augment_call = if override_required {
+                        quote_spanned! { kind.span()=>
+                            <#inner_type as clap::Args>::augment_args_for_update
+                        }
+                    } else {
+                        quote_spanned! { kind.span()=>
+                            <#inner_type as clap::Args>::augment_args
+                        }
+                    };
+                    Some(quote_spanned! { kind.span()=>
+                        #flatten_group_assert
+                        let #app_var = #app_var
+                            #next_help_heading
+                            #next_display_order;
+                        let #app_var = {
+                            let __clap_prefix: &str = #prefix_lit;
+                            let __clap_tmp = #augment_call(clap::Command::new("__flatten_tmp"));
+                            let mut __clap_cmd = #app_var;
+                            // Copy arguments with prefixed IDs and long names
+                            for __clap_arg in __clap_tmp.get_arguments() {
+                                if __clap_arg.get_id() == "help" || __clap_arg.get_id() == "version" {
+                                    continue;
+                                }
+                                if __clap_arg.get_short().is_some() {
+                                    panic!(
+                                        "cannot use `flatten = \"{}\"` with argument `{}` that has a short flag; \
+                                         short flags cannot be prefixed",
+                                        __clap_prefix,
+                                        __clap_arg.get_id()
+                                    );
+                                }
+                                let __clap_prefixed_id = format!("{}{}", __clap_prefix, __clap_arg.get_id());
+                                let __clap_new_arg = __clap_arg.clone().id(__clap_prefixed_id);
+                                let __clap_new_arg = if let Some(__clap_long) = __clap_arg.get_long() {
+                                    __clap_new_arg.long(format!("{}{}", __clap_prefix, __clap_long))
+                                } else {
+                                    __clap_new_arg
+                                };
+                                __clap_cmd = __clap_cmd.arg(__clap_new_arg);
+                            }
+                            // Copy groups with prefixed IDs and arg references
+                            for __clap_group in __clap_tmp.get_groups() {
+                                if __clap_group.get_id() == "help" || __clap_group.get_id() == "version" {
+                                    continue;
+                                }
+                                let __clap_prefixed_group_id = format!("{}{}", __clap_prefix, __clap_group.get_id());
+                                let __clap_prefixed_args: Vec<clap::Id> = __clap_group
+                                    .get_args()
+                                    .map(|__clap_a| clap::Id::from(format!("{}{}", __clap_prefix, __clap_a)))
+                                    .collect();
+                                let __clap_new_group = clap::ArgGroup::new(__clap_prefixed_group_id)
+                                    .args(__clap_prefixed_args)
+                                    .multiple(true);
+                                __clap_cmd = __clap_cmd.group(__clap_new_group);
+                            }
+                            __clap_cmd
+                        };
+                    })
+                } else if override_required {
                     Some(quote_spanned! { kind.span()=>
                         #flatten_group_assert
                         let #app_var = #app_var
@@ -498,10 +558,38 @@ pub(crate) fn gen_constructor(fields: &[(&Field, Item)]) -> Result<TokenStream, 
                     (Ty::Option, Some(sub_type)) => sub_type,
                     _ => &field.ty,
                 };
+                let prefix_lit = item.flatten_prefix();
                 match **ty {
+                    Ty::Other if prefix_lit.is_some() => {
+                        let prefix_lit = prefix_lit.unwrap();
+                        quote_spanned! { kind.span()=>
+                            #field_name: {
+                                let mut __clap_prefixed = #arg_matches.take_prefixed(#prefix_lit);
+                                <#inner_type as clap::FromArgMatches>::from_arg_matches_mut(&mut __clap_prefixed)?
+                            }
+                        }
+                    },
                     Ty::Other => {
                         quote_spanned! { kind.span()=>
                             #field_name: <#inner_type as clap::FromArgMatches>::from_arg_matches_mut(#arg_matches)?
+                        }
+                    },
+                    Ty::Option if prefix_lit.is_some() => {
+                        let prefix_lit = prefix_lit.unwrap();
+                        quote_spanned! { kind.span()=>
+                            #field_name: {
+                                let __clap_group_id = <#inner_type as clap::Args>::group_id()
+                                    .expect("asserted during `Arg` creation");
+                                let __clap_prefixed_group_id = format!("{}{}", #prefix_lit, __clap_group_id.as_str());
+                                if #arg_matches.contains_id(__clap_prefixed_group_id.as_str()) {
+                                    let mut __clap_prefixed = #arg_matches.take_prefixed(#prefix_lit);
+                                    Some(
+                                        <#inner_type as clap::FromArgMatches>::from_arg_matches_mut(&mut __clap_prefixed)?
+                                    )
+                                } else {
+                                    None
+                                }
+                            }
                         }
                     },
                     Ty::Option => {
@@ -616,23 +704,48 @@ pub(crate) fn gen_updater(
                     _ => &field.ty,
                 };
 
-                let updater = quote_spanned! { ty.span()=>
-                    <#inner_type as clap::FromArgMatches>::update_from_arg_matches_mut(#field_name, #arg_matches)?;
-                };
+                let prefix_lit = item.flatten_prefix();
 
-                let updater = match **ty {
-                    Ty::Option => quote_spanned! { kind.span()=>
-                        if let Some(#field_name) = #field_name.as_mut() {
-                            #updater
-                        } else {
-                            *#field_name = Some(<#inner_type as clap::FromArgMatches>::from_arg_matches_mut(
-                                #arg_matches
-                            )?);
-                        }
-                    },
-                    _ => quote_spanned! { kind.span()=>
-                        #updater
-                    },
+                let updater = if let Some(prefix_lit) = prefix_lit {
+                    let base_updater = quote_spanned! { ty.span()=>
+                        let mut __clap_prefixed = #arg_matches.take_prefixed(#prefix_lit);
+                        <#inner_type as clap::FromArgMatches>::update_from_arg_matches_mut(#field_name, &mut __clap_prefixed)?;
+                    };
+
+                    match **ty {
+                        Ty::Option => quote_spanned! { kind.span()=>
+                            if let Some(#field_name) = #field_name.as_mut() {
+                                #base_updater
+                            } else {
+                                let mut __clap_prefixed = #arg_matches.take_prefixed(#prefix_lit);
+                                *#field_name = Some(<#inner_type as clap::FromArgMatches>::from_arg_matches_mut(
+                                    &mut __clap_prefixed
+                                )?);
+                            }
+                        },
+                        _ => quote_spanned! { kind.span()=>
+                            #base_updater
+                        },
+                    }
+                } else {
+                    let base_updater = quote_spanned! { ty.span()=>
+                        <#inner_type as clap::FromArgMatches>::update_from_arg_matches_mut(#field_name, #arg_matches)?;
+                    };
+
+                    match **ty {
+                        Ty::Option => quote_spanned! { kind.span()=>
+                            if let Some(#field_name) = #field_name.as_mut() {
+                                #base_updater
+                            } else {
+                                *#field_name = Some(<#inner_type as clap::FromArgMatches>::from_arg_matches_mut(
+                                    #arg_matches
+                                )?);
+                            }
+                        },
+                        _ => quote_spanned! { kind.span()=>
+                            #base_updater
+                        },
+                    }
                 };
 
                 quote_spanned! { kind.span()=>

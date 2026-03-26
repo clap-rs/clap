@@ -7,7 +7,7 @@ use std::slice::Iter;
 
 // Internal
 use crate::INTERNAL_ERROR_MSG;
-#[cfg(debug_assertions)]
+#[cfg(any(debug_assertions, feature = "string"))]
 use crate::builder::Str;
 use crate::parser::MatchedArg;
 use crate::parser::MatchesError;
@@ -1234,6 +1234,59 @@ impl ArgMatches {
     pub fn try_clear_id(&mut self, id: &str) -> Result<bool, MatchesError> {
         ok!(self.verify_arg(id));
         Ok(self.args.remove_entry(id).is_some())
+    }
+
+    /// Extract all arguments whose IDs start with `prefix` into a new [`ArgMatches`],
+    /// stripping the prefix from each ID.
+    ///
+    /// This is used internally by `#[command(flatten = "prefix")]` to allow a flattened
+    /// struct's [`FromArgMatches`][crate::FromArgMatches] implementation to find its
+    /// arguments under unprefixed names.
+    ///
+    /// Entries are moved out of `self` into the returned [`ArgMatches`].
+    #[cfg(feature = "string")]
+    pub fn take_prefixed(&mut self, prefix: &str) -> ArgMatches {
+        let mut new_args = FlatMap::new();
+        #[cfg(debug_assertions)]
+        let mut new_valid = Vec::new();
+
+        // Collect matching keys first to avoid borrow issues
+        let matching_keys: Vec<Id> = self
+            .args
+            .keys()
+            .filter(|k| k.as_str().starts_with(prefix))
+            .cloned()
+            .collect();
+
+        for key in matching_keys {
+            if let Some((_id, matched)) = self.args.remove_entry(key.as_str()) {
+                let stripped = &key.as_str()[prefix.len()..];
+                let new_id = Id::from(Str::from(stripped.to_owned()));
+                new_args.insert(new_id, matched);
+            }
+        }
+
+        #[cfg(debug_assertions)]
+        {
+            self.valid_args.retain(|id| {
+                if id.as_str().starts_with(prefix) {
+                    let stripped = &id.as_str()[prefix.len()..];
+                    new_valid.push(Id::from(Str::from(stripped.to_owned())));
+                    false
+                } else {
+                    true
+                }
+            });
+        }
+
+        ArgMatches {
+            #[cfg(debug_assertions)]
+            valid_args: new_valid,
+            #[cfg(debug_assertions)]
+            valid_subcommands: Default::default(),
+            args: new_args,
+            subcommand: None,
+        }
     }
 }
 

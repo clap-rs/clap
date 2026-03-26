@@ -50,6 +50,7 @@ pub(crate) struct Item {
     group_id: Name,
     group_methods: Vec<Method>,
     kind: Sp<Kind>,
+    flatten_prefix: Option<LitStr>,
 }
 
 impl Item {
@@ -279,6 +280,7 @@ impl Item {
             group_id,
             group_methods: vec![],
             kind,
+            flatten_prefix: None,
         }
     }
 
@@ -387,10 +389,19 @@ impl Item {
                     let kind = Sp::new(Kind::ExternalSubcommand, attr.name.span());
                     Some(kind)
                 }
-                Some(MagicAttrName::Flatten) if attr.value.is_none() => {
-                    if attr.value.is_some() {
-                        let expr = attr.value_or_abort()?;
-                        abort!(expr, "attribute `{}` does not accept a value", attr.name);
+                Some(MagicAttrName::Flatten) => {
+                    if let Some(value) = &attr.value {
+                        match value {
+                            AttrValue::LitStr(lit) => {
+                                self.flatten_prefix = Some(lit.clone());
+                            }
+                            _ => {
+                                abort!(
+                                    attr.name,
+                                    "attribute `flatten` expects a string literal prefix, e.g. `flatten = \"prefix_\"`"
+                                );
+                            }
+                        }
                     }
                     let ty = self
                         .kind()
@@ -1067,6 +1078,10 @@ impl Item {
 
     pub(crate) fn kind(&self) -> Sp<Kind> {
         self.kind.clone()
+    }
+
+    pub(crate) fn flatten_prefix(&self) -> Option<&LitStr> {
+        self.flatten_prefix.as_ref()
     }
 
     pub(crate) fn is_positional(&self) -> bool {

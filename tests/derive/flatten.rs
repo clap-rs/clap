@@ -303,3 +303,154 @@ fn flatten_skipped_group() {
 
     Cli::try_parse_from(["test"]).unwrap();
 }
+
+#[cfg(feature = "string")]
+mod flatten_prefix {
+    use super::*;
+
+    #[test]
+    fn basic_prefix() {
+        #[derive(Args, PartialEq, Debug)]
+        struct StorageOptions {
+            #[arg(long)]
+            host: String,
+            #[arg(long)]
+            username: String,
+        }
+
+        #[derive(Parser, PartialEq, Debug)]
+        struct Cli {
+            #[command(flatten = "source-")]
+            source: StorageOptions,
+        }
+
+        assert_eq!(
+            Cli {
+                source: StorageOptions {
+                    host: "localhost".into(),
+                    username: "admin".into(),
+                }
+            },
+            Cli::try_parse_from([
+                "test",
+                "--source-host",
+                "localhost",
+                "--source-username",
+                "admin"
+            ])
+            .unwrap()
+        );
+    }
+
+    #[test]
+    fn duplicate_flatten_with_different_prefixes() {
+        #[derive(Args, PartialEq, Debug)]
+        struct StorageOptions {
+            #[arg(long)]
+            host: String,
+            #[arg(long)]
+            username: String,
+        }
+
+        #[derive(Parser, PartialEq, Debug)]
+        struct Cli {
+            #[command(flatten = "source-")]
+            source: StorageOptions,
+            #[command(flatten = "dest-")]
+            dest: StorageOptions,
+        }
+
+        assert_eq!(
+            Cli {
+                source: StorageOptions {
+                    host: "src.example.com".into(),
+                    username: "reader".into(),
+                },
+                dest: StorageOptions {
+                    host: "dst.example.com".into(),
+                    username: "writer".into(),
+                },
+            },
+            Cli::try_parse_from([
+                "test",
+                "--source-host",
+                "src.example.com",
+                "--source-username",
+                "reader",
+                "--dest-host",
+                "dst.example.com",
+                "--dest-username",
+                "writer",
+            ])
+            .unwrap()
+        );
+    }
+
+    #[test]
+    #[should_panic(expected = "short flags cannot be prefixed")]
+    fn prefix_with_short_flag_panics() {
+        #[derive(Args, PartialEq, Debug)]
+        struct Opts {
+            #[arg(short, long)]
+            verbose: bool,
+        }
+
+        #[derive(Parser, PartialEq, Debug)]
+        struct Cli {
+            #[command(flatten = "src-")]
+            opts: Opts,
+        }
+
+        // The panic happens during command construction (augment_args)
+        let _ = Cli::try_parse_from(["test"]);
+    }
+
+    #[test]
+    fn prefix_help_shows_prefixed_flags() {
+        #[derive(Args, PartialEq, Debug)]
+        struct StorageOptions {
+            #[arg(long)]
+            host: String,
+        }
+
+        #[derive(Parser, PartialEq, Debug)]
+        struct Cli {
+            #[command(flatten = "source-")]
+            source: StorageOptions,
+        }
+
+        let help = utils::get_help::<Cli>();
+        assert!(
+            help.contains("--source-host"),
+            "Help should contain --source-host, got:\n{help}"
+        );
+    }
+
+    #[test]
+    fn prefix_with_optional_flatten() {
+        #[derive(Args, PartialEq, Debug)]
+        struct StorageOptions {
+            #[arg(long)]
+            host: Option<String>,
+        }
+
+        #[derive(Parser, PartialEq, Debug)]
+        struct Cli {
+            #[command(flatten = "src-")]
+            source: Option<StorageOptions>,
+        }
+
+        // Without args, the optional should be None
+        let cli = Cli::try_parse_from(["test"]).unwrap();
+        assert_eq!(cli.source, None);
+
+        // With args, the optional should be Some
+        let cli = Cli::try_parse_from(["test", "--src-host", "localhost"]).unwrap();
+        assert_eq!(
+            cli.source,
+            Some(StorageOptions {
+                host: Some("localhost".into())
+            })
+        );
+    }
+}
