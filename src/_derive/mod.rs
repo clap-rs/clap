@@ -41,6 +41,9 @@
 //!     #[command(flatten)]
 //!     delegate: Struct,
 //!
+//!     #[command(flatten = "prefix_")]
+//!     prefixed_delegate: Struct,
+//!
 //!     #[command(subcommand)]
 //!     command: Command,
 //! }
@@ -188,6 +191,16 @@
 //!   - **Tip:** Though we do apply a flattened [`Args`][crate::Args]'s Parent Command Attributes, this
 //!     makes reuse harder. Generally prefer putting the cmd attributes on the
 //!     [`Parser`][crate::Parser] or on the flattened field.
+//! - `flatten = "prefix"`: Like `flatten`, but prepends `prefix` to each argument's `--long` name
+//!   and internal ID, allowing the same [`Args`][crate::Args] type to be flattened multiple times
+//!   with different prefixes. Requires the [`string` feature][crate::_features].
+//!   - Short flags are not supported; a runtime panic is raised if the flattened type contains any.
+//!   - Env variable names are prefixed with the SCREAMING_SNAKE_CASE version of the prefix
+//!     (e.g. prefix `source-` turns env `HOST` into `SOURCE_HOST`).
+//!   - Long aliases and arg relationships (`conflicts_with`, `requires`, etc.)
+//!     defined on the inner type are not automatically prefixed and may not behave as expected.
+//!     Define these on the parent struct instead.
+//!   - Example: `#[command(flatten = "source-")] source: Opts` turns `--host` into `--source-host`.
 //! - `subcommand`: Delegates definition of subcommands to the field (must implement
 //!   [`Subcommand`][crate::Subcommand])
 //!   - When `Option<T>`, the subcommand becomes optional

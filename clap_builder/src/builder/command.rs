@@ -259,6 +259,10 @@ impl Command {
     ///
     /// This does not affect the built-in `--help` or `--version` arguments.
     ///
+    /// If you are using the derive API, you can use
+    /// `#[command(flatten = "prefix")]` instead of manually prefixing
+    /// arguments with `mut_args`.
+    ///
     /// # Examples
     ///
     #[cfg_attr(feature = "string", doc = "```")]
