@@ -2,7 +2,7 @@ bin.name = "stdio-fixture"
 args = ["-h"]
 status.code = 0
 stdout = """
-Usage: stdio-fixture[EXE] [OPTIONS] [NAME] [ENV] [COMMAND]
+Usage: stdio-fixture [OPTIONS] [NAME] [COMMAND]
 
 Commands:
   more                    
@@ -15,7 +15,6 @@ Commands:
 
 Arguments:
   [NAME]  App name [default: clap] [aliases: --app-name]
-  [ENV]   Read from env var when arg is not present. [env: ENV_ARG=]
 
 Options:
       --verbose        log

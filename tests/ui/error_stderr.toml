@@ -7,7 +7,7 @@ error: unexpected argument '--unknown-argument' found
 
   tip: to pass '--unknown-argument' as a value, use '-- --unknown-argument'
 
-Usage: stdio-fixture[EXE] [OPTIONS] [NAME] [ENV] [COMMAND]
+Usage: stdio-fixture [OPTIONS] [NAME] [COMMAND]
 
 For more information, try '--help'.
 """
