@@ -275,6 +275,19 @@ pub(crate) fn gen_augment(
                                 } else {
                                     __clap_new_arg
                                 };
+                                #[cfg(feature = "env")]
+                                let __clap_new_arg = if let Some(__clap_env) = __clap_arg.get_env() {
+                                    let __clap_env_prefix = __clap_prefix
+                                        .to_uppercase()
+                                        .replace('-', "_");
+                                    __clap_new_arg.env(format!(
+                                        "{}{}",
+                                        __clap_env_prefix,
+                                        __clap_env.to_string_lossy()
+                                    ))
+                                } else {
+                                    __clap_new_arg
+                                };
                                 __clap_cmd = __clap_cmd.arg(__clap_new_arg);
                             }
                             // Copy groups with prefixed IDs and arg references

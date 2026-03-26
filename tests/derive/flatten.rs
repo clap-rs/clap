@@ -453,4 +453,44 @@ mod flatten_prefix {
             })
         );
     }
+
+    #[cfg(feature = "env")]
+    #[test]
+    fn prefix_env_variables() {
+        #[derive(Args, PartialEq, Debug)]
+        struct StorageOptions {
+            #[arg(long, env = "HOST")]
+            host: String,
+            #[arg(long, env = "USERNAME")]
+            username: String,
+        }
+
+        #[derive(Parser, PartialEq, Debug)]
+        struct Cli {
+            #[command(flatten = "source-")]
+            source: StorageOptions,
+        }
+
+        // Env vars should be prefixed as SOURCE_HOST, SOURCE_USERNAME
+        unsafe {
+            std::env::set_var("SOURCE_HOST", "localhost");
+            std::env::set_var("SOURCE_USERNAME", "admin");
+        }
+
+        let cli = Cli::try_parse_from(["test"]).unwrap();
+        assert_eq!(
+            cli,
+            Cli {
+                source: StorageOptions {
+                    host: "localhost".into(),
+                    username: "admin".into(),
+                }
+            }
+        );
+
+        unsafe {
+            std::env::remove_var("SOURCE_HOST");
+            std::env::remove_var("SOURCE_USERNAME");
+        }
+    }
 }
