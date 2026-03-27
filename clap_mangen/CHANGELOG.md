@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Compatibility
+
+- `env` feature is now required for environment variable support
+
 ## [0.2.33] - 2026-03-12
 
 ### Compatibility
