@@ -311,15 +311,19 @@ fn option_help(opt: &Arg) -> Option<&clap::builder::StyledStr> {
     None
 }
 
-fn option_environment(opt: &Arg) -> Option<Vec<Inline>> {
-    if opt.is_hide_env_set() {
-        return None;
-    } else if let Some(env) = opt.get_env() {
-        return Some(vec![
-            roman("May also be specified with the "),
-            bold(env.to_string_lossy().into_owned()),
-            roman(" environment variable. "),
-        ]);
+fn option_environment(_opt: &Arg) -> Option<Vec<Inline>> {
+    #[cfg(feature = "env")]
+    {
+        let opt = _opt;
+        if opt.is_hide_env_set() {
+            return None;
+        } else if let Some(env) = opt.get_env() {
+            return Some(vec![
+                roman("May also be specified with the "),
+                bold(env.to_string_lossy().into_owned()),
+                roman(" environment variable. "),
+            ]);
+        }
     }
 
     None

@@ -261,6 +261,7 @@ pub(crate) fn hidden_option_command(name: &'static str) -> clap::Command {
         )
 }
 
+#[cfg(feature = "env")]
 pub(crate) fn env_value_command(name: &'static str) -> clap::Command {
     clap::Command::new(name).arg(
         clap::Arg::new("config")
