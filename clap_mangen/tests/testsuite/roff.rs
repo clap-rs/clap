@@ -63,6 +63,7 @@ fn hidden_options() {
 }
 
 #[test]
+#[cfg(feature = "env")]
 fn value_env() {
     let name = "my-app";
     let cmd = common::env_value_command(name);
