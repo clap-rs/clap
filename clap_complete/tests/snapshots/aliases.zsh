@@ -27,7 +27,7 @@ _my-app() {
 '--help[Print help]' \
 '-V[Print version]' \
 '--version[Print version]' \
-'::positional:_default' \
+'(-*)::positional:_default' \
 && ret=0
 }
 

@@ -654,8 +654,18 @@ fn write_positionals_of(p: &Command) -> String {
             ""
         };
 
+        // For optional positionals, add an exclusion pattern `(-*)` to prevent them
+        // from being matched when the current word starts with `-` (i.e., when the user
+        // is trying to complete an option). This fixes issue #6282.
+        let exclusion = if !arg.is_required_set() && !is_multi_valued {
+            "(-*)"
+        } else {
+            ""
+        };
+
         let a = format!(
-            "'{cardinality}:{name}{help}:{value_completion}' \\",
+            "'{exclusion}{cardinality}:{name}{help}:{value_completion}' \\",
+            exclusion = exclusion,
             cardinality = cardinality,
             name = arg.get_id(),
             help = arg
