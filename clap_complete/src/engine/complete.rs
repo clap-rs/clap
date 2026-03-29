@@ -574,9 +574,10 @@ fn populate_command_candidate(
     cmd: &clap::Command,
     subcommand: &clap::Command,
 ) -> CompletionCandidate {
+    let name = candidate.get_value().to_string_lossy();
     candidate
         .help(subcommand.get_about().cloned())
-        .id(Some(format!("command::{}", subcommand.get_name())))
+        .id(Some(format!("command::{}::{}", subcommand.get_name(), name)))
         .tag(Some(
             cmd.get_subcommand_help_heading()
                 .unwrap_or("Commands")
