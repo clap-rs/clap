@@ -920,6 +920,20 @@ impl<'cmd> Parser<'cmd> {
             return Ok(ParseResult::MaybeHyphenValue);
         }
 
+        // Issue #6315: When previous option needs a value and current arg looks like a short option
+        // with trailing value (e.g., "-nsometext"), treat it as a value for the previous option
+        // rather than parsing it as a new short option.
+        if matches!(parse_state, ParseState::Opt(_)) {
+            // Check if the short arg has a trailing value
+            // This happens when argument looks like "-nsometext" where 'n' is a short option
+            // and 'sometext' would be treated as its value
+            let has_trailing_value = short_arg.clone().next_value_os().is_some_and(|v| !v.is_empty());
+            if has_trailing_value {
+                debug!("Parser::parse_short_arg: prior arg needs value and current arg has trailing value, treating as MaybeHyphenValue");
+                return Ok(ParseResult::MaybeHyphenValue);
+            }
+        }
+
         let mut ret = ParseResult::NoArg;
 
         let skip = self.flag_subcmd_skip;
