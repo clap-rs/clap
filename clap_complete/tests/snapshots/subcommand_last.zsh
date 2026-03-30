@@ -17,16 +17,15 @@ _my-app() {
     _arguments "${_arguments_options[@]}" : \
 '-h[Print help]' \
 '--help[Print help]' \
-'::free:_default' \
 ":: :_my-app_commands" \
 "*::: :->my-app" \
 && ret=0
     case $state in
     (my-app)
-        words=($line[2] "${words[@]}")
+        words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:my-app-command-$line[2]:"
-        case $line[2] in
+        curcontext="${curcontext%:*:*}:my-app-command-$line[1]:"
+        case $line[1] in
             (foo)
 _arguments "${_arguments_options[@]}" : \
 '-h[Print help]' \

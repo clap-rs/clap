@@ -277,7 +277,7 @@ esac",
         name = parent.get_name(),
         name_hyphen = parent_bin_name.replace(' ', "-"),
         subcommands = all_subcommands.join("\n"),
-        pos = parent.get_positionals().count() + 1
+        pos = parent.get_positionals().filter(|a| !a.is_last_set()).count() + 1
     )
 }
 
@@ -623,10 +623,16 @@ fn write_positionals_of(p: &Command) -> String {
     for arg in p.get_positionals() {
         debug!("write_positionals_of:iter: arg={}", arg.get_id());
 
+        // Skip `last=true` arguments as they are handled by the '-S' _arguments option
+        // which disables completion after '--'
+        if arg.is_last_set() {
+            continue;
+        }
+
         let num_args = arg.get_num_args().expect("built");
         let is_multi_valued = num_args.max_values() > 1;
 
-        if catch_all_emitted && (arg.is_last_set() || is_multi_valued) {
+        if catch_all_emitted && is_multi_valued {
             // This is the final argument and it also takes multiple arguments.
             // We've already emitted a catch-all positional argument so we don't need
             // to emit anything for this argument because it is implicitly handled by
