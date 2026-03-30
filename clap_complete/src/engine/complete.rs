@@ -561,9 +561,10 @@ fn subcommands(p: &clap::Command) -> Vec<CompletionCandidate> {
             sc.get_name_and_visible_aliases()
                 .into_iter()
                 .map(|s| populate_command_candidate(s, p, sc))
-                .chain(sc.get_aliases().map(|s| {
-                    populate_command_candidate(s, p, sc).hide(true)
-                }))
+                .chain(
+                    sc.get_aliases()
+                        .map(|s| populate_command_candidate(s, p, sc).hide(true)),
+                )
         })
         .collect()
 }
@@ -717,23 +718,32 @@ mod tests {
             .subcommand(
                 clap::Command::new("install")
                     .visible_alias("i")
-                    .about("Install packages")
+                    .about("Install packages"),
             )
             .subcommand(
                 clap::Command::new("remove")
                     .visible_alias("rm")
-                    .about("Remove packages")
+                    .about("Remove packages"),
             );
 
         // When typing "i", both "i" and "install" should appear
         let args: Vec<OsString> = vec![OsString::from("test"), OsString::from("i")];
         let completions = complete(&mut cmd, args, 1, None).unwrap();
-        let values: Vec<String> = completions.iter()
+        let values: Vec<String> = completions
+            .iter()
             .map(|c| c.get_value().to_string_lossy().to_string())
             .collect();
 
-        assert!(values.contains(&"i".to_string()), "Expected 'i' in completions: {:?}", values);
-        assert!(values.contains(&"install".to_string()), "Expected 'install' in completions: {:?}", values);
+        assert!(
+            values.contains(&"i".to_string()),
+            "Expected 'i' in completions: {:?}",
+            values
+        );
+        assert!(
+            values.contains(&"install".to_string()),
+            "Expected 'install' in completions: {:?}",
+            values
+        );
     }
 
     #[test]
@@ -744,23 +754,32 @@ mod tests {
             .subcommand(
                 clap::Command::new("install")
                     .visible_alias("i")
-                    .about("Install packages")
+                    .about("Install packages"),
             )
             .subcommand(
                 clap::Command::new("remove")
                     .visible_alias("rm")
-                    .about("Remove packages")
+                    .about("Remove packages"),
             );
 
         // When typing "in", only "install" should appear
         let args: Vec<OsString> = vec![OsString::from("test"), OsString::from("in")];
         let completions = complete(&mut cmd, args, 1, None).unwrap();
-        let values: Vec<String> = completions.iter()
+        let values: Vec<String> = completions
+            .iter()
             .map(|c| c.get_value().to_string_lossy().to_string())
             .collect();
 
-        assert!(values.contains(&"install".to_string()), "Expected 'install' in completions: {:?}", values);
-        assert!(!values.contains(&"i".to_string()), "'i' should not appear for 'in' prefix: {:?}", values);
+        assert!(
+            values.contains(&"install".to_string()),
+            "Expected 'install' in completions: {:?}",
+            values
+        );
+        assert!(
+            !values.contains(&"i".to_string()),
+            "'i' should not appear for 'in' prefix: {:?}",
+            values
+        );
     }
 
     #[test]
@@ -770,24 +789,41 @@ mod tests {
             .subcommand(
                 clap::Command::new("install")
                     .visible_alias("i")
-                    .about("Install packages")
+                    .about("Install packages"),
             )
             .subcommand(
                 clap::Command::new("remove")
                     .visible_alias("rm")
-                    .about("Remove packages")
+                    .about("Remove packages"),
             );
 
         let args: Vec<OsString> = vec![OsString::from("test"), OsString::from("")];
         let completions = complete(&mut cmd, args, 1, None).unwrap();
-        let values: Vec<String> = completions.iter()
+        let values: Vec<String> = completions
+            .iter()
             .map(|c| c.get_value().to_string_lossy().to_string())
             .collect();
 
         // All visible aliases and names should appear
-        assert!(values.contains(&"install".to_string()), "Expected 'install' in completions: {:?}", values);
-        assert!(values.contains(&"i".to_string()), "Expected 'i' in completions: {:?}", values);
-        assert!(values.contains(&"remove".to_string()), "Expected 'remove' in completions: {:?}", values);
-        assert!(values.contains(&"rm".to_string()), "Expected 'rm' in completions: {:?}", values);
+        assert!(
+            values.contains(&"install".to_string()),
+            "Expected 'install' in completions: {:?}",
+            values
+        );
+        assert!(
+            values.contains(&"i".to_string()),
+            "Expected 'i' in completions: {:?}",
+            values
+        );
+        assert!(
+            values.contains(&"remove".to_string()),
+            "Expected 'remove' in completions: {:?}",
+            values
+        );
+        assert!(
+            values.contains(&"rm".to_string()),
+            "Expected 'rm' in completions: {:?}",
+            values
+        );
     }
 }
