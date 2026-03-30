@@ -290,6 +290,11 @@ fn all_options_for_path(cmd: &Command, path: &str) -> String {
         write!(&mut opts, "--{long} ").expect("writing to String is infallible");
     }
     for pos in p.get_positionals() {
+        // Skip `last=true` arguments when there are subcommands, as they only capture
+        // values after '--' and would interfere with subcommand completion
+        if pos.is_last_set() && p.get_subcommands().next().is_some() {
+            continue;
+        }
         if let Some(vals) = utils::possible_values(pos) {
             for value in vals {
                 write!(&mut opts, "{} ", value.get_name())
