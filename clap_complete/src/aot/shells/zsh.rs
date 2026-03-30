@@ -277,7 +277,11 @@ esac",
         name = parent.get_name(),
         name_hyphen = parent_bin_name.replace(' ', "-"),
         subcommands = all_subcommands.join("\n"),
-        pos = parent.get_positionals().filter(|a| !a.is_last_set()).count() + 1
+        pos = parent
+            .get_positionals()
+            .filter(|a| !a.is_last_set())
+            .count()
+            + 1
     )
 }
 
