@@ -560,23 +560,22 @@ fn subcommands(p: &clap::Command) -> Vec<CompletionCandidate> {
         .flat_map(|sc| {
             sc.get_name_and_visible_aliases()
                 .into_iter()
-                .map(|s| populate_command_candidate(CompletionCandidate::new(s.to_string()), p, sc))
+                .map(|s| populate_command_candidate(s, p, sc))
                 .chain(sc.get_aliases().map(|s| {
-                    populate_command_candidate(CompletionCandidate::new(s.to_string()), p, sc)
-                        .hide(true)
+                    populate_command_candidate(s, p, sc).hide(true)
                 }))
         })
         .collect()
 }
 
 fn populate_command_candidate(
-    candidate: CompletionCandidate,
+    candidate_name: &str,
     cmd: &clap::Command,
     subcommand: &clap::Command,
 ) -> CompletionCandidate {
-    candidate
+    CompletionCandidate::new(candidate_name.to_string())
         .help(subcommand.get_about().cloned())
-        .id(Some(format!("command::{}", subcommand.get_name())))
+        .id(Some(format!("command::{}", candidate_name)))
         .tag(Some(
             cmd.get_subcommand_help_heading()
                 .unwrap_or("Commands")
@@ -704,4 +703,91 @@ fn opt_allows_hyphen(state: &ParseState<'_>, arg: &clap_lex::ParsedArg<'_>) -> b
     }
 
     false
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn visible_aliases_appear_in_completion() {
+        // Test that visible aliases appear alongside the main command name
+        // when completing subcommands (issue #6317)
+        let mut cmd = clap::Command::new("test")
+            .subcommand(
+                clap::Command::new("install")
+                    .visible_alias("i")
+                    .about("Install packages")
+            )
+            .subcommand(
+                clap::Command::new("remove")
+                    .visible_alias("rm")
+                    .about("Remove packages")
+            );
+
+        // When typing "i", both "i" and "install" should appear
+        let args: Vec<OsString> = vec![OsString::from("test"), OsString::from("i")];
+        let completions = complete(&mut cmd, args, 1, None).unwrap();
+        let values: Vec<String> = completions.iter()
+            .map(|c| c.get_value().to_string_lossy().to_string())
+            .collect();
+
+        assert!(values.contains(&"i".to_string()), "Expected 'i' in completions: {:?}", values);
+        assert!(values.contains(&"install".to_string()), "Expected 'install' in completions: {:?}", values);
+    }
+
+    #[test]
+    fn visible_aliases_with_different_prefix() {
+        // Test that when typing a prefix that matches only one alias,
+        // only that alias and the main command appear
+        let mut cmd = clap::Command::new("test")
+            .subcommand(
+                clap::Command::new("install")
+                    .visible_alias("i")
+                    .about("Install packages")
+            )
+            .subcommand(
+                clap::Command::new("remove")
+                    .visible_alias("rm")
+                    .about("Remove packages")
+            );
+
+        // When typing "in", only "install" should appear
+        let args: Vec<OsString> = vec![OsString::from("test"), OsString::from("in")];
+        let completions = complete(&mut cmd, args, 1, None).unwrap();
+        let values: Vec<String> = completions.iter()
+            .map(|c| c.get_value().to_string_lossy().to_string())
+            .collect();
+
+        assert!(values.contains(&"install".to_string()), "Expected 'install' in completions: {:?}", values);
+        assert!(!values.contains(&"i".to_string()), "'i' should not appear for 'in' prefix: {:?}", values);
+    }
+
+    #[test]
+    fn all_visible_aliases_and_names_with_empty_input() {
+        // Test that all visible aliases and names appear for empty input
+        let mut cmd = clap::Command::new("test")
+            .subcommand(
+                clap::Command::new("install")
+                    .visible_alias("i")
+                    .about("Install packages")
+            )
+            .subcommand(
+                clap::Command::new("remove")
+                    .visible_alias("rm")
+                    .about("Remove packages")
+            );
+
+        let args: Vec<OsString> = vec![OsString::from("test"), OsString::from("")];
+        let completions = complete(&mut cmd, args, 1, None).unwrap();
+        let values: Vec<String> = completions.iter()
+            .map(|c| c.get_value().to_string_lossy().to_string())
+            .collect();
+
+        // All visible aliases and names should appear
+        assert!(values.contains(&"install".to_string()), "Expected 'install' in completions: {:?}", values);
+        assert!(values.contains(&"i".to_string()), "Expected 'i' in completions: {:?}", values);
+        assert!(values.contains(&"remove".to_string()), "Expected 'remove' in completions: {:?}", values);
+        assert!(values.contains(&"rm".to_string()), "Expected 'rm' in completions: {:?}", values);
+    }
 }

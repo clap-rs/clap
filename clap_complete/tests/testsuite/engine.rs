@@ -73,9 +73,16 @@ fn suggest_hidden_subcommand_and_aliases() {
                 .hide(true),
         );
 
-    assert_data_eq!(complete!(cmd, "test"), snapbox::str!["test_visible"]);
+    assert_data_eq!(complete!(cmd, "test"), snapbox::str![[r#"
+test_visible
+test_visible-alias_visible
+"#]]);
 
-    assert_data_eq!(complete!(cmd, "test_h"), snapbox::str!["test_hidden"]);
+    assert_data_eq!(complete!(cmd, "test_h"), snapbox::str![[r#"
+test_hidden
+test_hidden-alias_hidden
+test_hidden-alias_visible
+"#]]);
 
     assert_data_eq!(
         complete!(cmd, "test_hidden-alias_h"),
@@ -106,7 +113,9 @@ fn suggest_subcommand_aliases() {
         complete!(cmd, "hello"),
         snapbox::str![[r#"
 hello-world
+hello-world-foo
 hello-moon
+hello-moon-foo
 "#]],
     );
 }
