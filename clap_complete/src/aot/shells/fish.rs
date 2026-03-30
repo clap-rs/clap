@@ -175,7 +175,9 @@ fn gen_fish_inner(
 
     // Handle positional arguments with possible values or value hints
     for positional in cmd.get_positionals() {
-        if utils::possible_values(positional).is_some() || positional.get_value_hint() != ValueHint::Unknown {
+        if utils::possible_values(positional).is_some()
+            || positional.get_value_hint() != ValueHint::Unknown
+        {
             let mut template = basic_template.clone();
             template.push_str(positional_value_completion(positional).as_str());
             buffer.push_str(template.as_str());
