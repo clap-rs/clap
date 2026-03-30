@@ -5,8 +5,6 @@ use clap::{Arg, Command, ValueHint, builder};
 use crate::generator::{Generator, utils};
 
 /// Generate fish completion file
-///
-/// Note: The fish generator currently only supports named options (-o/--option), not positional arguments.
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Fish;
 
@@ -175,6 +173,16 @@ fn gen_fish_inner(
         buffer.push('\n');
     }
 
+    // Handle positional arguments with possible values or value hints
+    for positional in cmd.get_positionals() {
+        if utils::possible_values(positional).is_some() || positional.get_value_hint() != ValueHint::Unknown {
+            let mut template = basic_template.clone();
+            template.push_str(positional_value_completion(positional).as_str());
+            buffer.push_str(template.as_str());
+            buffer.push('\n');
+        }
+    }
+
     let has_positionals = cmd.get_positionals().next().is_some();
     if !has_positionals {
         basic_template.push_str(" -f");
@@ -315,6 +323,48 @@ fn value_completion(option: &Arg) -> String {
             ValueHint::Hostname => " -r -f -a \"(__fish_print_hostnames)\"",
             // Disable completion for others
             _ => " -r -f",
+        }
+        .to_string()
+    }
+}
+
+fn positional_value_completion(positional: &Arg) -> String {
+    if let Some(data) = utils::possible_values(positional) {
+        // We return the possible values with their own empty description e.g. "a\t''\nb\t''"
+        // this makes sure that a and b don't get the description of the positional
+        format!(
+            " -f -a \"{}\"",
+            data.iter()
+                .filter_map(|value| if value.is_hide_set() {
+                    None
+                } else {
+                    // The help text after \t is wrapped in '' to make sure that the it is taken literally
+                    // and there is no command substitution or variable expansion resulting in unexpected errors
+                    Some(format!(
+                        "{}\\t'{}'",
+                        escape_string(value.get_name(), true).as_str(),
+                        escape_help(value.get_help().unwrap_or_default())
+                    ))
+                })
+                .collect::<Vec<_>>()
+                .join("\n")
+        )
+    } else {
+        // NB! If you change this, please also update the table in `ValueHint` documentation.
+        match positional.get_value_hint() {
+            ValueHint::Unknown => " -f",
+            // fish has no built-in support to distinguish these
+            ValueHint::AnyPath | ValueHint::FilePath | ValueHint::ExecutablePath => " -F",
+            ValueHint::DirPath => " -f -a \"(__fish_complete_directories)\"",
+            // It seems fish has no built-in support for completing command + arguments as
+            // single string (CommandString). Complete just the command name.
+            ValueHint::CommandString | ValueHint::CommandName => {
+                " -f -a \"(__fish_complete_command)\""
+            }
+            ValueHint::Username => " -f -a \"(__fish_complete_users)\"",
+            ValueHint::Hostname => " -f -a \"(__fish_print_hostnames)\"",
+            // Disable completion for others
+            _ => " -f",
         }
         .to_string()
     }

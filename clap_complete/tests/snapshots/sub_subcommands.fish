@@ -27,6 +27,9 @@ end
 complete -c my-app -n "__fish_my_app_needs_command" -s c -s C -l config -l conf -d 'some config file'
 complete -c my-app -n "__fish_my_app_needs_command" -s h -l help -d 'Print help'
 complete -c my-app -n "__fish_my_app_needs_command" -s V -l version -d 'Print version'
+complete -c my-app -n "__fish_my_app_needs_command" -F
+complete -c my-app -n "__fish_my_app_needs_command" -f -a "first\t''
+second\t''"
 complete -c my-app -n "__fish_my_app_needs_command" -a "test" -d 'tests things'
 complete -c my-app -n "__fish_my_app_needs_command" -a "some_cmd" -d 'top level subcommand'
 complete -c my-app -n "__fish_my_app_needs_command" -a "some_cmd_alias" -d 'top level subcommand'
