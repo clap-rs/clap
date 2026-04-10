@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.6.1] - 2026-04-10
+
 ### Fixes
 
 - Avoid panic when a subcommand has `__` in the name
@@ -652,7 +654,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.6.0...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.6.1...HEAD
+[4.6.1]: https://github.com/clap-rs/clap/compare/clap_complete-v4.6.0...clap_complete-v4.6.1
 [4.6.0]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.67...clap_complete-v4.6.0
 [4.5.67]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.66...clap_complete-v4.5.67
 [4.5.66]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.65...clap_complete-v4.5.66
