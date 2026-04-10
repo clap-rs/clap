@@ -38,7 +38,7 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" : \
-":: :_bin-name__help_commands" \
+":: :_bin-name__subcmd__help_commands" \
 "*::: :->help" \
 && ret=0
 
@@ -73,26 +73,26 @@ _bin-name_commands() {
     )
     _describe -t commands 'bin-name commands' commands "$@"
 }
-(( $+functions[_bin-name__help_commands] )) ||
-_bin-name__help_commands() {
+(( $+functions[_bin-name__subcmd__help_commands] )) ||
+_bin-name__subcmd__help_commands() {
     local commands; commands=(
 'test:Subcommand with a second line' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'bin-name help commands' commands "$@"
 }
-(( $+functions[_bin-name__help__help_commands] )) ||
-_bin-name__help__help_commands() {
+(( $+functions[_bin-name__subcmd__help__subcmd__help_commands] )) ||
+_bin-name__subcmd__help__subcmd__help_commands() {
     local commands; commands=()
     _describe -t commands 'bin-name help help commands' commands "$@"
 }
-(( $+functions[_bin-name__help__test_commands] )) ||
-_bin-name__help__test_commands() {
+(( $+functions[_bin-name__subcmd__help__subcmd__test_commands] )) ||
+_bin-name__subcmd__help__subcmd__test_commands() {
     local commands; commands=()
     _describe -t commands 'bin-name help test commands' commands "$@"
 }
-(( $+functions[_bin-name__test_commands] )) ||
-_bin-name__test_commands() {
+(( $+functions[_bin-name__subcmd__test_commands] )) ||
+_bin-name__subcmd__test_commands() {
     local commands; commands=()
     _describe -t commands 'bin-name test commands' commands "$@"
 }
