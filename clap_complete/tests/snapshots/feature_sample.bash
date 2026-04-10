@@ -17,16 +17,16 @@ _my-app() {
                 cmd="my__app"
                 ;;
             my__app,help)
-                cmd="my__app__help"
+                cmd="my__app__subcmd__help"
                 ;;
             my__app,test)
-                cmd="my__app__test"
+                cmd="my__app__subcmd__test"
                 ;;
-            my__app__help,help)
-                cmd="my__app__help__help"
+            my__app__subcmd__help,help)
+                cmd="my__app__subcmd__help__subcmd__help"
                 ;;
-            my__app__help,test)
-                cmd="my__app__help__test"
+            my__app__subcmd__help,test)
+                cmd="my__app__subcmd__help__subcmd__test"
                 ;;
             *)
                 ;;
@@ -48,7 +48,7 @@ _my-app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my__app__help)
+        my__subcmd__app__subcmd__help)
             opts="test help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -62,7 +62,7 @@ _my-app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my__app__help__help)
+        my__subcmd__app__subcmd__help__subcmd__help)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -76,7 +76,7 @@ _my-app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my__app__help__test)
+        my__subcmd__app__subcmd__help__subcmd__test)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -90,7 +90,7 @@ _my-app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my__app__test)
+        my__subcmd__app__subcmd__test)
             opts="-h -V --case --help --version"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )

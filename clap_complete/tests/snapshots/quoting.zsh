@@ -72,7 +72,7 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" : \
-":: :_my-app__help_commands" \
+":: :_my-app__subcmd__help_commands" \
 "*::: :->help" \
 && ret=0
 
@@ -132,38 +132,38 @@ _my-app_commands() {
     )
     _describe -t commands 'my-app commands' commands "$@"
 }
-(( $+functions[_my-app__cmd-backslash_commands] )) ||
-_my-app__cmd-backslash_commands() {
+(( $+functions[_my-app__subcmd__cmd-backslash_commands] )) ||
+_my-app__subcmd__cmd-backslash_commands() {
     local commands; commands=()
     _describe -t commands 'my-app cmd-backslash commands' commands "$@"
 }
-(( $+functions[_my-app__cmd-backticks_commands] )) ||
-_my-app__cmd-backticks_commands() {
+(( $+functions[_my-app__subcmd__cmd-backticks_commands] )) ||
+_my-app__subcmd__cmd-backticks_commands() {
     local commands; commands=()
     _describe -t commands 'my-app cmd-backticks commands' commands "$@"
 }
-(( $+functions[_my-app__cmd-brackets_commands] )) ||
-_my-app__cmd-brackets_commands() {
+(( $+functions[_my-app__subcmd__cmd-brackets_commands] )) ||
+_my-app__subcmd__cmd-brackets_commands() {
     local commands; commands=()
     _describe -t commands 'my-app cmd-brackets commands' commands "$@"
 }
-(( $+functions[_my-app__cmd-double-quotes_commands] )) ||
-_my-app__cmd-double-quotes_commands() {
+(( $+functions[_my-app__subcmd__cmd-double-quotes_commands] )) ||
+_my-app__subcmd__cmd-double-quotes_commands() {
     local commands; commands=()
     _describe -t commands 'my-app cmd-double-quotes commands' commands "$@"
 }
-(( $+functions[_my-app__cmd-expansions_commands] )) ||
-_my-app__cmd-expansions_commands() {
+(( $+functions[_my-app__subcmd__cmd-expansions_commands] )) ||
+_my-app__subcmd__cmd-expansions_commands() {
     local commands; commands=()
     _describe -t commands 'my-app cmd-expansions commands' commands "$@"
 }
-(( $+functions[_my-app__cmd-single-quotes_commands] )) ||
-_my-app__cmd-single-quotes_commands() {
+(( $+functions[_my-app__subcmd__cmd-single-quotes_commands] )) ||
+_my-app__subcmd__cmd-single-quotes_commands() {
     local commands; commands=()
     _describe -t commands 'my-app cmd-single-quotes commands' commands "$@"
 }
-(( $+functions[_my-app__help_commands] )) ||
-_my-app__help_commands() {
+(( $+functions[_my-app__subcmd__help_commands] )) ||
+_my-app__subcmd__help_commands() {
     local commands; commands=(
 'cmd-single-quotes:Can be '\''always'\'', '\''auto'\'', or '\''never'\''' \
 'cmd-double-quotes:Can be "always", "auto", or "never"' \
@@ -175,38 +175,38 @@ _my-app__help_commands() {
     )
     _describe -t commands 'my-app help commands' commands "$@"
 }
-(( $+functions[_my-app__help__cmd-backslash_commands] )) ||
-_my-app__help__cmd-backslash_commands() {
+(( $+functions[_my-app__subcmd__help__subcmd__cmd-backslash_commands] )) ||
+_my-app__subcmd__help__subcmd__cmd-backslash_commands() {
     local commands; commands=()
     _describe -t commands 'my-app help cmd-backslash commands' commands "$@"
 }
-(( $+functions[_my-app__help__cmd-backticks_commands] )) ||
-_my-app__help__cmd-backticks_commands() {
+(( $+functions[_my-app__subcmd__help__subcmd__cmd-backticks_commands] )) ||
+_my-app__subcmd__help__subcmd__cmd-backticks_commands() {
     local commands; commands=()
     _describe -t commands 'my-app help cmd-backticks commands' commands "$@"
 }
-(( $+functions[_my-app__help__cmd-brackets_commands] )) ||
-_my-app__help__cmd-brackets_commands() {
+(( $+functions[_my-app__subcmd__help__subcmd__cmd-brackets_commands] )) ||
+_my-app__subcmd__help__subcmd__cmd-brackets_commands() {
     local commands; commands=()
     _describe -t commands 'my-app help cmd-brackets commands' commands "$@"
 }
-(( $+functions[_my-app__help__cmd-double-quotes_commands] )) ||
-_my-app__help__cmd-double-quotes_commands() {
+(( $+functions[_my-app__subcmd__help__subcmd__cmd-double-quotes_commands] )) ||
+_my-app__subcmd__help__subcmd__cmd-double-quotes_commands() {
     local commands; commands=()
     _describe -t commands 'my-app help cmd-double-quotes commands' commands "$@"
 }
-(( $+functions[_my-app__help__cmd-expansions_commands] )) ||
-_my-app__help__cmd-expansions_commands() {
+(( $+functions[_my-app__subcmd__help__subcmd__cmd-expansions_commands] )) ||
+_my-app__subcmd__help__subcmd__cmd-expansions_commands() {
     local commands; commands=()
     _describe -t commands 'my-app help cmd-expansions commands' commands "$@"
 }
-(( $+functions[_my-app__help__cmd-single-quotes_commands] )) ||
-_my-app__help__cmd-single-quotes_commands() {
+(( $+functions[_my-app__subcmd__help__subcmd__cmd-single-quotes_commands] )) ||
+_my-app__subcmd__help__subcmd__cmd-single-quotes_commands() {
     local commands; commands=()
     _describe -t commands 'my-app help cmd-single-quotes commands' commands "$@"
 }
-(( $+functions[_my-app__help__help_commands] )) ||
-_my-app__help__help_commands() {
+(( $+functions[_my-app__subcmd__help__subcmd__help_commands] )) ||
+_my-app__subcmd__help__subcmd__help_commands() {
     local commands; commands=()
     _describe -t commands 'my-app help help commands' commands "$@"
 }

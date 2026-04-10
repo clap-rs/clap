@@ -678,7 +678,7 @@ fn write_positionals_of(p: &Command) -> String {
     ret.join("\n")
 }
 
-const CMD_SEP: &str = "__";
+const CMD_SEP: &str = "__subcmd__";
 
 #[cfg(test)]
 mod tests {

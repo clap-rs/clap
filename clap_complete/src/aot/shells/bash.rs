@@ -307,4 +307,4 @@ fn all_options_for_path(cmd: &Command, path: &str) -> String {
     opts
 }
 
-const CMD_SEP: &str = "__";
+const CMD_SEP: &str = "__subcmd__";
