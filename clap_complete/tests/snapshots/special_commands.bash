@@ -17,34 +17,34 @@ _my-app() {
                 cmd="my__app"
                 ;;
             my__app,help)
-                cmd="my__app__help"
+                cmd="my__app_subcmd_help"
                 ;;
             my__app,some-cmd-with-hyphens)
-                cmd="my__app__some__cmd__with__hyphens"
+                cmd="my__app_subcmd_some__cmd__with__hyphens"
                 ;;
             my__app,some-hidden-cmd)
-                cmd="my__app__some__hidden__cmd"
+                cmd="my__app_subcmd_some__hidden__cmd"
                 ;;
             my__app,some_cmd)
-                cmd="my__app__some_cmd"
+                cmd="my__app_subcmd_some_cmd"
                 ;;
             my__app,test)
-                cmd="my__app__test"
+                cmd="my__app_subcmd_test"
                 ;;
-            my__app__help,help)
-                cmd="my__app__help__help"
+            my__app_subcmd_help,help)
+                cmd="my__app_subcmd_help_subcmd_help"
                 ;;
-            my__app__help,some-cmd-with-hyphens)
-                cmd="my__app__help__some__cmd__with__hyphens"
+            my__app_subcmd_help,some-cmd-with-hyphens)
+                cmd="my__app_subcmd_help_subcmd_some__cmd__with__hyphens"
                 ;;
-            my__app__help,some-hidden-cmd)
-                cmd="my__app__help__some__hidden__cmd"
+            my__app_subcmd_help,some-hidden-cmd)
+                cmd="my__app_subcmd_help_subcmd_some__hidden__cmd"
                 ;;
-            my__app__help,some_cmd)
-                cmd="my__app__help__some_cmd"
+            my__app_subcmd_help,some_cmd)
+                cmd="my__app_subcmd_help_subcmd_some_cmd"
                 ;;
-            my__app__help,test)
-                cmd="my__app__help__test"
+            my__app_subcmd_help,test)
+                cmd="my__app_subcmd_help_subcmd_test"
                 ;;
             *)
                 ;;
@@ -66,7 +66,7 @@ _my-app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my__app__help)
+        my__app_subcmd_help)
             opts="test some_cmd some-cmd-with-hyphens some-hidden-cmd help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -80,7 +80,7 @@ _my-app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my__app__help__help)
+        my__app_subcmd_help_subcmd_help)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -94,7 +94,7 @@ _my-app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my__app__help__some__cmd__with__hyphens)
+        my__app_subcmd_help_subcmd_some__cmd__with__hyphens)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -108,7 +108,7 @@ _my-app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my__app__help__some__hidden__cmd)
+        my__app_subcmd_help_subcmd_some__hidden__cmd)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -122,7 +122,7 @@ _my-app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my__app__help__some_cmd)
+        my__app_subcmd_help_subcmd_some_cmd)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -136,7 +136,7 @@ _my-app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my__app__help__test)
+        my__app_subcmd_help_subcmd_test)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -150,7 +150,7 @@ _my-app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my__app__some__cmd__with__hyphens)
+        my__app_subcmd_some__cmd__with__hyphens)
             opts="-h -V --help --version"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -164,7 +164,7 @@ _my-app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my__app__some__hidden__cmd)
+        my__app_subcmd_some__hidden__cmd)
             opts="-h -V --help --version"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -178,7 +178,7 @@ _my-app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my__app__some_cmd)
+        my__app_subcmd_some_cmd)
             opts="-h -V --config --help --version [path]..."
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -196,7 +196,7 @@ _my-app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my__app__test)
+        my__app_subcmd_test)
             opts="-h -V --case --help --version"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )

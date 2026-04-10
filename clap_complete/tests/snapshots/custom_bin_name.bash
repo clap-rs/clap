@@ -17,16 +17,16 @@ _bin-name() {
                 cmd="bin__name"
                 ;;
             bin__name,help)
-                cmd="bin__name__help"
+                cmd="bin__name_subcmd_help"
                 ;;
             bin__name,test)
-                cmd="bin__name__test"
+                cmd="bin__name_subcmd_test"
                 ;;
-            bin__name__help,help)
-                cmd="bin__name__help__help"
+            bin__name_subcmd_help,help)
+                cmd="bin__name_subcmd_help_subcmd_help"
                 ;;
-            bin__name__help,test)
-                cmd="bin__name__help__test"
+            bin__name_subcmd_help,test)
+                cmd="bin__name_subcmd_help_subcmd_test"
                 ;;
             *)
                 ;;
@@ -48,7 +48,7 @@ _bin-name() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        bin__name__help)
+        bin__name_subcmd_help)
             opts="test help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -62,7 +62,7 @@ _bin-name() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        bin__name__help__help)
+        bin__name_subcmd_help_subcmd_help)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -76,7 +76,7 @@ _bin-name() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        bin__name__help__test)
+        bin__name_subcmd_help_subcmd_test)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -90,7 +90,7 @@ _bin-name() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        bin__name__test)
+        bin__name_subcmd_test)
             opts="-d -c -h --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )

@@ -320,6 +320,17 @@ pub(crate) fn subcommand_last(name: &'static str) -> clap::Command {
         .subcommands([clap::Command::new("foo"), clap::Command::new("bar")])
 }
 
+/// Regression fixture for <https://github.com/clap-rs/clap/issues/6339>: a
+/// subcommand whose name contains `__` used to make the bash generator panic
+/// because `__` was also the internal path separator.
+pub(crate) fn underscore_subcommand_command(name: &'static str) -> clap::Command {
+    clap::Command::new(name).subcommand(
+        clap::Command::new("group")
+            .subcommand(clap::Command::new("normal"))
+            .subcommand(clap::Command::new("__hidden").hide(true)),
+    )
+}
+
 pub(crate) fn assert_matches(
     expected: impl IntoData,
     generator: impl clap_complete::Generator,

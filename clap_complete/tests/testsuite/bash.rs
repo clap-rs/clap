@@ -191,6 +191,20 @@ fn subcommand_last() {
     );
 }
 
+/// Regression test for [#6339](https://github.com/clap-rs/clap/issues/6339):
+/// a subcommand whose name contains `__` must not panic the bash generator.
+#[test]
+fn underscore_subcommand() {
+    let name = "my-app";
+    let cmd = common::underscore_subcommand_command(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/underscore_subcommand.bash"],
+        clap_complete::shells::Bash,
+        cmd,
+        name,
+    );
+}
+
 #[test]
 #[cfg(unix)]
 #[cfg(feature = "unstable-shell-tests")]

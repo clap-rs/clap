@@ -7,6 +7,14 @@ use clap::{Arg, Command, ValueHint};
 
 use crate::generator::{Generator, utils};
 
+/// Separator used to join subcommand path segments in the generated script.
+///
+/// Must be distinct from any character sequence that can appear inside a
+/// subcommand name so the joined path can be split back apart unambiguously.
+/// `__` was previously used, which collided with subcommands whose names
+/// contain (or start with) `__`, e.g. `__hidden`.
+const SUBCOMMAND_PATH_SEP: &str = "_subcmd_";
+
 /// Generate bash completion file
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Bash;
@@ -96,8 +104,9 @@ fn all_subcommands(cmd: &Command, parent_fn_name: &str) -> String {
         subcmds: &mut Vec<(String, String, String)>,
     ) {
         let fn_name = format!(
-            "{parent_fn_name}__{cmd_name}",
+            "{parent_fn_name}{sep}{cmd_name}",
             parent_fn_name = parent_fn_name,
+            sep = SUBCOMMAND_PATH_SEP,
             cmd_name = cmd.get_name().to_string().replace('-', "__")
         );
         subcmds.push((
@@ -140,7 +149,7 @@ fn subcommand_details(cmd: &Command) -> String {
     let mut subcmd_dets = vec![String::new()];
     let mut scs = utils::all_subcommands(cmd)
         .iter()
-        .map(|x| x.1.replace(' ', "__"))
+        .map(|x| x.1.replace(' ', SUBCOMMAND_PATH_SEP))
         .collect::<Vec<_>>();
 
     scs.sort();
@@ -164,7 +173,7 @@ fn subcommand_details(cmd: &Command) -> String {
             ;;",
             subcmd = sc.replace('-', "__"),
             sc_opts = all_options_for_path(cmd, sc),
-            level = sc.split("__").map(|_| 1).sum::<u64>(),
+            level = sc.split(SUBCOMMAND_PATH_SEP).map(|_| 1).sum::<u64>(),
             opts_details = option_details_for_path(cmd, sc)
         )
     }));
@@ -175,7 +184,8 @@ fn subcommand_details(cmd: &Command) -> String {
 fn option_details_for_path(cmd: &Command, path: &str) -> String {
     debug!("option_details_for_path: path={path}");
 
-    let p = utils::find_subcommand_with_path(cmd, path.split("__").skip(1).collect());
+    let p =
+        utils::find_subcommand_with_path(cmd, path.split(SUBCOMMAND_PATH_SEP).skip(1).collect());
     let mut opts = vec![String::new()];
 
     for o in p.get_opts() {
@@ -280,7 +290,8 @@ fn vals_for(o: &Arg) -> String {
 fn all_options_for_path(cmd: &Command, path: &str) -> String {
     debug!("all_options_for_path: path={path}");
 
-    let p = utils::find_subcommand_with_path(cmd, path.split("__").skip(1).collect());
+    let p =
+        utils::find_subcommand_with_path(cmd, path.split(SUBCOMMAND_PATH_SEP).skip(1).collect());
 
     let mut opts = String::new();
     for short in utils::shorts_and_visible_aliases(p) {

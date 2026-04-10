@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(bash)* Don't panic when a subcommand's name contains `__`
+
 ## [4.6.0] - 2026-03-12
 
 ### Compatibility

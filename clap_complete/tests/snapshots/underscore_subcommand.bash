@@ -16,47 +16,41 @@ _my-app() {
             ",$1")
                 cmd="my__app"
                 ;;
-            my__app,cmd-backslash)
-                cmd="my__app_subcmd_cmd__backslash"
-                ;;
-            my__app,cmd-backticks)
-                cmd="my__app_subcmd_cmd__backticks"
-                ;;
-            my__app,cmd-brackets)
-                cmd="my__app_subcmd_cmd__brackets"
-                ;;
-            my__app,cmd-double-quotes)
-                cmd="my__app_subcmd_cmd__double__quotes"
-                ;;
-            my__app,cmd-expansions)
-                cmd="my__app_subcmd_cmd__expansions"
-                ;;
-            my__app,cmd-single-quotes)
-                cmd="my__app_subcmd_cmd__single__quotes"
+            my__app,group)
+                cmd="my__app_subcmd_group"
                 ;;
             my__app,help)
                 cmd="my__app_subcmd_help"
                 ;;
-            my__app_subcmd_help,cmd-backslash)
-                cmd="my__app_subcmd_help_subcmd_cmd__backslash"
+            my__app_subcmd_group,__hidden)
+                cmd="my__app_subcmd_group_subcmd___hidden"
                 ;;
-            my__app_subcmd_help,cmd-backticks)
-                cmd="my__app_subcmd_help_subcmd_cmd__backticks"
+            my__app_subcmd_group,help)
+                cmd="my__app_subcmd_group_subcmd_help"
                 ;;
-            my__app_subcmd_help,cmd-brackets)
-                cmd="my__app_subcmd_help_subcmd_cmd__brackets"
+            my__app_subcmd_group,normal)
+                cmd="my__app_subcmd_group_subcmd_normal"
                 ;;
-            my__app_subcmd_help,cmd-double-quotes)
-                cmd="my__app_subcmd_help_subcmd_cmd__double__quotes"
+            my__app_subcmd_group_subcmd_help,__hidden)
+                cmd="my__app_subcmd_group_subcmd_help_subcmd___hidden"
                 ;;
-            my__app_subcmd_help,cmd-expansions)
-                cmd="my__app_subcmd_help_subcmd_cmd__expansions"
+            my__app_subcmd_group_subcmd_help,help)
+                cmd="my__app_subcmd_group_subcmd_help_subcmd_help"
                 ;;
-            my__app_subcmd_help,cmd-single-quotes)
-                cmd="my__app_subcmd_help_subcmd_cmd__single__quotes"
+            my__app_subcmd_group_subcmd_help,normal)
+                cmd="my__app_subcmd_group_subcmd_help_subcmd_normal"
+                ;;
+            my__app_subcmd_help,group)
+                cmd="my__app_subcmd_help_subcmd_group"
                 ;;
             my__app_subcmd_help,help)
                 cmd="my__app_subcmd_help_subcmd_help"
+                ;;
+            my__app_subcmd_help_subcmd_group,__hidden)
+                cmd="my__app_subcmd_help_subcmd_group_subcmd___hidden"
+                ;;
+            my__app_subcmd_help_subcmd_group,normal)
+                cmd="my__app_subcmd_help_subcmd_group_subcmd_normal"
                 ;;
             *)
                 ;;
@@ -65,7 +59,7 @@ _my-app() {
 
     case "${cmd}" in
         my__app)
-            opts="-h -V --single-quotes --double-quotes --backticks --backslash --brackets --expansions --help --version cmd-single-quotes cmd-double-quotes cmd-backticks cmd-backslash cmd-brackets cmd-expansions help"
+            opts="-h --help group help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -78,8 +72,8 @@ _my-app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my__app_subcmd_cmd__backslash)
-            opts="-h --help"
+        my__app_subcmd_group)
+            opts="-h --help normal __hidden help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -92,9 +86,9 @@ _my-app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my__app_subcmd_cmd__backticks)
+        my__app_subcmd_group_subcmd___hidden)
             opts="-h --help"
-            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
@@ -106,9 +100,9 @@ _my-app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my__app_subcmd_cmd__brackets)
-            opts="-h --help"
-            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
+        my__app_subcmd_group_subcmd_help)
+            opts="normal __hidden help"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
@@ -120,9 +114,9 @@ _my-app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my__app_subcmd_cmd__double__quotes)
-            opts="-h --help"
-            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
+        my__app_subcmd_group_subcmd_help_subcmd___hidden)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
@@ -134,9 +128,9 @@ _my-app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my__app_subcmd_cmd__expansions)
-            opts="-h --help"
-            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
+        my__app_subcmd_group_subcmd_help_subcmd_help)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
@@ -148,9 +142,23 @@ _my-app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my__app_subcmd_cmd__single__quotes)
+        my__app_subcmd_group_subcmd_help_subcmd_normal)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        my__app_subcmd_group_subcmd_normal)
             opts="-h --help"
-            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
@@ -163,7 +171,7 @@ _my-app() {
             return 0
             ;;
         my__app_subcmd_help)
-            opts="cmd-single-quotes cmd-double-quotes cmd-backticks cmd-backslash cmd-brackets cmd-expansions help"
+            opts="group help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -176,8 +184,8 @@ _my-app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my__app_subcmd_help_subcmd_cmd__backslash)
-            opts=""
+        my__app_subcmd_help_subcmd_group)
+            opts="normal __hidden"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -190,9 +198,9 @@ _my-app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my__app_subcmd_help_subcmd_cmd__backticks)
+        my__app_subcmd_help_subcmd_group_subcmd___hidden)
             opts=""
-            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
@@ -204,51 +212,9 @@ _my-app() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        my__app_subcmd_help_subcmd_cmd__brackets)
+        my__app_subcmd_help_subcmd_group_subcmd_normal)
             opts=""
-            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
-                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-                return 0
-            fi
-            case "${prev}" in
-                *)
-                    COMPREPLY=()
-                    ;;
-            esac
-            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-            return 0
-            ;;
-        my__app_subcmd_help_subcmd_cmd__double__quotes)
-            opts=""
-            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
-                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-                return 0
-            fi
-            case "${prev}" in
-                *)
-                    COMPREPLY=()
-                    ;;
-            esac
-            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-            return 0
-            ;;
-        my__app_subcmd_help_subcmd_cmd__expansions)
-            opts=""
-            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
-                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-                return 0
-            fi
-            case "${prev}" in
-                *)
-                    COMPREPLY=()
-                    ;;
-            esac
-            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-            return 0
-            ;;
-        my__app_subcmd_help_subcmd_cmd__single__quotes)
-            opts=""
-            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
