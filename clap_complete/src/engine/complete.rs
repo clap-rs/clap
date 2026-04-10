@@ -172,9 +172,10 @@ fn complete_arg(
                 .find(|p| p.get_index() == Some(pos_index))
             {
                 completions.extend(complete_arg_value(arg.to_value(), positional, current_dir));
-                if positional
-                    .get_num_args()
-                    .is_some_and(|num_args| num_arg >= num_args.min_values())
+                if !is_escaped
+                    && positional
+                        .get_num_args()
+                        .is_some_and(|num_args| num_arg >= num_args.min_values())
                 {
                     completions.extend(complete_option(arg, cmd, current_dir));
                 }

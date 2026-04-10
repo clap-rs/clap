@@ -298,7 +298,6 @@ fn suggest_multiple_positional_after_escape() {
 hello-world
 hello-moon
 goodbye-world
---help	Print help
 "#]],
     );
 }
