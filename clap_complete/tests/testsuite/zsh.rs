@@ -435,3 +435,30 @@ tests/snapshots    tests/testsuite    tests/examples.rs
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+fn complete_dynamic_tagged_options() {
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+
+    let input = [
+        "zstyle ':completion:*:descriptions' format '%d'",
+        "exhaustive -\t\t",
+    ].join("\n");
+
+    let expected = snapbox::str![[r#"
+% zstyle ':completion:*:descriptions' format '%d'
+% exhaustive -
+--generate      -- generate
+-h              -- Print help
+--empty-choice
+"#]];
+    let actual = runtime.complete(&input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
