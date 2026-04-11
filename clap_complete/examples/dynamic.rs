@@ -12,6 +12,12 @@ fn command() -> clap::Command {
                 .short('F')
                 .value_parser(["json", "yaml", "toml"]),
         )
+        .arg(
+            clap::Arg::new("verbose")
+                .long("verbose")
+                .short('v')
+                .global(true),
+        )
         .args_conflicts_with_subcommands(true)
 }
 

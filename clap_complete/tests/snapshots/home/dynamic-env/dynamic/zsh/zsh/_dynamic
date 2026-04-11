@@ -1,0 +1,50 @@
+#compdef dynamic
+function _clap_dynamic_completer_dynamic() {
+    local _CLAP_COMPLETE_INDEX=$(expr $CURRENT - 1)
+    local _CLAP_IFS=$'\n'
+
+    local completions=("${(@f)$( \
+        _CLAP_IFS="$_CLAP_IFS" \
+        _CLAP_COMPLETE_INDEX="$_CLAP_COMPLETE_INDEX" \
+        COMPLETE="zsh" \
+        dynamic -- "${words[@]}" 2>/dev/null \
+    )}")
+
+    if [[ -n $completions ]]; then
+        local -A tag_map
+        local -a dirs=()
+        local completion
+        local tag
+        local value
+
+        for completion in $completions; do
+            IFS=: read -r tag value <<< "$completion"
+            if [[ "$value" == */ ]]; then
+                local dir_no_slash="${value%/}"
+                if [[ "$value" == *:* ]]; then
+                    local desc="${value#*:}"
+                    dirs+=("$dir_no_slash:$desc")
+                else
+                    dirs+=("$dir_no_slash")
+                fi
+            else
+                if (( ${+tag_map["$tag"]} )); then # key exists?
+                    tag_map["$tag"]+=$'\n'"$value"
+                else
+                    tag_map["$tag"]="$value"
+                fi
+            fi
+        done
+        [[ -n $dirs ]] && _describe -t dirs 'values' dirs -S '/' -r '/'
+        for tag in ${(k)tag_map}; do
+            values=("${(@f)tag_map[$tag]}") # split on newline
+            if [[ -n $tag ]]; then
+              _describe -t "$tag" "$tag options" values
+            else
+              _describe "options" values
+            fi
+        done
+    fi
+}
+
+compdef _clap_dynamic_completer_dynamic dynamic

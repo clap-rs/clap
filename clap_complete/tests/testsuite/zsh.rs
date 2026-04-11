@@ -235,6 +235,7 @@ pacman  action  global  alias  value  quote  empty  last  --
 #[cfg(feature = "unstable-shell-tests")]
 fn register_dynamic_env() {
     common::register_example::<RuntimeBuilder>("dynamic-env", "exhaustive");
+    common::register_example::<RuntimeBuilder>("dynamic-env", "dynamic");
 }
 
 #[test]
@@ -253,7 +254,7 @@ fn complete_dynamic_env_toplevel() {
 % exhaustive
 --generate      -- generate
 --help          -- Print help
-help            -- Print this message or the help of the given subcommand(s)
+help    -- Print this message or the help of the given subcommand(s)
 --empty-choice  alias           global          last            quote           
 action          empty           hint            pacman          value           
 "#]];
@@ -275,15 +276,21 @@ fn complete_dynamic_env_quoted_help() {
     let input = "exhaustive quote \t\t";
     let expected = snapbox::str![[r#"
 % exhaustive quote
---help                              -- Print help (see more with '--help')                                            
-cmd-backslash      --backslash      -- Avoid '/n'                                                                     
-cmd-backticks      --backticks      -- For more information see `echo test`                                           
-cmd-brackets       --brackets       -- List packages [filter]                                                         
-cmd-double-quotes  --double-quotes  -- Can be "always", "auto", or "never"                                            
-cmd-expansions     --expansions     -- Execute the shell command with $SHELL                                          
-cmd-single-quotes  --single-quotes  -- Can be 'always', 'auto', or 'never'                                            
-escape-help                         -- /tab/t"'                                                                       
-help                                -- Print this message or the help of the given subcommand(s)                      
+--backslash      -- Avoid '/n'
+--backticks      -- For more information see `echo test`
+--brackets       -- List packages [filter]
+--double-quotes  -- Can be "always", "auto", or "never"
+--expansions     -- Execute the shell command with $SHELL
+--help           -- Print help (see more with '--help')
+--single-quotes  -- Can be 'always', 'auto', or 'never'
+cmd-backslash      -- Avoid '/n'
+cmd-backticks      -- For more information see `echo test`
+cmd-brackets       -- List packages [filter]
+cmd-double-quotes  -- Can be "always", "auto", or "never"
+cmd-expansions     -- Execute the shell command with $SHELL
+cmd-single-quotes  -- Can be 'always', 'auto', or 'never'
+escape-help        -- /tab      "'
+help               -- Print this message or the help of the given subcommand(s)
 --choice
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
@@ -392,15 +399,21 @@ fn complete_dynamic_empty_space() {
     let input = "exhaustive quote  -\x1b[D\x1b[D\t\t";
     let expected = snapbox::str![[r#"
 % exhaustive quote  -
---help                              -- Print help (see more with '--help')                                            
-cmd-backslash      --backslash      -- Avoid '/n'                                                                     
-cmd-backticks      --backticks      -- For more information see `echo test`                                           
-cmd-brackets       --brackets       -- List packages [filter]                                                         
-cmd-double-quotes  --double-quotes  -- Can be "always", "auto", or "never"                                            
-cmd-expansions     --expansions     -- Execute the shell command with $SHELL                                          
-cmd-single-quotes  --single-quotes  -- Can be 'always', 'auto', or 'never'                                            
-escape-help                         -- /tab/t"'                                                                       
-help                                -- Print this message or the help of the given subcommand(s)                      
+--backslash      -- Avoid '/n'
+--backticks      -- For more information see `echo test`
+--brackets       -- List packages [filter]
+--double-quotes  -- Can be "always", "auto", or "never"
+--expansions     -- Execute the shell command with $SHELL
+--help           -- Print help (see more with '--help')
+--single-quotes  -- Can be 'always', 'auto', or 'never'
+cmd-backslash      -- Avoid '/n'
+cmd-backticks      -- For more information see `echo test`
+cmd-brackets       -- List packages [filter]
+cmd-double-quotes  -- Can be "always", "auto", or "never"
+cmd-expansions     -- Execute the shell command with $SHELL
+cmd-single-quotes  -- Can be 'always', 'auto', or 'never'
+escape-help        -- /tab      "'
+help               -- Print this message or the help of the given subcommand(s)
 --choice
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
