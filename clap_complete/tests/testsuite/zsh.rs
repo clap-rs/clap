@@ -213,8 +213,8 @@ fn complete() {
     let expected = snapbox::str![[r#"
 % exhaustive
 help                                                      -- Print this message or the help of the given subcommand(s)
-hint                                                      
-pacman  action  global  alias  value  quote  empty  last  --                                                          
+hint
+pacman  action  global  alias  value  quote  empty  last  --
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -255,8 +255,8 @@ fn complete_dynamic_env_toplevel() {
 --generate      -- generate
 --help          -- Print help
 help    -- Print this message or the help of the given subcommand(s)
---empty-choice  alias           global          last            quote           
-action          empty           hint            pacman          value           
+--empty-choice  alias           global          last            quote
+action          empty           hint            pacman          value
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -446,5 +446,36 @@ fn complete_dynamic_dir_no_trailing_space() {
 tests/examples.rs  tests/snapshots    tests/testsuite
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+fn complete_dynamic_tagged_options() {
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "dynamic");
+
+    let input = [
+        "zstyle ':completion:*' group-name ''",
+        "zstyle ':completion:*:descriptions' format '%d'",
+        "dynamic -\t\t",
+    ].join("\n");
+
+    let expected = snapbox::str![[r#"
+% zstyle ':completion:*' group-name ''
+% zstyle ':completion:*:descriptions' format '%d'
+% dynamic -
+completing "Options" options
+-F  -- --format
+-h  -- Print help
+-i  -- --input
+-v  -- --verbose
+"#]];
+    let actual = runtime.complete(&input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
