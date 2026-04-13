@@ -7,11 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(dynamic)* Don't complete flags after `--`
+
 ## [4.6.1] - 2026-04-10
 
 ### Fixes
 
-- Avoid panic when a subcommand has `__` in the name
+- *(bash/zsh)* Avoid panic when a subcommand has `__` in the name
 
 ## [4.6.0] - 2026-03-12
 
