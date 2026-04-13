@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.6.2] - 2026-04-13
+
 ### Fixes
 
 - *(dynamic)* Don't complete flags after `--`
@@ -658,7 +660,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.6.1...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.6.2...HEAD
+[4.6.2]: https://github.com/clap-rs/clap/compare/clap_complete-v4.6.1...clap_complete-v4.6.2
 [4.6.1]: https://github.com/clap-rs/clap/compare/clap_complete-v4.6.0...clap_complete-v4.6.1
 [4.6.0]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.67...clap_complete-v4.6.0
 [4.5.67]: https://github.com/clap-rs/clap/compare/clap_complete-v4.5.66...clap_complete-v4.5.67

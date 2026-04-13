@@ -1,6 +1,6 @@
 [package]
 name = "clap_complete"
-version = "4.6.1"
+version = "4.6.2"
 description = "Generate shell completion scripts for your clap::Command"
 categories = ["command-line-interface"]
 keywords = [
