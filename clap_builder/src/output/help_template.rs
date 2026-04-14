@@ -948,7 +948,9 @@ impl HelpTemplate<'_, '_> {
             .filter(|subcommand| should_show_subcommand(subcommand))
         {
             let mut styled = StyledStr::new();
-            let name = subcommand.get_name();
+            let name = subcommand
+                .get_display_name()
+                .unwrap_or_else(|| subcommand.get_name());
             let _ = write!(styled, "{literal}{name}{literal:#}",);
             if let Some(short) = subcommand.get_short_flag() {
                 let _ = write!(styled, ", {literal}-{short}{literal:#}",);
