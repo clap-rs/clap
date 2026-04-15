@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(derive)* Ensure rebuilds happen when an read env variable is changed
+
 ## [4.6.0] - 2026-03-12
 
 ### Compatibility
