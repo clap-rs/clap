@@ -1263,7 +1263,14 @@ impl Method {
             lit = LitStr::new(&edited, lit.span());
         }
 
-        Ok(Some(Method::new(ident, quote!(#lit))))
+        let env_var_lit = LitStr::new(env_var, ident.span());
+        Ok(Some(Method::new(
+            ident,
+            quote!({
+                let _ = ::core::env!(#env_var_lit);
+                #lit
+            }),
+        )))
     }
 
     pub(crate) fn args(&self) -> &TokenStream {
