@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.6.1] - 2026-04-15
+
 ### Fixes
 
 - *(derive)* Ensure rebuilds happen when an read env variable is changed
@@ -4930,7 +4932,8 @@ Minimum version of Rust is now v1.13.0 (Stable)
 * **arg**  allow lifetimes other than 'static in arguments ([9e8c1fb9](https://github.com/clap-rs/clap/commit/9e8c1fb9406f8448873ca58bab07fe905f1551e5))
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/v4.6.0...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/v4.6.1...HEAD
+[4.6.1]: https://github.com/clap-rs/clap/compare/v4.6.0...v4.6.1
 [4.6.0]: https://github.com/clap-rs/clap/compare/v4.5.61...v4.6.0
 [4.5.61]: https://github.com/clap-rs/clap/compare/v4.5.60...v4.5.61
 [4.5.60]: https://github.com/clap-rs/clap/compare/v4.5.59...v4.5.60
