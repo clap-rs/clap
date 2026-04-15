@@ -30,12 +30,20 @@ pub(crate) fn derive_parser(input: &DeriveInput) -> Result<TokenStream, syn::Err
     let ident = &input.ident;
     let pkg_name = std::env::var("CARGO_PKG_NAME").ok().unwrap_or_default();
 
+    let pkg_name_tokens = if pkg_name.is_empty() {
+        quote!(#pkg_name)
+    } else {
+        quote!({
+            let _ = ::core::env!("CARGO_PKG_NAME");
+            #pkg_name })
+    };
+
     match input.data {
         Data::Struct(DataStruct {
             fields: Fields::Named(ref fields),
             ..
         }) => {
-            let name = Name::Assigned(quote!(#pkg_name));
+            let name = Name::Assigned(pkg_name_tokens.clone());
             let item = Item::from_args_struct(input, name)?;
             let fields = collect_args_fields(&item, fields)?;
             gen_for_struct(&item, ident, &input.generics, &fields)
@@ -44,7 +52,7 @@ pub(crate) fn derive_parser(input: &DeriveInput) -> Result<TokenStream, syn::Err
             fields: Fields::Unit,
             ..
         }) => {
-            let name = Name::Assigned(quote!(#pkg_name));
+            let name = Name::Assigned(pkg_name_tokens.clone());
             let item = Item::from_args_struct(input, name)?;
             let fields = Punctuated::<Field, Comma>::new();
             let fields = fields
@@ -57,7 +65,7 @@ pub(crate) fn derive_parser(input: &DeriveInput) -> Result<TokenStream, syn::Err
             gen_for_struct(&item, ident, &input.generics, &fields)
         }
         Data::Enum(ref e) => {
-            let name = Name::Assigned(quote!(#pkg_name));
+            let name = Name::Assigned(pkg_name_tokens);
             let item = Item::from_subcommand_enum(input, name)?;
             let variants = e
                 .variants
