@@ -77,15 +77,7 @@ pub fn complete(
             }
         } else if let Some((flag, value)) = arg.to_long() {
             if let Ok(flag) = flag {
-                let opt = current_cmd.get_arguments().find(|a| {
-                    let longs = a.get_long_and_visible_aliases();
-                    let is_find = longs.map(|v| {
-                        let mut iter = v.into_iter();
-                        let s = iter.find(|s| *s == flag);
-                        s.is_some()
-                    });
-                    is_find.unwrap_or(false)
-                });
+                let opt = find_long_arg(current_cmd, flag);
 
                 if let Some(opt) = opt {
                     if opt.get_num_args().expect("built").takes_values() && value.is_none() {
@@ -268,7 +260,7 @@ fn complete_option(
     } else if let Some((flag, value)) = arg.to_long() {
         if let Ok(flag) = flag {
             if let Some(value) = value {
-                if let Some(arg) = cmd.get_arguments().find(|a| a.get_long() == Some(flag)) {
+                if let Some(arg) = find_long_arg(cmd, flag) {
                     completions.extend(
                         complete_arg_value(value.to_str().ok_or(value), arg, current_dir)
                             .into_iter()
@@ -504,6 +496,15 @@ fn hidden_longs_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
         .collect()
 }
 
+fn find_long_arg<'a>(cmd: &'a clap::Command, long: &str) -> Option<&'a clap::Arg> {
+    cmd.get_arguments().find(|arg| {
+        arg.get_long() == Some(long)
+            || arg
+                .get_aliases()
+                .is_some_and(|aliases| aliases.into_iter().any(|alias| alias == long))
+    })
+}
+
 /// Gets all the short options, their visible aliases and flags of a [`clap::Command`].
 /// Includes `h` and `V` depending on the [`clap::Command`] settings.
 fn shorts_and_visible_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
@@ -523,6 +524,15 @@ fn shorts_and_visible_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
         })
         .flatten()
         .collect()
+}
+
+fn find_short_arg(cmd: &clap::Command, short: char) -> Option<&clap::Arg> {
+    cmd.get_arguments().find(|arg| {
+        arg.get_short() == Some(short)
+            || arg
+                .get_all_short_aliases()
+                .is_some_and(|aliases| aliases.into_iter().any(|alias| alias == short))
+    })
 }
 
 fn populate_arg_candidate(candidate: CompletionCandidate, arg: &clap::Arg) -> CompletionCandidate {
@@ -600,15 +610,7 @@ fn parse_shortflags<'c, 's>(
         match short.next_flag() {
             Some(Ok(opt)) => {
                 leading_flags.push(opt);
-                let opt = cmd.get_arguments().find(|a| {
-                    let shorts = a.get_short_and_visible_aliases();
-                    let is_find = shorts.map(|v| {
-                        let mut iter = v.into_iter();
-                        let c = iter.find(|c| *c == opt);
-                        c.is_some()
-                    });
-                    is_find.unwrap_or(false)
-                });
+                let opt = find_short_arg(cmd, opt);
                 if opt
                     .map(|o| o.get_num_args().expect("built").takes_values())
                     .unwrap_or(false)
