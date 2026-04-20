@@ -166,6 +166,42 @@ fn suggest_hidden_long_flag_aliases() {
 }
 
 #[test]
+fn complete_hidden_long_flag_alias_value() {
+    let mut cmd = Command::new("exhaustive").arg(
+        clap::Arg::new("format")
+            .long("format")
+            .alias("hidden-format")
+            .value_parser(["json", "yaml"]),
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--hidden-format=[TAB]"),
+        snapbox::str![[r#"
+--hidden-format=json
+--hidden-format=yaml
+"#]],
+    );
+}
+
+#[test]
+fn complete_hidden_short_flag_alias_value() {
+    let mut cmd = Command::new("exhaustive").arg(
+        clap::Arg::new("format")
+            .short('f')
+            .short_alias('x')
+            .value_parser(["json", "yaml"]),
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "-x [TAB]"),
+        snapbox::str![[r#"
+json
+yaml
+"#]],
+    );
+}
+
+#[test]
 fn suggest_long_flag_subset() {
     let mut cmd = Command::new("exhaustive")
         .arg(
