@@ -921,13 +921,30 @@ fn suggest_custom_arg_completer_at_index() {
     struct UpstreamCompleter;
 
     impl clap_complete::engine::ValueCompleter for UpstreamCompleter {
-        fn complete(&self, current: &std::ffi::OsStr) -> Vec<CompletionCandidate> {
+        fn complete(&self, _current: &std::ffi::OsStr) -> Vec<CompletionCandidate> {
+            // Falls back when callers use the index-unaware path.
+            vec![CompletionCandidate::new("unindexed")]
+        }
+
+        fn complete_at(
+            &self,
+            arg_index: usize,
+            current: &std::ffi::OsStr,
+        ) -> Vec<CompletionCandidate> {
             let prefix = current.to_str().unwrap_or("");
-            ["origin", "upstream", "main", "master", "dev"]
-                .into_iter()
-                .filter(|name| name.starts_with(prefix))
-                .map(CompletionCandidate::new)
-                .collect()
+            match arg_index {
+                0 => ["origin", "upstream"]
+                    .into_iter()
+                    .filter(|name| name.starts_with(prefix))
+                    .map(CompletionCandidate::new)
+                    .collect(),
+                1 => ["main", "master", "dev"]
+                    .into_iter()
+                    .filter(|name| name.starts_with(prefix))
+                    .map(CompletionCandidate::new)
+                    .collect(),
+                _ => Vec::new(),
+            }
         }
     }
 
@@ -945,9 +962,6 @@ fn suggest_custom_arg_completer_at_index() {
         snapbox::str![[r#"
 origin
 upstream
-main
-master
-dev
 "#]]
     );
     assert_data_eq!(
@@ -957,8 +971,6 @@ dev
     assert_data_eq!(
         complete!(cmd, "--set-upstream origin [TAB]"),
         snapbox::str![[r#"
-origin
-upstream
 main
 master
 dev

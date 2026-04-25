@@ -58,6 +58,22 @@ impl ArgValueCompleter {
     pub fn complete(&self, current: &OsStr) -> Vec<CompletionCandidate> {
         self.0.complete(current)
     }
+
+    /// Candidates that match `current` at `arg_index` within the current occurrence.
+    ///
+    /// `arg_index` is the position of the value being completed within an
+    /// argument's [`num_args`][clap::Arg::num_args] range, starting at `0`.
+    /// This lets a completer return different candidates for each value of a
+    /// multi-value argument (for example, a remote name first and a branch
+    /// name second for `--set-upstream <REMOTE> <BRANCH>`).
+    ///
+    /// `arg_index` is unaffected by [`value_delimiter`][clap::Arg::value_delimiter]:
+    /// it counts shell arguments, not delimiter-separated values.
+    ///
+    /// See [`CompletionCandidate`] for more information.
+    pub fn complete_at(&self, arg_index: usize, current: &OsStr) -> Vec<CompletionCandidate> {
+        self.0.complete_at(arg_index, current)
+    }
 }
 
 impl std::fmt::Debug for ArgValueCompleter {
@@ -76,6 +92,23 @@ pub trait ValueCompleter: Send + Sync {
     ///
     /// See [`CompletionCandidate`] for more information.
     fn complete(&self, current: &OsStr) -> Vec<CompletionCandidate>;
+
+    /// All potential candidates for the value at `arg_index` within the current occurrence.
+    ///
+    /// `arg_index` is the position of the value being completed within an
+    /// argument's [`num_args`][clap::Arg::num_args] range, starting at `0`.
+    /// This lets a completer return different candidates for each value of a
+    /// multi-value argument (for example, a remote name first and a branch
+    /// name second for `--set-upstream <REMOTE> <BRANCH>`).
+    ///
+    /// `arg_index` is unaffected by [`value_delimiter`][clap::Arg::value_delimiter]:
+    /// it counts shell arguments, not delimiter-separated values.
+    ///
+    /// See [`CompletionCandidate`] for more information.
+    fn complete_at(&self, arg_index: usize, current: &OsStr) -> Vec<CompletionCandidate> {
+        let _ = arg_index;
+        self.complete(current)
+    }
 }
 
 impl<F> ValueCompleter for F
