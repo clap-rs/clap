@@ -917,6 +917,63 @@ baz
 }
 
 #[test]
+fn suggest_custom_arg_completer_at_index() {
+    struct UpstreamCompleter;
+
+    impl clap_complete::engine::ValueCompleter for UpstreamCompleter {
+        fn complete(&self, current: &std::ffi::OsStr) -> Vec<CompletionCandidate> {
+            let prefix = current.to_str().unwrap_or("");
+            ["origin", "upstream", "main", "master", "dev"]
+                .into_iter()
+                .filter(|name| name.starts_with(prefix))
+                .map(CompletionCandidate::new)
+                .collect()
+        }
+    }
+
+    let mut cmd = Command::new("dynamic").arg(
+        clap::Arg::new("set-upstream")
+            .long("set-upstream")
+            .short('u')
+            .num_args(2)
+            .value_names(["REMOTE", "BRANCH"])
+            .add(ArgValueCompleter::new(UpstreamCompleter)),
+    );
+
+    assert_data_eq!(
+        complete!(cmd, "--set-upstream [TAB]"),
+        snapbox::str![[r#"
+origin
+upstream
+main
+master
+dev
+"#]]
+    );
+    assert_data_eq!(
+        complete!(cmd, "--set-upstream o[TAB]"),
+        snapbox::str!["origin"]
+    );
+    assert_data_eq!(
+        complete!(cmd, "--set-upstream origin [TAB]"),
+        snapbox::str![[r#"
+origin
+upstream
+main
+master
+dev
+"#]]
+    );
+    assert_data_eq!(
+        complete!(cmd, "--set-upstream origin m[TAB]"),
+        snapbox::str![[r#"
+main
+master
+"#]]
+    );
+}
+
+#[test]
 fn suggest_multi_positional() {
     let mut cmd = Command::new("dynamic")
         .arg(clap::Arg::new("positional-1").value_parser(["pos_1_a", "pos_1_b", "pos_1_c"]))
