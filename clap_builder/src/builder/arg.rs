@@ -85,6 +85,8 @@ pub struct Arg {
     pub(crate) default_missing_vals: Vec<OsStr>,
     #[cfg(feature = "env")]
     pub(crate) env: Option<(OsStr, Option<OsString>)>,
+    #[cfg(all(feature = "env", feature = "string"))]
+    pub(crate) env_prefix: Option<Option<OsStr>>,
     pub(crate) terminator: Option<Str>,
     pub(crate) index: Option<usize>,
     pub(crate) help_heading: Option<Option<Str>>,
@@ -2220,6 +2222,41 @@ impl Arg {
     )]
     pub fn env_os(self, name: impl Into<OsStr>) -> Self {
         self.env(name)
+    }
+
+    /// Sets an env variable prefix for this argument.
+    ///
+    /// When set, the env variable name specified via [`Arg::env`] will be
+    /// prefixed with this value (joined by `_`) during build.
+    ///
+    /// An explicit `Arg::env_prefix` takes precedence over
+    /// [`Command::next_env_prefix`].
+    ///
+    /// This can be reset with `None`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # #[cfg(all(feature = "env", feature = "string"))] {
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, Arg};
+    /// let cmd = Command::new("myapp")
+    ///     .arg(Arg::new("config")
+    ///         .long("config")
+    ///         .env("CONFIG")
+    ///         .env_prefix("MYAPP"));
+    /// // env var will be MYAPP_CONFIG
+    /// # }
+    /// ```
+    ///
+    /// [`Arg::env`]: Arg::env()
+    /// [`Command::next_env_prefix`]: crate::Command::next_env_prefix()
+    #[cfg(all(feature = "env", feature = "string"))]
+    #[inline]
+    #[must_use]
+    pub fn env_prefix(mut self, prefix: impl IntoResettable<OsStr>) -> Self {
+        self.env_prefix = Some(prefix.into_resettable().into_option());
+        self
     }
 }
 
@@ -4407,6 +4444,18 @@ impl Arg {
         self.env.as_ref().map(|x| x.0.as_os_str())
     }
 
+    /// Get the env variable prefix for this argument, if any.
+    ///
+    /// See [`Arg::env_prefix`].
+    #[cfg(all(feature = "env", feature = "string"))]
+    #[inline]
+    pub fn get_env_prefix(&self) -> Option<&std::ffi::OsStr> {
+        self.env_prefix
+            .as_ref()
+            .and_then(|p| p.as_ref())
+            .map(|p| p.as_os_str())
+    }
+
     /// Get the default values specified for this argument, if any
     ///
     /// # Examples
@@ -4828,6 +4877,10 @@ impl fmt::Debug for Arg {
         #[cfg(feature = "env")]
         {
             ds = ds.field("env", &self.env);
+        }
+        #[cfg(all(feature = "env", feature = "string"))]
+        {
+            ds = ds.field("env_prefix", &self.env_prefix);
         }
 
         ds.finish()
