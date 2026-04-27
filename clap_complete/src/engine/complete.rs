@@ -160,7 +160,12 @@ fn complete_arg(
                 .get_positionals()
                 .find(|p| p.get_index() == Some(pos_index))
             {
-                completions.extend(complete_arg_value(arg.to_value(), positional, current_dir));
+                completions.extend(complete_arg_value(
+                    arg.to_value(),
+                    positional,
+                    current_dir,
+                    0,
+                ));
             }
             if !is_escaped {
                 completions.extend(complete_option(arg, cmd, current_dir));
@@ -171,7 +176,12 @@ fn complete_arg(
                 .get_positionals()
                 .find(|p| p.get_index() == Some(pos_index))
             {
-                completions.extend(complete_arg_value(arg.to_value(), positional, current_dir));
+                completions.extend(complete_arg_value(
+                    arg.to_value(),
+                    positional,
+                    current_dir,
+                    num_arg.saturating_sub(1),
+                ));
                 if !is_escaped
                     && positional
                         .get_num_args()
@@ -182,7 +192,12 @@ fn complete_arg(
             }
         }
         ParseState::Opt((opt, count)) => {
-            completions.extend(complete_arg_value(arg.to_value(), opt, current_dir));
+            completions.extend(complete_arg_value(
+                arg.to_value(),
+                opt,
+                current_dir,
+                count.saturating_sub(1),
+            ));
             let min = opt.get_num_args().map(|r| r.min_values()).unwrap_or(0);
             if count > min {
                 // Also complete this raw_arg as a positional argument, flags, options and subcommand.
@@ -270,7 +285,7 @@ fn complete_option(
             if let Some(value) = value {
                 if let Some(arg) = cmd.get_arguments().find(|a| a.get_long() == Some(flag)) {
                     completions.extend(
-                        complete_arg_value(value.to_str().ok_or(value), arg, current_dir)
+                        complete_arg_value(value.to_str().ok_or(value), arg, current_dir, 0)
                             .into_iter()
                             .map(|comp| comp.add_prefix(format!("--{flag}="))),
                     );
@@ -305,7 +320,7 @@ fn complete_option(
 
                 let value = short.next_value_os().unwrap_or(OsStr::new(""));
                 completions.extend(
-                    complete_arg_value(value.to_str().ok_or(value), opt, current_dir)
+                    complete_arg_value(value.to_str().ok_or(value), opt, current_dir, 0)
                         .into_iter()
                         .map(|comp| {
                             let sep = if has_equal { "=" } else { "" };
@@ -328,9 +343,10 @@ fn complete_arg_value(
     value: Result<&str, &OsStr>,
     arg: &clap::Arg,
     current_dir: Option<&std::path::Path>,
+    arg_index: usize,
 ) -> Vec<CompletionCandidate> {
     let mut values = Vec::new();
-    debug!("complete_arg_value: arg={arg:?}, value={value:?}");
+    debug!("complete_arg_value: arg={arg:?}, value={value:?}, arg_index={arg_index:?}");
 
     let (prefix, value) =
         rsplit_delimiter(value, arg.get_value_delimiter()).unwrap_or((None, value));
@@ -341,7 +357,7 @@ fn complete_arg_value(
     };
 
     if let Some(completer) = arg.get::<ArgValueCompleter>() {
-        values.extend(completer.complete(value_os));
+        values.extend(completer.complete_at(arg_index, value_os));
     } else if let Some(completer) = arg.get::<ArgValueCandidates>() {
         values.extend(complete_custom_arg_value(value_os, completer));
     } else if let Some(possible_values) = possible_values(arg) {
