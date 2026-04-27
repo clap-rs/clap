@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(dynamic)* Add `ValueCompleter::complete_at` for completing different values for location within `Arg::num_args`
+
 ## [4.6.2] - 2026-04-13
 
 ### Fixes
