@@ -2,6 +2,7 @@ use std::ffi::OsString;
 use std::str::FromStr;
 
 use super::EnvCompleter;
+use clap::builder::StyledStr;
 
 /// Bash completion adapter
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
@@ -376,25 +377,39 @@ function _clap_dynamic_completer_NAME() {
     )}")
 
     if [[ -n $completions ]]; then
+        local -A tag_map
         local -a dirs=()
-        local -a other=()
         local completion
+        local tag
+        local value
+
         for completion in $completions; do
-            local value="${completion%%:*}"
+            IFS=: read -r tag value <<< "$completion"
             if [[ "$value" == */ ]]; then
                 local dir_no_slash="${value%/}"
-                if [[ "$completion" == *:* ]]; then
-                    local desc="${completion#*:}"
+                if [[ "$value" == *:* ]]; then
+                    local desc="${value#*:}"
                     dirs+=("$dir_no_slash:$desc")
                 else
                     dirs+=("$dir_no_slash")
                 fi
             else
-                other+=("$completion")
+                if (( ${+tag_map["$tag"]} )); then # key exists?
+                    tag_map["$tag"]+=$'\n'"$value"
+                else
+                    tag_map["$tag"]="$value"
+                fi
             fi
         done
-        [[ -n $dirs ]] && _describe 'values' dirs -S '/' -r '/'
-        [[ -n $other ]] && _describe 'values' other
+        [[ -n $dirs ]] && _describe -t dirs 'values' dirs -S '/' -r '/'
+        for tag in ${(k)tag_map}; do
+            values=("${(@f)tag_map[$tag]}") # split on newline
+            if [[ -n $tag ]]; then
+              _describe -t "$tag" "$tag options" values
+            else
+              _describe "options" values
+            fi
+        done
     fi
 }
 
@@ -431,6 +446,12 @@ compdef _clap_dynamic_completer_NAME BIN"#
             if i != 0 {
                 write!(buf, "{}", ifs.as_deref().unwrap_or("\n"))?;
             }
+            write!(
+                buf,
+                "{}:",
+                candidate.get_tag().unwrap_or(&StyledStr::from("")),
+            )?;
+
             write!(
                 buf,
                 "{}",

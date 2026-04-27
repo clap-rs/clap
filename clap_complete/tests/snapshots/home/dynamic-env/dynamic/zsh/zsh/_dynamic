@@ -1,5 +1,5 @@
-#compdef exhaustive
-function _clap_dynamic_completer_exhaustive() {
+#compdef dynamic
+function _clap_dynamic_completer_dynamic() {
     local _CLAP_COMPLETE_INDEX=$(expr $CURRENT - 1)
     local _CLAP_IFS=$'\n'
 
@@ -7,7 +7,7 @@ function _clap_dynamic_completer_exhaustive() {
         _CLAP_IFS="$_CLAP_IFS" \
         _CLAP_COMPLETE_INDEX="$_CLAP_COMPLETE_INDEX" \
         COMPLETE="zsh" \
-        exhaustive -- "${words[@]}" 2>/dev/null \
+        dynamic -- "${words[@]}" 2>/dev/null \
     )}")
 
     if [[ -n $completions ]]; then
@@ -47,4 +47,4 @@ function _clap_dynamic_completer_exhaustive() {
     fi
 }
 
-compdef _clap_dynamic_completer_exhaustive exhaustive
+compdef _clap_dynamic_completer_dynamic dynamic
