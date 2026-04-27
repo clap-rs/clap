@@ -5029,11 +5029,13 @@ impl Command {
     /// Iterate through all the names of all subcommands (not recursively), including aliases.
     /// Used for suggestions.
     pub(crate) fn all_subcommand_names(&self) -> impl Iterator<Item = &str> + Captures<'_> {
-        self.get_subcommands().flat_map(|sc| {
-            let name = sc.get_name();
-            let aliases = sc.get_all_aliases();
-            std::iter::once(name).chain(aliases)
-        })
+        self.get_subcommands()
+            .filter(|sc| !sc.is_hide_set())
+            .flat_map(|sc| {
+                let name = sc.get_name();
+                let aliases = sc.get_all_aliases();
+                std::iter::once(name).chain(aliases)
+            })
     }
 
     pub(crate) fn required_graph(&self) -> ChildGraph<Id> {
