@@ -24,8 +24,11 @@ _clap_complete_exhaustive() {
     ) )
     if [[ $? != 0 ]]; then
         unset COMPREPLY
-    elif [[ $_CLAP_COMPLETE_SPACE == false ]] && [[ "${COMPREPLY-}" =~ [=/:]$ ]]; then
-        compopt -o nospace
+    elif [[ $_CLAP_COMPLETE_SPACE == false ]]; then
+        if [[ ${#COMPREPLY[@]} -gt 0 ]] && [[ "${COMPREPLY[-1]}" == "_CLAP_COMPLETE_NOSPACE" ]]; then
+            unset 'COMPREPLY[-1]'
+            compopt -o nospace
+        fi
     fi
 }
 if [[ "${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -ge 4 || "${BASH_VERSINFO[0]}" -gt 4 ]]; then
