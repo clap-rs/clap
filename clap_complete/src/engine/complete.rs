@@ -467,7 +467,6 @@ fn complete_subcommand(value: &str, cmd: &clap::Command) -> Vec<CompletionCandid
         }
     }
 
-    scs.sort();
     scs.dedup();
     scs
 }
