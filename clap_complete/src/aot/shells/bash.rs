@@ -26,7 +26,7 @@ impl Generator for Bash {
             .get_bin_name()
             .expect("crate::generate should have set the bin_name");
 
-        let fn_name = bin_name.replace('-', "__");
+        let fn_name = root_state_name(bin_name);
 
         write!(
             buf,
@@ -98,7 +98,7 @@ fn all_subcommands(cmd: &Command, parent_fn_name: &str) -> String {
         let fn_name = format!(
             "{parent_fn_name}{CMD_SEP}{cmd_name}",
             parent_fn_name = parent_fn_name,
-            cmd_name = cmd.get_name().to_owned().replace('-', CMD_SEP)
+            cmd_name = subcommand_state_name(cmd.get_name())
         );
         subcmds.push((
             parent_fn_name.to_owned(),
@@ -136,7 +136,7 @@ fn subcommand_details(cmd: &Command) -> String {
     let mut subcmd_dets = vec![String::new()];
     let mut scs = utils::all_subcommands(cmd)
         .iter()
-        .map(|x| x.1.replace(' ', CMD_SEP))
+        .map(|x| x.1.to_owned())
         .collect::<Vec<_>>();
 
     scs.sort();
@@ -158,10 +158,10 @@ fn subcommand_details(cmd: &Command) -> String {
             COMPREPLY=( $(compgen -W \"${{opts}}\" -- \"${{cur}}\") )
             return 0
             ;;",
-            subcmd = sc.replace('-', CMD_SEP),
-            sc_opts = all_options_for_path(cmd, sc),
-            level = sc.split(CMD_SEP).map(|_| 1).sum::<u64>(),
-            opts_details = option_details_for_path(cmd, sc)
+            subcmd = command_state_name(sc),
+            sc_opts = all_options_for_path(cmd, &command_path_name(sc)),
+            level = sc.split(' ').map(|_| 1).sum::<u64>(),
+            opts_details = option_details_for_path(cmd, &command_path_name(sc))
         )
     }));
 
@@ -304,3 +304,29 @@ fn all_options_for_path(cmd: &Command, path: &str) -> String {
 }
 
 const CMD_SEP: &str = "__subcmd__";
+
+fn root_state_name(bin_name: &str) -> String {
+    bin_name.replace('-', "__")
+}
+
+fn subcommand_state_name(name: &str) -> String {
+    name.replace('-', CMD_SEP)
+}
+
+fn command_path_name(bin_name: &str) -> String {
+    bin_name.replace(' ', CMD_SEP)
+}
+
+fn command_state_name(bin_name: &str) -> String {
+    let mut segments = bin_name.split(' ');
+    let Some(root) = segments.next() else {
+        return String::new();
+    };
+
+    let mut state = root_state_name(root);
+    for segment in segments {
+        state.push_str(CMD_SEP);
+        state.push_str(&subcommand_state_name(segment));
+    }
+    state
+}

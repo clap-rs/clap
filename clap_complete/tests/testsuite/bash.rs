@@ -108,6 +108,20 @@ fn custom_bin_name() {
 }
 
 #[test]
+fn custom_bin_name_subcommand_state() {
+    let name = "my-app";
+    let bin_name = "bin-name";
+    let mut cmd = common::basic_command(name);
+    let mut buf = vec![];
+
+    clap_complete::generate(clap_complete::shells::Bash, &mut cmd, bin_name, &mut buf);
+
+    let output = String::from_utf8(buf).unwrap();
+    assert!(output.contains("bin__name__subcmd__help)"), "{output}");
+    assert!(!output.contains("bin__subcmd__name__subcmd__help)"), "{output}");
+}
+
+#[test]
 fn value_hint() {
     let name = "my-app";
     let cmd = common::value_hint_command(name);
