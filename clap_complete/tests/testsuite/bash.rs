@@ -398,7 +398,8 @@ first   second
     assert_data_eq!(actual, expected);
 
     let input = "exhaustive action --choice=f\t";
-    let expected = snapbox::str!["exhaustive action --choice=f    % exhaustive action --choice=f"];
+    let expected =
+        snapbox::str!["exhaustive action --choice=f    % exhaustive action --choice=first "];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
