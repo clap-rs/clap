@@ -4727,8 +4727,19 @@ impl Arg {
         }
 
         debug_assert!(self.is_takes_value_set());
+        let min_vals = num_vals.min_values();
+        // Value names at index >= optional_from render as [name] instead of <name>.
+        // Optional positionals wrap all names. For options with min_vals==0 the
+        // caller already wraps the entire suffix in [], so we skip per-value wrapping.
+        let optional_from = if self.is_positional() && (min_vals == 0 || !required) {
+            0
+        } else if !self.is_positional() && min_vals == 0 {
+            val_names.len()
+        } else {
+            min_vals
+        };
         for (n, val_name) in val_names.iter().enumerate() {
-            let arg_name = if self.is_positional() && (num_vals.min_values() == 0 || !required) {
+            let arg_name = if n >= optional_from {
                 format!("[{val_name}]")
             } else {
                 format!("<{val_name}>")
@@ -5009,7 +5020,44 @@ mod test {
             .value_names(["file", "name"]);
         o._build();
 
-        assert_eq!(o.to_string(), "-o <file> <name>...");
+        assert_eq!(o.to_string(), "-o <file> [name]...");
+    }
+
+    #[test]
+    fn option_display_partially_optional_values() {
+        let mut o = Arg::new("opt")
+            .long("example")
+            .action(ArgAction::Set)
+            .num_args(1..=2)
+            .value_names(["FOO", "BAR"]);
+        o._build();
+
+        assert_eq!(o.to_string(), "--example <FOO> [BAR]");
+    }
+
+    #[test]
+    fn option_display_partially_optional_require_equals() {
+        let mut o = Arg::new("opt")
+            .long("example")
+            .action(ArgAction::Set)
+            .num_args(1..=2)
+            .require_equals(true)
+            .value_names(["FOO", "BAR"]);
+        o._build();
+
+        assert_eq!(o.to_string(), "--example=<FOO> [BAR]");
+    }
+
+    #[test]
+    fn option_display_partially_optional_three_values() {
+        let mut o = Arg::new("opt")
+            .long("example")
+            .action(ArgAction::Set)
+            .num_args(1..=3)
+            .value_names(["A", "B"]);
+        o._build();
+
+        assert_eq!(o.to_string(), "--example <A> [B]...");
     }
 
     #[test]
