@@ -1,8 +1,13 @@
 #compdef exhaustive
 
+() {
+emulate -L zsh -o no_ksharrays
+
 autoload -U is-at-least
 
 _exhaustive() {
+    emulate -L zsh -o no_ksharrays
+
     typeset -A opt_args
     typeset -a _arguments_options
     local ret=1
@@ -972,6 +977,7 @@ _exhaustive__subcmd__quote__subcmd__help__subcmd__help_commands() {
 _exhaustive__subcmd__value_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive value commands' commands "$@"
+}
 }
 
 if [ "$funcstack[1]" = "_exhaustive" ]; then

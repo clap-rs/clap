@@ -28,9 +28,14 @@ impl Generator for Zsh {
             buf,
             "#compdef {name}
 
+() {{
+emulate -L zsh -o no_ksharrays
+
 autoload -U is-at-least
 
 _{name}() {{
+    emulate -L zsh -o no_ksharrays
+
     typeset -A opt_args
     typeset -a _arguments_options
     local ret=1
@@ -46,6 +51,7 @@ _{name}() {{
 }}
 
 {subcommand_details}
+}}
 
 if [ \"$funcstack[1]\" = \"_{name}\" ]; then
     _{name} \"$@\"

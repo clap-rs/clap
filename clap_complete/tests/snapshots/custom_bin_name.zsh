@@ -1,8 +1,13 @@
 #compdef bin-name
 
+() {
+emulate -L zsh -o no_ksharrays
+
 autoload -U is-at-least
 
 _bin-name() {
+    emulate -L zsh -o no_ksharrays
+
     typeset -A opt_args
     typeset -a _arguments_options
     local ret=1
@@ -95,6 +100,7 @@ _bin-name__subcmd__help__subcmd__test_commands() {
 _bin-name__subcmd__test_commands() {
     local commands; commands=()
     _describe -t commands 'bin-name test commands' commands "$@"
+}
 }
 
 if [ "$funcstack[1]" = "_bin-name" ]; then

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(zsh)* Make generated completion scripts source cleanly when `ksharrays` is set
+
 ## [4.6.4] - 2026-05-10
 
 ### Fixes

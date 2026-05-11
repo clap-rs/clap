@@ -1,8 +1,13 @@
 #compdef my-app
 
+() {
+emulate -L zsh -o no_ksharrays
+
 autoload -U is-at-least
 
 _my-app() {
+    emulate -L zsh -o no_ksharrays
+
     typeset -A opt_args
     typeset -a _arguments_options
     local ret=1
@@ -45,6 +50,7 @@ _my-app() {
 _my-app_commands() {
     local commands; commands=()
     _describe -t commands 'my-app commands' commands "$@"
+}
 }
 
 if [ "$funcstack[1]" = "_my-app" ]; then
