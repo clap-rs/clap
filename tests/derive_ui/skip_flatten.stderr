@@ -1,0 +1,5 @@
+error: `flatten` cannot be used with `skip`
+  --> tests/derive_ui/skip_flatten.rs:17:21
+   |
+17 |     #[command(skip, flatten)]
+   |                     ^^^^^^^

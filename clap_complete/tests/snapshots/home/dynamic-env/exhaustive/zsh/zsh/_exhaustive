@@ -1,0 +1,36 @@
+#compdef exhaustive
+function _clap_dynamic_completer_exhaustive() {
+    local _CLAP_COMPLETE_INDEX=$(expr $CURRENT - 1)
+    local _CLAP_IFS=$'\n'
+
+    local completions=("${(@f)$( \
+        _CLAP_IFS="$_CLAP_IFS" \
+        _CLAP_COMPLETE_INDEX="$_CLAP_COMPLETE_INDEX" \
+        COMPLETE="zsh" \
+        exhaustive -- "${words[@]}" 2>/dev/null \
+    )}")
+
+    if [[ -n $completions ]]; then
+        local -a dirs=()
+        local -a other=()
+        local completion
+        for completion in $completions; do
+            local value="${completion%%:*}"
+            if [[ "$value" == */ ]]; then
+                local dir_no_slash="${value%/}"
+                if [[ "$completion" == *:* ]]; then
+                    local desc="${completion#*:}"
+                    dirs+=("$dir_no_slash:$desc")
+                else
+                    dirs+=("$dir_no_slash")
+                fi
+            else
+                other+=("$completion")
+            fi
+        done
+        [[ -n $dirs ]] && _describe -V 'values' dirs -S '/' -r '/'
+        [[ -n $other ]] && _describe -V 'values' other
+    fi
+}
+
+compdef _clap_dynamic_completer_exhaustive exhaustive

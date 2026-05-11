@@ -1,0 +1,5 @@
+error: `long` cannot be used with `#[arg(skip)]
+ --> tests/derive_ui/skip_with_other_options.rs:8:17
+  |
+8 |     #[arg(skip, long)]
+  |                 ^^^^

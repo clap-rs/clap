@@ -1,0 +1,3 @@
+owners = ["github:clap-rs:Admins", "github:rust-cli:Maintainers"]
+dependent-version = "fix"
+allow-branch = ["master", "v*-master"]

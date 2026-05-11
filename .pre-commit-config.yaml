@@ -1,0 +1,24 @@
+exclude: |
+  (?x)^(
+    tests/.*|
+    CHANGELOG.md
+  )$
+default_install_hook_types: ["pre-commit", "commit-msg"]
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+    - id: check-yaml
+    - id: check-json
+    - id: check-toml
+    - id: check-merge-conflict
+    - id: check-case-conflict
+    - id: detect-private-key
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.46.0
+    hooks:
+    - id: typos
+  - repo: https://github.com/crate-ci/committed
+    rev: v1.1.11
+    hooks:
+    - id: committed

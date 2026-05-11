@@ -1,0 +1,122 @@
+name: rust-next
+
+permissions:
+  contents: read
+
+on:
+  schedule:
+  - cron: '3 3 3 * *'
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always
+  CLICOLOR: 1
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test
+    strategy:
+      matrix:
+        build: [stable, linux, windows, mac, nightly, minimal, default, next]
+        include:
+        - build: stable
+          os: ubuntu-latest
+          rust: "stable"
+          features: "full"
+        - build: linux
+          os: ubuntu-latest
+          rust: "beta"
+          features: "full"
+        - build: windows
+          os: windows-latest
+          rust: "beta"
+          features: "full"
+        - build: mac
+          os: macos-latest
+          rust: "beta"
+          features: "full"
+        - build: nightly
+          os: ubuntu-latest
+          rust: "nightly"
+          features: "full"
+        - build: minimal
+          os: ubuntu-latest
+          rust: "stable"
+          features: "minimal"
+        - build: default
+          os: ubuntu-latest
+          rust: "stable"
+          features: "default"
+        - build: next
+          os: ubuntu-latest
+          rust: "stable"
+          features: "next"
+    continue-on-error: ${{ matrix.rust != 'stable' }}
+    runs-on: ${{ matrix.os }}
+    env:
+      # Reduce amount of data cached
+      CARGO_PROFILE_DEV_DEBUG: line-tables-only
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: ${{ matrix.rust }}
+    - uses: Swatinem/rust-cache@v2
+    - name: Install shells
+      if: runner.os == 'Linux'
+      run: sudo apt-get install -y elvish fish zsh
+    - name: Build
+      run: make build-${{matrix.features}}
+    - name: Test
+      run: make test-${{matrix.features}}
+    - name: Test (benches)
+      run: make test-${{matrix.features}} ARGS='--workspace --benches'
+    - name: Test (ultra-minimal)
+      if: matrix.build == 'minimal'
+      run: make test-minimal ARGS='--manifest-path Cargo.toml'
+    - name: Test dynamic completions
+      run: cargo test -p clap_complete -F unstable-dynamic
+  latest:
+    name: "Check latest dependencies"
+    strategy:
+      matrix:
+        build: [stable]
+        include:
+        - build: stable
+          os: ubuntu-latest
+          rust: "stable"
+          features: "full"
+    runs-on: ${{ matrix.os }}
+    env:
+      CARGO_RESOLVER_INCOMPATIBLE_RUST_VERSIONS: allow
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+    - uses: Swatinem/rust-cache@v2
+    - uses: taiki-e/install-action@cargo-hack
+    - name: Install shells
+      if: runner.os == 'Linux'
+      run: sudo apt-get install -y elvish fish zsh
+    - name: Update dependencies
+      run: cargo update
+    - name: Build
+      run: make build-${{matrix.features}}
+    - name: Test
+      run: make test-${{matrix.features}}
+    - name: Test (benches)
+      run: make test-${{matrix.features}} ARGS='--workspace --benches'
+    - name: Test (ultra-minimal)
+      if: matrix.build == 'minimal'
+      run: make test-minimal ARGS='--manifest-path Cargo.toml'
+    - name: Test dynamic completions
+      run: cargo test -p clap_complete -F unstable-dynamic

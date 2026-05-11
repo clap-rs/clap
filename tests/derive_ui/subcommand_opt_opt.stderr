@@ -1,0 +1,5 @@
+error: `Option<Option<T>>` is an invalid `#[command(subcommand)]` type
+  --> tests/derive_ui/subcommand_opt_opt.rs:17:10
+   |
+17 |     cmd: Option<Option<Command>>,
+   |          ^^^^^^
