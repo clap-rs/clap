@@ -27,6 +27,15 @@ _clap_complete_exhaustive() {
     elif [[ $_CLAP_COMPLETE_SPACE == false ]] && [[ "${COMPREPLY-}" =~ [=/:]$ ]]; then
         compopt -o nospace
     fi
+    if [[ -n ${COMP_WORDBREAKS+x} ]]; then
+        # If the current word contains a word break character, we need to strip
+        # the prefix up to that character from each completion
+        local prefix
+        prefix="${2%"${2##*[${COMP_WORDBREAKS}]}"}"
+        if [[ -n "$prefix" ]]; then
+            COMPREPLY=("${COMPREPLY[@]#"$prefix"}")
+        fi
+    fi
 }
 if [[ "${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -ge 4 || "${BASH_VERSINFO[0]}" -gt 4 ]]; then
     complete -o nospace -o bashdefault -o nosort -F _clap_complete_exhaustive exhaustive
