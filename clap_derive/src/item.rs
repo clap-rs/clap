@@ -584,12 +584,25 @@ impl Item {
                             s
                         })
                     } else {
-                        quote_spanned!(attr.name.span()=> {
-                            static DEFAULT_VALUE: ::std::sync::OnceLock<String> = ::std::sync::OnceLock::new();
-                            let s = DEFAULT_VALUE.get_or_init(|| {
+                        let default_string = if is_simple_ty(ty, "f32") || is_simple_ty(ty, "f64") {
+                            quote_spanned!(attr.name.span()=> {
+                                let val: #ty = #val;
+                                let s = val.to_string();
+                                if s.contains('.') || s.contains('e') || s.contains('E') {
+                                    s
+                                } else {
+                                    format!("{s}.0")
+                                }
+                            })
+                        } else {
+                            quote_spanned!(attr.name.span()=> {
                                 let val: #ty = #val;
                                 ::std::string::ToString::to_string(&val)
-                            });
+                            })
+                        };
+                        quote_spanned!(attr.name.span()=> {
+                            static DEFAULT_VALUE: ::std::sync::OnceLock<String> = ::std::sync::OnceLock::new();
+                            let s = DEFAULT_VALUE.get_or_init(|| #default_string);
                             let s: &'static str = &*s;
                             s
                         })
