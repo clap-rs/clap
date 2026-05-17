@@ -10,7 +10,7 @@ keywords = [
   "derive",
   "proc_macro"
 ]
-repository.workspace = true
+repository = "https://github.com/clap-rs/clap/tree/master/clap_derive"
 license.workspace = true
 edition.workspace = true
 rust-version.workspace = true

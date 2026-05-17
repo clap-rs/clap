@@ -10,7 +10,7 @@ keywords = [
   "parser",
   "parse"
 ]
-repository.workspace = true
+repository = "https://github.com/clap-rs/clap/tree/master/clap_lex"
 license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
