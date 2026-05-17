@@ -58,6 +58,32 @@ Options:
 }
 
 #[test]
+fn default_value_t_float() {
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        #[arg(short = 'a', default_value_t = 1.0)]
+        amplify: f32,
+    }
+    assert_eq!(
+        Opt { amplify: 1.0 },
+        Opt::try_parse_from(["test"]).unwrap()
+    );
+
+    let help = utils::get_long_help::<Opt>();
+    assert_data_eq!(help, str![[r#"
+Usage: clap [OPTIONS]
+
+Options:
+  -a <AMPLIFY>
+          [default: 1.0]
+
+  -h, --help
+          Print help
+
+"#]].raw());
+}
+
+#[test]
 fn auto_default_value_t() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
