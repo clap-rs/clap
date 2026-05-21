@@ -175,4 +175,29 @@ mod test {
             Some(("alignmentScore".to_owned(), None))
         );
     }
+
+    #[test]
+    fn empty_candidate_list() {
+        let p_vals: &[&str] = &[];
+        assert_eq!(did_you_mean("test", p_vals.iter()), Vec::<String>::new());
+    }
+
+    #[test]
+    fn identical_string() {
+        let p_vals = ["test"];
+        assert_eq!(did_you_mean("test", p_vals.iter()), vec!["test"]);
+    }
+
+    #[test]
+    fn very_long_input() {
+        let long = "a".repeat(1000);
+        let p_vals = [long.as_str()];
+        assert_eq!(did_you_mean(&long, p_vals.iter()), vec![long]);
+    }
+
+    #[test]
+    fn non_ascii() {
+        let p_vals = ["test", "tëst", "typhoon"];
+        assert_eq!(did_you_mean("tëst", p_vals.iter()), vec!["test", "tëst"]);
+    }
 }

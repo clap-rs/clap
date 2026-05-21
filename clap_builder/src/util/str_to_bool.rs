@@ -19,3 +19,47 @@ pub(crate) fn str_to_bool(val: impl AsRef<str>) -> Option<bool> {
         None
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn empty_string() {
+        assert_eq!(str_to_bool(""), None);
+    }
+
+    #[test]
+    fn whitespace_only() {
+        assert_eq!(str_to_bool(" "), None);
+        assert_eq!(str_to_bool("\t"), None);
+        assert_eq!(str_to_bool("\n"), None);
+    }
+
+    #[test]
+    fn whitespace_padded() {
+        assert_eq!(str_to_bool(" true "), None);
+        assert_eq!(str_to_bool("false "), None);
+        assert_eq!(str_to_bool(" yes"), None);
+    }
+
+    #[test]
+    fn mixed_case() {
+        assert_eq!(str_to_bool("TrUe"), Some(true));
+        assert_eq!(str_to_bool("FALSE"), Some(false));
+        assert_eq!(str_to_bool("Yes"), Some(true));
+        assert_eq!(str_to_bool("nO"), Some(false));
+        assert_eq!(str_to_bool("ON"), Some(true));
+        assert_eq!(str_to_bool("Off"), Some(false));
+    }
+
+    #[test]
+    fn unicode_lookalikes() {
+        // Fullwidth characters
+        assert_eq!(str_to_bool("\u{FF54}\u{FF52}\u{FF55}\u{FF45}"), None);
+        // Cyrillic lookalike (U+0435)
+        assert_eq!(str_to_bool("tru\u{0435}"), None);
+        // Zero-width space
+        assert_eq!(str_to_bool("true\u{200B}"), None);
+    }
+}
