@@ -563,7 +563,7 @@ esac
 esac
 }
 
-(( $+functions[_exhaustive_commands] )) ||
+(( ${+functions[_exhaustive_commands]} )) ||
 _exhaustive_commands() {
     local commands; commands=(
 'empty:' \
@@ -579,22 +579,22 @@ _exhaustive_commands() {
     )
     _describe -t commands 'exhaustive commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__action_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__action_commands]} )) ||
 _exhaustive__subcmd__action_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive action commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__alias_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__alias_commands]} )) ||
 _exhaustive__subcmd__alias_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive alias commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__empty_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__empty_commands]} )) ||
 _exhaustive__subcmd__empty_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive empty commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__global_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__global_commands]} )) ||
 _exhaustive__subcmd__global_commands() {
     local commands; commands=(
 'one:' \
@@ -603,7 +603,7 @@ _exhaustive__subcmd__global_commands() {
     )
     _describe -t commands 'exhaustive global commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__global__subcmd__help_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__global__subcmd__help_commands]} )) ||
 _exhaustive__subcmd__global__subcmd__help_commands() {
     local commands; commands=(
 'one:' \
@@ -612,29 +612,29 @@ _exhaustive__subcmd__global__subcmd__help_commands() {
     )
     _describe -t commands 'exhaustive global help commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__global__subcmd__help__subcmd__help_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__global__subcmd__help__subcmd__help_commands]} )) ||
 _exhaustive__subcmd__global__subcmd__help__subcmd__help_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive global help help commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__global__subcmd__help__subcmd__one_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__global__subcmd__help__subcmd__one_commands]} )) ||
 _exhaustive__subcmd__global__subcmd__help__subcmd__one_commands() {
     local commands; commands=(
 'one-one:' \
     )
     _describe -t commands 'exhaustive global help one commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__global__subcmd__help__subcmd__one__subcmd__one-one_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__global__subcmd__help__subcmd__one__subcmd__one-one_commands]} )) ||
 _exhaustive__subcmd__global__subcmd__help__subcmd__one__subcmd__one-one_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive global help one one-one commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__global__subcmd__help__subcmd__two_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__global__subcmd__help__subcmd__two_commands]} )) ||
 _exhaustive__subcmd__global__subcmd__help__subcmd__two_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive global help two commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__global__subcmd__one_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__global__subcmd__one_commands]} )) ||
 _exhaustive__subcmd__global__subcmd__one_commands() {
     local commands; commands=(
 'one-one:' \
@@ -642,7 +642,7 @@ _exhaustive__subcmd__global__subcmd__one_commands() {
     )
     _describe -t commands 'exhaustive global one commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__global__subcmd__one__subcmd__help_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__global__subcmd__one__subcmd__help_commands]} )) ||
 _exhaustive__subcmd__global__subcmd__one__subcmd__help_commands() {
     local commands; commands=(
 'one-one:' \
@@ -650,27 +650,27 @@ _exhaustive__subcmd__global__subcmd__one__subcmd__help_commands() {
     )
     _describe -t commands 'exhaustive global one help commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__global__subcmd__one__subcmd__help__subcmd__help_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__global__subcmd__one__subcmd__help__subcmd__help_commands]} )) ||
 _exhaustive__subcmd__global__subcmd__one__subcmd__help__subcmd__help_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive global one help help commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__global__subcmd__one__subcmd__help__subcmd__one-one_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__global__subcmd__one__subcmd__help__subcmd__one-one_commands]} )) ||
 _exhaustive__subcmd__global__subcmd__one__subcmd__help__subcmd__one-one_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive global one help one-one commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__global__subcmd__one__subcmd__one-one_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__global__subcmd__one__subcmd__one-one_commands]} )) ||
 _exhaustive__subcmd__global__subcmd__one__subcmd__one-one_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive global one one-one commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__global__subcmd__two_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__global__subcmd__two_commands]} )) ||
 _exhaustive__subcmd__global__subcmd__two_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive global two commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__help_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__help_commands]} )) ||
 _exhaustive__subcmd__help_commands() {
     local commands; commands=(
 'empty:' \
@@ -686,22 +686,22 @@ _exhaustive__subcmd__help_commands() {
     )
     _describe -t commands 'exhaustive help commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__help__subcmd__action_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__help__subcmd__action_commands]} )) ||
 _exhaustive__subcmd__help__subcmd__action_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive help action commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__help__subcmd__alias_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__help__subcmd__alias_commands]} )) ||
 _exhaustive__subcmd__help__subcmd__alias_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive help alias commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__help__subcmd__empty_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__help__subcmd__empty_commands]} )) ||
 _exhaustive__subcmd__help__subcmd__empty_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive help empty commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__help__subcmd__global_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__help__subcmd__global_commands]} )) ||
 _exhaustive__subcmd__help__subcmd__global_commands() {
     local commands; commands=(
 'one:' \
@@ -709,39 +709,39 @@ _exhaustive__subcmd__help__subcmd__global_commands() {
     )
     _describe -t commands 'exhaustive help global commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__help__subcmd__global__subcmd__one_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__help__subcmd__global__subcmd__one_commands]} )) ||
 _exhaustive__subcmd__help__subcmd__global__subcmd__one_commands() {
     local commands; commands=(
 'one-one:' \
     )
     _describe -t commands 'exhaustive help global one commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__help__subcmd__global__subcmd__one__subcmd__one-one_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__help__subcmd__global__subcmd__one__subcmd__one-one_commands]} )) ||
 _exhaustive__subcmd__help__subcmd__global__subcmd__one__subcmd__one-one_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive help global one one-one commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__help__subcmd__global__subcmd__two_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__help__subcmd__global__subcmd__two_commands]} )) ||
 _exhaustive__subcmd__help__subcmd__global__subcmd__two_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive help global two commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__help__subcmd__help_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__help__subcmd__help_commands]} )) ||
 _exhaustive__subcmd__help__subcmd__help_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive help help commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__help__subcmd__hint_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__help__subcmd__hint_commands]} )) ||
 _exhaustive__subcmd__help__subcmd__hint_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive help hint commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__help__subcmd__last_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__help__subcmd__last_commands]} )) ||
 _exhaustive__subcmd__help__subcmd__last_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive help last commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__help__subcmd__pacman_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__help__subcmd__pacman_commands]} )) ||
 _exhaustive__subcmd__help__subcmd__pacman_commands() {
     local commands; commands=(
 'one:' \
@@ -749,17 +749,17 @@ _exhaustive__subcmd__help__subcmd__pacman_commands() {
     )
     _describe -t commands 'exhaustive help pacman commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__help__subcmd__pacman__subcmd__one_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__help__subcmd__pacman__subcmd__one_commands]} )) ||
 _exhaustive__subcmd__help__subcmd__pacman__subcmd__one_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive help pacman one commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__help__subcmd__pacman__subcmd__two_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__help__subcmd__pacman__subcmd__two_commands]} )) ||
 _exhaustive__subcmd__help__subcmd__pacman__subcmd__two_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive help pacman two commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__help__subcmd__quote_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__help__subcmd__quote_commands]} )) ||
 _exhaustive__subcmd__help__subcmd__quote_commands() {
     local commands; commands=(
 'cmd-single-quotes:Can be '\''always'\'', '\''auto'\'', or '\''never'\''' \
@@ -772,57 +772,57 @@ _exhaustive__subcmd__help__subcmd__quote_commands() {
     )
     _describe -t commands 'exhaustive help quote commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__help__subcmd__quote__subcmd__cmd-backslash_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__help__subcmd__quote__subcmd__cmd-backslash_commands]} )) ||
 _exhaustive__subcmd__help__subcmd__quote__subcmd__cmd-backslash_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive help quote cmd-backslash commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__help__subcmd__quote__subcmd__cmd-backticks_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__help__subcmd__quote__subcmd__cmd-backticks_commands]} )) ||
 _exhaustive__subcmd__help__subcmd__quote__subcmd__cmd-backticks_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive help quote cmd-backticks commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__help__subcmd__quote__subcmd__cmd-brackets_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__help__subcmd__quote__subcmd__cmd-brackets_commands]} )) ||
 _exhaustive__subcmd__help__subcmd__quote__subcmd__cmd-brackets_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive help quote cmd-brackets commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__help__subcmd__quote__subcmd__cmd-double-quotes_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__help__subcmd__quote__subcmd__cmd-double-quotes_commands]} )) ||
 _exhaustive__subcmd__help__subcmd__quote__subcmd__cmd-double-quotes_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive help quote cmd-double-quotes commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__help__subcmd__quote__subcmd__cmd-expansions_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__help__subcmd__quote__subcmd__cmd-expansions_commands]} )) ||
 _exhaustive__subcmd__help__subcmd__quote__subcmd__cmd-expansions_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive help quote cmd-expansions commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__help__subcmd__quote__subcmd__cmd-single-quotes_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__help__subcmd__quote__subcmd__cmd-single-quotes_commands]} )) ||
 _exhaustive__subcmd__help__subcmd__quote__subcmd__cmd-single-quotes_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive help quote cmd-single-quotes commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__help__subcmd__quote__subcmd__escape-help_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__help__subcmd__quote__subcmd__escape-help_commands]} )) ||
 _exhaustive__subcmd__help__subcmd__quote__subcmd__escape-help_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive help quote escape-help commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__help__subcmd__value_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__help__subcmd__value_commands]} )) ||
 _exhaustive__subcmd__help__subcmd__value_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive help value commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__hint_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__hint_commands]} )) ||
 _exhaustive__subcmd__hint_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive hint commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__last_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__last_commands]} )) ||
 _exhaustive__subcmd__last_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive last commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__pacman_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__pacman_commands]} )) ||
 _exhaustive__subcmd__pacman_commands() {
     local commands; commands=(
 'one:' \
@@ -831,7 +831,7 @@ _exhaustive__subcmd__pacman_commands() {
     )
     _describe -t commands 'exhaustive pacman commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__pacman__subcmd__help_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__pacman__subcmd__help_commands]} )) ||
 _exhaustive__subcmd__pacman__subcmd__help_commands() {
     local commands; commands=(
 'one:' \
@@ -840,32 +840,32 @@ _exhaustive__subcmd__pacman__subcmd__help_commands() {
     )
     _describe -t commands 'exhaustive pacman help commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__pacman__subcmd__help__subcmd__help_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__pacman__subcmd__help__subcmd__help_commands]} )) ||
 _exhaustive__subcmd__pacman__subcmd__help__subcmd__help_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive pacman help help commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__pacman__subcmd__help__subcmd__one_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__pacman__subcmd__help__subcmd__one_commands]} )) ||
 _exhaustive__subcmd__pacman__subcmd__help__subcmd__one_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive pacman help one commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__pacman__subcmd__help__subcmd__two_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__pacman__subcmd__help__subcmd__two_commands]} )) ||
 _exhaustive__subcmd__pacman__subcmd__help__subcmd__two_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive pacman help two commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__pacman__subcmd__one_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__pacman__subcmd__one_commands]} )) ||
 _exhaustive__subcmd__pacman__subcmd__one_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive pacman one commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__pacman__subcmd__two_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__pacman__subcmd__two_commands]} )) ||
 _exhaustive__subcmd__pacman__subcmd__two_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive pacman two commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__quote_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__quote_commands]} )) ||
 _exhaustive__subcmd__quote_commands() {
     local commands; commands=(
 'cmd-single-quotes:Can be '\''always'\'', '\''auto'\'', or '\''never'\''' \
@@ -879,42 +879,42 @@ _exhaustive__subcmd__quote_commands() {
     )
     _describe -t commands 'exhaustive quote commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__quote__subcmd__cmd-backslash_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__quote__subcmd__cmd-backslash_commands]} )) ||
 _exhaustive__subcmd__quote__subcmd__cmd-backslash_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive quote cmd-backslash commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__quote__subcmd__cmd-backticks_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__quote__subcmd__cmd-backticks_commands]} )) ||
 _exhaustive__subcmd__quote__subcmd__cmd-backticks_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive quote cmd-backticks commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__quote__subcmd__cmd-brackets_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__quote__subcmd__cmd-brackets_commands]} )) ||
 _exhaustive__subcmd__quote__subcmd__cmd-brackets_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive quote cmd-brackets commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__quote__subcmd__cmd-double-quotes_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__quote__subcmd__cmd-double-quotes_commands]} )) ||
 _exhaustive__subcmd__quote__subcmd__cmd-double-quotes_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive quote cmd-double-quotes commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__quote__subcmd__cmd-expansions_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__quote__subcmd__cmd-expansions_commands]} )) ||
 _exhaustive__subcmd__quote__subcmd__cmd-expansions_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive quote cmd-expansions commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__quote__subcmd__cmd-single-quotes_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__quote__subcmd__cmd-single-quotes_commands]} )) ||
 _exhaustive__subcmd__quote__subcmd__cmd-single-quotes_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive quote cmd-single-quotes commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__quote__subcmd__escape-help_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__quote__subcmd__escape-help_commands]} )) ||
 _exhaustive__subcmd__quote__subcmd__escape-help_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive quote escape-help commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__quote__subcmd__help_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__quote__subcmd__help_commands]} )) ||
 _exhaustive__subcmd__quote__subcmd__help_commands() {
     local commands; commands=(
 'cmd-single-quotes:Can be '\''always'\'', '\''auto'\'', or '\''never'\''' \
@@ -928,47 +928,47 @@ _exhaustive__subcmd__quote__subcmd__help_commands() {
     )
     _describe -t commands 'exhaustive quote help commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__quote__subcmd__help__subcmd__cmd-backslash_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__quote__subcmd__help__subcmd__cmd-backslash_commands]} )) ||
 _exhaustive__subcmd__quote__subcmd__help__subcmd__cmd-backslash_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive quote help cmd-backslash commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__quote__subcmd__help__subcmd__cmd-backticks_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__quote__subcmd__help__subcmd__cmd-backticks_commands]} )) ||
 _exhaustive__subcmd__quote__subcmd__help__subcmd__cmd-backticks_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive quote help cmd-backticks commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__quote__subcmd__help__subcmd__cmd-brackets_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__quote__subcmd__help__subcmd__cmd-brackets_commands]} )) ||
 _exhaustive__subcmd__quote__subcmd__help__subcmd__cmd-brackets_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive quote help cmd-brackets commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__quote__subcmd__help__subcmd__cmd-double-quotes_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__quote__subcmd__help__subcmd__cmd-double-quotes_commands]} )) ||
 _exhaustive__subcmd__quote__subcmd__help__subcmd__cmd-double-quotes_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive quote help cmd-double-quotes commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__quote__subcmd__help__subcmd__cmd-expansions_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__quote__subcmd__help__subcmd__cmd-expansions_commands]} )) ||
 _exhaustive__subcmd__quote__subcmd__help__subcmd__cmd-expansions_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive quote help cmd-expansions commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__quote__subcmd__help__subcmd__cmd-single-quotes_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__quote__subcmd__help__subcmd__cmd-single-quotes_commands]} )) ||
 _exhaustive__subcmd__quote__subcmd__help__subcmd__cmd-single-quotes_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive quote help cmd-single-quotes commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__quote__subcmd__help__subcmd__escape-help_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__quote__subcmd__help__subcmd__escape-help_commands]} )) ||
 _exhaustive__subcmd__quote__subcmd__help__subcmd__escape-help_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive quote help escape-help commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__quote__subcmd__help__subcmd__help_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__quote__subcmd__help__subcmd__help_commands]} )) ||
 _exhaustive__subcmd__quote__subcmd__help__subcmd__help_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive quote help help commands' commands "$@"
 }
-(( $+functions[_exhaustive__subcmd__value_commands] )) ||
+(( ${+functions[_exhaustive__subcmd__value_commands]} )) ||
 _exhaustive__subcmd__value_commands() {
     local commands; commands=()
     _describe -t commands 'exhaustive value commands' commands "$@"

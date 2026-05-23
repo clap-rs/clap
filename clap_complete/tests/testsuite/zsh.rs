@@ -192,6 +192,18 @@ fn subcommand_last() {
 }
 
 #[test]
+fn function_existence_checks_are_ksharrays_safe() {
+    let name = "my-app";
+    let mut cmd = common::basic_command(name);
+    let mut buf = vec![];
+    clap_complete::generate(clap_complete::shells::Zsh, &mut cmd, name, &mut buf);
+    let actual = String::from_utf8(buf).unwrap();
+
+    assert!(actual.contains("(( ${+functions[_my-app_commands]} )) ||"));
+    assert!(!actual.contains("(( $+functions["));
+}
+
+#[test]
 #[cfg(unix)]
 #[cfg(feature = "unstable-shell-tests")]
 fn register_completion() {

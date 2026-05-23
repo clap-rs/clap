@@ -65,7 +65,7 @@ esac
 esac
 }
 
-(( $+functions[_bin-name_commands] )) ||
+(( ${+functions[_bin-name_commands]} )) ||
 _bin-name_commands() {
     local commands; commands=(
 'test:Subcommand with a second line' \
@@ -73,7 +73,7 @@ _bin-name_commands() {
     )
     _describe -t commands 'bin-name commands' commands "$@"
 }
-(( $+functions[_bin-name__subcmd__help_commands] )) ||
+(( ${+functions[_bin-name__subcmd__help_commands]} )) ||
 _bin-name__subcmd__help_commands() {
     local commands; commands=(
 'test:Subcommand with a second line' \
@@ -81,17 +81,17 @@ _bin-name__subcmd__help_commands() {
     )
     _describe -t commands 'bin-name help commands' commands "$@"
 }
-(( $+functions[_bin-name__subcmd__help__subcmd__help_commands] )) ||
+(( ${+functions[_bin-name__subcmd__help__subcmd__help_commands]} )) ||
 _bin-name__subcmd__help__subcmd__help_commands() {
     local commands; commands=()
     _describe -t commands 'bin-name help help commands' commands "$@"
 }
-(( $+functions[_bin-name__subcmd__help__subcmd__test_commands] )) ||
+(( ${+functions[_bin-name__subcmd__help__subcmd__test_commands]} )) ||
 _bin-name__subcmd__help__subcmd__test_commands() {
     local commands; commands=()
     _describe -t commands 'bin-name help test commands' commands "$@"
 }
-(( $+functions[_bin-name__subcmd__test_commands] )) ||
+(( ${+functions[_bin-name__subcmd__test_commands]} )) ||
 _bin-name__subcmd__test_commands() {
     local commands; commands=()
     _describe -t commands 'bin-name test commands' commands "$@"

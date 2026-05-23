@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(zsh)* Make generated function checks compatible with `ksharrays`
+
 ## [4.6.5] - 2026-05-11
 
 ### Fixes

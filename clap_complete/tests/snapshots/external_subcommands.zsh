@@ -62,7 +62,7 @@ esac
 esac
 }
 
-(( $+functions[_my-app_commands] )) ||
+(( ${+functions[_my-app_commands]} )) ||
 _my-app_commands() {
     local commands; commands=(
 'external:An external subcommand' \
@@ -70,12 +70,12 @@ _my-app_commands() {
     )
     _describe -t commands 'my-app commands' commands "$@"
 }
-(( $+functions[_my-app__subcmd__external_commands] )) ||
+(( ${+functions[_my-app__subcmd__external_commands]} )) ||
 _my-app__subcmd__external_commands() {
     local commands; commands=()
     _describe -t commands 'my-app external commands' commands "$@"
 }
-(( $+functions[_my-app__subcmd__help_commands] )) ||
+(( ${+functions[_my-app__subcmd__help_commands]} )) ||
 _my-app__subcmd__help_commands() {
     local commands; commands=(
 'external:An external subcommand' \
@@ -83,12 +83,12 @@ _my-app__subcmd__help_commands() {
     )
     _describe -t commands 'my-app help commands' commands "$@"
 }
-(( $+functions[_my-app__subcmd__help__subcmd__external_commands] )) ||
+(( ${+functions[_my-app__subcmd__help__subcmd__external_commands]} )) ||
 _my-app__subcmd__help__subcmd__external_commands() {
     local commands; commands=()
     _describe -t commands 'my-app help external commands' commands "$@"
 }
-(( $+functions[_my-app__subcmd__help__subcmd__help_commands] )) ||
+(( ${+functions[_my-app__subcmd__help__subcmd__help_commands]} )) ||
 _my-app__subcmd__help__subcmd__help_commands() {
     local commands; commands=()
     _describe -t commands 'my-app help help commands' commands "$@"

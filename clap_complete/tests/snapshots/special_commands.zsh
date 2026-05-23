@@ -110,7 +110,7 @@ esac
 esac
 }
 
-(( $+functions[_my-app_commands] )) ||
+(( ${+functions[_my-app_commands]} )) ||
 _my-app_commands() {
     local commands; commands=(
 'test:tests things' \
@@ -121,7 +121,7 @@ _my-app_commands() {
     )
     _describe -t commands 'my-app commands' commands "$@"
 }
-(( $+functions[_my-app__subcmd__help_commands] )) ||
+(( ${+functions[_my-app__subcmd__help_commands]} )) ||
 _my-app__subcmd__help_commands() {
     local commands; commands=(
 'test:tests things' \
@@ -132,47 +132,47 @@ _my-app__subcmd__help_commands() {
     )
     _describe -t commands 'my-app help commands' commands "$@"
 }
-(( $+functions[_my-app__subcmd__help__subcmd__help_commands] )) ||
+(( ${+functions[_my-app__subcmd__help__subcmd__help_commands]} )) ||
 _my-app__subcmd__help__subcmd__help_commands() {
     local commands; commands=()
     _describe -t commands 'my-app help help commands' commands "$@"
 }
-(( $+functions[_my-app__subcmd__help__subcmd__some-cmd-with-hyphens_commands] )) ||
+(( ${+functions[_my-app__subcmd__help__subcmd__some-cmd-with-hyphens_commands]} )) ||
 _my-app__subcmd__help__subcmd__some-cmd-with-hyphens_commands() {
     local commands; commands=()
     _describe -t commands 'my-app help some-cmd-with-hyphens commands' commands "$@"
 }
-(( $+functions[_my-app__subcmd__help__subcmd__some-hidden-cmd_commands] )) ||
+(( ${+functions[_my-app__subcmd__help__subcmd__some-hidden-cmd_commands]} )) ||
 _my-app__subcmd__help__subcmd__some-hidden-cmd_commands() {
     local commands; commands=()
     _describe -t commands 'my-app help some-hidden-cmd commands' commands "$@"
 }
-(( $+functions[_my-app__subcmd__help__subcmd__some_cmd_commands] )) ||
+(( ${+functions[_my-app__subcmd__help__subcmd__some_cmd_commands]} )) ||
 _my-app__subcmd__help__subcmd__some_cmd_commands() {
     local commands; commands=()
     _describe -t commands 'my-app help some_cmd commands' commands "$@"
 }
-(( $+functions[_my-app__subcmd__help__subcmd__test_commands] )) ||
+(( ${+functions[_my-app__subcmd__help__subcmd__test_commands]} )) ||
 _my-app__subcmd__help__subcmd__test_commands() {
     local commands; commands=()
     _describe -t commands 'my-app help test commands' commands "$@"
 }
-(( $+functions[_my-app__subcmd__some-cmd-with-hyphens_commands] )) ||
+(( ${+functions[_my-app__subcmd__some-cmd-with-hyphens_commands]} )) ||
 _my-app__subcmd__some-cmd-with-hyphens_commands() {
     local commands; commands=()
     _describe -t commands 'my-app some-cmd-with-hyphens commands' commands "$@"
 }
-(( $+functions[_my-app__subcmd__some-hidden-cmd_commands] )) ||
+(( ${+functions[_my-app__subcmd__some-hidden-cmd_commands]} )) ||
 _my-app__subcmd__some-hidden-cmd_commands() {
     local commands; commands=()
     _describe -t commands 'my-app some-hidden-cmd commands' commands "$@"
 }
-(( $+functions[_my-app__subcmd__some_cmd_commands] )) ||
+(( ${+functions[_my-app__subcmd__some_cmd_commands]} )) ||
 _my-app__subcmd__some_cmd_commands() {
     local commands; commands=()
     _describe -t commands 'my-app some_cmd commands' commands "$@"
 }
-(( $+functions[_my-app__subcmd__test_commands] )) ||
+(( ${+functions[_my-app__subcmd__test_commands]} )) ||
 _my-app__subcmd__test_commands() {
     local commands; commands=()
     _describe -t commands 'my-app test commands' commands "$@"

@@ -72,7 +72,7 @@ esac
 esac
 }
 
-(( $+functions[_my-app_commands] )) ||
+(( ${+functions[_my-app_commands]} )) ||
 _my-app_commands() {
     local commands; commands=(
 'foo:' \
@@ -81,17 +81,17 @@ _my-app_commands() {
     )
     _describe -t commands 'my-app commands' commands "$@"
 }
-(( $+functions[_my-app__subcmd__bar_commands] )) ||
+(( ${+functions[_my-app__subcmd__bar_commands]} )) ||
 _my-app__subcmd__bar_commands() {
     local commands; commands=()
     _describe -t commands 'my-app bar commands' commands "$@"
 }
-(( $+functions[_my-app__subcmd__foo_commands] )) ||
+(( ${+functions[_my-app__subcmd__foo_commands]} )) ||
 _my-app__subcmd__foo_commands() {
     local commands; commands=()
     _describe -t commands 'my-app foo commands' commands "$@"
 }
-(( $+functions[_my-app__subcmd__help_commands] )) ||
+(( ${+functions[_my-app__subcmd__help_commands]} )) ||
 _my-app__subcmd__help_commands() {
     local commands; commands=(
 'foo:' \
@@ -100,17 +100,17 @@ _my-app__subcmd__help_commands() {
     )
     _describe -t commands 'my-app help commands' commands "$@"
 }
-(( $+functions[_my-app__subcmd__help__subcmd__bar_commands] )) ||
+(( ${+functions[_my-app__subcmd__help__subcmd__bar_commands]} )) ||
 _my-app__subcmd__help__subcmd__bar_commands() {
     local commands; commands=()
     _describe -t commands 'my-app help bar commands' commands "$@"
 }
-(( $+functions[_my-app__subcmd__help__subcmd__foo_commands] )) ||
+(( ${+functions[_my-app__subcmd__help__subcmd__foo_commands]} )) ||
 _my-app__subcmd__help__subcmd__foo_commands() {
     local commands; commands=()
     _describe -t commands 'my-app help foo commands' commands "$@"
 }
-(( $+functions[_my-app__subcmd__help__subcmd__help_commands] )) ||
+(( ${+functions[_my-app__subcmd__help__subcmd__help_commands]} )) ||
 _my-app__subcmd__help__subcmd__help_commands() {
     local commands; commands=()
     _describe -t commands 'my-app help help commands' commands "$@"
