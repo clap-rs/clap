@@ -226,6 +226,53 @@ impl ValueParser {
     pub const fn path_buf() -> Self {
         Self(ValueParserInner::PathBuf)
     }
+
+    /// Require a [`PathBuf`][std::path::PathBuf] value to exist.
+    ///
+    /// This is intended for fail-fast validation of command-line values. Like
+    /// other path existence checks, this is subject to time-of-check to
+    /// time-of-use races and should not replace validating the path when it is
+    /// used.
+    ///
+    /// This is intended for use with [`ValueParser::path_buf`] or
+    /// `value_parser!(PathBuf)`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use clap::{Arg, Command};
+    /// let cmd = Command::new("mycmd").arg(
+    ///     Arg::new("config")
+    ///         .value_parser(clap::builder::PathBufValueParser::new().exists())
+    ///         .required(true),
+    /// );
+    /// ```
+    pub fn exists(self) -> impl TypedValueParser<Value = std::path::PathBuf> {
+        PathValidationParser::new(self, verify_path_exists)
+    }
+
+    /// Require a [`PathBuf`][std::path::PathBuf] value to exist and be a file.
+    ///
+    /// This follows the same platform-specific behavior as
+    /// [`std::fs::metadata`].
+    ///
+    /// This is intended for use with [`ValueParser::path_buf`] or
+    /// `value_parser!(PathBuf)`.
+    pub fn is_file(self) -> impl TypedValueParser<Value = std::path::PathBuf> {
+        PathValidationParser::new(self, verify_path_is_file)
+    }
+
+    /// Require a [`PathBuf`][std::path::PathBuf] value to exist and be a directory.
+    ///
+    /// This follows the same platform-specific behavior as
+    /// [`std::fs::metadata`].
+    ///
+    /// This is intended for use with [`ValueParser::path_buf`] or
+    /// `value_parser!(PathBuf)`.
+    pub fn is_dir(self) -> impl TypedValueParser<Value = std::path::PathBuf> {
+        PathValidationParser::new(self, verify_path_is_dir)
+    }
 }
 
 impl ValueParser {
@@ -999,6 +1046,45 @@ impl PathBufValueParser {
     pub fn new() -> Self {
         Self {}
     }
+
+    /// Require the path to exist.
+    ///
+    /// This is intended for fail-fast validation of command-line values. Like
+    /// other path existence checks, this is subject to time-of-check to
+    /// time-of-use races and should not replace validating the path when it is
+    /// used.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use clap::{Arg, Command};
+    /// # use std::path::PathBuf;
+    /// let cmd = Command::new("mycmd").arg(
+    ///     Arg::new("config")
+    ///         .value_parser(clap::value_parser!(PathBuf).exists())
+    ///         .required(true),
+    /// );
+    /// ```
+    pub fn exists(self) -> impl TypedValueParser<Value = std::path::PathBuf> {
+        self.try_map(verify_path_exists)
+    }
+
+    /// Require the path to exist and be a file.
+    ///
+    /// This follows the same platform-specific behavior as
+    /// [`std::fs::metadata`].
+    pub fn is_file(self) -> impl TypedValueParser<Value = std::path::PathBuf> {
+        self.try_map(verify_path_is_file)
+    }
+
+    /// Require the path to exist and be a directory.
+    ///
+    /// This follows the same platform-specific behavior as
+    /// [`std::fs::metadata`].
+    pub fn is_dir(self) -> impl TypedValueParser<Value = std::path::PathBuf> {
+        self.try_map(verify_path_is_dir)
+    }
 }
 
 impl TypedValueParser for PathBufValueParser {
@@ -1035,6 +1121,103 @@ impl Default for PathBufValueParser {
     fn default() -> Self {
         Self::new()
     }
+}
+
+#[derive(Clone, Debug)]
+struct PathValidationParser {
+    parser: ValueParser,
+    validator: fn(std::path::PathBuf) -> Result<std::path::PathBuf, std::io::Error>,
+}
+
+impl PathValidationParser {
+    fn new(
+        parser: ValueParser,
+        validator: fn(std::path::PathBuf) -> Result<std::path::PathBuf, std::io::Error>,
+    ) -> Self {
+        Self { parser, validator }
+    }
+}
+
+impl TypedValueParser for PathValidationParser {
+    type Value = std::path::PathBuf;
+
+    fn parse_ref(
+        &self,
+        cmd: &crate::Command,
+        arg: Option<&crate::Arg>,
+        value: &std::ffi::OsStr,
+    ) -> Result<Self::Value, crate::Error> {
+        <Self as TypedValueParser>::parse_ref_(self, cmd, arg, value, ValueSource::CommandLine)
+    }
+
+    fn parse_ref_(
+        &self,
+        cmd: &crate::Command,
+        arg: Option<&crate::Arg>,
+        value: &std::ffi::OsStr,
+        source: ValueSource,
+    ) -> Result<Self::Value, crate::Error> {
+        let value_string = value.to_string_lossy().into_owned();
+        let path = ok!(self.parser.parse_ref(cmd, arg, value, source));
+        let path = ok!(path.downcast_into::<std::path::PathBuf>().map_err(|_| {
+            validation_error(
+                cmd,
+                arg,
+                value_string.clone(),
+                std::io::Error::new(
+                    std::io::ErrorKind::InvalidInput,
+                    "expected a PathBuf value parser",
+                ),
+            )
+        }));
+        let path = ok!((self.validator)(path).map_err(|err| validation_error(
+            cmd,
+            arg,
+            value_string,
+            err
+        )));
+        Ok(path)
+    }
+}
+
+fn verify_path_exists(path: std::path::PathBuf) -> Result<std::path::PathBuf, std::io::Error> {
+    std::fs::metadata(&path).map(|_| path)
+}
+
+fn verify_path_is_file(path: std::path::PathBuf) -> Result<std::path::PathBuf, std::io::Error> {
+    let metadata = std::fs::metadata(&path)?;
+    if metadata.is_file() {
+        Ok(path)
+    } else {
+        Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidInput,
+            "path is not a file",
+        ))
+    }
+}
+
+fn verify_path_is_dir(path: std::path::PathBuf) -> Result<std::path::PathBuf, std::io::Error> {
+    let metadata = std::fs::metadata(&path)?;
+    if metadata.is_dir() {
+        Ok(path)
+    } else {
+        Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidInput,
+            "path is not a directory",
+        ))
+    }
+}
+
+fn validation_error(
+    cmd: &crate::Command,
+    arg: Option<&crate::Arg>,
+    value: String,
+    err: std::io::Error,
+) -> crate::Error {
+    let arg = arg
+        .map(|a| a.to_string())
+        .unwrap_or_else(|| "...".to_owned());
+    crate::Error::value_validation(arg, value, Box::new(err)).with_cmd(cmd)
 }
 
 /// Parse an [`ValueEnum`][crate::ValueEnum] value.
