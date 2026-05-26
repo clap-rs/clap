@@ -6,6 +6,8 @@
 #![warn(clippy::print_stderr)]
 #![warn(clippy::print_stdout)]
 
+#[cfg(feature = "markdown")]
+mod markdown;
 mod plain;
 mod render;
 
