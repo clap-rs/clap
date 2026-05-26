@@ -1,11 +1,3 @@
-
-
-
-
-// Functions are used via `#[cfg]` imports in render.rs.
-// When the `markdown` feature is enabled, these are only exercised by tests.
-#![allow(dead_code)]
-
 use roff::{Inline, Roff, roman};
 
 /// Render text to roff without any markdown processing.

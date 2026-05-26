@@ -1,6 +1,15 @@
 use crate::common;
 
 #[test]
+#[cfg(feature = "markdown")]
+fn basic() {
+    let name = "my-app";
+    let cmd = common::basic_command(name);
+    common::assert_matches(snapbox::file!["../snapshots/basic.markdown.roff"], cmd);
+}
+
+#[test]
+#[cfg(not(feature = "markdown"))]
 fn basic() {
     let name = "my-app";
     let cmd = common::basic_command(name);
@@ -25,6 +34,15 @@ fn special_commands() {
 }
 
 #[test]
+#[cfg(feature = "markdown")]
+fn quoting() {
+    let name = "my-app";
+    let cmd = common::quoting_command(name);
+    common::assert_matches(snapbox::file!["../snapshots/quoting.markdown.roff"], cmd);
+}
+
+#[test]
+#[cfg(not(feature = "markdown"))]
 fn quoting() {
     let name = "my-app";
     let cmd = common::quoting_command(name);

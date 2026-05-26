@@ -8,6 +8,7 @@
 
 #[cfg(feature = "markdown")]
 mod markdown;
+#[cfg(not(feature = "markdown"))]
 mod plain;
 mod render;
 
