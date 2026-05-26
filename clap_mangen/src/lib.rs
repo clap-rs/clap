@@ -6,6 +6,7 @@
 #![warn(clippy::print_stderr)]
 #![warn(clippy::print_stdout)]
 
+mod plain;
 mod render;
 
 pub use roff;
