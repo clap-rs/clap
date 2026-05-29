@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Features
 
 - *(derive)* Group values by their occurrence with `Vec<Vec<T>>`
+- *(help)* Add `Command::help_subcommand` to force-generate (or suppress) the `help` subcommand on leaf subcommands, propagating the choice to descendants ([#6227](https://github.com/clap-rs/clap/issues/6227))
 
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate

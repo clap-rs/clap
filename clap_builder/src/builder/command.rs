@@ -97,6 +97,15 @@ pub struct Command {
     template: Option<StyledStr>,
     settings: AppFlags,
     g_settings: AppFlags,
+    /// Tri-state for `help` subcommand generation (#6227).
+    ///
+    /// - `None`: inherit prior behavior (auto-generate when child subcommands exist, suppress on leaves).
+    /// - `Some(true)`: force generation, including on leaf subcommands; propagates to descendants.
+    /// - `Some(false)`: suppress generation; propagates to descendants.
+    ///
+    /// Currently consulted only when `unstable-v5` is active; the `AppSettings::DisableHelpSubcommand`
+    /// bit flag remains the source of truth for stable builds to preserve API compatibility.
+    help_subcommand: Option<bool>,
     args: MKeyMap,
     subcommands: Vec<Command>,
     groups: Vec<ArgGroup>,
@@ -1644,11 +1653,70 @@ impl Command {
     ///
     /// [`subcommand`]: crate::Command::subcommand()
     #[inline]
-    pub fn disable_help_subcommand(self, yes: bool) -> Self {
+    pub fn disable_help_subcommand(mut self, yes: bool) -> Self {
+        // Mirror the bool into the tri-state field used by the `unstable-v5`
+        // `Command::help_subcommand` API (#6227). Stable builds continue to
+        // read the `AppSettings::DisableHelpSubcommand` bit flag below, so
+        // existing behavior is preserved verbatim.
+        self.help_subcommand = Some(!yes);
         if yes {
             self.global_setting(AppSettings::DisableHelpSubcommand)
         } else {
             self.unset_global_setting(AppSettings::DisableHelpSubcommand)
+        }
+    }
+
+    /// Generate a `help` subcommand for this command and propagate that choice to all child
+    /// subcommands.
+    ///
+    /// This is the tri-state counterpart to [`Command::disable_help_subcommand`]:
+    ///
+    /// - `true` forces a `help` subcommand to be generated for this command and every descendant,
+    ///   even on leaf subcommands that have no further children of their own.
+    /// - `false` suppresses the `help` subcommand on this command and every descendant.
+    /// - `None` (via `Option::<bool>::None` or [`crate::builder::Resettable::Reset`]) clears the
+    ///   choice, falling back to the historical behavior of auto-generating only when
+    ///   non-`help` subcommands are defined.
+    ///
+    /// This addresses [#6227](https://github.com/clap-rs/clap/issues/6227): out of the box,
+    /// `help` is only emitted on commands that have other subcommands, so `cmd one help` fails
+    /// where `cmd help` succeeds. Setting `help_subcommand(true)` on the root command resolves
+    /// that inconsistency.
+    ///
+    /// <div class="warning">
+    ///
+    /// **NOTE:** Available under the `unstable-v5` feature flag while the API is stabilized.
+    ///
+    /// </div>
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, error::ErrorKind};
+    /// # #[cfg(feature = "unstable-v5")] {
+    /// let mut cmd = Command::new("myprog")
+    ///     .help_subcommand(true)
+    ///     .subcommand(Command::new("one"))
+    ///     .subcommand(Command::new("two"));
+    /// // `myprog one help` is now recognized for the leaf subcommand and
+    /// // short-circuits with `DisplayHelp` just like `myprog one --help` does.
+    /// let res = cmd.try_get_matches_from_mut(vec!["myprog", "one", "help"]);
+    /// assert_eq!(res.unwrap_err().kind(), ErrorKind::DisplayHelp);
+    /// # }
+    /// ```
+    #[cfg(feature = "unstable-v5")]
+    #[inline]
+    pub fn help_subcommand(mut self, yes: impl IntoResettable<bool>) -> Self {
+        self.help_subcommand = yes.into_resettable().into_option();
+        // Keep the legacy bit flag aligned with the tri-state choice so that
+        // existing reads of `is_disable_help_subcommand_set` stay consistent
+        // for the command this is set on. Propagation to descendants is
+        // handled by `_propagate_subcommand`.
+        match self.help_subcommand {
+            Some(true) => self.unset_global_setting(AppSettings::DisableHelpSubcommand),
+            Some(false) => self.global_setting(AppSettings::DisableHelpSubcommand),
+            None => self,
         }
     }
 
@@ -4419,7 +4487,16 @@ impl Command {
                 self.settings.set(AppSettings::AllowExternalSubcommands);
             }
             if !self.has_subcommands() {
-                self.settings.set(AppSettings::DisableHelpSubcommand);
+                // #6227: under `unstable-v5`, an explicit `help_subcommand(true)` (set on
+                // this command or propagated from an ancestor) keeps the `help` subcommand
+                // on leaves so `cmd one help` works the same as `cmd help`.
+                #[cfg(feature = "unstable-v5")]
+                let force_help_subcommand = self.help_subcommand == Some(true);
+                #[cfg(not(feature = "unstable-v5"))]
+                let force_help_subcommand = false;
+                if !force_help_subcommand {
+                    self.settings.set(AppSettings::DisableHelpSubcommand);
+                }
             }
 
             self._propagate();
@@ -4796,6 +4873,17 @@ impl Command {
             sc.settings = sc.settings | self.g_settings;
             sc.g_settings = sc.g_settings | self.g_settings;
             sc.app_ext.update(&self.app_ext);
+
+            // #6227: propagate an explicit help-subcommand choice from parent to child
+            // without overriding an explicit choice already made on the child. Using
+            // `get_or_insert` matches epage's design comment exactly:
+            // `if self.help_subcommand.unwrap_or(false) { sc.help_subcommand.get_or_insert(true); }`
+            #[cfg(feature = "unstable-v5")]
+            {
+                if let Some(parent_choice) = self.help_subcommand {
+                    sc.help_subcommand.get_or_insert(parent_choice);
+                }
+            }
         }
     }
 
@@ -5217,6 +5305,7 @@ impl Default for Command {
             template: Default::default(),
             settings: Default::default(),
             g_settings: Default::default(),
+            help_subcommand: Default::default(),
             args: Default::default(),
             subcommands: Default::default(),
             groups: Default::default(),

@@ -67,6 +67,21 @@ pub trait IntoResettable<T> {
     fn into_resettable(self) -> Resettable<T>;
 }
 
+impl IntoResettable<bool> for Option<bool> {
+    fn into_resettable(self) -> Resettable<bool> {
+        match self {
+            Some(s) => Resettable::Value(s),
+            None => Resettable::Reset,
+        }
+    }
+}
+
+impl IntoResettable<bool> for bool {
+    fn into_resettable(self) -> Resettable<bool> {
+        Resettable::Value(self)
+    }
+}
+
 impl IntoResettable<char> for Option<char> {
     fn into_resettable(self) -> Resettable<char> {
         match self {
