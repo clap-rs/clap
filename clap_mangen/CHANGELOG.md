@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Parse markdown in help text and render as roff formatting (bold, italic, code, headings, lists, code blocks, blockquotes, links)
+- New `markdown` feature flag (enabled by default) powered by `pulldown-cmark`
+- Disable with `--no-default-features` to retain previous verbatim rendering
+
 ## [0.3.0] - 2026-03-27
 
 ### Compatibility

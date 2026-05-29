@@ -20,6 +20,28 @@ Dual-licensed under [Apache 2.0](LICENSE-APACHE) or [MIT](LICENSE-MIT).
 
 Generate [ROFF](https://en.wikipedia.org/wiki/Roff_(software)) from a `clap::Command`.
 
+### Markdown Support
+
+By default, markdown formatting in help text is converted to roff:
+
+| Markdown | Man page rendering |
+|---|---|
+| `**bold**` | **bold** |
+| `*italic*` | *italic* |
+| `` `code` `` | **code** (bold, per man page convention) |
+| `## Heading` | Sub-section heading (`.SS`) |
+| `- item` | Bullet list |
+| `1. item` | Numbered list |
+| ` ``` ` code blocks | No-fill blocks |
+| `> quote` | Indented block |
+| `[text](url)` | text `<url>` |
+
+To disable markdown processing and pass text through verbatim (previous behavior):
+
+```console
+$ cargo add --build clap_mangen --no-default-features
+```
+
 ### Example
 
 We're going to assume you want to generate your man page as part of your
