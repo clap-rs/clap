@@ -300,6 +300,24 @@ pub(crate) fn optional_multi_value_option_command(name: &'static str) -> clap::C
     )
 }
 
+#[allow(dead_code)]
+pub(crate) fn allow_dash_dash_as_value_command(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+        .arg(
+            clap::Arg::new("value")
+                .long("value")
+                .action(clap::ArgAction::Set)
+                .allow_hyphen_values(true)
+                .allow_dash_dash_as_value(false),
+        )
+        .arg(
+            clap::Arg::new("pos")
+                .help("collect trailing values")
+                .num_args(0..)
+                .last(true),
+        )
+}
+
 pub(crate) fn two_multi_valued_arguments_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .arg(
