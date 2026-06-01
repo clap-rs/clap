@@ -70,6 +70,62 @@ impl Item {
         Ok(res)
     }
 
+    pub(crate) fn from_args_enum_variant(
+        variant: &Variant,
+        argument_casing: Sp<CasingStyle>,
+        env_casing: Sp<CasingStyle>,
+    ) -> Result<Self, syn::Error> {
+        let name = variant.ident.clone();
+        let ident = variant.ident.clone();
+        let span = variant.span();
+
+        let ty = match variant.fields {
+            syn::Fields::Unnamed(syn::FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
+                Ty::from_syn_ty(&unnamed[0].ty)
+            }
+            syn::Fields::Named(_) | syn::Fields::Unnamed(..) | syn::Fields::Unit => {
+                Sp::new(Ty::Other, span)
+            }
+        };
+        let kind = Sp::new(Kind::Command(ty), span);
+        let mut res = Self::new(
+            Name::Derived(name),
+            ident,
+            None,
+            argument_casing,
+            env_casing,
+            kind,
+        );
+        let parsed_attrs = ClapAttr::parse_all(&variant.attrs)?;
+        res.infer_kind(&parsed_attrs)?;
+        res.push_attrs(&parsed_attrs)?;
+        if matches!(&*res.kind, Kind::Command(_) | Kind::Subcommand(_)) {
+            res.push_doc_comment(&variant.attrs, "about", Some("long_about"));
+        }
+
+        // TODO: ???
+        match &*res.kind {
+            Kind::Flatten(_) => {
+                if res.has_explicit_methods() {
+                    abort!(
+                        res.kind.span(),
+                        "methods are not allowed for flattened entry"
+                    );
+                }
+            }
+
+            Kind::Subcommand(_)
+            | Kind::ExternalSubcommand
+            | Kind::FromGlobal(_)
+            | Kind::Skip(_, _)
+            | Kind::Command(_)
+            | Kind::Value
+            | Kind::Arg(_) => (),
+        }
+
+        Ok(res)
+    }
+
     pub(crate) fn from_subcommand_enum(
         input: &DeriveInput,
         name: Name,
