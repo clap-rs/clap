@@ -267,6 +267,12 @@ pub(crate) fn value_hint_command(name: &'static str) -> Command {
         )
 }
 
+pub(crate) fn last_args_command(name: &'static str) -> Command {
+    Command::new(name)
+        .arg(Arg::new("args").num_args(1..))
+        .arg(Arg::new("last_args").num_args(1..).last(true))
+}
+
 pub(crate) fn assert_matches(
     expected: impl IntoData,
     generator: impl clap_complete::Generator,

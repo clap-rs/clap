@@ -137,6 +137,10 @@ fn append_argument(arg: &Arg, name: &str, s: &mut String) {
     if arg.is_positional() {
         // rest arguments
         if matches!(arg.get_action(), ArgAction::Append) {
+            if arg.is_last_set() {
+                return;
+            }
+
             s.push_str(format!("    ...{}", arg.get_id()).as_str());
         } else {
             s.push_str(format!("    {}", arg.get_id()).as_str());
