@@ -19,7 +19,7 @@ _my-app() {
 '(-c)-v[]' \
 '-h[Print help]' \
 '--help[Print help]' \
-":: :_my-app_commands" \
+": :_my-app_commands" \
 "*::: :->my-app" \
 && ret=0
     case $state in
@@ -38,7 +38,7 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" : \
-":: :_my-app__subcmd__help_commands" \
+": :_my-app__subcmd__help_commands" \
 "*::: :->help" \
 && ret=0
 

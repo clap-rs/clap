@@ -346,7 +346,7 @@ fn get_args_of(parent: &Command, p_global: Option<&Command>) -> String {
             .get_bin_name()
             .expect("crate::generate should have set the bin_name");
         let subcommand_bin_name = format!(
-            "\":: :_{name}_commands\" \\",
+            "\": :_{name}_commands\" \\",
             name = parent_bin_name.replace(' ', CMD_SEP)
         );
         segments.push(subcommand_bin_name);

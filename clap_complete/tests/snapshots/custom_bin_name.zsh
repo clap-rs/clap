@@ -19,7 +19,7 @@ _bin-name() {
 '(-c)-v[]' \
 '-h[Print help]' \
 '--help[Print help]' \
-":: :_bin-name_commands" \
+": :_bin-name_commands" \
 "*::: :->my-app" \
 && ret=0
     case $state in
@@ -38,7 +38,7 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" : \
-":: :_bin-name__subcmd__help_commands" \
+": :_bin-name__subcmd__help_commands" \
 "*::: :->help" \
 && ret=0
 

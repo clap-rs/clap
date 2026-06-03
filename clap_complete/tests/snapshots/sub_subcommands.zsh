@@ -25,7 +25,7 @@ _my-app() {
 '--version[Print version]' \
 '::file -- some input file:_files' \
 '::choice:(first second)' \
-":: :_my-app_commands" \
+": :_my-app_commands" \
 "*::: :->my-app" \
 && ret=0
     case $state in
@@ -49,7 +49,7 @@ _arguments "${_arguments_options[@]}" : \
 '--help[Print help]' \
 '-V[Print version]' \
 '--version[Print version]' \
-":: :_my-app__subcmd__some_cmd_commands" \
+": :_my-app__subcmd__some_cmd_commands" \
 "*::: :->some_cmd" \
 && ret=0
 
@@ -71,7 +71,7 @@ Second\ to\ trigger\ display\ of\ options\:""))' \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" : \
-":: :_my-app__subcmd__some_cmd__subcmd__help_commands" \
+": :_my-app__subcmd__some_cmd__subcmd__help_commands" \
 "*::: :->help" \
 && ret=0
 
@@ -103,7 +103,7 @@ _arguments "${_arguments_options[@]}" : \
 '--help[Print help]' \
 '-V[Print version]' \
 '--version[Print version]' \
-":: :_my-app__subcmd__some_cmd_commands" \
+": :_my-app__subcmd__some_cmd_commands" \
 "*::: :->some_cmd" \
 && ret=0
 
@@ -125,7 +125,7 @@ Second\ to\ trigger\ display\ of\ options\:""))' \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" : \
-":: :_my-app__subcmd__some_cmd__subcmd__help_commands" \
+": :_my-app__subcmd__some_cmd__subcmd__help_commands" \
 "*::: :->help" \
 && ret=0
 
@@ -153,7 +153,7 @@ esac
 ;;
 (help)
 _arguments "${_arguments_options[@]}" : \
-":: :_my-app__subcmd__help_commands" \
+": :_my-app__subcmd__help_commands" \
 "*::: :->help" \
 && ret=0
 
@@ -169,7 +169,7 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (some_cmd)
 _arguments "${_arguments_options[@]}" : \
-":: :_my-app__subcmd__help__subcmd__some_cmd_commands" \
+": :_my-app__subcmd__help__subcmd__some_cmd_commands" \
 "*::: :->some_cmd" \
 && ret=0
 
