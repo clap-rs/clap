@@ -109,7 +109,11 @@ impl ArgGroup {
         self
     }
 
-    /// Adds an [argument] to this group by name
+    /// Adds an [argument] or [group] to this group by name
+    ///
+    /// The name may refer to an [`Arg`] or to another [`ArgGroup`].  Naming a group makes all of
+    /// that group's members (recursively) members of this group as well, allowing groups of
+    /// groups.
     ///
     /// # Examples
     ///
@@ -124,8 +128,8 @@ impl ArgGroup {
     ///         .short('c')
     ///         .action(ArgAction::SetTrue))
     ///     .group(ArgGroup::new("req_flags")
-    ///         .arg("flag")
-    ///         .arg("color"))
+    ///         .member("flag")
+    ///         .member("color"))
     ///     .get_matches_from(vec!["myprog", "-f"]);
     /// // maybe we don't know which of the two flags was used...
     /// assert!(m.contains_id("req_flags"));
@@ -133,17 +137,21 @@ impl ArgGroup {
     /// assert!(m.contains_id("flag"));
     /// ```
     /// [argument]: crate::Arg
+    /// [group]: crate::ArgGroup
+    /// [`Arg`]: crate::Arg
     #[must_use]
-    pub fn arg(mut self, arg_id: impl IntoResettable<Id>) -> Self {
-        if let Some(arg_id) = arg_id.into_resettable().into_option() {
-            self.args.push(arg_id);
+    pub fn member(mut self, id: impl IntoResettable<Id>) -> Self {
+        if let Some(id) = id.into_resettable().into_option() {
+            self.args.push(id);
         } else {
             self.args.clear();
         }
         self
     }
 
-    /// Adds multiple [arguments] to this group by name
+    /// Adds multiple [arguments] or [groups] to this group by name
+    ///
+    /// Each name may refer to an [`Arg`] or to another [`ArgGroup`], allowing groups of groups.
     ///
     /// # Examples
     ///
@@ -158,7 +166,7 @@ impl ArgGroup {
     ///         .short('c')
     ///         .action(ArgAction::SetTrue))
     ///     .group(ArgGroup::new("req_flags")
-    ///         .args(["flag", "color"]))
+    ///         .members(["flag", "color"]))
     ///     .get_matches_from(vec!["myprog", "-f"]);
     /// // maybe we don't know which of the two flags was used...
     /// assert!(m.contains_id("req_flags"));
@@ -166,12 +174,37 @@ impl ArgGroup {
     /// assert!(m.contains_id("flag"));
     /// ```
     /// [arguments]: crate::Arg
+    /// [groups]: crate::ArgGroup
+    /// [`Arg`]: crate::Arg
     #[must_use]
-    pub fn args(mut self, ns: impl IntoIterator<Item = impl Into<Id>>) -> Self {
+    pub fn members(mut self, ns: impl IntoIterator<Item = impl Into<Id>>) -> Self {
         for n in ns {
-            self = self.arg(n);
+            self = self.member(n);
         }
         self
+    }
+
+    /// Adds an [argument] to this group by name
+    ///
+    /// Deprecated in [Issue #5711](https://github.com/clap-rs/clap/issues/5711), replaced with
+    /// [`ArgGroup::member`], which also accepts the name of another [`ArgGroup`] (groups of groups).
+    ///
+    /// [argument]: crate::Arg
+    #[must_use]
+    pub fn arg(self, arg_id: impl IntoResettable<Id>) -> Self {
+        self.member(arg_id)
+    }
+
+    /// Adds multiple [arguments] to this group by name
+    ///
+    /// Deprecated in [Issue #5711](https://github.com/clap-rs/clap/issues/5711), replaced with
+    /// [`ArgGroup::members`], which also accepts the names of other [`ArgGroup`]s (groups of
+    /// groups).
+    ///
+    /// [arguments]: crate::Arg
+    #[must_use]
+    pub fn args(self, ns: impl IntoIterator<Item = impl Into<Id>>) -> Self {
+        self.members(ns)
     }
 
     /// Getters for all args. It will return a vector of `Id`
@@ -583,6 +616,26 @@ mod test {
         assert_eq!(g2.args, args);
         assert_eq!(g2.requires, reqs);
         assert_eq!(g2.conflicts, confs);
+    }
+
+    #[test]
+    fn members() {
+        let g = ArgGroup::new("test")
+            .member("a1")
+            .member("a4")
+            .members(["a2", "a3"]);
+
+        let args: Vec<Id> = vec!["a1".into(), "a4".into(), "a2".into(), "a3".into()];
+
+        assert_eq!(g.args, args);
+    }
+
+    #[test]
+    fn member_args_parity() {
+        let with_member = ArgGroup::new("test").member("a1").members(["a2", "a3"]);
+        let with_arg = ArgGroup::new("test").arg("a1").args(["a2", "a3"]);
+
+        assert_eq!(with_member.args, with_arg.args);
     }
 
     // This test will *fail to compile* if ArgGroup is not Send + Sync

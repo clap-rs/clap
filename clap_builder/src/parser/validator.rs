@@ -508,9 +508,20 @@ fn gather_arg_direct_conflicts(cmd: &Command, arg: &Arg) -> Vec<Id> {
         conf.extend(group.conflicts.iter().cloned());
         if !group.multiple {
             for member_id in &group.args {
-                if member_id != arg.get_id() {
-                    conf.push(member_id.clone());
+                if member_id == arg.get_id() {
+                    continue;
                 }
+                // A nested group that (transitively) contains this arg is part of the arg's own
+                // membership chain, not a sibling to be made mutually exclusive with it.
+                if cmd.find_group(member_id).is_some()
+                    && cmd
+                        .unroll_args_in_group(member_id)
+                        .iter()
+                        .any(|a| a == arg.get_id())
+                {
+                    continue;
+                }
+                conf.push(member_id.clone());
             }
         }
     }
