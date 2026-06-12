@@ -311,7 +311,9 @@ impl EnvCompleter for Powershell {
         "powershell"
     }
     fn is(&self, name: &str) -> bool {
-        name == "powershell" || name == "powershell_ise"
+        // pwsh is the cross-platform executable.
+        // The other two are Windows-only.
+        name == "pwsh" || name == "powershell" || name == "powershell_ise"
     }
     fn write_registration(
         &self,

@@ -107,6 +107,7 @@ impl Shell {
     ///
     /// assert_eq!(Shell::from_shell_path("/bin/bash"), Some(Shell::Bash));
     /// assert_eq!(Shell::from_shell_path("/usr/bin/zsh"), Some(Shell::Zsh));
+    /// assert_eq!(Shell::from_shell_path("/usr/bin/pwsh"), Some(Shell::PowerShell));
     /// assert_eq!(Shell::from_shell_path("/opt/my_custom_shell"), None);
     /// ```
     pub fn from_shell_path<P: AsRef<Path>>(path: P) -> Option<Shell> {
@@ -155,7 +156,8 @@ fn parse_shell_from_path(path: &Path) -> Option<Shell> {
         "zsh" => Some(Shell::Zsh),
         "fish" => Some(Shell::Fish),
         "elvish" => Some(Shell::Elvish),
-        "powershell" | "powershell_ise" => Some(Shell::PowerShell),
+        // pwsh is the cross-platform executable.
+        "pwsh" | "powershell" | "powershell_ise" => Some(Shell::PowerShell),
         _ => None,
     }
 }
