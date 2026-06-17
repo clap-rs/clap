@@ -157,6 +157,22 @@ module completions {
     free?: string
   ]
 
+  def "nu-complete test lastHint first" [] {
+    [ "bash" "fish" "zsh" ]
+  }
+
+  def "nu-complete test lastHint free" [] {
+    [ "nushell" "powershell" ]
+  }
+
+  export extern "test lastHint" [
+    --global                  # everywhere
+    --help(-h)                # Print help
+    --version(-V)             # Print version
+    first: string@"nu-complete test lastHint first"
+    free: string@"nu-complete test lastHint free"
+  ]
+
   export extern "test alias" [
     --flag(-f)                # cmd flag
     --flg                     # cmd flag
@@ -241,6 +257,9 @@ module completions {
   ]
 
   export extern "test help last" [
+  ]
+
+  export extern "test help lastHint" [
   ]
 
   export extern "test help alias" [
