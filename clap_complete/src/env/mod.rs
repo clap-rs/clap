@@ -396,3 +396,16 @@ pub trait EnvCompleter {
         buf: &mut dyn std::io::Write,
     ) -> Result<(), std::io::Error>;
 }
+
+#[test]
+fn shells_completer_for_path_finds_powershell() {
+    const SHELLS: Shells<'_> = Shells::builtins();
+
+    let paths = &["/usr/bin/pwsh", "powershell.exe", "powershell_ise.exe"];
+    for path in paths {
+        assert!(
+            matches!(SHELLS.completer_for_path(std::path::Path::new(path)), Ok(s) if s.name() == "powershell"),
+            "failed to detect 'powershell' from: {path}",
+        );
+    }
+}
