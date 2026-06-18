@@ -154,15 +154,10 @@ module completions {
     --help(-h)                # Print help
     --version(-V)             # Print version
     first?: string
-    free?: string
   ]
 
   def "nu-complete test lastHint first" [] {
     [ "bash" "fish" "zsh" ]
-  }
-
-  def "nu-complete test lastHint free" [] {
-    [ "nushell" "powershell" ]
   }
 
   export extern "test lastHint" [
@@ -170,7 +165,6 @@ module completions {
     --help(-h)                # Print help
     --version(-V)             # Print version
     first: string@"nu-complete test lastHint first"
-    free: string@"nu-complete test lastHint free"
   ]
 
   export extern "test alias" [

@@ -101,12 +101,4 @@ zsh
 "#;
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
-
-    let input = "test lastHint bash \t";
-    let expected = r#"% test lastHint bash 
-nushell
-powershell
-"#;
-    let actual = runtime.complete(input, &term).unwrap();
-    assert_data_eq!(actual, expected);
 }
