@@ -1,0 +1,44 @@
+
+use builtin;
+use str;
+
+set edit:completion:arg-completer[bin-name] = {|@words|
+    fn spaces {|n|
+        builtin:repeat $n ' ' | str:join ''
+    }
+    fn cand {|text desc|
+        edit:complex-candidate $text &display=$text' '(spaces (- 14 (wcswidth $text)))$desc
+    }
+    var command = 'bin-name'
+    for word $words[1..-1] {
+        if (str:has-prefix $word '-') {
+            break
+        }
+        set command = $command';'$word
+    }
+    var completions = [
+        &'bin-name'= {
+            cand -c 'c'
+            cand -v 'v'
+            cand -h 'Print help'
+            cand --help 'Print help'
+            cand test 'Subcommand with a second line'
+            cand help 'Print this message or the help of the given subcommand(s)'
+        }
+        &'bin-name;test'= {
+            cand -d 'd'
+            cand -c 'c'
+            cand -h 'Print help'
+            cand --help 'Print help'
+        }
+        &'bin-name;help'= {
+            cand test 'Subcommand with a second line'
+            cand help 'Print this message or the help of the given subcommand(s)'
+        }
+        &'bin-name;help;test'= {
+        }
+        &'bin-name;help;help'= {
+        }
+    ]
+    $completions[$command]
+}

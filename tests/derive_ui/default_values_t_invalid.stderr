@@ -1,0 +1,8 @@
+error: #[arg(default_values_t)] can be used only on Vec types
+
+       = note: see https://docs.rs/clap/latest/clap/_derive/index.html#arg-attributes
+
+ --> tests/derive_ui/default_values_t_invalid.rs:6:11
+  |
+6 |     #[arg(default_values_t = [1, 2, 3])]
+  |           ^^^^^^^^^^^^^^^^

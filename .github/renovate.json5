@@ -1,0 +1,140 @@
+{
+  schedule: [
+    'before 5am on the first day of the month',
+  ],
+  semanticCommits: 'enabled',
+  commitMessageLowerCase: 'never',
+  configMigration: true,
+  dependencyDashboard: true,
+  "pre-commit": {
+    enabled: true
+  },
+  customManagers: [
+    {
+      customType: 'regex',
+      managerFilePatterns: [
+        '/^rust-toolchain\\.toml$/',
+        '/Cargo.toml$/',
+        '/clippy.toml$/',
+        '/^Makefile$/',
+        '/^tests/derive_ui.rs$/',
+        '/\\.clippy.toml$/',
+        '/^\\.github/workflows/ci.yml$/',
+        '/^\\.github/workflows/rust-next.yml$/',
+      ],
+      matchStrings: [
+        'STABLE.*?(?<currentValue>\\d+\\.\\d+(\\.\\d+)?)',
+        '(?<currentValue>\\d+\\.\\d+(\\.\\d+)?).*?STABLE',
+      ],
+      depNameTemplate: 'STABLE',
+      packageNameTemplate: 'rust-lang/rust',
+      datasourceTemplate: 'github-releases',
+    },
+    {
+      customType: 'regex',
+      managerFilePatterns: [
+        '/^\\.github/workflows/pre-commit.yml$/',
+      ],
+      matchStrings: [
+        'prek-version.*?(?<currentValue>\\d+\\.\\d+(\\.\\d+)?)',
+      ],
+      depNameTemplate: 'prek',
+      packageNameTemplate: 'j178/prek',
+      datasourceTemplate: 'github-releases',
+    },
+  ],
+  packageRules: [
+    {
+      commitMessageTopic: 'Rust Stable',
+      matchManagers: [
+        'custom.regex',
+      ],
+      matchDepNames: [
+        'STABLE',
+      ],
+      extractVersion: '^(?<version>\\d+\\.\\d+)',  // Drop the patch version
+      schedule: [
+        '* * * * *',
+      ],
+      automerge: true,
+    },
+    {
+      commitMessageTopic: 'Prek',
+      matchManagers: [
+        'custom.regex',
+      ],
+      matchDepNames: [
+        'prek',
+      ],
+      extractVersion: '^(?<version>\\d+\\.\\d+\\.\\d+)',
+      schedule: [
+        '* * * * *',
+      ],
+      automerge: true,
+    },
+    // Goals:
+    // - Keep version reqs low, ignoring compatible normal/build dependencies
+    // - Take advantage of latest dev-dependencies
+    // - Rollup safe upgrades to reduce CI runner load
+    // - Help keep number of versions down by always using latest breaking change
+    // - Have lockfile and manifest in-sync
+    {
+      matchManagers: [
+        'cargo',
+      ],
+      matchDepTypes: [
+        'build-dependencies',
+        'dependencies',
+      ],
+      matchCurrentVersion: '>=0.1.0',
+      matchUpdateTypes: [
+        'patch',
+      ],
+      enabled: false,
+    },
+    {
+      matchManagers: [
+        'cargo',
+      ],
+      matchDepTypes: [
+        'build-dependencies',
+        'dependencies',
+      ],
+      matchCurrentVersion: '>=1.0.0',
+      matchUpdateTypes: [
+        'minor',
+        'patch',
+      ],
+      enabled: false,
+    },
+    {
+      matchManagers: [
+        'cargo',
+      ],
+      matchDepTypes: [
+        'dev-dependencies',
+      ],
+      matchCurrentVersion: '>=0.1.0',
+      matchUpdateTypes: [
+        'patch',
+      ],
+      automerge: true,
+      groupName: 'compatible (dev)',
+    },
+    {
+      matchManagers: [
+        'cargo',
+      ],
+      matchDepTypes: [
+        'dev-dependencies',
+      ],
+      matchCurrentVersion: '>=1.0.0',
+      matchUpdateTypes: [
+        'minor',
+        'patch',
+      ],
+      automerge: true,
+      groupName: 'compatible (dev)',
+    },
+  ],
+}

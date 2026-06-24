@@ -1,0 +1,7 @@
+# Fish
+conf.d
+fish_variables
+functions
+
+# Zsh
+.zcompdump

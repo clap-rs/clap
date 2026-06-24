@@ -1,0 +1,400 @@
+use clap::{Arg, ArgAction};
+use roff::{Inline, Roff, bold, italic, roman};
+
+pub(crate) fn subcommand_heading(cmd: &clap::Command) -> &str {
+    match cmd.get_subcommand_help_heading() {
+        Some(title) => title,
+        None => "SUBCOMMANDS",
+    }
+}
+
+pub(crate) fn about(roff: &mut Roff, cmd: &clap::Command) {
+    let name = cmd.get_display_name().unwrap_or_else(|| cmd.get_name());
+    let s = match cmd.get_about().or_else(|| cmd.get_long_about()) {
+        Some(about) => format!("{name} - {about}"),
+        None => name.to_owned(),
+    };
+    roff.text([roman(s)]);
+}
+
+pub(crate) fn description(roff: &mut Roff, cmd: &clap::Command) {
+    if let Some(about) = cmd.get_long_about().or_else(|| cmd.get_about()) {
+        for line in about.to_string().lines() {
+            if line.trim().is_empty() {
+                roff.control("PP", []);
+            } else {
+                roff.text([roman(line)]);
+            }
+        }
+    }
+}
+
+pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
+    let name = cmd.get_bin_name().unwrap_or_else(|| cmd.get_name());
+    let mut line = vec![bold(name), roman(" ")];
+
+    let mut opts: Vec<_> = cmd.get_arguments().filter(|i| !i.is_hide_set()).collect();
+
+    opts.sort_by_key(|opt| option_sort_key(opt));
+
+    for opt in opts {
+        let (lhs, rhs) = option_markers(opt);
+        match (opt.get_short(), opt.get_long()) {
+            (Some(short), Some(long)) => {
+                line.push(roman(lhs));
+                line.push(bold(format!("-{short}")));
+                line.push(roman("|"));
+                line.push(bold(format!("--{long}",)));
+                line.push(roman(rhs));
+            }
+            (Some(short), None) => {
+                line.push(roman(lhs));
+                line.push(bold(format!("-{short} ")));
+                line.push(roman(rhs));
+            }
+            (None, Some(long)) => {
+                line.push(roman(lhs));
+                line.push(bold(format!("--{long}")));
+                line.push(roman(rhs));
+            }
+            (None, None) => continue,
+        };
+
+        if matches!(opt.get_action(), ArgAction::Count) {
+            line.push(roman("..."));
+        }
+        line.push(roman(" "));
+    }
+
+    for arg in cmd.get_positionals() {
+        let (lhs, rhs) = option_markers(arg);
+        line.push(roman(lhs));
+        if let Some(value) = arg.get_value_names() {
+            line.push(italic(value.join(" ")));
+        } else {
+            line.push(italic(arg.get_id().as_str()));
+        }
+        line.push(roman(rhs));
+        line.push(roman(" "));
+    }
+
+    if cmd.has_subcommands() {
+        let (lhs, rhs) = subcommand_markers(cmd);
+        line.push(roman(lhs));
+        line.push(italic(
+            cmd.get_subcommand_value_name()
+                .unwrap_or_else(|| subcommand_heading(cmd))
+                .to_lowercase(),
+        ));
+        line.push(roman(rhs));
+    }
+
+    roff.text(line);
+}
+
+pub(crate) fn options(roff: &mut Roff, items: &[&Arg]) {
+    let mut sorted_items = items.to_vec();
+    sorted_items.sort_by_key(|opt| option_sort_key(opt));
+
+    for opt in sorted_items.iter().filter(|a| !a.is_positional()) {
+        let mut header = match (opt.get_short(), opt.get_long()) {
+            (Some(short), Some(long)) => {
+                vec![short_option(short), roman(", "), long_option(long)]
+            }
+            (Some(short), None) => vec![short_option(short)],
+            (None, Some(long)) => vec![long_option(long)],
+            (None, None) => vec![],
+        };
+
+        let arg_range = opt.get_num_args().expect("built");
+        if arg_range.takes_values() {
+            if let Some(value_names) = &opt.get_value_names() {
+                let (lhs, rhs) = option_value_markers(opt);
+
+                header.push(roman(lhs));
+                for (i, name) in value_names.iter().enumerate() {
+                    if i > 0 {
+                        header.push(italic(" "));
+                    }
+
+                    let mut val = format!("<{name}>");
+
+                    // If this is the last value and it's variadic, add "..."
+                    let is_last = i == value_names.len() - 1;
+
+                    if is_last && arg_range.max_values() > value_names.len() {
+                        val.push_str("...");
+                    }
+                    header.push(italic(val));
+                }
+                header.push(roman(rhs));
+            }
+        }
+
+        if let Some(defs) = option_default_values(opt) {
+            header.push(roman(" "));
+            header.push(roman(defs));
+        }
+
+        let mut body = vec![];
+        let mut arg_help_written = false;
+        if let Some(help) = option_help(opt) {
+            arg_help_written = true;
+            body.push(roman(help.to_string()));
+        }
+
+        roff.control("TP", []);
+        roff.text(header);
+        roff.text(body);
+
+        possible_options(roff, opt, arg_help_written);
+
+        if let Some(env) = option_environment(opt) {
+            roff.control("RS", []);
+            roff.text(env);
+            roff.control("RE", []);
+        }
+    }
+
+    for pos in items.iter().filter(|a| a.is_positional()) {
+        let mut header = vec![];
+        let (lhs, rhs) = option_markers(pos);
+        header.push(roman(lhs));
+        if let Some(value) = pos.get_value_names() {
+            header.push(italic(value.join(" ")));
+        } else {
+            header.push(italic(pos.get_id().as_str()));
+        };
+        header.push(roman(rhs));
+
+        if let Some(defs) = option_default_values(pos) {
+            header.push(roman(format!(" {defs}")));
+        }
+
+        let mut body = vec![];
+        let mut arg_help_written = false;
+        if let Some(help) = option_help(pos) {
+            body.push(roman(help.to_string()));
+            arg_help_written = true;
+        }
+
+        roff.control("TP", []);
+        roff.text(header);
+        roff.text(body);
+
+        if let Some(env) = option_environment(pos) {
+            roff.control("RS", []);
+            roff.text(env);
+            roff.control("RE", []);
+        }
+
+        possible_options(roff, pos, arg_help_written);
+    }
+}
+
+fn possible_options(roff: &mut Roff, arg: &Arg, arg_help_written: bool) {
+    if let Some(possible_values_text) = get_possible_values(arg) {
+        if arg_help_written {
+            // It looks nice to have a separation between the help and the values
+            roff.text([Inline::LineBreak]);
+        }
+        roff.text([Inline::LineBreak, italic("Possible values:")]);
+
+        // Need to indent twice to get it to look right, because .TP heading indents, but
+        // that indent doesn't Carry over to the .IP for the bullets. The standard shift
+        // size is 7 for terminal devices
+        roff.control("RS", ["14"]);
+        for line in possible_values_text {
+            roff.control("IP", ["\\(bu", "2"]);
+            roff.extend([line]);
+        }
+        roff.control("RE", []);
+    }
+}
+
+pub(crate) fn subcommands(roff: &mut Roff, cmd: &clap::Command, section: &str) {
+    let mut sorted_subcommands: Vec<_> =
+        cmd.get_subcommands().filter(|s| !s.is_hide_set()).collect();
+    sorted_subcommands.sort_by_key(|c| subcommand_sort_key(c));
+    for sub in sorted_subcommands {
+        roff.control("TP", []);
+
+        let name = format!(
+            "{}-{}({})",
+            cmd.get_display_name().unwrap_or_else(|| cmd.get_name()),
+            sub.get_name(),
+            section
+        );
+        roff.text([roman(name)]);
+
+        if let Some(about) = sub.get_about().or_else(|| sub.get_long_about()) {
+            for line in about.to_string().lines() {
+                roff.text([roman(line)]);
+            }
+        }
+    }
+}
+
+pub(crate) fn version(cmd: &clap::Command) -> String {
+    format!(
+        "v{}",
+        cmd.get_long_version()
+            .or_else(|| cmd.get_version())
+            .unwrap()
+    )
+}
+
+pub(crate) fn after_help(roff: &mut Roff, cmd: &clap::Command) {
+    if let Some(about) = cmd.get_after_long_help().or_else(|| cmd.get_after_help()) {
+        for line in about.to_string().lines() {
+            roff.text([roman(line)]);
+        }
+    }
+}
+
+fn subcommand_markers(cmd: &clap::Command) -> (&'static str, &'static str) {
+    markers(cmd.is_subcommand_required_set())
+}
+
+fn option_markers(opt: &Arg) -> (&'static str, &'static str) {
+    markers(opt.is_required_set())
+}
+
+fn markers(required: bool) -> (&'static str, &'static str) {
+    if required { ("<", ">") } else { ("[", "]") }
+}
+
+fn option_value_markers(arg: &Arg) -> (&'static str, &'static str) {
+    let range = arg.get_num_args().expect("built");
+
+    if !range.takes_values() {
+        return ("", ""); // no value, so nothing to render
+    }
+
+    let required = range.min_values() > 0;
+    let require_equals = arg.is_require_equals_set();
+
+    match (required, require_equals) {
+        // Required, no equals: <VALUE>
+        (true, false) => (" ", ""),
+
+        // Optional, no equals: [<VALUE>]
+        (false, false) => (" [", "]"),
+
+        // Optional, with equals: [=<VALUE>]
+        (false, true) => ("[=", "]"),
+
+        // Required, with equals
+        (true, true) => ("=", ""),
+    }
+}
+
+fn short_option(opt: char) -> Inline {
+    bold(format!("-{opt}"))
+}
+
+fn long_option(opt: &str) -> Inline {
+    bold(format!("--{opt}"))
+}
+
+fn option_help(opt: &Arg) -> Option<&clap::builder::StyledStr> {
+    if !opt.is_hide_long_help_set() {
+        let long_help = opt.get_long_help();
+        if long_help.is_some() {
+            return long_help;
+        }
+    }
+    if !opt.is_hide_short_help_set() {
+        return opt.get_help();
+    }
+
+    None
+}
+
+fn option_environment(_opt: &Arg) -> Option<Vec<Inline>> {
+    #[cfg(feature = "env")]
+    {
+        let opt = _opt;
+        if opt.is_hide_env_set() {
+            return None;
+        } else if let Some(env) = opt.get_env() {
+            return Some(vec![
+                roman("May also be specified with the "),
+                bold(env.to_string_lossy().into_owned()),
+                roman(" environment variable. "),
+            ]);
+        }
+    }
+
+    None
+}
+
+fn option_default_values(opt: &Arg) -> Option<String> {
+    if opt.is_hide_default_value_set() || !opt.get_num_args().expect("built").takes_values() {
+        return None;
+    } else if !opt.get_default_values().is_empty() {
+        let values = opt
+            .get_default_values()
+            .iter()
+            .map(|s| s.to_string_lossy())
+            .collect::<Vec<_>>()
+            .join(",");
+
+        return Some(format!("[default: {values}]"));
+    }
+
+    None
+}
+
+fn get_possible_values(arg: &Arg) -> Option<Vec<Roff>> {
+    if arg.is_hide_possible_values_set() {
+        return None;
+    }
+
+    let possibles = &arg.get_possible_values();
+    let possibles: Vec<&clap::builder::PossibleValue> =
+        possibles.iter().filter(|pos| !pos.is_hide_set()).collect();
+
+    if !possibles.is_empty() {
+        return Some(format_possible_values(&possibles));
+    }
+    None
+}
+
+fn format_possible_values(possibles: &Vec<&clap::builder::PossibleValue>) -> Vec<Roff> {
+    let mut lines = vec![];
+    for value in possibles {
+        let mut roff = Roff::default();
+        let val_name = value.get_name();
+        match value.get_help() {
+            Some(help) => {
+                roff.text([roman(format!("{val_name}: {help}"))]);
+            }
+            None => {
+                roff.text([roman(val_name.to_owned())]);
+            }
+        }
+        lines.push(roff);
+    }
+    lines
+}
+
+fn subcommand_sort_key(command: &clap::Command) -> (usize, &str) {
+    (command.get_display_order(), command.get_name())
+}
+
+/// Note that this function is duplicated from `clap::builder`
+fn option_sort_key(arg: &Arg) -> (usize, String) {
+    let key = if let Some(x) = arg.get_short() {
+        let mut s = x.to_ascii_lowercase().to_string();
+        s.push(if x.is_ascii_lowercase() { '0' } else { '1' });
+        s
+    } else if let Some(x) = arg.get_long() {
+        x.to_owned()
+    } else {
+        let mut s = '{'.to_string();
+        s.push_str(arg.get_id().as_str());
+        s
+    };
+    (arg.get_display_order(), key)
+}

@@ -1,0 +1,55 @@
+[package]
+name = "clap_mangen"
+version = "0.3.0"
+description = "A manpage generator for clap"
+categories = ["command-line-interface"]
+keywords = [
+  "clap",
+  "cli",
+  "generate",
+  "manpage",
+]
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+include.workspace = true
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
+rustdoc-args = ["--generate-link-to-definition"]
+
+[package.metadata.release]
+pre-release-replacements = [
+  {file="CHANGELOG.md", search="Unreleased", replace="{{version}}", min=1},
+  {file="CHANGELOG.md", search="\\.\\.\\.HEAD", replace="...{{tag_name}}", exactly=1},
+  {file="CHANGELOG.md", search="ReleaseDate", replace="{{date}}", min=1},
+  {file="CHANGELOG.md", search="<!-- next-header -->", replace="<!-- next-header -->\n## [Unreleased] - ReleaseDate\n", exactly=1},
+  {file="CHANGELOG.md", search="<!-- next-url -->", replace="<!-- next-url -->\n[Unreleased]: https://github.com/clap-rs/clap/compare/{{tag_name}}...HEAD", exactly=1},
+  {file="README.md", search="github.com/clap-rs/clap/blob/[^/]+/", replace="github.com/clap-rs/clap/blob/{{tag_name}}/", exactly=4, prerelease = true},
+]
+
+[lib]
+bench = false
+
+[[example]]
+name = "man"
+required-features = ["env"]
+doc-scrape-examples = true
+
+[dependencies]
+roff = "1.1.1"
+clap = { path = "../", version = "4.0.0", default-features = false, features = ["std"] }
+
+[dev-dependencies]
+snapbox = { version = "1.2.0", features = ["diff"] }
+clap = { path = "../", version = "4.0.0", default-features = false, features = ["std", "help"] }
+automod = "1.0.16"
+
+[features]
+default = []
+env = ["clap/env"]
+debug = ["clap/debug"]
+
+[lints]
+workspace = true

@@ -1,0 +1,18 @@
+error: invalid type for `#[command(external_subcommand)]`, expected a `Vec<String>` or `Vec<OsString>`
+ --> tests/derive_ui/external_subcommand_wrong_type.rs:7:11
+  |
+7 |     Other(Vec<CString>),
+  |           ^^^
+
+error: invalid type for `#[command(external_subcommand)]`, expected a `Vec<String>` or `Vec<OsString>`
+  --> tests/derive_ui/external_subcommand_wrong_type.rs:13:11
+   |
+13 |     Other(String),
+   |           ^^^^^^
+
+error: invalid type for `#[command(external_subcommand)]`, expected a newtype variant with either a `Vec<String>` or `Vec<OsString>`
+  --> tests/derive_ui/external_subcommand_wrong_type.rs:18:5
+   |
+18 | /     #[command(external_subcommand)]
+19 | |     Other { a: String },
+   | |_______________________^

@@ -1,0 +1,5 @@
+error: `skip` cannot be used with `subcommand`
+  --> tests/derive_ui/skip_subcommand.rs:17:27
+   |
+17 |     #[command(subcommand, skip)]
+   |                           ^^^^

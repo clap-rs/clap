@@ -1,0 +1,3 @@
+style="conventional"
+ignore_author_re="(dependabot|renovate)"
+merge_commit = false

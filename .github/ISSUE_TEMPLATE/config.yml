@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Ask a question
+    about: For support or brainstorming
+    url: https://github.com/clap-rs/clap/discussions/new

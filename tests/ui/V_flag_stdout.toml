@@ -1,0 +1,7 @@
+bin.name = "stdio-fixture"
+args = ["-V"]
+status.code = 0
+stdout = """
+stdio-fixture 1.0
+"""
+stderr = ""

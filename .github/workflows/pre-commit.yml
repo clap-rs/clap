@@ -1,0 +1,28 @@
+name: pre-commit
+
+permissions: {} # none
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always
+  CLICOLOR: 1
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  pre-commit:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+    - uses: j178/prek-action@v2
+      with:
+        prek-version: '0.2.27'

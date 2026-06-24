@@ -1,0 +1,267 @@
+name: CI
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "*master"
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always
+  CLICOLOR: 1
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    permissions:
+      contents: none
+    name: CI
+    needs: [test, shell-integration, shell-integration-nu, check, ui, minimal-versions, lockfile, docs, rustfmt, clippy, cffconvert]
+    runs-on: ubuntu-latest
+    if: "always()"
+    steps:
+      - name: Failed
+        run: exit 1
+        if: "contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped')"
+  test:
+    name: Test
+    strategy:
+      matrix:
+        build: [linux, windows, mac, minimal, default, next]
+        include:
+        - build: linux
+          os: ubuntu-latest
+          rust: "stable"
+          features: "full"
+        - build: windows
+          os: windows-latest
+          rust: "stable"
+          features: "full"
+        - build: mac
+          os: macos-latest
+          rust: "stable"
+          features: "full"
+        - build: minimal
+          os: ubuntu-latest
+          rust: "stable"
+          features: "minimal"
+        - build: default
+          os: ubuntu-latest
+          rust: "stable"
+          features: "default"
+        - build: next
+          os: ubuntu-latest
+          rust: "stable"
+          features: "next"
+    continue-on-error: ${{ matrix.rust != 'stable' }}
+    runs-on: ${{ matrix.os }}
+    env:
+      # Reduce amount of data cached
+      CARGO_PROFILE_DEV_DEBUG: line-tables-only
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: ${{ matrix.rust }}
+    - uses: Swatinem/rust-cache@v2
+    - name: Build
+      run: make build-${{matrix.features}}
+    - name: Test
+      run: make test-${{matrix.features}}
+    - name: Test (benches)
+      run: make test-${{matrix.features}} ARGS='--workspace --benches'
+    - name: Test (ultra-minimal)
+      if: matrix.build == 'minimal'
+      run: make test-minimal ARGS='--manifest-path Cargo.toml'
+    - name: Test dynamic completions
+      run: cargo test -p clap_complete -F unstable-dynamic
+  shell-integration:
+    name: Shell Integration
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+    - uses: Swatinem/rust-cache@v2
+    - name: Install shells
+      if: runner.os == 'Linux'
+      run: sudo apt-get install -y elvish fish zsh
+    - name: clap_complete
+      run: cargo test -p clap_complete -F unstable-dynamic -F unstable-shell-tests
+  shell-integration-nu:
+    name: Nushell Integration
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+    - uses: Swatinem/rust-cache@v2
+    - name: clap_complete_nu
+      run: cargo test -p clap_complete_nushell -F unstable-shell-tests
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [msrv, wasm, wasm-wasi, debug, release]
+        include:
+          - build: msrv
+            rust: "1.85"  # MSRV
+            target: x86_64-unknown-linux-gnu
+            features: full
+          - build: wasm
+            rust: stable
+            target: wasm32-unknown-unknown
+            features: wasm
+          - build: wasm-wasi
+            rust: stable
+            target: wasm32-wasip2
+            features: wasm
+          - build: debug
+            rust: stable
+            target: x86_64-unknown-linux-gnu
+            features: debug
+          - build: release
+            rust: stable
+            target: x86_64-unknown-linux-gnu
+            features: release
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Install rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ matrix.rust }}
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+      - name: Check
+        run: make check-${{ matrix.features }}
+        env:
+          TOOLCHAIN_TARGET: ${{ matrix.target }}
+  ui:
+    name: UI Tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        features: [default, next]
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: "1.96"  # STABLE
+    - uses: Swatinem/rust-cache@v2
+    - name: UI Tests
+      run: make test-ui-${{ matrix.features }}
+  minimal-versions:
+    name: Minimal versions
+    strategy:
+      matrix:
+        os: ["ubuntu-latest"]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+    - name: Install stable Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+    - name: Install nightly Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: nightly
+    - name: Downgrade dependencies to minimal versions
+      run: cargo +nightly generate-lockfile -Z minimal-versions
+    - name: Compile with minimal versions
+      run: cargo +stable check --workspace --all-features --locked --exclude clap_complete_nushell --exclude clap_bench
+  lockfile:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+    - uses: Swatinem/rust-cache@v2
+    - name: "Is lockfile updated?"
+      run: cargo update --workspace --locked
+  docs:
+    name: Docs
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: "1.96"  # STABLE
+    - uses: Swatinem/rust-cache@v2
+    - name: Check documentation
+      env:
+        RUSTDOCFLAGS: -D warnings
+      run: make doc
+  rustfmt:
+    name: rustfmt
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: "1.96"  # STABLE
+        components: rustfmt
+    - uses: Swatinem/rust-cache@v2
+    - name: Check formatting
+      run: cargo fmt --check
+  clippy:
+    name: clippy
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: "1.96"  # STABLE
+        components: clippy
+    - uses: Swatinem/rust-cache@v2
+    - name: Lint (ultra-minimal)
+      run: make clippy-minimal ARGS='--manifest-path Cargo.toml'
+    - name: Lint (minimal)
+      run: make clippy-minimal
+    - name: Lint (all)
+      run: make clippy-full
+    - name: Lint (release)
+      run: make clippy-release
+  cffconvert:
+    name: cffconvert
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: CFF validation
+        uses: citation-file-format/cffconvert-github-action@2.0.0
+        with:
+          args: --validate
