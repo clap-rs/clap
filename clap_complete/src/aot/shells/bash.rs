@@ -291,9 +291,11 @@ fn all_options_for_path(cmd: &Command, path: &str) -> String {
                 write!(&mut opts, "{} ", value.get_name())
                     .expect("writing to String is infallible");
             }
-        } else {
-            write!(&mut opts, "{pos} ").expect("writing to String is infallible");
         }
+        // A positional without possible values has no literal completion word to
+        // offer here; emitting its `<NAME>`/`[NAME]` usage placeholder would make
+        // bash glob-expand the brackets (#6407), so leave it to the `-o default`
+        // (filename) fallback instead.
     }
     for (sc, _) in utils::subcommands(p) {
         write!(&mut opts, "{sc} ").expect("writing to String is infallible");

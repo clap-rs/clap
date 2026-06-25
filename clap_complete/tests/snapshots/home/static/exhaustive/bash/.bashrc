@@ -264,7 +264,7 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__subcmd__alias)
-            opts="-F -f -O -o -h --flg --flag --opt --option --help [positional]"
+            opts="-F -f -O -o -h --flg --flag --opt --option --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -798,7 +798,7 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__subcmd__hint)
-            opts="-p -f -d -e -c -u -H -h --choice --unknown --other --path --file --dir --exe --cmd-name --cmd --user --host --url --email --help [command_with_args]..."
+            opts="-p -f -d -e -c -u -H -h --choice --unknown --other --path --file --dir --exe --cmd-name --cmd --user --host --url --email --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -923,7 +923,7 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__subcmd__last)
-            opts="-h --help [first] [free]"
+            opts="-h --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -1277,7 +1277,7 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__subcmd__value)
-            opts="-h --delim --tuple --require-eq --help [term]..."
+            opts="-h --delim --tuple --require-eq --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
