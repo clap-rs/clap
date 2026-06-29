@@ -23,6 +23,28 @@ fn basic() {
 }
 
 #[test]
+fn hyphenated_bin_name() {
+    // When the bin name contains a hyphen, the parser loop records the subcommand
+    // as `cmd="my__app__subcmd__thunder"` while the option block is emitted under
+    // `my__subcmd__app__subcmd__thunder)`. The keys never match, so
+    // `my-app thunder --<TAB>` reaches no option block and completes nothing.
+    let name = "my-app";
+    let cmd = clap::Command::new(name).subcommand(
+        clap::Command::new("thunder").arg(
+            clap::Arg::new("lightning")
+                .long("lightning")
+                .action(clap::ArgAction::SetTrue),
+        ),
+    );
+    common::assert_matches(
+        snapbox::file!["../snapshots/hyphenated_bin_name.bash"],
+        clap_complete::shells::Bash,
+        cmd,
+        name,
+    );
+}
+
+#[test]
 fn feature_sample() {
     let name = "my-app";
     let cmd = common::feature_sample_command(name);
