@@ -21,6 +21,23 @@ fn insert() {
 }
 
 #[test]
+fn next_at_end_stays_at_end() {
+    let mut raw = clap_lex::RawArgs::new(["bin"]);
+    let mut cursor = raw.cursor();
+
+    assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("bin")));
+    assert_eq!(raw.next_os(&mut cursor), None);
+    assert_eq!(raw.next_os(&mut cursor), None);
+
+    let rest = raw.remaining(&mut cursor).collect::<Vec<_>>();
+    assert!(rest.is_empty());
+
+    raw.insert(&cursor, ["tail"]);
+    assert_eq!(raw.next_os(&mut cursor), Some(std::ffi::OsStr::new("tail")));
+    assert_eq!(raw.next_os(&mut cursor), None);
+}
+
+#[test]
 fn zero_copy_parsing() {
     use clap_lex::RawArgs;
     use std::ffi::OsStr;
