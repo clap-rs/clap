@@ -14,19 +14,19 @@ _bin-name() {
     do
         case "${cmd},${i}" in
             ",$1")
-                cmd="bin__name"
+                cmd="bin__subcmd__name"
                 ;;
-            bin__name,help)
-                cmd="bin__name__subcmd__help"
+            bin__subcmd__name,help)
+                cmd="bin__subcmd__name__subcmd__help"
                 ;;
-            bin__name,test)
-                cmd="bin__name__subcmd__test"
+            bin__subcmd__name,test)
+                cmd="bin__subcmd__name__subcmd__test"
                 ;;
-            bin__name__subcmd__help,help)
-                cmd="bin__name__subcmd__help__subcmd__help"
+            bin__subcmd__name__subcmd__help,help)
+                cmd="bin__subcmd__name__subcmd__help__subcmd__help"
                 ;;
-            bin__name__subcmd__help,test)
-                cmd="bin__name__subcmd__help__subcmd__test"
+            bin__subcmd__name__subcmd__help,test)
+                cmd="bin__subcmd__name__subcmd__help__subcmd__test"
                 ;;
             *)
                 ;;
@@ -34,7 +34,7 @@ _bin-name() {
     done
 
     case "${cmd}" in
-        bin__name)
+        bin__subcmd__name)
             opts="-c -v -h --help test help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )

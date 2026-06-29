@@ -26,7 +26,7 @@ impl Generator for Bash {
             .get_bin_name()
             .expect("crate::generate should have set the bin_name");
 
-        let fn_name = bin_name.replace('-', "__");
+        let fn_name = bin_name.replace('-', CMD_SEP);
 
         write!(
             buf,

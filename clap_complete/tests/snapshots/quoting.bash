@@ -14,49 +14,49 @@ _my-app() {
     do
         case "${cmd},${i}" in
             ",$1")
-                cmd="my__app"
+                cmd="my__subcmd__app"
                 ;;
-            my__app,cmd-backslash)
-                cmd="my__app__subcmd__cmd__subcmd__backslash"
+            my__subcmd__app,cmd-backslash)
+                cmd="my__subcmd__app__subcmd__cmd__subcmd__backslash"
                 ;;
-            my__app,cmd-backticks)
-                cmd="my__app__subcmd__cmd__subcmd__backticks"
+            my__subcmd__app,cmd-backticks)
+                cmd="my__subcmd__app__subcmd__cmd__subcmd__backticks"
                 ;;
-            my__app,cmd-brackets)
-                cmd="my__app__subcmd__cmd__subcmd__brackets"
+            my__subcmd__app,cmd-brackets)
+                cmd="my__subcmd__app__subcmd__cmd__subcmd__brackets"
                 ;;
-            my__app,cmd-double-quotes)
-                cmd="my__app__subcmd__cmd__subcmd__double__subcmd__quotes"
+            my__subcmd__app,cmd-double-quotes)
+                cmd="my__subcmd__app__subcmd__cmd__subcmd__double__subcmd__quotes"
                 ;;
-            my__app,cmd-expansions)
-                cmd="my__app__subcmd__cmd__subcmd__expansions"
+            my__subcmd__app,cmd-expansions)
+                cmd="my__subcmd__app__subcmd__cmd__subcmd__expansions"
                 ;;
-            my__app,cmd-single-quotes)
-                cmd="my__app__subcmd__cmd__subcmd__single__subcmd__quotes"
+            my__subcmd__app,cmd-single-quotes)
+                cmd="my__subcmd__app__subcmd__cmd__subcmd__single__subcmd__quotes"
                 ;;
-            my__app,help)
-                cmd="my__app__subcmd__help"
+            my__subcmd__app,help)
+                cmd="my__subcmd__app__subcmd__help"
                 ;;
-            my__app__subcmd__help,cmd-backslash)
-                cmd="my__app__subcmd__help__subcmd__cmd__subcmd__backslash"
+            my__subcmd__app__subcmd__help,cmd-backslash)
+                cmd="my__subcmd__app__subcmd__help__subcmd__cmd__subcmd__backslash"
                 ;;
-            my__app__subcmd__help,cmd-backticks)
-                cmd="my__app__subcmd__help__subcmd__cmd__subcmd__backticks"
+            my__subcmd__app__subcmd__help,cmd-backticks)
+                cmd="my__subcmd__app__subcmd__help__subcmd__cmd__subcmd__backticks"
                 ;;
-            my__app__subcmd__help,cmd-brackets)
-                cmd="my__app__subcmd__help__subcmd__cmd__subcmd__brackets"
+            my__subcmd__app__subcmd__help,cmd-brackets)
+                cmd="my__subcmd__app__subcmd__help__subcmd__cmd__subcmd__brackets"
                 ;;
-            my__app__subcmd__help,cmd-double-quotes)
-                cmd="my__app__subcmd__help__subcmd__cmd__subcmd__double__subcmd__quotes"
+            my__subcmd__app__subcmd__help,cmd-double-quotes)
+                cmd="my__subcmd__app__subcmd__help__subcmd__cmd__subcmd__double__subcmd__quotes"
                 ;;
-            my__app__subcmd__help,cmd-expansions)
-                cmd="my__app__subcmd__help__subcmd__cmd__subcmd__expansions"
+            my__subcmd__app__subcmd__help,cmd-expansions)
+                cmd="my__subcmd__app__subcmd__help__subcmd__cmd__subcmd__expansions"
                 ;;
-            my__app__subcmd__help,cmd-single-quotes)
-                cmd="my__app__subcmd__help__subcmd__cmd__subcmd__single__subcmd__quotes"
+            my__subcmd__app__subcmd__help,cmd-single-quotes)
+                cmd="my__subcmd__app__subcmd__help__subcmd__cmd__subcmd__single__subcmd__quotes"
                 ;;
-            my__app__subcmd__help,help)
-                cmd="my__app__subcmd__help__subcmd__help"
+            my__subcmd__app__subcmd__help,help)
+                cmd="my__subcmd__app__subcmd__help__subcmd__help"
                 ;;
             *)
                 ;;
@@ -64,7 +64,7 @@ _my-app() {
     done
 
     case "${cmd}" in
-        my__app)
+        my__subcmd__app)
             opts="-h -V --single-quotes --double-quotes --backticks --backslash --brackets --expansions --help --version cmd-single-quotes cmd-double-quotes cmd-backticks cmd-backslash cmd-brackets cmd-expansions help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )

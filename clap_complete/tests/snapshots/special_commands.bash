@@ -14,37 +14,37 @@ _my-app() {
     do
         case "${cmd},${i}" in
             ",$1")
-                cmd="my__app"
+                cmd="my__subcmd__app"
                 ;;
-            my__app,help)
-                cmd="my__app__subcmd__help"
+            my__subcmd__app,help)
+                cmd="my__subcmd__app__subcmd__help"
                 ;;
-            my__app,some-cmd-with-hyphens)
-                cmd="my__app__subcmd__some__subcmd__cmd__subcmd__with__subcmd__hyphens"
+            my__subcmd__app,some-cmd-with-hyphens)
+                cmd="my__subcmd__app__subcmd__some__subcmd__cmd__subcmd__with__subcmd__hyphens"
                 ;;
-            my__app,some-hidden-cmd)
-                cmd="my__app__subcmd__some__subcmd__hidden__subcmd__cmd"
+            my__subcmd__app,some-hidden-cmd)
+                cmd="my__subcmd__app__subcmd__some__subcmd__hidden__subcmd__cmd"
                 ;;
-            my__app,some_cmd)
-                cmd="my__app__subcmd__some_cmd"
+            my__subcmd__app,some_cmd)
+                cmd="my__subcmd__app__subcmd__some_cmd"
                 ;;
-            my__app,test)
-                cmd="my__app__subcmd__test"
+            my__subcmd__app,test)
+                cmd="my__subcmd__app__subcmd__test"
                 ;;
-            my__app__subcmd__help,help)
-                cmd="my__app__subcmd__help__subcmd__help"
+            my__subcmd__app__subcmd__help,help)
+                cmd="my__subcmd__app__subcmd__help__subcmd__help"
                 ;;
-            my__app__subcmd__help,some-cmd-with-hyphens)
-                cmd="my__app__subcmd__help__subcmd__some__subcmd__cmd__subcmd__with__subcmd__hyphens"
+            my__subcmd__app__subcmd__help,some-cmd-with-hyphens)
+                cmd="my__subcmd__app__subcmd__help__subcmd__some__subcmd__cmd__subcmd__with__subcmd__hyphens"
                 ;;
-            my__app__subcmd__help,some-hidden-cmd)
-                cmd="my__app__subcmd__help__subcmd__some__subcmd__hidden__subcmd__cmd"
+            my__subcmd__app__subcmd__help,some-hidden-cmd)
+                cmd="my__subcmd__app__subcmd__help__subcmd__some__subcmd__hidden__subcmd__cmd"
                 ;;
-            my__app__subcmd__help,some_cmd)
-                cmd="my__app__subcmd__help__subcmd__some_cmd"
+            my__subcmd__app__subcmd__help,some_cmd)
+                cmd="my__subcmd__app__subcmd__help__subcmd__some_cmd"
                 ;;
-            my__app__subcmd__help,test)
-                cmd="my__app__subcmd__help__subcmd__test"
+            my__subcmd__app__subcmd__help,test)
+                cmd="my__subcmd__app__subcmd__help__subcmd__test"
                 ;;
             *)
                 ;;
@@ -52,7 +52,7 @@ _my-app() {
     done
 
     case "${cmd}" in
-        my__app)
+        my__subcmd__app)
             opts="-C -c -h -V --conf --config --help --version [file] first second test some_cmd some-cmd-with-hyphens some-hidden-cmd help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )

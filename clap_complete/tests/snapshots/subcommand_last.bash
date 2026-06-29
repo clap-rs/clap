@@ -14,25 +14,25 @@ _my-app() {
     do
         case "${cmd},${i}" in
             ",$1")
-                cmd="my__app"
+                cmd="my__subcmd__app"
                 ;;
-            my__app,bar)
-                cmd="my__app__subcmd__bar"
+            my__subcmd__app,bar)
+                cmd="my__subcmd__app__subcmd__bar"
                 ;;
-            my__app,foo)
-                cmd="my__app__subcmd__foo"
+            my__subcmd__app,foo)
+                cmd="my__subcmd__app__subcmd__foo"
                 ;;
-            my__app,help)
-                cmd="my__app__subcmd__help"
+            my__subcmd__app,help)
+                cmd="my__subcmd__app__subcmd__help"
                 ;;
-            my__app__subcmd__help,bar)
-                cmd="my__app__subcmd__help__subcmd__bar"
+            my__subcmd__app__subcmd__help,bar)
+                cmd="my__subcmd__app__subcmd__help__subcmd__bar"
                 ;;
-            my__app__subcmd__help,foo)
-                cmd="my__app__subcmd__help__subcmd__foo"
+            my__subcmd__app__subcmd__help,foo)
+                cmd="my__subcmd__app__subcmd__help__subcmd__foo"
                 ;;
-            my__app__subcmd__help,help)
-                cmd="my__app__subcmd__help__subcmd__help"
+            my__subcmd__app__subcmd__help,help)
+                cmd="my__subcmd__app__subcmd__help__subcmd__help"
                 ;;
             *)
                 ;;
@@ -40,7 +40,7 @@ _my-app() {
     done
 
     case "${cmd}" in
-        my__app)
+        my__subcmd__app)
             opts="-h --help [free] foo bar help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )

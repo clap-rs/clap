@@ -14,7 +14,7 @@ _my-app() {
     do
         case "${cmd},${i}" in
             ",$1")
-                cmd="my__app"
+                cmd="my__subcmd__app"
                 ;;
             *)
                 ;;
@@ -22,7 +22,7 @@ _my-app() {
     done
 
     case "${cmd}" in
-        my__app)
+        my__subcmd__app)
             opts="-h --help [arguments]..."
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )

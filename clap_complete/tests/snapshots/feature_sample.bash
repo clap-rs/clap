@@ -14,19 +14,19 @@ _my-app() {
     do
         case "${cmd},${i}" in
             ",$1")
-                cmd="my__app"
+                cmd="my__subcmd__app"
                 ;;
-            my__app,help)
-                cmd="my__app__subcmd__help"
+            my__subcmd__app,help)
+                cmd="my__subcmd__app__subcmd__help"
                 ;;
-            my__app,test)
-                cmd="my__app__subcmd__test"
+            my__subcmd__app,test)
+                cmd="my__subcmd__app__subcmd__test"
                 ;;
-            my__app__subcmd__help,help)
-                cmd="my__app__subcmd__help__subcmd__help"
+            my__subcmd__app__subcmd__help,help)
+                cmd="my__subcmd__app__subcmd__help__subcmd__help"
                 ;;
-            my__app__subcmd__help,test)
-                cmd="my__app__subcmd__help__subcmd__test"
+            my__subcmd__app__subcmd__help,test)
+                cmd="my__subcmd__app__subcmd__help__subcmd__test"
                 ;;
             *)
                 ;;
@@ -34,7 +34,7 @@ _my-app() {
     done
 
     case "${cmd}" in
-        my__app)
+        my__subcmd__app)
             opts="-C -c -h -V --conf --config --help --version [file] first second test help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
