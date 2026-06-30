@@ -81,6 +81,7 @@ impl Parse for ClapAttr {
             "skip" => Some(MagicAttrName::Skip),
             "next_display_order" => Some(MagicAttrName::NextDisplayOrder),
             "next_help_heading" => Some(MagicAttrName::NextHelpHeading),
+            "next_env_prefix" => Some(MagicAttrName::NextEnvPrefix),
             "default_value_t" => Some(MagicAttrName::DefaultValueT),
             "default_values_t" => Some(MagicAttrName::DefaultValuesT),
             "default_value_os_t" => Some(MagicAttrName::DefaultValueOsT),
@@ -167,6 +168,7 @@ pub(crate) enum MagicAttrName {
     DefaultValuesOsT,
     NextDisplayOrder,
     NextHelpHeading,
+    NextEnvPrefix,
 }
 
 #[derive(Clone)]
