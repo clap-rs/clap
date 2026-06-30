@@ -53,7 +53,7 @@ _my-app() {
 
     case "${cmd}" in
         my__app)
-            opts="-C -c -h -V --conf --config --help --version [file] first second test some_cmd some-cmd-with-hyphens some-hidden-cmd help"
+            opts="-C -c -h -V --conf --config --help --version first second test some_cmd some-cmd-with-hyphens some-hidden-cmd help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -179,7 +179,7 @@ _my-app() {
             return 0
             ;;
         my__subcmd__app__subcmd__some_cmd)
-            opts="-h -V --config --help --version [path]..."
+            opts="-h -V --config --help --version"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
