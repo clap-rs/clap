@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(builder)* `ArgGroup::is_multiple` now takes `&self`, allowing it to be called on a shared reference (e.g. one from `Command::groups`)
+
 ## [4.6.1] - 2026-04-15
 
 ### Fixes
