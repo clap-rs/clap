@@ -1,6 +1,12 @@
 use clap::{Arg, ArgAction};
 use roff::{Inline, Roff, bold, italic, roman};
 
+#[cfg(feature = "markdown")]
+use crate::markdown::{to_roff, to_roff_inline};
+
+#[cfg(not(feature = "markdown"))]
+use crate::plain::{to_roff, to_roff_inline};
+
 pub(crate) fn subcommand_heading(cmd: &clap::Command) -> &str {
     match cmd.get_subcommand_help_heading() {
         Some(title) => title,
@@ -10,22 +16,21 @@ pub(crate) fn subcommand_heading(cmd: &clap::Command) -> &str {
 
 pub(crate) fn about(roff: &mut Roff, cmd: &clap::Command) {
     let name = cmd.get_display_name().unwrap_or_else(|| cmd.get_name());
-    let s = match cmd.get_about().or_else(|| cmd.get_long_about()) {
-        Some(about) => format!("{name} - {about}"),
-        None => name.to_owned(),
+    match cmd.get_about().or_else(|| cmd.get_long_about()) {
+        Some(about) => {
+            let mut line = vec![roman(format!("{name} - "))];
+            line.extend(to_roff_inline(&about.to_string()));
+            roff.text(line);
+        }
+        None => {
+            roff.text([roman(name)]);
+        }
     };
-    roff.text([roman(s)]);
 }
 
 pub(crate) fn description(roff: &mut Roff, cmd: &clap::Command) {
     if let Some(about) = cmd.get_long_about().or_else(|| cmd.get_about()) {
-        for line in about.to_string().lines() {
-            if line.trim().is_empty() {
-                roff.control("PP", []);
-            } else {
-                roff.text([roman(line)]);
-            }
-        }
+        to_roff(&about.to_string(), roff);
     }
 }
 
@@ -140,7 +145,7 @@ pub(crate) fn options(roff: &mut Roff, items: &[&Arg]) {
         let mut arg_help_written = false;
         if let Some(help) = option_help(opt) {
             arg_help_written = true;
-            body.push(roman(help.to_string()));
+            body.extend(to_roff_inline(&help.to_string()));
         }
 
         roff.control("TP", []);
@@ -174,7 +179,7 @@ pub(crate) fn options(roff: &mut Roff, items: &[&Arg]) {
         let mut body = vec![];
         let mut arg_help_written = false;
         if let Some(help) = option_help(pos) {
-            body.push(roman(help.to_string()));
+            body.extend(to_roff_inline(&help.to_string()));
             arg_help_written = true;
         }
 
@@ -228,9 +233,7 @@ pub(crate) fn subcommands(roff: &mut Roff, cmd: &clap::Command, section: &str) {
         roff.text([roman(name)]);
 
         if let Some(about) = sub.get_about().or_else(|| sub.get_long_about()) {
-            for line in about.to_string().lines() {
-                roff.text([roman(line)]);
-            }
+            to_roff(&about.to_string(), roff);
         }
     }
 }
@@ -246,9 +249,7 @@ pub(crate) fn version(cmd: &clap::Command) -> String {
 
 pub(crate) fn after_help(roff: &mut Roff, cmd: &clap::Command) {
     if let Some(about) = cmd.get_after_long_help().or_else(|| cmd.get_after_help()) {
-        for line in about.to_string().lines() {
-            roff.text([roman(line)]);
-        }
+        to_roff(&about.to_string(), roff);
     }
 }
 
