@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(bash)* Don't include positional help descriptions as completion options
+
 ## [4.6.5] - 2026-05-11
 
 ### Fixes
