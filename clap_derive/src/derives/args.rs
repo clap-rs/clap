@@ -77,6 +77,8 @@ pub(crate) fn gen_for_struct(
     let app_var = Ident::new("__clap_app", Span::call_site());
     let augmentation = gen_augment(fields, &app_var, item, false)?;
     let augmentation_update = gen_augment(fields, &app_var, item, true)?;
+    let initial_app_methods = item.initial_top_level_methods();
+    let final_app_methods = item.final_top_level_methods();
 
     let group_id = if item.skip_group() {
         quote!(None)
@@ -155,10 +157,14 @@ pub(crate) fn gen_for_struct(
                 #group_id
             }
             fn augment_args<'b>(#app_var: clap::Command) -> clap::Command {
-                #augmentation
+                let #app_var = #app_var #initial_app_methods;
+                let #app_var = #augmentation;
+                #app_var #final_app_methods
             }
             fn augment_args_for_update<'b>(#app_var: clap::Command) -> clap::Command {
-                #augmentation_update
+                let #app_var = #app_var #initial_app_methods;
+                let #app_var = #augmentation_update;
+                #app_var #final_app_methods
             }
         }
     })
@@ -380,8 +386,6 @@ pub(crate) fn gen_augment(
     } else {
         quote!()
     };
-    let initial_app_methods = parent_item.initial_top_level_methods();
-    let final_app_methods = parent_item.final_top_level_methods();
     let group_app_methods = if parent_item.skip_group() {
         quote!()
     } else {
@@ -432,11 +436,10 @@ pub(crate) fn gen_augment(
     Ok(quote! {{
         #deprecations
         let #app_var = #app_var
-            #initial_app_methods
             #group_app_methods
             ;
         #( #args )*
-        #app_var #final_app_methods
+        #app_var
     }})
 }
 
