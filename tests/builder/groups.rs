@@ -411,3 +411,191 @@ fn issue_1794() {
     assert!(*m.get_one::<bool>("option1").expect("defaulted by clap"));
 }
 */
+
+#[test]
+fn member_parity_with_arg() {
+    let with_member = Command::new("prog")
+        .arg(arg!(--a))
+        .arg(arg!(--b))
+        .group(ArgGroup::new("grp").member("a").members(["b"]))
+        .try_get_matches_from(vec!["prog", "--a"]);
+    assert!(with_member.is_ok(), "{}", with_member.unwrap_err());
+
+    let with_arg = Command::new("prog")
+        .arg(arg!(--a))
+        .arg(arg!(--b))
+        .group(ArgGroup::new("grp").arg("a").args(["b"]))
+        .try_get_matches_from(vec!["prog", "--a"]);
+    assert!(with_arg.is_ok(), "{}", with_arg.unwrap_err());
+
+    let m = with_member.unwrap();
+    assert!(m.contains_id("grp"));
+    assert_eq!(m.get_one::<Id>("grp").map(|v| v.as_str()), Some("a"));
+}
+
+#[test]
+fn group_of_groups_builds_and_marks_outer_present() {
+    let res = Command::new("prog")
+        .arg(arg!(--a))
+        .arg(arg!(--b))
+        .group(ArgGroup::new("inner").members(["a", "b"]).multiple(true))
+        .group(ArgGroup::new("outer").member("inner"))
+        .try_get_matches_from(vec!["prog", "--a"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+
+    let m = res.unwrap();
+    assert!(m.contains_id("inner"));
+    assert!(m.contains_id("outer"));
+    assert_eq!(m.get_one::<Id>("outer").map(|v| v.as_str()), Some("a"));
+}
+
+#[test]
+fn group_of_groups_required_missing() {
+    let res = Command::new("prog")
+        .arg(arg!(--a))
+        .arg(arg!(--b))
+        .group(ArgGroup::new("inner").members(["a", "b"]).multiple(true))
+        .group(ArgGroup::new("outer").member("inner").required(true))
+        .try_get_matches_from(vec!["prog"]);
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
+}
+
+#[test]
+fn group_of_groups_required_satisfied_by_nested_arg() {
+    let res = Command::new("prog")
+        .arg(arg!(--a))
+        .arg(arg!(--b))
+        .group(ArgGroup::new("inner").members(["a", "b"]).multiple(true))
+        .group(ArgGroup::new("outer").member("inner").required(true))
+        .try_get_matches_from(vec!["prog", "--b"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+}
+
+#[test]
+fn group_of_groups_conflict_inherited_from_outer() {
+    let res = Command::new("prog")
+        .arg(arg!(--a))
+        .arg(arg!(--b))
+        .arg(arg!(--c))
+        .group(ArgGroup::new("inner").members(["a", "b"]).multiple(true))
+        .group(ArgGroup::new("outer").member("inner").conflicts_with("c"))
+        .try_get_matches_from(vec!["prog", "--a", "--c"]);
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::ArgumentConflict);
+}
+
+#[test]
+fn group_of_groups_requires_inherited_from_outer() {
+    let cmd = Command::new("prog")
+        .arg(arg!(--a))
+        .arg(arg!(--b))
+        .arg(arg!(--needed))
+        .group(ArgGroup::new("inner").members(["a", "b"]).multiple(true))
+        .group(ArgGroup::new("outer").member("inner").requires("needed"));
+
+    let missing = cmd
+        .clone()
+        .try_get_matches_from(vec!["prog", "--a"]);
+    assert!(missing.is_err());
+    assert_eq!(missing.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
+
+    let satisfied = cmd.try_get_matches_from(vec!["prog", "--a", "--needed"]);
+    assert!(satisfied.is_ok(), "{}", satisfied.unwrap_err());
+}
+
+#[test]
+fn group_of_groups_single_use_is_exclusive_across_nested_groups() {
+    let res = Command::new("prog")
+        .arg(arg!(--a))
+        .arg(arg!(--b))
+        .group(ArgGroup::new("g1").member("a"))
+        .group(ArgGroup::new("g2").member("b"))
+        .group(ArgGroup::new("outer").members(["g1", "g2"]))
+        .try_get_matches_from(vec!["prog", "--a", "--b"]);
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::ArgumentConflict);
+}
+
+#[test]
+fn group_of_groups_single_use_allows_one_nested_arg() {
+    // A single nested arg must not be reported as conflicting with its own ancestor group.
+    let res = Command::new("prog")
+        .arg(arg!(--a))
+        .arg(arg!(--b))
+        .group(ArgGroup::new("g1").member("a"))
+        .group(ArgGroup::new("g2").member("b"))
+        .group(ArgGroup::new("outer").members(["g1", "g2"]))
+        .try_get_matches_from(vec!["prog", "--a"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+}
+
+#[test]
+fn group_of_groups_inner_multiple_allows_its_own_members() {
+    // `outer` is `multiple(false)`, but `inner` is `multiple(true)`, so two of `inner`'s args are
+    // allowed together (they are the same outer member).
+    let res = Command::new("prog")
+        .arg(arg!(--a))
+        .arg(arg!(--b))
+        .group(ArgGroup::new("inner").members(["a", "b"]).multiple(true))
+        .group(ArgGroup::new("outer").member("inner"))
+        .try_get_matches_from(vec!["prog", "--a", "--b"]);
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+}
+
+#[test]
+#[cfg(feature = "error-context")]
+fn group_of_groups_required_usage_string() {
+    let cmd = Command::new("prog")
+        .arg(arg!(--all "use all"))
+        .arg(arg!(--delete "delete"))
+        .group(ArgGroup::new("inner").members(["all", "delete"]).multiple(true))
+        .group(ArgGroup::new("outer").member("inner").required(true));
+
+    utils::assert_output(
+        cmd,
+        "prog",
+        str![[r#"
+error: the following required arguments were not provided:
+  <--all|--delete>
+
+Usage: prog <--all|--delete>
+
+For more information, try '--help'.
+
+"#]],
+        true,
+    );
+}
+
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic = "Argument group 'g' contains non-existent argument 'nope'"]
+fn group_non_existent_member() {
+    let _ = Command::new("prog")
+        .arg(arg!(--a))
+        .group(ArgGroup::new("g").members(["a", "nope"]))
+        .try_get_matches_from(vec!["prog", "--a"]);
+}
+
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic = "Argument group 'g' must not be a member of itself"]
+fn group_member_self_reference() {
+    let _ = Command::new("prog")
+        .arg(arg!(--a))
+        .group(ArgGroup::new("g").member("a").member("g"))
+        .try_get_matches_from(vec!["prog", "--a"]);
+}
+
+#[cfg(debug_assertions)]
+#[test]
+#[should_panic = "must not be a member of itself"]
+fn group_member_cycle() {
+    let _ = Command::new("prog")
+        .arg(arg!(--a))
+        .arg(arg!(--b))
+        .group(ArgGroup::new("g1").members(["a", "g2"]))
+        .group(ArgGroup::new("g2").members(["b", "g1"]))
+        .try_get_matches_from(vec!["prog", "--a"]);
+}

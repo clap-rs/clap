@@ -271,7 +271,7 @@ fn build_cli() -> Command {
                         .action(ArgAction::SetTrue)
                         .help("Standard library API documentation"),
                 )
-                .group(ArgGroup::new("page").args(["book", "std"])),
+                .group(ArgGroup::new("page").members(["book", "std"])),
         )
         .subcommand(
             Command::new("man")

@@ -6,7 +6,7 @@ use crate::builder::ValueRange;
 use crate::mkeymap::KeyType;
 use crate::util::FlatSet;
 use crate::util::Id;
-use crate::{Arg, Command, ValueHint};
+use crate::{Arg, ArgGroup, Command, ValueHint};
 
 pub(crate) fn assert_app(cmd: &Command) {
     debug!("Command::_debug_asserts");
@@ -306,16 +306,21 @@ pub(crate) fn assert_app(cmd: &Command) {
             group.get_id(),
         );
 
-        for arg in &group.args {
-            // Args listed inside groups should exist
+        for member in &group.args {
+            // Members listed inside groups should exist as an argument or a group
             assert!(
-                cmd.get_arguments().any(|x| x.get_id() == arg),
+                cmd.get_arguments().any(|x| x.get_id() == member)
+                    || cmd.find_group(member).is_some(),
                 "Command {}: Argument group '{}' contains non-existent argument '{}'",
                 cmd.get_name(),
                 group.get_id(),
-                arg
+                member
             );
         }
+
+        // A group must not be a member of itself, directly or through a cycle of nested groups,
+        // as that would cause infinite recursion when unrolling its members.
+        assert_group_acyclic(cmd, group);
 
         for arg in &group.requires {
             // Args listed inside groups should exist
@@ -394,6 +399,39 @@ pub(crate) fn assert_app(cmd: &Command) {
 
     cmd._panic_on_missing_help(cmd.is_help_expected_set());
     assert_app_flags(cmd);
+}
+
+// Walk the nested-group membership reachable from `group` and panic if `group` is reachable from
+// itself.  Running this for every group catches any cycle, since every group in a cycle can reach
+// itself.
+fn assert_group_acyclic(cmd: &Command, group: &ArgGroup) {
+    let start = group.get_id();
+    let mut stack: Vec<&Id> = Vec::new();
+    let mut seen: Vec<&Id> = Vec::new();
+    for member in &group.args {
+        if cmd.find_group(member).is_some() {
+            stack.push(member);
+        }
+    }
+    while let Some(current) = stack.pop() {
+        assert!(
+            current != start,
+            "Command {}: Argument group '{}' must not be a member of itself",
+            cmd.get_name(),
+            start,
+        );
+        if seen.contains(&current) {
+            continue;
+        }
+        seen.push(current);
+        if let Some(current_group) = cmd.find_group(current) {
+            for member in &current_group.args {
+                if cmd.find_group(member).is_some() {
+                    stack.push(member);
+                }
+            }
+        }
+    }
 }
 
 fn duplicate_tip(cmd: &Command, first: &Arg, second: &Arg) -> &'static str {

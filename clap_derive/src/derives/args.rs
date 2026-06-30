@@ -425,7 +425,7 @@ pub(crate) fn gen_augment(
                 clap::ArgGroup::new(#group_id)
                     .multiple(true)
                     #group_methods
-                    .args(#literal_group_members)
+                    .members(#literal_group_members)
             )
         )
     };
