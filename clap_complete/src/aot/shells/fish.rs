@@ -247,31 +247,34 @@ fn gen_subcommand_helpers(
     let optspecs_fn_name = format!("__fish_{bin_name}_global_optspecs");
     write!(
         buf,
-        "\
-        # Print an optspec for argparse to handle cmd's options that are independent of any subcommand.\n\
-        function {optspecs_fn_name}\n\
-        \tstring join \\n{optspecs}\n\
-        end\n\n\
-        function {needs_fn_name}\n\
-        \t# Figure out if the current invocation already has a command.\n\
-        \tset -l cmd (commandline -opc)\n\
-        \tset -e cmd[1]\n\
-        \targparse -s ({optspecs_fn_name}) -- $cmd 2>/dev/null\n\
-        \tor return\n\
-        \tif set -q argv[1]\n\
-        \t\t# Also print the command, so this can be used to figure out what it is.\n\
-        \t\techo $argv[1]\n\
-        \t\treturn 1\n\
-        \tend\n\
-        \treturn 0\n\
-        end\n\n\
-        function {using_fn_name}\n\
-        \tset -l cmd ({needs_fn_name})\n\
-        \ttest -z \"$cmd\"\n\
-        \tand return 1\n\
-        \tcontains -- $cmd[1] $argv\n\
-        end\n\n\
-    ").expect("failed to write completion file");
+        "# Print an optspec for argparse to handle cmd's options that are independent of any subcommand.
+function {optspecs_fn_name}
+    string join \\n{optspecs}
+end
+
+function {needs_fn_name}
+    # Figure out if the current invocation already has a command.
+    set -l cmd (commandline -opc)
+    set -e cmd[1]
+    argparse -s ({optspecs_fn_name}) -- $cmd 2>/dev/null
+    or return
+    if set -q argv[1]
+        # Also print the command, so this can be used to figure out what it is.
+        echo $argv[1]
+        return 1
+    end
+    return 0
+end
+
+function {using_fn_name}
+    set -l cmd ({needs_fn_name})
+    test -z \"$cmd\"
+    and return 1
+    contains -- $cmd[1] $argv
+end
+
+"
+        ).expect("failed to write completion file");
 }
 
 fn value_completion(option: &Arg) -> String {
