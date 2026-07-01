@@ -227,7 +227,9 @@ impl<'s, F: Fn() -> clap::Command> CompleteEnv<'s, F> {
             std::env::remove_var(self.var);
         }
 
-        let shell = self.shell(std::path::Path::new(&name))?;
+        let shell = self
+            .shells
+            .completer_for_path(std::path::Path::new(&name))?;
 
         let mut cmd = (self.factory)();
         cmd.build();
@@ -250,29 +252,6 @@ impl<'s, F: Fn() -> clap::Command> CompleteEnv<'s, F> {
         }
 
         Ok(true)
-    }
-
-    fn shell(&self, name: &std::path::Path) -> Result<&dyn EnvCompleter, std::io::Error> {
-        // Strip off the parent dir in case `$SHELL` was used
-        let name = name.file_stem().unwrap_or(name.as_os_str());
-        // lossy won't match but this will delegate to unknown
-        // error
-        let name = name.to_string_lossy();
-
-        let shell = self.shells.completer(&name).ok_or_else(|| {
-            let shells =
-                self.shells
-                    .names()
-                    .enumerate()
-                    .fold(String::new(), |mut seed, (i, name)| {
-                        use std::fmt::Write as _;
-                        let prefix = if i == 0 { "" } else { ", " };
-                        let _ = write!(&mut seed, "{prefix}`{name}`");
-                        seed
-                    });
-            std::io::Error::other(format!("unknown shell `{name}`, expected one of {shells}"))
-        })?;
-        Ok(shell)
     }
 
     fn write_registration(
@@ -319,6 +298,32 @@ impl<'s> Shells<'s> {
     /// Find the specified [`EnvCompleter`]
     pub fn completer(&self, name: &str) -> Option<&dyn EnvCompleter> {
         self.0.iter().copied().find(|c| c.is(name))
+    }
+
+    /// Find an [`EnvCompleter`] for the specified path to a shell.
+    fn completer_for_path(
+        &self,
+        name: &std::path::Path,
+    ) -> Result<&dyn EnvCompleter, std::io::Error> {
+        // Strip off the parent dir in case `$SHELL` was used
+        let name = name.file_stem().unwrap_or(name.as_os_str());
+        // lossy won't match but this will delegate to unknown
+        // error
+        let name = name.to_string_lossy();
+
+        let shell = self.completer(&name).ok_or_else(|| {
+            let shells = self
+                .names()
+                .enumerate()
+                .fold(String::new(), |mut seed, (i, name)| {
+                    use std::fmt::Write as _;
+                    let prefix = if i == 0 { "" } else { ", " };
+                    let _ = write!(&mut seed, "{prefix}`{name}`");
+                    seed
+                });
+            std::io::Error::other(format!("unknown shell `{name}`, expected one of {shells}"))
+        })?;
+        Ok(shell)
     }
 
     /// Collect all [`EnvCompleter::name`]s
@@ -390,4 +395,17 @@ pub trait EnvCompleter {
         current_dir: Option<&std::path::Path>,
         buf: &mut dyn std::io::Write,
     ) -> Result<(), std::io::Error>;
+}
+
+#[test]
+fn shells_completer_for_path_finds_powershell() {
+    const SHELLS: Shells<'_> = Shells::builtins();
+
+    let paths = &["/usr/bin/pwsh", "powershell.exe", "powershell_ise.exe"];
+    for path in paths {
+        assert!(
+            matches!(SHELLS.completer_for_path(std::path::Path::new(path)), Ok(s) if s.name() == "powershell"),
+            "failed to detect 'powershell' from: {path}",
+        );
+    }
 }
