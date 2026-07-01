@@ -311,7 +311,7 @@ impl EnvCompleter for Powershell {
         "powershell"
     }
     fn is(&self, name: &str) -> bool {
-        name == "powershell" || name == "powershell_ise"
+        name == "powershell" || name == "powershell_ise" || name == "pwsh"
     }
     fn write_registration(
         &self,
@@ -593,6 +593,14 @@ complete --keep-order --exclusive --command 'dyn\\amic' --arguments "(V=fish /p/
 "#]]
             .raw()
         );
+    }
+
+    #[test]
+    fn powershell_is_recognizes_pwsh() {
+        assert!(Powershell.is("pwsh"));
+        assert!(Powershell.is("powershell"));
+        assert!(Powershell.is("powershell_ise"));
+        assert!(!Powershell.is("bash"));
     }
 
     #[test]
