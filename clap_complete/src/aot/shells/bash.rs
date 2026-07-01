@@ -136,13 +136,13 @@ fn subcommand_details(cmd: &Command) -> String {
     let mut subcmd_dets = vec![String::new()];
     let mut scs = utils::all_subcommands(cmd)
         .iter()
-        .map(|x| x.1.replace(' ', CMD_SEP))
+        .map(|x| (bash_state_for_path(&x.1), x.1.replace(' ', CMD_SEP)))
         .collect::<Vec<_>>();
 
     scs.sort();
     scs.dedup();
 
-    subcmd_dets.extend(scs.iter().map(|sc| {
+    subcmd_dets.extend(scs.iter().map(|(state, path)| {
         format!(
             "{subcmd})
             opts=\"{sc_opts}\"
@@ -158,14 +158,27 @@ fn subcommand_details(cmd: &Command) -> String {
             COMPREPLY=( $(compgen -W \"${{opts}}\" -- \"${{cur}}\") )
             return 0
             ;;",
-            subcmd = sc.replace('-', CMD_SEP),
-            sc_opts = all_options_for_path(cmd, sc),
-            level = sc.split(CMD_SEP).map(|_| 1).sum::<u64>(),
-            opts_details = option_details_for_path(cmd, sc)
+            subcmd = state,
+            sc_opts = all_options_for_path(cmd, path),
+            level = path.split(CMD_SEP).map(|_| 1).sum::<u64>(),
+            opts_details = option_details_for_path(cmd, path)
         )
     }));
 
     subcmd_dets.join("\n        ")
+}
+
+fn bash_state_for_path(path: &str) -> String {
+    let mut components = path.split(' ');
+    let mut state = components
+        .next()
+        .expect("subcommand paths include the binary name")
+        .replace('-', "__");
+    for component in components {
+        state.push_str(CMD_SEP);
+        state.push_str(&component.replace('-', CMD_SEP));
+    }
+    state
 }
 
 fn option_details_for_path(cmd: &Command, path: &str) -> String {
