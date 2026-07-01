@@ -20,6 +20,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Actions Repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
     - name: Spell Check Repo
       uses: crate-ci/typos@master

@@ -67,7 +67,7 @@ jobs:
       CARGO_PROFILE_DEV_DEBUG: line-tables-only
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       with:
@@ -89,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       with:
@@ -105,7 +105,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       with:
@@ -143,7 +143,7 @@ jobs:
             features: release
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install rust
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -163,7 +163,7 @@ jobs:
         features: [default, next]
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       with:
@@ -179,7 +179,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
     - name: Install stable Rust
       uses: dtolnay/rust-toolchain@stable
       with:
@@ -196,7 +196,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       with:
@@ -209,7 +209,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       with:
@@ -224,7 +224,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       with:
@@ -238,7 +238,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       with:
@@ -258,7 +258,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: CFF validation
