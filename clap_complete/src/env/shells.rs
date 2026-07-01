@@ -311,7 +311,7 @@ impl EnvCompleter for Powershell {
         "powershell"
     }
     fn is(&self, name: &str) -> bool {
-        name == "powershell" || name == "powershell_ise"
+        name == "powershell" || name == "powershell_ise" || name == "pwsh"
     }
     fn write_registration(
         &self,
@@ -518,8 +518,8 @@ impl Zsh {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use snapbox::IntoData as _;
     use snapbox::assert_data_eq;
+    use snapbox::IntoData as _;
 
     // This test verifies that fish shell path quoting works with or without spaces in the path.
     #[test]
@@ -592,6 +592,26 @@ complete --keep-order --exclusive --command 'dyn\\amic' --arguments "(V=fish /p/
 
 "#]]
             .raw()
+        );
+    }
+
+    #[test]
+    fn powershell_is_recognizes_pwsh() {
+        assert!(
+            Powershell.is("pwsh"),
+            "pwsh should be recognised as PowerShell"
+        );
+        assert!(
+            Powershell.is("powershell"),
+            "powershell should still be recognised"
+        );
+        assert!(
+            Powershell.is("powershell_ise"),
+            "powershell_ise should still be recognised"
+        );
+        assert!(
+            !Powershell.is("bash"),
+            "bash should not be recognised as PowerShell"
         );
     }
 
