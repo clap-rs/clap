@@ -267,6 +267,65 @@ pub(crate) fn value_hint_command(name: &'static str) -> Command {
         )
 }
 
+pub(crate) fn last_args_command(name: &'static str) -> Command {
+    Command::new(name).subcommands([
+        Command::new("single")
+            .arg(Arg::new("arg").required(true))
+            .arg(Arg::new("last_arg").required(true).last(true)),
+        Command::new("multiple")
+            .arg(Arg::new("args").num_args(1..))
+            .arg(Arg::new("last_args").num_args(1..).last(true)),
+        Command::new("choice")
+            .arg(
+                Arg::new("arg")
+                    .required(true)
+                    .value_parser(["bash", "zsh", "fish"]),
+            )
+            .arg(
+                Arg::new("last_arg")
+                    .required(true)
+                    .value_parser(["nushell", "powershell"])
+                    .last(true),
+            ),
+        Command::new("multipleChoice")
+            .arg(
+                Arg::new("args")
+                    .num_args(1..)
+                    .value_parser(["bash", "zsh", "fish"]),
+            )
+            .arg(
+                Arg::new("last_args")
+                    .num_args(1..)
+                    .value_parser(["nushell", "powershell"])
+                    .last(true),
+            ),
+        Command::new("anyPath")
+            .arg(
+                Arg::new("arg")
+                    .required(true)
+                    .value_hint(ValueHint::AnyPath),
+            )
+            .arg(
+                Arg::new("last_arg")
+                    .required(true)
+                    .value_hint(ValueHint::AnyPath)
+                    .last(true),
+            ),
+        Command::new("multipleAnyPath")
+            .arg(
+                Arg::new("args")
+                    .num_args(1..)
+                    .value_hint(ValueHint::AnyPath),
+            )
+            .arg(
+                Arg::new("last_args")
+                    .num_args(1..)
+                    .value_hint(ValueHint::AnyPath)
+                    .last(true),
+            ),
+    ])
+}
+
 pub(crate) fn assert_matches(
     expected: impl IntoData,
     generator: impl clap_complete::Generator,
