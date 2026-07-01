@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(powershell)* Detect `pwsh` as `powershell`
+
 ## [4.6.6] - 2026-06-30
 
 ### Fixes
