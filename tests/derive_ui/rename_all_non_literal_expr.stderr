@@ -1,0 +1,5 @@
+error: attribute `rename_all` can only accept string literals
+ --> tests/derive_ui/rename_all_non_literal_expr.rs:4:40
+  |
+4 | #[command(name = "basic", rename_all = "snake_case".to_owned())]
+  |                                        ^^^^^^^^^^^^^^^^^^^^^^^
