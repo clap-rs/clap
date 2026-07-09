@@ -190,7 +190,7 @@ fn subcommands_of(p: &Command) -> String {
     segments.join("\n")
 }
 
-// Get's the subcommand section of a completion file
+// Gets the subcommand section of a completion file
 // This looks roughly like:
 //
 // case $state in
