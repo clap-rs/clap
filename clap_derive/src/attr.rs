@@ -58,7 +58,17 @@ impl ClapAttr {
     pub(crate) fn lit_str_or_abort(&self) -> Result<&LitStr, syn::Error> {
         let value = self.value_or_abort()?;
         match value {
-            AttrValue::LitStr(tokens) => Ok(tokens),
+            AttrValue::Expr(Expr::Lit(expr_lit)) => {
+                if let syn::Lit::Str(lit) = &expr_lit.lit {
+                    Ok(lit)
+                } else {
+                    abort!(
+                        self.name,
+                        "attribute `{}` can only accept string literals",
+                        self.name
+                    )
+                }
+            }
             AttrValue::Expr(_) | AttrValue::Call(_) => {
                 abort!(
                     self.name,
@@ -107,18 +117,13 @@ impl Parse for ClapAttr {
         let value = if input.peek(Token![=]) {
             // `name = value` attributes.
             let assign_token = input.parse::<Token![=]>()?; // skip '='
-            if input.peek(LitStr) {
-                let lit: LitStr = input.parse()?;
-                Some(AttrValue::LitStr(lit))
-            } else {
-                match input.parse::<Expr>() {
-                    Ok(expr) => Some(AttrValue::Expr(expr)),
+            match input.parse::<Expr>() {
+                Ok(expr) => Some(AttrValue::Expr(expr)),
 
-                    Err(_) => abort! {
-                        assign_token,
-                        "expected `string literal` or `expression` after `=`"
-                    },
-                }
+                Err(_) => abort! {
+                    assign_token,
+                    "expected `expression` after `=`"
+                },
             }
         } else if input.peek(syn::token::Paren) {
             // `name(...)` attributes.
@@ -172,7 +177,6 @@ pub(crate) enum MagicAttrName {
 #[derive(Clone)]
 #[allow(clippy::large_enum_variant)]
 pub(crate) enum AttrValue {
-    LitStr(LitStr),
     Expr(Expr),
     Call(Vec<Expr>),
 }
@@ -180,7 +184,6 @@ pub(crate) enum AttrValue {
 impl ToTokens for AttrValue {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match self {
-            Self::LitStr(t) => t.to_tokens(tokens),
             Self::Expr(t) => t.to_tokens(tokens),
             Self::Call(t) => {
                 let t = quote!(#(#t),*);

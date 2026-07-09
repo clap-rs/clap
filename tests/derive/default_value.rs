@@ -58,6 +58,27 @@ Options:
 }
 
 #[test]
+fn default_value_t_expression_starting_with_string_literal() {
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        #[arg(default_value_t = "input.txt".to_string())]
+        arg: String,
+    }
+    assert_eq!(
+        Opt {
+            arg: "input.txt".to_owned()
+        },
+        Opt::try_parse_from(["test"]).unwrap()
+    );
+    assert_eq!(
+        Opt {
+            arg: "other.txt".to_owned()
+        },
+        Opt::try_parse_from(["test", "other.txt"]).unwrap()
+    );
+}
+
+#[test]
 fn auto_default_value_t() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
