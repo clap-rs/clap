@@ -132,9 +132,8 @@ fn generate_inner(p: &Command, previous_command_name: &str) -> String {
     for command_name in &command_names {
         subcommands_cases.push_str(&format!(
             r"
-        &'{}'= {{{}
-        }}",
-            &command_name, completions
+        &'{command_name}'= {{{completions}
+        }}"
         ));
     }
 
