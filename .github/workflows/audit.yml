@@ -24,15 +24,15 @@ concurrency:
 jobs:
   security_audit:
     permissions:
-      issues: write # to create issues (actions-rs/audit-check)
-      checks: write # to create check (actions-rs/audit-check)
+      issues: write # to create issues (rustsec/audit-check)
+      checks: write # to create check (rustsec/audit-check)
     runs-on: ubuntu-latest
     # Prevent sudden announcement of a new advisory from failing ci:
     continue-on-error: true
     steps:
     - name: Checkout repository
       uses: actions/checkout@v7
-    - uses: actions-rs/audit-check@v1
+    - uses: rustsec/audit-check@v2.0.0
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
 
