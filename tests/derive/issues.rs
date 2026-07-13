@@ -121,8 +121,8 @@ fn issue_418() {
 Usage: clap <COMMAND>
 
 Commands:
-  reticulate  Reticulate the splines [aliases: ret]
-  frobnicate  Frobnicate the rest [aliases: frob]
+  reticulate  Reticulate the splines [alias: ret]
+  frobnicate  Frobnicate the rest [alias: frob]
   help        Print this message or the help of the given subcommand(s)
 
 Options:
