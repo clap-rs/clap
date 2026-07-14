@@ -165,8 +165,8 @@ issue.
 ### Section-specific CONTRIBUTING
 
 - [Example CONTRIBUTING](./examples/README.md#contributing)
-- [Tutorial (builder) CONTRIBUTING](./examples/tutorial_builder/README.md#contributing)
-- [Tutorial (derive) CONTRIBUTING](./examples/tutorial_derive/README.md#contributing)
+- [Tutorial (builder) CONTRIBUTING](./src/_tutorial.rs)
+- [Tutorial (derive) CONTRIBUTING](./src/_derive/_tutorial.rs)
 - [clap_derive CONTRIBUTING](./clap_derive/CONTRIBUTING.md)
 
 ### Updating MSRV
