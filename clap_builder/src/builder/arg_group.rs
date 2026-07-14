@@ -254,13 +254,13 @@ impl ArgGroup {
     /// ```rust
     /// # use clap_builder as clap;
     /// # use clap::{ArgGroup};
-    /// let mut group = ArgGroup::new("myprog")
+    /// let group = ArgGroup::new("myprog")
     ///     .args(["f", "c"])
     ///     .multiple(true);
     ///
     /// assert!(group.is_multiple());
     /// ```
-    pub fn is_multiple(&mut self) -> bool {
+    pub fn is_multiple(&self) -> bool {
         self.multiple
     }
 
@@ -596,10 +596,14 @@ mod test {
     fn arg_group_expose_is_multiple_helper() {
         let args: Vec<Id> = vec!["a1".into(), "a4".into()];
 
-        let mut grp_multiple = ArgGroup::new("test_multiple").args(&args).multiple(true);
+        let grp_multiple = ArgGroup::new("test_multiple").args(&args).multiple(true);
         assert!(grp_multiple.is_multiple());
+        // The getter is callable through a shared reference, e.g. one obtained
+        // from `Command::groups`.
+        let grp_multiple_ref: &ArgGroup = &grp_multiple;
+        assert!(grp_multiple_ref.is_multiple());
 
-        let mut grp_not_multiple = ArgGroup::new("test_multiple").args(&args).multiple(false);
+        let grp_not_multiple = ArgGroup::new("test_multiple").args(&args).multiple(false);
         assert!(!grp_not_multiple.is_multiple());
     }
 
