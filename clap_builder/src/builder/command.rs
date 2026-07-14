@@ -5012,13 +5012,14 @@ impl Command {
         self.args.args().any(|x| x.get_id() == id) || self.groups.iter().any(|x| x.id == *id)
     }
 
-    /// Iterate through the groups this arg is member of.
+    /// Iterate through the groups this arg is a member of, including transitively through nested
+    /// groups (groups of groups).
     pub(crate) fn groups_for_arg<'a>(&'a self, arg: &Id) -> impl Iterator<Item = Id> + 'a {
         debug!("Command::groups_for_arg: id={arg:?}");
         let arg = arg.clone();
         self.groups
             .iter()
-            .filter(move |grp| grp.args.iter().any(|a| a == &arg))
+            .filter(move |grp| self.unroll_args_in_group(&grp.id).contains(&arg))
             .map(|grp| grp.id.clone())
     }
 
@@ -5056,6 +5057,9 @@ impl Command {
     pub(crate) fn unroll_args_in_group(&self, group: &Id) -> Vec<Id> {
         debug!("Command::unroll_args_in_group: group={group:?}");
         let mut g_vec = vec![group];
+        // Track expanded groups so a cycle of nested groups can't loop forever.  Debug assertions
+        // reject such cycles outright, but they are compiled out in release builds.
+        let mut seen = vec![group];
         let mut args = vec![];
 
         while let Some(g) = g_vec.pop() {
@@ -5072,9 +5076,10 @@ impl Command {
                     if self.find(n).is_some() {
                         debug!("Command::unroll_args_in_group:iter: this is an arg");
                         args.push(n.clone());
-                    } else {
+                    } else if !seen.contains(&n) {
                         debug!("Command::unroll_args_in_group:iter: this is a group");
                         g_vec.push(n);
+                        seen.push(n);
                     }
                 }
             }

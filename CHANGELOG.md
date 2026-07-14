@@ -23,6 +23,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Allow an `ArgGroup` to contain other `ArgGroup`s (groups of groups) via `ArgGroup::member`/`ArgGroup::members`; `ArgGroup::arg`/`ArgGroup::args` are soft-deprecated in favor of them
+
+### Behavior Changes
+
+- An argument's enclosing groups are now resolved transitively, so an outer group that contains a nested group is marked present and propagates its conflicts/requirements when an argument of the nested group is used
+
 ## [4.6.1] - 2026-04-15
 
 ### Fixes
