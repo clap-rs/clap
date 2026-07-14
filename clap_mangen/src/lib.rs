@@ -6,6 +6,10 @@
 #![warn(clippy::print_stderr)]
 #![warn(clippy::print_stdout)]
 
+#[cfg(feature = "markdown")]
+mod markdown;
+#[cfg(not(feature = "markdown"))]
+mod plain;
 mod render;
 
 pub use roff;

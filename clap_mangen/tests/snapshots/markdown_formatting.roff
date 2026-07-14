@@ -1,0 +1,48 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH my-app 1  "my-app 1.0" 
+.SH NAME
+my\-app \- A \fBbold\fR and \fIitalic\fR app with \fBcode\fR
+.SH SYNOPSIS
+\fBmy\-app\fR [\fB\-f\fR|\fB\-\-format\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] [\fIinput\fR] 
+.SH DESCRIPTION
+This is a tool for testing \fBmarkdown\fR rendering.
+.SS Features
+.IP \(bu 2
+Supports \fBbold\fR text
+.IP \(bu 2
+Supports \fIitalic\fR text
+.IP \(bu 2
+Supports \fBcode\fR spans
+.SS Examples
+.nf
+my\-app \-\-flag value
+
+.fi
+For more info see the docs <https://example.com>.
+.SH OPTIONS
+.TP
+\fB\-f\fR, \fB\-\-format\fR
+Output \fBformat\fR to use
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help (see a summary with \*(Aq\-h\*(Aq)
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Print version
+.TP
+[\fIinput\fR]
+The \fIinput\fR file to process (use \fBstdin\fR for \fBstandard input\fR)
+.SH EXTRA
+.SS Notes
+.RS 4
+This is a blockquote with \fBbold\fR text.
+.RE
+.IP 1. 4
+First step
+.IP 2. 4
+Second step
+.IP 3. 4
+Third step
+.SH VERSION
+v1.0

@@ -594,6 +594,7 @@ version = "0.3.0"
 dependencies = [
  "automod",
  "clap 4.6.1",
+ "pulldown-cmark",
  "roff",
  "snapbox",
 ]
