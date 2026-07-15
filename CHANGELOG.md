@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(help)* Say `alias` when there is only one
+
 ## [4.6.1] - 2026-04-15
 
 ### Fixes
