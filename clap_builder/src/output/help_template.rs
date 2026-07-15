@@ -830,8 +830,9 @@ impl HelpTemplate<'_, '_> {
         als.extend(long_als);
 
         if !als.is_empty() {
+            let plural = pluralize(als.len(), "", "es");
             let als = als.join(&val_sep);
-            spec_vals.push(format!("{ctx}[aliases: {ctx:#}{als}{ctx}]{ctx:#}"));
+            spec_vals.push(format!("{ctx}[alias{plural}: {ctx:#}{als}{ctx}]{ctx:#}"));
         }
 
         if !a.is_hide_possible_values_set() && !self.use_long_pv(a) {
@@ -1040,7 +1041,10 @@ impl HelpTemplate<'_, '_> {
                 "HelpTemplate::spec_vals: Found long flag aliases...{:?}",
                 a.get_all_long_flag_aliases().collect::<Vec<_>>()
             );
-            spec_vals.push(format!("{ctx}[aliases: {ctx:#}{all_als}{ctx}]{ctx:#}"));
+            let plural = pluralize(short_als.len(), "", "es");
+            spec_vals.push(format!(
+                "{ctx}[alias{plural}: {ctx:#}{all_als}{ctx}]{ctx:#}"
+            ));
         }
 
         spec_vals.join(" ")
@@ -1075,6 +1079,10 @@ impl HelpTemplate<'_, '_> {
             self.write_padding(padding);
         }
     }
+}
+
+fn pluralize<'s>(values: usize, single: &'s str, plural: &'s str) -> &'s str {
+    if values == 1 { single } else { plural }
 }
 
 const NEXT_LINE_INDENT: &str = "        ";
