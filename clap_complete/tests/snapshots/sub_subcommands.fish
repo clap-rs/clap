@@ -27,6 +27,18 @@ end
 complete -c my-app -n "__fish_my_app_needs_command" -s c -s C -l config -l conf -d 'some config file'
 complete -c my-app -n "__fish_my_app_needs_command" -s h -l help -d 'Print help'
 complete -c my-app -n "__fish_my_app_needs_command" -s V -l version -d 'Print version'
+function __fish_my_app_has_positional_0
+    set -l expected $argv[1]
+    set -l cmd (commandline -opc)
+    set -e cmd[1]
+    argparse -s (string join \n  c/config h/help V/version) -- $cmd 2>/dev/null
+    or return
+    contains -- $argv[1] test some_cmd some_cmd_alias help; and return 1
+    test (count $argv) -eq $expected
+end
+
+complete -c my-app -n "__fish_my_app_has_positional_0 1" -r -f -a "first\t''
+second\t''"
 complete -c my-app -n "__fish_my_app_needs_command" -a "test" -d 'tests things'
 complete -c my-app -n "__fish_my_app_needs_command" -a "some_cmd" -d 'top level subcommand'
 complete -c my-app -n "__fish_my_app_needs_command" -a "some_cmd_alias" -d 'top level subcommand'

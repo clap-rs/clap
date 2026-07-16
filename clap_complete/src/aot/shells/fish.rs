@@ -6,7 +6,7 @@ use crate::generator::{Generator, utils};
 
 /// Generate fish completion file
 ///
-/// Note: The fish generator currently only supports named options (-o/--option), not positional arguments.
+/// Positional arguments with explicit possible values are completed as well as named options.
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Fish;
 
@@ -39,6 +39,7 @@ impl Generator for Fish {
         }
 
         let mut buffer = String::new();
+        let mut positional_helper_index = 0;
         gen_fish_inner(
             bin_name,
             &[],
@@ -46,6 +47,7 @@ impl Generator for Fish {
             &mut buffer,
             needs_fn_name,
             using_fn_name,
+            &mut positional_helper_index,
         );
         write!(buf, "{buffer}")
     }
@@ -76,8 +78,16 @@ fn gen_fish_inner(
     buffer: &mut String,
     needs_fn_name: &str,
     using_fn_name: &str,
+    positional_helper_index: &mut usize,
 ) {
     debug!("gen_fish_inner");
+    // HACK: Assuming subcommands are only nested less than 3 levels as more than that is
+    // unwieldy and takes more effort to support.
+    // For example, `rustup toolchain help install` is the longest valid command line of `rustup`
+    // that uses nested subcommands, and it cannot receive any flags to it.
+    if parent_commands.len() > 2 {
+        return;
+    }
     // example :
     //
     // complete
@@ -92,38 +102,13 @@ fn gen_fish_inner(
     //      -n "{using_fn_name} subcmd1"    # complete for command "myprog subcmd1"
 
     let mut basic_template = format!("complete -c {root_command}");
-
-    if parent_commands.is_empty() {
-        if cmd.has_subcommands() {
-            basic_template.push_str(&format!(" -n \"{needs_fn_name}\""));
-        }
-    } else {
-        let mut out = String::from(using_fn_name);
-        match parent_commands {
-            [] => unreachable!(),
-            [command] => {
-                out.push_str(&format!(" {command}"));
-                if cmd.has_subcommands() {
-                    out.push_str("; and not __fish_seen_subcommand_from");
-                }
-                let subcommands = cmd
-                    .get_subcommands()
-                    .flat_map(Command::get_name_and_visible_aliases);
-                for name in subcommands {
-                    out.push_str(&format!(" {name}"));
-                }
-            }
-            [command, subcommand] => out.push_str(&format!(
-                " {command}; and __fish_seen_subcommand_from {subcommand}"
-            )),
-            // HACK: Assuming subcommands are only nested less than 3 levels as more than that is
-            // unwieldy and takes more effort to support.
-            // For example, `rustup toolchain help install` is the longest valid command line of `rustup`
-            // that uses nested subcommands, and it cannot receive any flags to it.
-            _ => return,
-        }
-        basic_template.push_str(format!(" -n \"{out}\"").as_str());
-    }
+    add_command_condition(
+        &mut basic_template,
+        parent_commands,
+        cmd,
+        needs_fn_name,
+        using_fn_name,
+    );
 
     debug!("gen_fish_inner: parent_commands={parent_commands:?}");
 
@@ -175,6 +160,53 @@ fn gen_fish_inner(
         buffer.push('\n');
     }
 
+    let positional_helper_name = format!(
+        "__fish_{}_has_positional_{}",
+        escape_name(root_command),
+        *positional_helper_index
+    );
+    let mut has_positional_values = false;
+    for (position, positional) in cmd.get_positionals().enumerate() {
+        if utils::possible_values(positional).is_none() {
+            continue;
+        }
+
+        if !has_positional_values {
+            gen_positional_helper(
+                root_command,
+                parent_commands,
+                cmd,
+                buffer,
+                &positional_helper_name,
+            );
+            *positional_helper_index += 1;
+            has_positional_values = true;
+        }
+
+        let mut template = format!("complete -c {root_command}");
+        if parent_commands.is_empty() {
+            template.push_str(&format!(" -n \"{positional_helper_name} {position}\""));
+        } else {
+            add_command_condition(
+                &mut template,
+                parent_commands,
+                cmd,
+                needs_fn_name,
+                using_fn_name,
+            );
+            let condition = template
+                .strip_prefix(&format!("complete -c {root_command} -n \""))
+                .and_then(|template| template.strip_suffix('"'))
+                .expect("positionals use a command condition");
+            template = format!(
+                "complete -c {root_command} -n \"{condition}; and {positional_helper_name} {position}\""
+            );
+        }
+        template.push_str(value_completion(positional).as_str());
+        buffer.push_str(template.as_str());
+        buffer.push('\n');
+    }
+
     let has_positionals = cmd.get_positionals().next().is_some();
     if !has_positionals {
         basic_template.push_str(" -f");
@@ -206,22 +238,102 @@ fn gen_fish_inner(
                 buffer,
                 needs_fn_name,
                 using_fn_name,
+                positional_helper_index,
             );
         }
     }
 }
 
-/// Print fish's helpers for easy handling subcommands.
-fn gen_subcommand_helpers(
-    bin_name: &str,
+fn add_command_condition(
+    template: &mut String,
+    parent_commands: &[&str],
     cmd: &Command,
-    buf: &mut dyn Write,
     needs_fn_name: &str,
     using_fn_name: &str,
 ) {
+    if parent_commands.is_empty() {
+        if cmd.has_subcommands() {
+            template.push_str(&format!(" -n \"{needs_fn_name}\""));
+        }
+        return;
+    }
+
+    let mut out = String::from(using_fn_name);
+    match parent_commands {
+        [] => unreachable!(),
+        [command] => {
+            out.push_str(&format!(" {command}"));
+            if cmd.has_subcommands() {
+                out.push_str("; and not __fish_seen_subcommand_from");
+            }
+            let subcommands = cmd
+                .get_subcommands()
+                .flat_map(Command::get_name_and_visible_aliases);
+            for name in subcommands {
+                out.push_str(&format!(" {name}"));
+            }
+        }
+        [command, subcommand] => out.push_str(&format!(
+            " {command}; and __fish_seen_subcommand_from {subcommand}"
+        )),
+        _ => unreachable!(),
+    }
+    template.push_str(format!(" -n \"{out}\"").as_str());
+}
+
+fn gen_positional_helper(
+    root_command: &str,
+    parent_commands: &[&str],
+    cmd: &Command,
+    buffer: &mut String,
+    helper_name: &str,
+) {
+    let mut body = format!(
+        "function {helper_name}\n    set -l expected $argv[1]\n    set -l cmd (commandline -opc)\n    set -e cmd[1]\n"
+    );
+
+    if parent_commands.is_empty() {
+        append_argparse(&mut body, &command_optspec(cmd), "cmd");
+        if cmd.has_subcommands() {
+            let subcommands = cmd
+                .get_subcommands()
+                .flat_map(Command::get_name_and_visible_aliases)
+                .collect::<Vec<_>>()
+                .join(" ");
+            body.push_str(&format!(
+                "    contains -- $argv[1] {subcommands}; and return 1\n"
+            ));
+        }
+    } else {
+        let global_optspec_fn = format!("__fish_{}_global_optspecs", escape_name(root_command));
+        body.push_str(&format!(
+            "    argparse -s ({global_optspec_fn}) -- $cmd 2>/dev/null\n    or return\n    set cmd $argv\n"
+        ));
+        for command in parent_commands {
+            body.push_str(&format!(
+                "    test \"$cmd[1]\" = \"{command}\"; or return\n    set -e cmd[1]\n"
+            ));
+        }
+        append_argparse(&mut body, &command_optspec(cmd), "cmd");
+    }
+
+    body.push_str("    test (count $argv) -eq $expected\nend\n\n");
+    buffer.push_str(&body);
+}
+
+fn append_argparse(buffer: &mut String, optspec: &str, command: &str) {
+    if optspec.is_empty() {
+        buffer.push_str(&format!("    set argv ${command}\n"));
+    } else {
+        buffer.push_str(&format!(
+            "    argparse -s (string join \\n {optspec}) -- ${command} 2>/dev/null\n    or return\n"
+        ));
+    }
+}
+
+fn command_optspec(cmd: &Command) -> String {
     let mut optspecs = String::new();
-    let cmd_opts = cmd.get_arguments().filter(|a| !a.is_positional());
-    for option in cmd_opts {
+    for option in cmd.get_arguments().filter(|arg| !arg.is_positional()) {
         optspecs.push(' ');
         let mut has_short = false;
         if let Some(short) = option.get_short() {
@@ -236,14 +348,26 @@ fn gen_subcommand_helpers(
             optspecs.push_str(&escape_string(long, false));
         }
 
-        let is_an_option = option
+        if option
             .get_num_args()
-            .map(|r| r.takes_values())
-            .unwrap_or(true);
-        if is_an_option {
+            .map(|range| range.takes_values())
+            .unwrap_or(true)
+        {
             optspecs.push('=');
         }
     }
+    optspecs
+}
+
+/// Print fish's helpers for easy handling subcommands.
+fn gen_subcommand_helpers(
+    bin_name: &str,
+    cmd: &Command,
+    buf: &mut dyn Write,
+    needs_fn_name: &str,
+    using_fn_name: &str,
+) {
+    let optspecs = command_optspec(cmd);
     let optspecs_fn_name = format!("__fish_{bin_name}_global_optspecs");
     write!(
         buf,

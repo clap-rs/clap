@@ -179,6 +179,27 @@ fn two_multi_valued_arguments() {
 }
 
 #[test]
+fn positional_values() {
+    let mut cmd = clap::Command::new("my-app")
+        .arg(clap::Arg::new("shell").value_parser(["bash", "fish"]))
+        .arg(clap::Arg::new("mode").value_parser(["fast", "safe"]));
+    let mut output = vec![];
+
+    clap_complete::generate(
+        clap_complete::shells::Fish,
+        &mut cmd,
+        "my-app",
+        &mut output,
+    );
+
+    let output = String::from_utf8(output).unwrap();
+    assert!(output.contains("-n \"__fish_my_app_has_positional_0 0\""));
+    assert!(output.contains("-n \"__fish_my_app_has_positional_0 1\""));
+    assert!(output.contains("-a \"bash\\t''\nfish\\t''\""));
+    assert!(output.contains("-a \"fast\\t''\nsafe\\t''\""));
+}
+
+#[test]
 fn subcommand_last() {
     let name = "my-app";
     let cmd = common::subcommand_last(name);
