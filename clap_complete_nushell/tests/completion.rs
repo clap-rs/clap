@@ -87,3 +87,26 @@ zsh
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
+
+#[test]
+fn completion_last_hint() {
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<completest_nu::NuRuntimeBuilder>("static", "test");
+
+    let input = "test last-hint \t";
+    let expected = r#"% test last-hint 
+bash
+fish
+zsh
+"#;
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+
+    let input = "test last-hint bash \t";
+    let expected = r#"% test last-hint bash 
+nushell
+powershell
+"#;
+    let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}

@@ -95,3 +95,15 @@ fn positional_index() {
         name,
     );
 }
+
+#[test]
+fn last_args() {
+    let name = "my-app";
+    let cmd = common::last_args_command(name);
+    common::assert_matches(
+        snapbox::file!["snapshots/last_args.nu"],
+        clap_complete_nushell::Nushell,
+        cmd,
+        name,
+    );
+}
