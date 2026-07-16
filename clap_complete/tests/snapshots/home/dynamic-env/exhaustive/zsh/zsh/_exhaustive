@@ -28,8 +28,14 @@ function _clap_dynamic_completer_exhaustive() {
                 other+=("$completion")
             fi
         done
+        local _before=$compstate[nmatches]
         [[ -n $dirs ]] && _describe -V 'values' dirs -S '/' -r '/'
         [[ -n $other ]] && _describe -V 'values' other
+        if (( compstate[nmatches] == _before )); then
+            _path_files
+        fi
+    else
+        _path_files
     fi
 }
 

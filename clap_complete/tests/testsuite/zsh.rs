@@ -355,7 +355,7 @@ fn complete_dynamic_empty_subcommand() {
     let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
     let input = "exhaustive empty \t\t";
-    let expected = snapbox::str!["% exhaustive empty "];
+    let expected = snapbox::str!["% exhaustive empty[..]\n..."];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
@@ -375,6 +375,56 @@ fn complete_dynamic_empty_option_value() {
     let expected = snapbox::str!["% exhaustive --empty="];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+fn dynamic_env_explicitly_falls_back_to_files_without_matches() {
+    use clap_complete::env::EnvCompleter as _;
+
+    if std::process::Command::new(CMD).arg("--version").output().is_err() {
+        return;
+    }
+
+    let mut registration = Vec::new();
+    clap_complete::env::Zsh
+        .write_registration(
+            "COMPLETE",
+            "exhaustive",
+            "exhaustive",
+            "clap-completer",
+            &mut registration,
+        )
+        .unwrap();
+    let registration = String::from_utf8(registration).unwrap();
+
+    for completer in ["clap-completer() { :; }", "clap-completer() { print candidate; }"] {
+        let script = format!(
+            r#"
+compdef() {{ :; }}
+_describe() {{ :; }}
+_path_files() {{ print path-fallback; }}
+{completer}
+typeset -A compstate
+compstate[nmatches]=0
+words=(exhaustive value)
+CURRENT=2
+{registration}
+_clap_dynamic_completer_exhaustive
+"#
+        );
+        let output = std::process::Command::new(CMD)
+            .args(["-f", "-c", &script])
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "zsh failed: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        assert_eq!(output.stdout, b"path-fallback\n");
+    }
 }
 
 #[test]
