@@ -329,9 +329,7 @@ impl<F: ErrorFormatter> Error<F> {
     /// let cmd = Command::new("my-command");
     ///
     /// let mut err = clap::Error::new(ErrorKind::ValueValidation)
-    ///     .set_source(Box::<dyn std::error::Error + Send + Sync>::from(
-    ///         "Decimals are not supported in durations",
-    ///     ))
+    ///     .set_source("Decimals are not supported in durations".into())
     ///     .with_cmd(&cmd);
     /// err.insert(
     ///     ContextKind::InvalidArg,
