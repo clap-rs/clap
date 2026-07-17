@@ -2,6 +2,8 @@
 
 mod common;
 
+use std::fs;
+
 use snapbox::assert_data_eq;
 
 #[test]
@@ -102,11 +104,27 @@ zsh
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
+    let mut dir = fs::read_dir(runtime.home())
+        .unwrap()
+        .filter_map(|entry| entry.ok())
+        .map(|entry| {
+            let name = entry.file_name().display().to_string();
+            if entry.path().is_dir() {
+                format!("{name}/")
+            } else {
+                name
+            }
+        })
+        .collect::<Vec<_>>();
+    dir.sort();
+
     let input = "test last-hint bash \t";
-    let expected = r#"% test last-hint bash 
-nushell
-powershell
-"#;
+    let expected = format!(
+        r#"% test last-hint bash 
+{}
+"#,
+        dir.join("\n")
+    );
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
