@@ -95,6 +95,15 @@ fn cli() -> clap::Command {
             ]),
             clap::Command::new("last")
                 .args([clap::Arg::new("first"), clap::Arg::new("free").last(true)]),
+            clap::Command::new("last-hint").args([
+                clap::Arg::new("first")
+                    .value_parser(["bash", "fish", "zsh"])
+                    .required(true),
+                clap::Arg::new("free")
+                    .value_parser(["nushell", "powershell"])
+                    .required(true)
+                    .last(true),
+            ]),
             clap::Command::new("alias").args([
                 clap::Arg::new("flag")
                     .short('f')

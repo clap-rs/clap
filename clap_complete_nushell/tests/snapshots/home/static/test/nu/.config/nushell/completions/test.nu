@@ -154,7 +154,17 @@ module completions {
     --help(-h)                # Print help
     --version(-V)             # Print version
     first?: string
-    free?: string
+  ]
+
+  def "nu-complete test last-hint first" [] {
+    [ "bash" "fish" "zsh" ]
+  }
+
+  export extern "test last-hint" [
+    --global                  # everywhere
+    --help(-h)                # Print help
+    --version(-V)             # Print version
+    first: string@"nu-complete test last-hint first"
   ]
 
   export extern "test alias" [
@@ -241,6 +251,9 @@ module completions {
   ]
 
   export extern "test help last" [
+  ]
+
+  export extern "test help last-hint" [
   ]
 
   export extern "test help alias" [
