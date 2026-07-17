@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Disable `.last(true)` completion as it isn't directly supported in nushell
+
 ## [4.6.0] - 2026-03-12
 
 ### Compatibility
