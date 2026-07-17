@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.6.1] - 2026-07-17
+
 ### Fixes
 
 - Disable `.last(true)` completion as it isn't directly supported in nushell
@@ -82,7 +84,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [4.3.0] - 2023-05-24
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.6.0...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.6.1...HEAD
+[4.6.1]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.6.0...clap_complete_nushell-v4.6.1
 [4.6.0]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.5.11...clap_complete_nushell-v4.6.0
 [4.5.11]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.5.10...clap_complete_nushell-v4.5.11
 [4.5.10]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.5.9...clap_complete_nushell-v4.5.10
