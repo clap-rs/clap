@@ -83,6 +83,42 @@ Options:
 "#]].raw());
 }
 
+// Non-finite f64 defaults (NaN, +inf, -inf) stringify to "NaN"/"inf"/"-inf",
+// which contain no '.', 'e', or 'E'. Without the numeric-prefix guard the
+// derive would append ".0" and render "[default: NaN.0]" etc. in the help.
+// These regressions assert the non-finite representations are left intact.
+#[test]
+fn default_value_t_float_non_finite() {
+    #[derive(Parser, PartialEq, Debug)]
+    struct Opt {
+        #[arg(long, default_value_t = f64::NAN)]
+        nan: f64,
+        #[arg(long, default_value_t = f64::INFINITY)]
+        pos_inf: f64,
+        #[arg(long, default_value_t = f64::NEG_INFINITY)]
+        neg_inf: f64,
+    }
+
+    let help = utils::get_long_help::<Opt>();
+    assert_data_eq!(help, str![[r#"
+Usage: clap [OPTIONS]
+
+Options:
+      --nan <NAN>
+          [default: NaN]
+
+      --neg-inf <NEG_INF>
+          [default: -inf]
+
+      --pos-inf <POS_INF>
+          [default: inf]
+
+  -h, --help
+          Print help
+
+"#]].raw());
+}
+
 #[test]
 fn auto_default_value_t() {
     #[derive(Parser, PartialEq, Debug)]

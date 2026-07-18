@@ -588,7 +588,15 @@ impl Item {
                             quote_spanned!(attr.name.span()=> {
                                 let val: #ty = #val;
                                 let s = ::std::string::ToString::to_string(&val);
-                                if s.contains('.') || s.contains('e') || s.contains('E') {
+                                // Only append a ".0" suffix when the stringified value
+                                // looks like a finite numeric literal (starts with a
+                                // digit, or a '-' followed by a digit). This avoids
+                                // appending ".0" to the non-finite representations
+                                // "NaN", "inf" and "-inf" produced by f32/f64 Display.
+                                let starts_numeric = s.as_bytes().first().is_some_and(|&b| b.is_ascii_digit())
+                                    || (s.as_bytes().first() == Some(&b'-')
+                                        && s.as_bytes().get(1).is_some_and(|&b| b.is_ascii_digit()));
+                                if s.contains('.') || s.contains('e') || s.contains('E') || !starts_numeric {
                                     s
                                 } else {
                                     format!("{s}.0")
