@@ -85,10 +85,8 @@ impl ErrorFormatter for RichFormatter {
         let mut suggested = false;
         if let Some(valid) = error.get(ContextKind::SuggestedSubcommand) {
             styled.push_str("\n");
-            if !suggested {
-                styled.push_str("\n");
-                suggested = true;
-            }
+            styled.push_str("\n");
+            suggested = true;
             did_you_mean(&mut styled, styles, "subcommand", valid);
         }
         if let Some(valid) = error.get(ContextKind::SuggestedArg) {
