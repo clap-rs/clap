@@ -460,6 +460,21 @@ pub(crate) fn configured_subcmd_order(name: &'static str) -> clap::Command {
         ])
 }
 
+pub(crate) fn required_arg_group(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+        .arg(
+            clap::Arg::new("foo")
+                .long("foo")
+                .action(clap::ArgAction::SetTrue),
+        )
+        .arg(
+            clap::Arg::new("bar")
+                .long("bar")
+                .action(clap::ArgAction::SetTrue),
+        )
+        .group(clap::ArgGroup::new("group").args(["foo"]).required(true))
+}
+
 pub(crate) fn default_subcmd_order(name: &'static str) -> clap::Command {
     clap::Command::new(name).version("1").subcommands(vec![
         clap::Command::new("b1").about("blah b1").arg(

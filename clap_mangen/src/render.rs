@@ -38,7 +38,7 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
     opts.sort_by_key(|opt| option_sort_key(opt));
 
     for opt in opts {
-        let (lhs, rhs) = option_markers(opt);
+        let (lhs, rhs) = option_markers(cmd, opt);
         match (opt.get_short(), opt.get_long()) {
             (Some(short), Some(long)) => {
                 line.push(roman(lhs));
@@ -67,7 +67,7 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
     }
 
     for arg in cmd.get_positionals() {
-        let (lhs, rhs) = option_markers(arg);
+        let (lhs, rhs) = option_markers(cmd, arg);
         line.push(roman(lhs));
         if let Some(value) = arg.get_value_names() {
             line.push(italic(value.join(" ")));
@@ -92,7 +92,7 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
     roff.text(line);
 }
 
-pub(crate) fn options(roff: &mut Roff, items: &[&Arg]) {
+pub(crate) fn options(roff: &mut Roff, cmd: &clap::Command, items: &[&Arg]) {
     let mut sorted_items = items.to_vec();
     sorted_items.sort_by_key(|opt| option_sort_key(opt));
 
@@ -158,7 +158,7 @@ pub(crate) fn options(roff: &mut Roff, items: &[&Arg]) {
 
     for pos in items.iter().filter(|a| a.is_positional()) {
         let mut header = vec![];
-        let (lhs, rhs) = option_markers(pos);
+        let (lhs, rhs) = option_markers(cmd, pos);
         header.push(roman(lhs));
         if let Some(value) = pos.get_value_names() {
             header.push(italic(value.join(" ")));
@@ -256,8 +256,17 @@ fn subcommand_markers(cmd: &clap::Command) -> (&'static str, &'static str) {
     markers(cmd.is_subcommand_required_set())
 }
 
-fn option_markers(opt: &Arg) -> (&'static str, &'static str) {
-    markers(opt.is_required_set())
+fn option_markers(cmd: &clap::Command, opt: &Arg) -> (&'static str, &'static str) {
+    markers(opt.is_required_set() || is_in_required_group(cmd, opt))
+}
+
+// An arg that isn't itself `required` can still always be required in practice, if it is the
+// only member of a `required` `ArgGroup`. `clap`'s own usage string treats such groups
+// specially (rendering the whole group's alternatives between the required-markers), but a
+// single-member group is equivalent to the member itself being required.
+fn is_in_required_group(cmd: &clap::Command, opt: &Arg) -> bool {
+    cmd.get_groups()
+        .any(|group| group.is_required_set() && group.get_args().eq([opt.get_id()]))
 }
 
 fn markers(required: bool) -> (&'static str, &'static str) {

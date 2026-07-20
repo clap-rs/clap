@@ -162,6 +162,16 @@ fn variadic_values() {
 }
 
 #[test]
+fn required_arg_group() {
+    let name = "my-app";
+    let cmd = common::required_arg_group(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/required_arg_group.roff"],
+        cmd,
+    );
+}
+
+#[test]
 fn configured_display_order_args() {
     let name = "my-app";
     let cmd = common::configured_display_order_args(name);

@@ -265,7 +265,7 @@ impl Man {
 
         if !args.is_empty() {
             roff.control("SH", ["OPTIONS"]);
-            render::options(roff, &args);
+            render::options(roff, &self.cmd, &args);
         }
 
         for heading in help_headings {
@@ -275,7 +275,7 @@ impl Man {
                 .partition(|&a| a.get_help_heading() == Some(heading));
 
             roff.control("SH", [heading.to_uppercase().as_str()]);
-            render::options(roff, &args);
+            render::options(roff, &self.cmd, &args);
         }
     }
 
