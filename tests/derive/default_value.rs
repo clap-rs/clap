@@ -83,6 +83,38 @@ Options:
 }
 
 #[test]
+fn default_value_t_string_expr() {
+    #[derive(Parser, PartialEq, Eq, Debug)]
+    #[command(author = "David Lynch", about = "3d modelling but epic")]
+    struct Args {
+        #[arg(short, long, help = "source file", default_value_t = "./tests/cube/main.kda".to_string())]
+        source: String,
+        #[arg(short, long, help = "output file", default_value_t = "output.obj".to_string())]
+        output: String,
+    }
+
+    assert_eq!(
+        Args {
+            source: "./tests/cube/main.kda".to_owned(),
+            output: "output.obj".to_owned(),
+        },
+        Args::try_parse_from(["test"]).unwrap()
+    );
+    assert_eq!(
+        Args {
+            source: "input.kda".to_owned(),
+            output: "mesh.obj".to_owned(),
+        },
+        Args::try_parse_from(["test", "--source", "input.kda", "--output", "mesh.obj"])
+            .unwrap()
+    );
+
+    let help = utils::get_long_help::<Args>();
+    assert!(help.contains("[default: ./tests/cube/main.kda]"));
+    assert!(help.contains("[default: output.obj]"));
+}
+
+#[test]
 fn default_values_t() {
     #[derive(Parser, PartialEq, Debug)]
     struct Opt {
