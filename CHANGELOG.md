@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(derive)* Allow `"literal".function()` as attribute values
+
 ## [4.6.2] - 2026-07-15
 
 ### Fixes
