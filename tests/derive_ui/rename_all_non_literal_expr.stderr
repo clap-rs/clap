@@ -1,0 +1,5 @@
+error: expected `,`
+ --> tests/derive_ui/rename_all_non_literal_expr.rs:4:52
+  |
+4 | #[command(name = "basic", rename_all = "snake_case".to_owned())]
+  |                                                    ^
