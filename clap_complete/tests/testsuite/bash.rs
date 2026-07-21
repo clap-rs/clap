@@ -193,6 +193,55 @@ fn subcommand_last() {
 
 #[test]
 #[cfg(unix)]
+fn completes_subcommand_options_for_hyphenated_binary_name() {
+    let name = "my-app";
+    let mut cmd = clap::Command::new(name).subcommand(
+        clap::Command::new("thunder").arg(
+            clap::Arg::new("lightning")
+                .long("lightning")
+                .action(clap::ArgAction::SetTrue),
+        ),
+    );
+
+    let mut script = vec![];
+    clap_complete::generate(clap_complete::shells::Bash, &mut cmd, name, &mut script);
+
+    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+    let script_path = testdir.path().unwrap().join("my-app.bash");
+    std::fs::write(&script_path, script).unwrap();
+
+    let output = match std::process::Command::new("bash").arg("--version").output() {
+        Ok(output) if output.status.success() => std::process::Command::new("bash")
+            .arg("-c")
+            .arg(
+                r#"
+source "$1"
+COMP_WORDS=(my-app thunder --)
+COMP_CWORD=2
+_my-app my-app "--" "thunder"
+printf '%s\n' "${COMPREPLY[@]}"
+"#,
+            )
+            .arg("bash")
+            .arg(&script_path)
+            .output()
+            .unwrap(),
+        _ => return,
+    };
+
+    assert!(
+        output.status.success(),
+        "stderr:\n{}\nstdout:\n{}",
+        String::from_utf8_lossy(&output.stderr),
+        String::from_utf8_lossy(&output.stdout),
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("--lightning"), "Actual output:\n{stdout}");
+    assert!(stdout.contains("--help"), "Actual output:\n{stdout}");
+}
+
+#[test]
+#[cfg(unix)]
 #[cfg(feature = "unstable-shell-tests")]
 fn register_completion() {
     common::register_example::<RuntimeBuilder>("static", "exhaustive");
