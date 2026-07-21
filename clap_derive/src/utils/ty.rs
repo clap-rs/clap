@@ -86,6 +86,7 @@ fn only_last_segment(mut ty: &Type) -> Option<&PathSegment> {
                     leading_colon: None,
                     segments,
                 },
+            attrs: _,
         }) => only_one(segments.iter()),
 
         _ => None,
