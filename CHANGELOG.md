@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Internal
+
+- Update to syn v3
+
 ## [4.6.3] - 2026-07-20
 
 ### Fixes
