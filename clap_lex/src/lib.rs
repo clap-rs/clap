@@ -197,7 +197,11 @@ impl RawArgs {
     /// Advance the cursor, returning a raw argument value.
     pub fn next_os<'s>(&'s self, cursor: &mut ArgCursor) -> Option<&'s OsStr> {
         let next = self.items.get(cursor.cursor).map(|s| s.as_os_str());
-        cursor.cursor = cursor.cursor.saturating_add(1);
+        if next.is_some() {
+            cursor.cursor += 1;
+        } else {
+            cursor.cursor = self.items.len();
+        }
         next
     }
 
