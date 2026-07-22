@@ -944,6 +944,57 @@ fn subcommand_conflict_negates_required() {
 }
 
 #[test]
+#[cfg(feature = "unstable-v5")]
+fn args_conflicts_with_subcommands_satisfies_subcommand_required() {
+    let cmd = Command::new("expenses")
+        .subcommand_required(true)
+        .args_conflicts_with_subcommands(true)
+        .arg(arg!(--about "Print about"))
+        .subcommand(Command::new("manage"))
+        .subcommand(Command::new("track"));
+
+    // Flag only → OK (top-level exclusive arg stands in for a subcommand)
+    let m = cmd
+        .clone()
+        .try_get_matches_from(["expenses", "--about"])
+        .unwrap();
+    assert!(*m.get_one::<bool>("about").expect("present"));
+    assert!(m.subcommand_name().is_none());
+
+    // Subcommand → OK
+    let m = cmd
+        .clone()
+        .try_get_matches_from(["expenses", "manage"])
+        .unwrap();
+    assert_eq!(m.subcommand_name(), Some("manage"));
+
+    // Neither → still MissingSubcommand
+    let err = cmd.try_get_matches_from(["expenses"]).unwrap_err();
+    assert_eq!(err.kind(), ErrorKind::MissingSubcommand);
+}
+
+#[test]
+#[cfg(all(feature = "error-context", feature = "unstable-v5"))]
+fn args_conflicts_with_subcommands_satisfies_subcommand_required_error() {
+    static ERROR: &str = "\
+error: 'expenses' requires a subcommand but one was not provided
+  [subcommands: manage, track, help]
+
+Usage: expenses [OPTIONS]
+       expenses <COMMAND>
+
+For more information, try '--help'.
+";
+    let cmd = Command::new("expenses")
+        .subcommand_required(true)
+        .args_conflicts_with_subcommands(true)
+        .arg(arg!(--about))
+        .subcommand(Command::new("manage"))
+        .subcommand(Command::new("track"));
+    utils::assert_output(cmd, "expenses", ERROR, true);
+}
+
+#[test]
 fn args_negate_subcommands_one_level() {
     let res = Command::new("disablehelp")
         .args_conflicts_with_subcommands(true)
