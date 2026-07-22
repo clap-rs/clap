@@ -11,6 +11,8 @@ use std::path::Path;
 // Internal
 use crate::builder::ArgAction;
 use crate::builder::IntoResettable;
+#[cfg(all(feature = "env", feature = "string"))]
+use crate::builder::OsStr;
 use crate::builder::PossibleValue;
 use crate::builder::Str;
 use crate::builder::StyledStr;
@@ -101,6 +103,8 @@ pub struct Command {
     subcommands: Vec<Command>,
     groups: Vec<ArgGroup>,
     current_help_heading: Option<Str>,
+    #[cfg(all(feature = "env", feature = "string"))]
+    current_env_prefix: Option<OsStr>,
     current_disp_ord: Option<usize>,
     subcommand_value_name: Option<Str>,
     subcommand_heading: Option<Str>,
@@ -185,6 +189,11 @@ impl Command {
 
         arg.help_heading
             .get_or_insert_with(|| self.current_help_heading.clone());
+        #[cfg(all(feature = "env", feature = "string"))]
+        {
+            arg.env_prefix
+                .get_or_insert_with(|| self.current_env_prefix.clone());
+        }
         self.args.push(arg);
     }
 
@@ -2378,6 +2387,41 @@ impl Command {
         self
     }
 
+    /// Sets a prefix to be prepended to the environment variable names of all
+    /// subsequent arguments added to this command.
+    ///
+    /// This is a stateful method that affects all future [`Arg`]s added via
+    /// [`Command::arg`]. An explicit [`Arg::env_prefix`] on an argument takes
+    /// precedence over this.
+    ///
+    /// The prefix and the argument's env name will be joined with `_`.
+    ///
+    /// This is modeled after [`Command::next_help_heading`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # #[cfg(all(feature = "env", feature = "string"))] {
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, Arg};
+    /// let cmd = Command::new("myapp")
+    ///     .next_env_prefix("MYAPP")
+    ///     .arg(Arg::new("config").long("config").env("CONFIG"))
+    ///     .arg(Arg::new("verbose").long("verbose"));
+    /// // config's env var will be MYAPP_CONFIG
+    /// # }
+    /// ```
+    ///
+    /// [`Command::arg`]: Command::arg()
+    /// [`Arg::env_prefix`]: crate::Arg::env_prefix()
+    #[cfg(all(feature = "env", feature = "string"))]
+    #[inline]
+    #[must_use]
+    pub fn next_env_prefix(mut self, prefix: impl IntoResettable<OsStr>) -> Self {
+        self.current_env_prefix = prefix.into_resettable().into_option();
+        self
+    }
+
     /// Change the starting value for assigning future display orders for args.
     ///
     /// This will be used for any arg that hasn't had [`Arg::display_order`] called.
@@ -3834,6 +3878,13 @@ impl Command {
         self.current_help_heading.as_deref()
     }
 
+    /// Get the env prefix specified via [`Command::next_env_prefix`].
+    #[cfg(all(feature = "env", feature = "string"))]
+    #[inline]
+    pub fn get_next_env_prefix(&self) -> Option<&std::ffi::OsStr> {
+        self.current_env_prefix.as_ref().map(|s| s.as_os_str())
+    }
+
     /// Iterate through the *visible* aliases for this subcommand.
     #[inline]
     pub fn get_visible_aliases(&self) -> impl Iterator<Item = &str> + '_ {
@@ -4437,6 +4488,18 @@ impl Command {
                         let mut ag = ArgGroup::new(g);
                         ag.args.push(a.get_id().clone());
                         self.groups.push(ag);
+                    }
+                }
+
+                // Apply env prefix to env variable names
+                #[cfg(all(feature = "env", feature = "string"))]
+                if let Some(Some(ref prefix)) = a.env_prefix {
+                    if let Some((ref env_name, _)) = a.env {
+                        let mut prefixed = prefix.to_os_string();
+                        prefixed.push("_");
+                        prefixed.push(env_name.as_os_str());
+                        let value = env::var_os(&prefixed);
+                        a.env = Some((OsStr::from_string(prefixed), value));
                     }
                 }
 
@@ -5221,6 +5284,8 @@ impl Default for Command {
             subcommands: Default::default(),
             groups: Default::default(),
             current_help_heading: Default::default(),
+            #[cfg(all(feature = "env", feature = "string"))]
+            current_env_prefix: Default::default(),
             current_disp_ord: Some(0),
             subcommand_value_name: Default::default(),
             subcommand_heading: Default::default(),
