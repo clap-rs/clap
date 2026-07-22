@@ -63,6 +63,11 @@
 //! echo "source <(COMPLETE=zsh your_program)" >> ~/.zshrc
 //! ```
 //!
+//! To show completions grouped by category (options, commands, etc.), also add:
+//! ```zsh
+//! echo "zstyle ':completion:*:descriptions' format '%d'" >> ~/.zshrc
+//! ```
+//!
 //! To disable completions, you can set `COMPLETE=` or `COMPLETE=0`
 
 mod shells;
