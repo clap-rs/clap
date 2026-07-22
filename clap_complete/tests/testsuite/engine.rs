@@ -112,6 +112,17 @@ hello-moon
 }
 
 #[test]
+fn prefer_subcommand_name_over_visible_alias() {
+    let mut cmd = Command::new("exhaustive")
+        .subcommand(Command::new("install").visible_alias("i"))
+        .subcommand(Command::new("remove").visible_alias("rm"));
+
+    assert_data_eq!(complete!(cmd, "i[TAB]"), snapbox::str!["install"]);
+    assert_data_eq!(complete!(cmd, "in[TAB]"), snapbox::str!["install"]);
+    assert_data_eq!(complete!(cmd, "rm[TAB]"), snapbox::str!["rm"]);
+}
+
+#[test]
 fn suggest_hidden_possible_value() {
     let mut cmd = Command::new("exhaustive").arg(
         clap::Arg::new("possible_value").long("test").value_parser([
