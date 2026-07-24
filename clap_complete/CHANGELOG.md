@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(bash)* Complete subcommand options for hyphenated bin names, using a POSIX-compliant completion function name
+
 ## [4.6.6] - 2026-06-30
 
 ### Fixes

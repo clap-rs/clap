@@ -218,7 +218,7 @@ fn completes_subcommand_options_for_hyphenated_binary_name() {
 source "$1"
 COMP_WORDS=(my-app thunder --)
 COMP_CWORD=2
-_my-app my-app "--" "thunder"
+_my__app my-app "--" "thunder"
 printf '%s\n' "${COMPREPLY[@]}"
 "#,
             )
@@ -238,6 +238,23 @@ printf '%s\n' "${COMPREPLY[@]}"
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(stdout.contains("--lightning"), "Actual output:\n{stdout}");
     assert!(stdout.contains("--help"), "Actual output:\n{stdout}");
+
+    // POSIX-mode bash (e.g. /bin/sh symlinked to bash) rejects function names
+    // containing hyphens, so sourcing must not fail with "not a valid
+    // identifier" for a hyphenated binary name.
+    let posix_output = std::process::Command::new("bash")
+        .arg("--posix")
+        .arg("-c")
+        .arg(r#"source "$1""#)
+        .arg("bash")
+        .arg(&script_path)
+        .output()
+        .unwrap();
+    assert!(
+        posix_output.status.success(),
+        "sourcing under POSIX-mode bash failed\nstderr:\n{}",
+        String::from_utf8_lossy(&posix_output.stderr),
+    );
 }
 
 #[test]

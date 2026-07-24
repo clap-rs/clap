@@ -1,4 +1,4 @@
-_my-app() {
+_my__app() {
     local i cur prev opts cmd
     COMPREPLY=()
     if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
@@ -151,7 +151,7 @@ _my-app() {
 }
 
 if [[ "${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -ge 4 || "${BASH_VERSINFO[0]}" -gt 4 ]]; then
-    complete -F _my-app -o nosort -o bashdefault -o default my-app
+    complete -F _my__app -o nosort -o bashdefault -o default my-app
 else
-    complete -F _my-app -o bashdefault -o default my-app
+    complete -F _my__app -o bashdefault -o default my-app
 fi
