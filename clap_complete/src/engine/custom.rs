@@ -1,5 +1,6 @@
 use std::any::type_name;
 use std::ffi::OsStr;
+use std::ffi::OsString;
 use std::sync::Arc;
 
 use clap::builder::ArgExt;
@@ -155,6 +156,10 @@ impl ArgValueCandidates {
     pub fn candidates(&self) -> Vec<CompletionCandidate> {
         self.0.candidates()
     }
+
+    pub(crate) fn value_candidates(&self) -> &dyn ValueCandidates {
+        &*self.0
+    }
 }
 
 impl std::fmt::Debug for ArgValueCandidates {
@@ -198,6 +203,10 @@ impl SubcommandCandidates {
     /// See [`CompletionCandidate`] for more information.
     pub fn candidates(&self) -> Vec<CompletionCandidate> {
         self.0.candidates()
+    }
+
+    pub(crate) fn value_candidates(&self) -> &dyn ValueCandidates {
+        &*self.0
     }
 }
 
@@ -415,4 +424,40 @@ fn path_has_name(path: &std::path::Path) -> bool {
     };
     let trailing = *trailing as char;
     !std::path::is_separator(trailing) && path.file_name().is_some()
+}
+
+/// Create [`CompletionCandidate`]s for [`clap::builder::PossibleValue`]
+///
+/// This is implicitly applied for arguments with either a [`clap::builder::PossibleValuesParser`] or [`clap::builder::EnumValueParser`].
+///
+/// Using this explicitly is intended for arguments that also accept other value formats that need
+/// to be completed and the completer is eager ([`ValueCandidates`]).
+/// For lazy completion, see [`complete_possible_values`].
+pub fn possible_value_candidates(
+    values: impl IntoIterator<Item = clap::builder::PossibleValue>,
+) -> Vec<CompletionCandidate> {
+    values
+        .into_iter()
+        .map(|p| {
+            CompletionCandidate::new(OsString::from(p.get_name()))
+                .help(p.get_help().cloned())
+                .hide(p.is_hide_set())
+        })
+        .collect()
+}
+
+/// Create [`CompletionCandidate`]s for [`clap::builder::PossibleValue`]
+///
+/// This is implicitly applied for arguments with either a [`clap::builder::PossibleValuesParser`] or [`clap::builder::EnumValueParser`].
+///
+/// Using this explicitly is intended for arguments that also accept other value formats that need
+/// to be completed and the completer is lazy ([`ValueCompleter`]).
+/// For eager completion, see [`possible_value_candidates`].
+pub fn complete_possible_values(
+    value: &OsStr,
+    values: impl IntoIterator<Item = clap::builder::PossibleValue>,
+) -> Vec<CompletionCandidate> {
+    let mut values = possible_value_candidates(values);
+    values.retain(|comp| comp.get_value().starts_with(&value.to_string_lossy()));
+    values
 }
