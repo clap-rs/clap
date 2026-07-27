@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.6.8] - 2026-07-27
+
 ### Features
 
 - *(dynamic)* Expose helpers for `PossibleValue` completion for composing with custom completers
@@ -694,7 +696,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.6.7...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.6.8...HEAD
+[4.6.8]: https://github.com/clap-rs/clap/compare/clap_complete-v4.6.7...clap_complete-v4.6.8
 [4.6.7]: https://github.com/clap-rs/clap/compare/clap_complete-v4.6.6...clap_complete-v4.6.7
 [4.6.6]: https://github.com/clap-rs/clap/compare/clap_complete-v4.6.5...clap_complete-v4.6.6
 [4.6.5]: https://github.com/clap-rs/clap/compare/clap_complete-v4.6.4...clap_complete-v4.6.5
