@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- *(dynamic)* Expose helpers for `PossibleValue` completion for composing with custom completers
+
 ## [4.6.7] - 2026-07-01
 
 ### Fixes
