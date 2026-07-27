@@ -366,14 +366,10 @@ fn complete_arg_value(
         ));
     } else if let Some(possible_values) = possible_values(arg) {
         if let Ok(value) = value {
-            values.extend(possible_values.into_iter().filter_map(|p| {
-                let name = p.get_name();
-                name.starts_with(value).then(|| {
-                    CompletionCandidate::new(OsString::from(name))
-                        .help(p.get_help().cloned())
-                        .hide(p.is_hide_set())
-                })
-            }));
+            values.extend(complete_candidates_str(
+                value,
+                possible_value_candidates(possible_values),
+            ));
         }
     } else {
         match arg.get_value_hint() {
@@ -453,15 +449,23 @@ fn complete_value_candidates(
     values
 }
 
+fn complete_candidates_str(
+    value: &str,
+    mut values: Vec<CompletionCandidate>,
+) -> Vec<CompletionCandidate> {
+    debug!("complete_candidates_str: value={value:?}");
+
+    values.retain(|comp| comp.get_value().starts_with(value));
+    values
+}
+
 fn complete_value_candidates_str(
     value: &str,
     completer: &dyn ValueCandidates,
 ) -> Vec<CompletionCandidate> {
     debug!("complete_value_candidates_str: value={value:?}");
 
-    let mut values = completer.candidates();
-    values.retain(|comp| comp.get_value().starts_with(value));
-    values
+    complete_candidates_str(value, completer.candidates())
 }
 
 fn complete_subcommand(value: &str, cmd: &clap::Command) -> Vec<CompletionCandidate> {
@@ -556,6 +560,19 @@ fn populate_arg_candidate(candidate: CompletionCandidate, arg: &clap::Arg) -> Co
         ))
         .display_order(Some(arg.get_display_order()))
         .hide(arg.is_hide_set())
+}
+
+fn possible_value_candidates(
+    values: impl IntoIterator<Item = clap::builder::PossibleValue>,
+) -> Vec<CompletionCandidate> {
+    values
+        .into_iter()
+        .map(|p| {
+            CompletionCandidate::new(OsString::from(p.get_name()))
+                .help(p.get_help().cloned())
+                .hide(p.is_hide_set())
+        })
+        .collect()
 }
 
 /// Get the possible values for completion
