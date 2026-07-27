@@ -478,12 +478,8 @@ fn complete_external_subcommand(
 ) -> Vec<CompletionCandidate> {
     debug!("complete_custom_arg_value: completer={completer:?}, value={value:?}");
 
-    let mut values = Vec::new();
-    let custom_arg_values = completer.candidates();
-    values.extend(custom_arg_values);
-
+    let mut values = completer.candidates();
     values.retain(|comp| comp.get_value().starts_with(value));
-
     values
 }
 
