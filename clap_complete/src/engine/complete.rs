@@ -9,6 +9,7 @@ use super::CompletionCandidate;
 use super::SubcommandCandidates;
 use super::ValueCandidates;
 use super::custom::complete_path;
+use super::custom::possible_value_candidates;
 
 /// Complete the given command, shell-agnostic
 pub fn complete(
@@ -560,19 +561,6 @@ fn populate_arg_candidate(candidate: CompletionCandidate, arg: &clap::Arg) -> Co
         ))
         .display_order(Some(arg.get_display_order()))
         .hide(arg.is_hide_set())
-}
-
-fn possible_value_candidates(
-    values: impl IntoIterator<Item = clap::builder::PossibleValue>,
-) -> Vec<CompletionCandidate> {
-    values
-        .into_iter()
-        .map(|p| {
-            CompletionCandidate::new(OsString::from(p.get_name()))
-                .help(p.get_help().cloned())
-                .hide(p.is_hide_set())
-        })
-        .collect()
 }
 
 /// Get the possible values for completion
