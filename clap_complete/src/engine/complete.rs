@@ -453,6 +453,17 @@ fn complete_value_candidates(
     values
 }
 
+fn complete_value_candidates_str(
+    value: &str,
+    completer: &dyn ValueCandidates,
+) -> Vec<CompletionCandidate> {
+    debug!("complete_value_candidates_str: value={value:?}");
+
+    let mut values = completer.candidates();
+    values.retain(|comp| comp.get_value().starts_with(value));
+    values
+}
+
 fn complete_subcommand(value: &str, cmd: &clap::Command) -> Vec<CompletionCandidate> {
     debug!(
         "complete_subcommand: cmd={:?}, value={:?}",
@@ -477,17 +488,6 @@ fn complete_subcommand(value: &str, cmd: &clap::Command) -> Vec<CompletionCandid
     scs.sort();
     scs.dedup();
     scs
-}
-
-fn complete_value_candidates_str(
-    value: &str,
-    completer: &dyn ValueCandidates,
-) -> Vec<CompletionCandidate> {
-    debug!("complete_value_candidates_str: value={value:?}");
-
-    let mut values = completer.candidates();
-    values.retain(|comp| comp.get_value().starts_with(value));
-    values
 }
 
 /// Gets all the long options, their visible aliases and flags of a [`clap::Command`] with formatted `--` prefix.
