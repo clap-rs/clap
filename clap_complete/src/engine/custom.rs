@@ -155,6 +155,10 @@ impl ArgValueCandidates {
     pub fn candidates(&self) -> Vec<CompletionCandidate> {
         self.0.candidates()
     }
+
+    pub(crate) fn value_candidates(&self) -> &dyn ValueCandidates {
+        &*self.0
+    }
 }
 
 impl std::fmt::Debug for ArgValueCandidates {
@@ -198,6 +202,10 @@ impl SubcommandCandidates {
     /// See [`CompletionCandidate`] for more information.
     pub fn candidates(&self) -> Vec<CompletionCandidate> {
         self.0.candidates()
+    }
+
+    pub(crate) fn value_candidates(&self) -> &dyn ValueCandidates {
+        &*self.0
     }
 }
 

@@ -7,6 +7,7 @@ use super::ArgValueCandidates;
 use super::ArgValueCompleter;
 use super::CompletionCandidate;
 use super::SubcommandCandidates;
+use super::ValueCandidates;
 use super::custom::complete_path;
 
 /// Complete the given command, shell-agnostic
@@ -359,7 +360,10 @@ fn complete_arg_value(
     if let Some(completer) = arg.get::<ArgValueCompleter>() {
         values.extend(completer.complete_at(arg_index, value_os));
     } else if let Some(completer) = arg.get::<ArgValueCandidates>() {
-        values.extend(complete_custom_arg_value(value_os, completer));
+        values.extend(complete_value_candidates(
+            value_os,
+            completer.value_candidates(),
+        ));
     } else if let Some(possible_values) = possible_values(arg) {
         if let Ok(value) = value {
             values.extend(possible_values.into_iter().filter_map(|p| {
@@ -438,11 +442,11 @@ fn rsplit_delimiter<'s, 'o>(
     Some((Some(prefix), Ok(value)))
 }
 
-fn complete_custom_arg_value(
+fn complete_value_candidates(
     value: &OsStr,
-    completer: &ArgValueCandidates,
+    completer: &dyn ValueCandidates,
 ) -> Vec<CompletionCandidate> {
-    debug!("complete_custom_arg_value: completer={completer:?}, value={value:?}");
+    debug!("complete_value_candidates: value={value:?}");
 
     let mut values = completer.candidates();
     values.retain(|comp| comp.get_value().starts_with(&value.to_string_lossy()));
@@ -463,7 +467,10 @@ fn complete_subcommand(value: &str, cmd: &clap::Command) -> Vec<CompletionCandid
     if cmd.is_allow_external_subcommands_set() {
         let external_completer = cmd.get::<SubcommandCandidates>();
         if let Some(completer) = external_completer {
-            scs.extend(complete_external_subcommand(value, completer));
+            scs.extend(complete_value_candidates_str(
+                value,
+                completer.value_candidates(),
+            ));
         }
     }
 
@@ -472,11 +479,11 @@ fn complete_subcommand(value: &str, cmd: &clap::Command) -> Vec<CompletionCandid
     scs
 }
 
-fn complete_external_subcommand(
+fn complete_value_candidates_str(
     value: &str,
-    completer: &SubcommandCandidates,
+    completer: &dyn ValueCandidates,
 ) -> Vec<CompletionCandidate> {
-    debug!("complete_custom_arg_value: completer={completer:?}, value={value:?}");
+    debug!("complete_value_candidates_str: value={value:?}");
 
     let mut values = completer.candidates();
     values.retain(|comp| comp.get_value().starts_with(value));
