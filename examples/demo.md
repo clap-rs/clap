@@ -1,6 +1,6 @@
 ```console
 $ demo --help
-A simple to use, efficient, and full-featured Command Line Argument Parser
+Simple program to greet a person
 
 Usage: demo[EXE] [OPTIONS] --name <NAME>
 
