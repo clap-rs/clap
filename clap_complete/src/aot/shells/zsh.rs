@@ -381,8 +381,9 @@ fn value_completion(arg: &Arg) -> Option<String> {
                             Some(format!(
                                 r#"{name}\:"{tooltip}""#,
                                 name = escape_value(value.get_name()),
-                                tooltip =
-                                    escape_help(&value.get_help().unwrap_or_default().to_string()),
+                                tooltip = escape_value_help(
+                                    &value.get_help().unwrap_or_default().to_string()
+                                ),
                             ))
                         }
                     })
@@ -437,6 +438,17 @@ fn escape_help(string: &str) -> String {
         .replace('$', "\\$")
         .replace('`', "\\`")
         .replace('\n', " ")
+}
+
+/// Escape a possible-value's help, which is emitted inside double quotes as
+/// `value\:"help"` rather than inside `[...]` like every other help string.
+///
+/// [`escape_help`] deliberately leaves `"` alone — that is correct in the bracket
+/// form, which sits inside single quotes and renders a quote literally. Here an
+/// unescaped `"` closes the tooltip early and zsh reports `unmatched "` when the
+/// spec is evaluated.
+fn escape_value_help(string: &str) -> String {
+    escape_help(string).replace('"', "\\\"")
 }
 
 /// Escape value string inside single quotes and parentheses
@@ -682,7 +694,7 @@ const CMD_SEP: &str = "__subcmd__";
 
 #[cfg(test)]
 mod tests {
-    use super::{escape_help, escape_value};
+    use super::{escape_help, escape_value, escape_value_help};
 
     #[test]
     fn test_escape_value() {
@@ -698,6 +710,29 @@ mod tests {
         let raw_string = "\\ [foo]() `bar https://$PATH";
         assert_eq!(
             escape_help(raw_string),
+            "\\\\ \\[foo\\]() \\`bar https\\://\\$PATH"
+        );
+    }
+
+    #[test]
+    fn test_escape_value_help() {
+        // A possible value's help is emitted inside double quotes, so an unescaped `"`
+        // closes it early and zsh reports `unmatched "` when the spec is evaluated.
+        // The bracket form keeps a bare `"`, which is why this is separate from
+        // `escape_help` rather than folded into it.
+        assert_eq!(
+            escape_value_help(r#"a double quote " here"#),
+            r#"a double quote \" here"#
+        );
+        assert_eq!(
+            escape_help(r#"a double quote " here"#),
+            r#"a double quote " here"#
+        );
+
+        // everything escape_help already handles is still handled
+        let raw_string = "\\ [foo]() `bar https://$PATH";
+        assert_eq!(
+            escape_value_help(raw_string),
             "\\\\ \\[foo\\]() \\`bar https\\://\\$PATH"
         );
     }
