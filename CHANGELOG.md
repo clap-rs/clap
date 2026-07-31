@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(help)* Correctly mark which `value_names` are optional with `num_args`
+
 ## [4.6.4] - 2026-07-21
 
 ### Internal
