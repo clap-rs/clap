@@ -28,6 +28,7 @@
 //!   - Optional subcommands
 //!   - Default subcommands
 //!   - [`last`][crate::Arg::last]
+//!   - Configurable command aliases
 //!
 //! pacman-like interface: [builder][pacman]
 //! - Topics:
