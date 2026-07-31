@@ -251,6 +251,11 @@ path = "examples/multicall-hostname.rs"
 doc-scrape-examples = true
 
 [[example]]
+name = "pacman"
+test = true
+doc-scrape-examples = true
+
+[[example]]
 name = "repl"
 path = "examples/repl.rs"
 required-features = ["help"]
