@@ -4810,3 +4810,23 @@ Options:
 "#]];
     utils::assert_output(cmd, "myprog --help", expected, false);
 }
+
+#[test]
+fn partially_optional_value_names() {
+    let cmd = Command::new("prog").arg(
+        Arg::new("example")
+            .long("example")
+            .num_args(1..=2)
+            .help("Takes one or two values")
+            .value_names(["FOO", "BAR"]),
+    );
+    let expected = str![[r#"
+Usage: prog [OPTIONS]
+
+Options:
+      --example <FOO> <BAR>  Takes one or two values
+  -h, --help                 Print help
+
+"#]];
+    utils::assert_output(cmd, "prog --help", expected, false);
+}
