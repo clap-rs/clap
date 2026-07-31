@@ -19,7 +19,7 @@ _exhaustive() {
 '--empty-choice=[]: :()' \
 '-h[Print help]' \
 '--help[Print help]' \
-":: :_exhaustive_commands" \
+": :_exhaustive_commands" \
 "*::: :->exhaustive" \
 && ret=0
     case $state in
@@ -39,7 +39,7 @@ _arguments "${_arguments_options[@]}" : \
 '--help[Print help]' \
 '-V[Print version]' \
 '--version[Print version]' \
-":: :_exhaustive__subcmd__global_commands" \
+": :_exhaustive__subcmd__global_commands" \
 "*::: :->global" \
 && ret=0
 
@@ -56,7 +56,7 @@ _arguments "${_arguments_options[@]}" : \
 '--help[Print help]' \
 '-V[Print version]' \
 '--version[Print version]' \
-":: :_exhaustive__subcmd__global__subcmd__one_commands" \
+": :_exhaustive__subcmd__global__subcmd__one_commands" \
 "*::: :->one" \
 && ret=0
 
@@ -77,7 +77,7 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" : \
-":: :_exhaustive__subcmd__global__subcmd__one__subcmd__help_commands" \
+": :_exhaustive__subcmd__global__subcmd__one__subcmd__help_commands" \
 "*::: :->help" \
 && ret=0
 
@@ -114,7 +114,7 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" : \
-":: :_exhaustive__subcmd__global__subcmd__help_commands" \
+": :_exhaustive__subcmd__global__subcmd__help_commands" \
 "*::: :->help" \
 && ret=0
 
@@ -126,7 +126,7 @@ _arguments "${_arguments_options[@]}" : \
         case $line[1] in
             (one)
 _arguments "${_arguments_options[@]}" : \
-":: :_exhaustive__subcmd__global__subcmd__help__subcmd__one_commands" \
+": :_exhaustive__subcmd__global__subcmd__help__subcmd__one_commands" \
 "*::: :->one" \
 && ret=0
 
@@ -184,7 +184,7 @@ zsh\:"zsh shell"))' \
 '--expansions[Execute the shell command with \$SHELL]' \
 '-h[Print help (see more with '\''--help'\'')]' \
 '--help[Print help (see more with '\''--help'\'')]' \
-":: :_exhaustive__subcmd__quote_commands" \
+": :_exhaustive__subcmd__quote_commands" \
 "*::: :->quote" \
 && ret=0
 
@@ -238,7 +238,7 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" : \
-":: :_exhaustive__subcmd__quote__subcmd__help_commands" \
+": :_exhaustive__subcmd__quote__subcmd__help_commands" \
 "*::: :->help" \
 && ret=0
 
@@ -302,7 +302,7 @@ _arguments "${_arguments_options[@]}" : \
 _arguments "${_arguments_options[@]}" : \
 '-h[Print help]' \
 '--help[Print help]' \
-":: :_exhaustive__subcmd__pacman_commands" \
+": :_exhaustive__subcmd__pacman_commands" \
 "*::: :->pacman" \
 && ret=0
 
@@ -326,7 +326,7 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" : \
-":: :_exhaustive__subcmd__pacman__subcmd__help_commands" \
+": :_exhaustive__subcmd__pacman__subcmd__help_commands" \
 "*::: :->help" \
 && ret=0
 
@@ -408,7 +408,7 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" : \
-":: :_exhaustive__subcmd__help_commands" \
+": :_exhaustive__subcmd__help_commands" \
 "*::: :->help" \
 && ret=0
 
@@ -424,7 +424,7 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (global)
 _arguments "${_arguments_options[@]}" : \
-":: :_exhaustive__subcmd__help__subcmd__global_commands" \
+": :_exhaustive__subcmd__help__subcmd__global_commands" \
 "*::: :->global" \
 && ret=0
 
@@ -436,7 +436,7 @@ _arguments "${_arguments_options[@]}" : \
         case $line[1] in
             (one)
 _arguments "${_arguments_options[@]}" : \
-":: :_exhaustive__subcmd__help__subcmd__global__subcmd__one_commands" \
+": :_exhaustive__subcmd__help__subcmd__global__subcmd__one_commands" \
 "*::: :->one" \
 && ret=0
 
@@ -468,7 +468,7 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (quote)
 _arguments "${_arguments_options[@]}" : \
-":: :_exhaustive__subcmd__help__subcmd__quote_commands" \
+": :_exhaustive__subcmd__help__subcmd__quote_commands" \
 "*::: :->quote" \
 && ret=0
 
@@ -516,7 +516,7 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (pacman)
 _arguments "${_arguments_options[@]}" : \
-":: :_exhaustive__subcmd__help__subcmd__pacman_commands" \
+": :_exhaustive__subcmd__help__subcmd__pacman_commands" \
 "*::: :->pacman" \
 && ret=0
 

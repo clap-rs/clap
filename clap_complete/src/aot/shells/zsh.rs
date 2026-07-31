@@ -313,7 +313,7 @@ fn parser_of<'cmd>(parent: &'cmd Command, bin_name: &str) -> Option<&'cmd Comman
 //         '(-h --help --verbose)-v[Enable verbose output]' \
 //         '(-V -v --version --verbose --help)-h[Print help information]' \
 //      # ... snip for brevity
-//         ':: :_rustup_commands' \    # <-- displays subcommands
+//         ': :_rustup_commands' \     # <-- displays subcommands
 //         '*::: :->rustup' \          # <-- displays subcommand args and child subcommands
 //     && ret=0
 //
@@ -346,7 +346,7 @@ fn get_args_of(parent: &Command, p_global: Option<&Command>) -> String {
             .get_bin_name()
             .expect("crate::generate should have set the bin_name");
         let subcommand_bin_name = format!(
-            "\":: :_{name}_commands\" \\",
+            "\": :_{name}_commands\" \\",
             name = parent_bin_name.replace(' ', CMD_SEP)
         );
         segments.push(subcommand_bin_name);
