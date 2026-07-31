@@ -4824,7 +4824,7 @@ fn partially_optional_value_names() {
 Usage: prog [OPTIONS]
 
 Options:
-      --example <FOO> <BAR>  Takes one or two values
+      --example <FOO> [BAR]  Takes one or two values
   -h, --help                 Print help
 
 "#]];

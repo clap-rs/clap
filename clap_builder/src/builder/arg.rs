@@ -4721,8 +4721,17 @@ impl Arg {
         }
 
         debug_assert!(self.is_takes_value_set());
+        let min_vals = num_vals.min_values();
         for (n, val_name) in val_names.iter().enumerate() {
-            let arg_name = if self.is_positional() && (num_vals.min_values() == 0 || !required) {
+            let is_optional_val = min_vals == 0;
+            let is_past_min = min_vals <= n;
+            let is_optional = if self.is_positional() {
+                !required || is_past_min
+            } else {
+                // The caller already brackets an optional value; avoid `[[name]]`
+                !is_optional_val && is_past_min
+            };
+            let arg_name = if is_optional {
                 format!("[{val_name}]")
             } else {
                 format!("<{val_name}>")
@@ -5003,7 +5012,7 @@ mod test {
             .value_names(["file", "name"]);
         o._build();
 
-        assert_eq!(o.to_string(), "-o <file> <name>...");
+        assert_eq!(o.to_string(), "-o <file> [name]...");
     }
 
     #[test]
@@ -5015,7 +5024,7 @@ mod test {
             .value_names(["FOO", "BAR"]);
         o._build();
 
-        assert_eq!(o.to_string(), "--example <FOO> <BAR>");
+        assert_eq!(o.to_string(), "--example <FOO> [BAR]");
     }
 
     #[test]
@@ -5029,7 +5038,7 @@ mod test {
             .value_names(["FOO", "BAR"]);
         o._build();
 
-        assert_eq!(o.to_string(), "--example=<FOO> <BAR>");
+        assert_eq!(o.to_string(), "--example=<FOO> [BAR]");
     }
 
     #[test]
@@ -5041,7 +5050,7 @@ mod test {
             .value_names(["A", "B"]);
         o._build();
 
-        assert_eq!(o.to_string(), "--example <A> <B>...");
+        assert_eq!(o.to_string(), "--example <A> [B]...");
     }
 
     #[test]
