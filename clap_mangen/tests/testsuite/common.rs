@@ -474,3 +474,127 @@ pub(crate) fn default_subcmd_order(name: &'static str) -> clap::Command {
         ),
     ])
 }
+
+pub(crate) fn required_group_command(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+        .arg(
+            clap::Arg::new("outfile")
+                .long("outfile")
+                .action(clap::ArgAction::Set),
+        )
+        .arg(
+            clap::Arg::new("logfile")
+                .long("logfile")
+                .action(clap::ArgAction::Set),
+        )
+        .group(
+            clap::ArgGroup::new("output")
+                .required(true)
+                .arg("outfile")
+                .arg("logfile"),
+        )
+}
+
+pub(crate) fn required_group_with_required_option_command(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+        .arg(
+            clap::Arg::new("config")
+                .long("config")
+                .required(true)
+                .action(clap::ArgAction::Set),
+        )
+        .arg(
+            clap::Arg::new("outfile")
+                .long("outfile")
+                .action(clap::ArgAction::Set),
+        )
+        .arg(
+            clap::Arg::new("logfile")
+                .long("logfile")
+                .action(clap::ArgAction::Set),
+        )
+        .group(
+            clap::ArgGroup::new("output")
+                .required(true)
+                .arg("outfile")
+                .arg("logfile"),
+        )
+}
+
+pub(crate) fn single_required_group_command(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+        .arg(
+            clap::Arg::new("outfile")
+                .long("outfile")
+                .action(clap::ArgAction::Set),
+        )
+        .group(
+            clap::ArgGroup::new("output")
+                .required(true)
+                .arg("outfile"),
+        )
+}
+
+pub(crate) fn optional_group_command(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+        .arg(
+            clap::Arg::new("outfile")
+                .long("outfile")
+                .action(clap::ArgAction::Set),
+        )
+        .arg(
+            clap::Arg::new("logfile")
+                .long("logfile")
+                .action(clap::ArgAction::Set),
+        )
+        .group(
+            clap::ArgGroup::new("output")
+                .arg("outfile")
+                .arg("logfile"),
+        )
+}
+
+pub(crate) fn count_required_group_command(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+        .arg(
+            clap::Arg::new("verbose")
+                .short('v')
+                .long("verbose")
+                .action(clap::ArgAction::Count),
+        )
+        .group(
+            clap::ArgGroup::new("verbosity")
+                .required(true)
+                .arg("verbose"),
+        )
+}
+
+pub(crate) fn boolean_required_group_command(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+        .arg(
+            clap::Arg::new("verbose")
+                .long("verbose")
+                .action(clap::ArgAction::SetTrue),
+        )
+        .group(
+            clap::ArgGroup::new("verbosity")
+                .required(true)
+                .arg("verbose"),
+        )
+}
+
+pub(crate) fn positional_required_group_command(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+        .arg(clap::Arg::new("input"))
+        .arg(
+            clap::Arg::new("output")
+                .long("output")
+                .action(clap::ArgAction::Set),
+        )
+        .group(
+            clap::ArgGroup::new("io")
+                .required(true)
+                .arg("input")
+                .arg("output"),
+        )
+}
