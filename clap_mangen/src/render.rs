@@ -33,40 +33,50 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
     let name = cmd.get_bin_name().unwrap_or_else(|| cmd.get_name());
     let mut line = vec![bold(name), roman(" ")];
 
-    let mut opts: Vec<_> = cmd.get_arguments().filter(|i| !i.is_hide_set()).collect();
+    let required_groups: Vec<Vec<&Arg>> = cmd
+        .get_groups()
+        .filter(|g| g.is_required_set())
+        .map(|g| unroll_group_args(cmd, g.get_id()))
+        .filter(|members| !members.is_empty())
+        .collect();
+    let group_members: Vec<&Arg> = required_groups.iter().flatten().copied().collect();
+
+    let mut opts: Vec<_> = cmd
+        .get_arguments()
+        .filter(|i| {
+            !i.is_hide_set()
+                && !i.is_positional()
+                && !group_members.iter().any(|gm| gm.get_id() == i.get_id())
+        })
+        .collect();
 
     opts.sort_by_key(|opt| option_sort_key(opt));
 
-    for opt in opts {
-        let (lhs, rhs) = option_markers(opt);
-        match (opt.get_short(), opt.get_long()) {
-            (Some(short), Some(long)) => {
-                line.push(roman(lhs));
-                line.push(bold(format!("-{short}")));
-                line.push(roman("|"));
-                line.push(bold(format!("--{long}",)));
-                line.push(roman(rhs));
-            }
-            (Some(short), None) => {
-                line.push(roman(lhs));
-                line.push(bold(format!("-{short} ")));
-                line.push(roman(rhs));
-            }
-            (None, Some(long)) => {
-                line.push(roman(lhs));
-                line.push(bold(format!("--{long}")));
-                line.push(roman(rhs));
-            }
-            (None, None) => continue,
-        };
+    for opt in opts.iter().filter(|opt| !opt.is_required_set()) {
+        render_synopsis_option(&mut line, opt);
+    }
 
-        if matches!(opt.get_action(), ArgAction::Count) {
-            line.push(roman("..."));
+    for opt in opts.iter().filter(|opt| opt.is_required_set()) {
+        render_synopsis_option(&mut line, opt);
+    }
+
+    for members in &required_groups {
+        line.push(roman("<"));
+        for (i, arg) in members.iter().enumerate() {
+            if i > 0 {
+                line.push(roman("|"));
+            }
+            line.extend(render_synopsis_arg(arg));
         }
+        line.push(roman(">"));
         line.push(roman(" "));
     }
 
     for arg in cmd.get_positionals() {
+        if group_members.iter().any(|gm| gm.get_id() == arg.get_id()) {
+            continue;
+        }
+
         let (lhs, rhs) = option_markers(arg);
         line.push(roman(lhs));
         if let Some(value) = arg.get_value_names() {
@@ -90,6 +100,82 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
     }
 
     roff.text(line);
+}
+
+fn render_synopsis_option(line: &mut Vec<Inline>, opt: &Arg) {
+    let (lhs, rhs) = option_markers(opt);
+    match (opt.get_short(), opt.get_long()) {
+        (Some(short), Some(long)) => {
+            line.push(roman(lhs));
+            line.push(bold(format!("-{short}")));
+            line.push(roman("|"));
+            line.push(bold(format!("--{long}")));
+            line.push(roman(rhs));
+        }
+        (Some(short), None) => {
+            line.push(roman(lhs));
+            line.push(bold(format!("-{short} ")));
+            line.push(roman(rhs));
+        }
+        (None, Some(long)) => {
+            line.push(roman(lhs));
+            line.push(bold(format!("--{long}")));
+            line.push(roman(rhs));
+        }
+        (None, None) => return,
+    }
+
+    if matches!(opt.get_action(), ArgAction::Count) {
+        line.push(roman("..."));
+    }
+    line.push(roman(" "));
+}
+
+fn unroll_group_args<'a>(cmd: &'a clap::Command, group: &clap::Id) -> Vec<&'a Arg> {
+    let mut g_vec = vec![group];
+    let mut args: Vec<&'a Arg> = vec![];
+
+    while let Some(g) = g_vec.pop() {
+        let Some(grp) = cmd.get_groups().find(|grp| grp.get_id() == g) else {
+            continue;
+        };
+        for n in grp.get_args() {
+            if args.iter().any(|a| a.get_id() == n) {
+                continue;
+            }
+            if let Some(arg) = cmd.get_arguments().find(|a| a.get_id() == n) {
+                args.push(arg);
+            } else {
+                g_vec.push(n);
+            }
+        }
+    }
+
+    args
+}
+
+fn render_synopsis_arg(arg: &Arg) -> Vec<Inline> {
+    if arg.is_positional() {
+        let value = arg
+            .get_value_names()
+            .map(|v| v.join(" "))
+            .unwrap_or_else(|| arg.get_id().as_str().to_owned());
+        return vec![italic(value)];
+    }
+
+    let mut inline = if let Some(long) = arg.get_long() {
+        vec![bold(format!("--{long}"))]
+    } else if let Some(short) = arg.get_short() {
+        vec![bold(format!("-{short}"))]
+    } else {
+        vec![]
+    };
+
+    if matches!(arg.get_action(), ArgAction::Count) {
+        inline.push(roman("..."));
+    }
+
+    inline
 }
 
 pub(crate) fn options(roff: &mut Roff, items: &[&Arg]) {
