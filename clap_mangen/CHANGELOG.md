@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- In synopsis, mark `ArgGroup`s of argumentd as required when needed
+
 ## [0.3.0] - 2026-03-27
 
 ### Compatibility
