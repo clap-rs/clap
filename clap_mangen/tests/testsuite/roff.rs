@@ -190,3 +190,73 @@ fn default_subcmd_order() {
         cmd,
     );
 }
+
+#[test]
+fn required_group() {
+    let name = "my-app";
+    let cmd = common::required_group_command(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/required_group.roff"],
+        cmd,
+    );
+}
+
+#[test]
+fn required_group_with_required_option() {
+    let name = "my-app";
+    let cmd = common::required_group_with_required_option_command(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/required_group_with_required_option.roff"],
+        cmd,
+    );
+}
+
+#[test]
+fn single_required_group() {
+    let name = "my-app";
+    let cmd = common::single_required_group_command(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/single_required_group.roff"],
+        cmd,
+    );
+}
+
+#[test]
+fn optional_group() {
+    let name = "my-app";
+    let cmd = common::optional_group_command(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/optional_group.roff"],
+        cmd,
+    );
+}
+
+#[test]
+fn count_required_group() {
+    let name = "my-app";
+    let cmd = common::count_required_group_command(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/count_required_group.roff"],
+        cmd,
+    );
+}
+
+#[test]
+fn boolean_required_group() {
+    let name = "my-app";
+    let cmd = common::boolean_required_group_command(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/boolean_required_group.roff"],
+        cmd,
+    );
+}
+
+#[test]
+fn positional_required_group() {
+    let name = "my-app";
+    let cmd = common::positional_required_group_command(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/positional_required_group.roff"],
+        cmd,
+    );
+}
