@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(bash): Make function names posix compatible
+
 ## [4.6.8] - 2026-07-27
 
 ### Features
