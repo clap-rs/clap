@@ -210,7 +210,7 @@ fn sources_under_posix_mode_bash() {
 
     assert_data_eq!(
         complaint,
-        snapbox::str!["`_my-app\': not a valid identifier"]
+        snapbox::str![""]
     );
 }
 

@@ -30,7 +30,7 @@ impl Generator for Bash {
 
         write!(
             buf,
-            "_{name}() {{
+            "_{fn_name}() {{
     local i cur prev opts cmd
     COMPREPLY=()
     if [[ \"${{BASH_VERSINFO[0]}}\" -ge 4 ]]; then
@@ -72,12 +72,13 @@ impl Generator for Bash {
 }}
 
 if [[ \"${{BASH_VERSINFO[0]}}\" -eq 4 && \"${{BASH_VERSINFO[1]}}\" -ge 4 || \"${{BASH_VERSINFO[0]}}\" -gt 4 ]]; then
-    complete -F _{name} -o nosort -o bashdefault -o default {name}
+    complete -F _{fn_name} -o nosort -o bashdefault -o default {name}
 else
-    complete -F _{name} -o bashdefault -o default {name}
+    complete -F _{fn_name} -o bashdefault -o default {name}
 fi
 ",
             name = bin_name,
+            fn_name = fn_name,
             cmd = fn_name,
             name_opts = all_options_for_path(cmd, bin_name),
             name_opts_details = option_details_for_path(cmd, bin_name),

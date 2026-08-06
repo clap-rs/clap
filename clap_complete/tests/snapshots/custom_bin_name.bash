@@ -1,4 +1,4 @@
-_bin-name() {
+_bin__name() {
     local i cur prev opts cmd
     COMPREPLY=()
     if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
@@ -108,7 +108,7 @@ _bin-name() {
 }
 
 if [[ "${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -ge 4 || "${BASH_VERSINFO[0]}" -gt 4 ]]; then
-    complete -F _bin-name -o nosort -o bashdefault -o default bin-name
+    complete -F _bin__name -o nosort -o bashdefault -o default bin-name
 else
-    complete -F _bin-name -o bashdefault -o default bin-name
+    complete -F _bin__name -o bashdefault -o default bin-name
 fi
