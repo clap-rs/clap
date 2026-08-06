@@ -205,10 +205,11 @@ pub(crate) fn options(roff: &mut Roff, items: &[&Arg]) {
 
                     let mut val = format!("<{name}>");
 
-                    // If this is the last value and it's variadic, add "..."
                     let is_last = i == value_names.len() - 1;
+                    let is_variadic = arg_range.max_values() == usize::MAX;
 
-                    if is_last && arg_range.max_values() > value_names.len() {
+                    // If this is the last value and it's variadic, add "..."
+                    if is_last && is_variadic {
                         val.push_str("...");
                     }
                     header.push(italic(val));

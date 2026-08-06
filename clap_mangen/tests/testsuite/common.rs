@@ -435,10 +435,29 @@ pub(crate) fn variadic_values(name: &'static str) -> clap::Command {
     clap::Command::new(name).arg(
         clap::Arg::new("config")
             .long("config")
+            .value_name("FILE")
+            .num_args(1..)
+            .help("Config files"),
+    )
+}
+
+pub(crate) fn fixed_values_with_multiple_names(name: &'static str) -> clap::Command {
+    clap::Command::new(name).arg(
+        clap::Arg::new("config")
+            .long("config")
             .value_names(["FILE1", "FILE2"])
-            .require_equals(false)
             .num_args(3)
-            .help("Optional config file"),
+            .help("Config files"),
+    )
+}
+
+pub(crate) fn fixed_values_with_one_name(name: &'static str) -> clap::Command {
+    clap::Command::new(name).arg(
+        clap::Arg::new("config")
+            .long("config")
+            .value_name("FILE")
+            .num_args(3)
+            .help("Config files"),
     )
 }
 
