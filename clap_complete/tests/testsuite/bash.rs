@@ -238,7 +238,8 @@ fn completes_subcommand_options_for_hyphenated_binary_name() {
     };
 
     assert_data_eq!(actual, snapbox::str![[r#"
-
+--lightning
+--help
 
 "#]]);
 }
