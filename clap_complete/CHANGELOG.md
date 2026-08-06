@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.6.9] - 2026-08-06
+
 ### Fixes
 
 - *(bash): Make function names posix compatible
@@ -700,7 +702,8 @@ MSRV changed to 1.64.0
 ## [3.0.1] - 2022-01-03
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.6.8...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete-v4.6.9...HEAD
+[4.6.9]: https://github.com/clap-rs/clap/compare/clap_complete-v4.6.8...clap_complete-v4.6.9
 [4.6.8]: https://github.com/clap-rs/clap/compare/clap_complete-v4.6.7...clap_complete-v4.6.8
 [4.6.7]: https://github.com/clap-rs/clap/compare/clap_complete-v4.6.6...clap_complete-v4.6.7
 [4.6.6]: https://github.com/clap-rs/clap/compare/clap_complete-v4.6.5...clap_complete-v4.6.6
