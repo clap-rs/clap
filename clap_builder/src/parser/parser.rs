@@ -9,7 +9,7 @@ use clap_lex::OsStrExt as _;
 // Internal
 use crate::ArgAction;
 use crate::INTERNAL_ERROR_MSG;
-use crate::builder::{Arg, Command};
+use crate::builder::{Arg, ArgPredicate, Command};
 use crate::error::Error as ClapError;
 use crate::error::Result as ClapResult;
 use crate::mkeymap::KeyType;
@@ -348,7 +348,7 @@ impl<'cmd> Parser<'cmd> {
                 debug!("Parser::get_matches_with: Positional counter...{pos_counter}");
                 debug!("Parser::get_matches_with: Low index multiples...{low_index_mults:?}");
 
-                if (low_index_mults || missing_pos) && !is_terminated {
+                let pos_counter = if (low_index_mults || missing_pos) && !is_terminated {
                     let skip_current = if let Some(n) = raw_args.peek(&args_cursor) {
                         if let Some(arg) = self
                             .cmd
@@ -386,7 +386,9 @@ impl<'cmd> Parser<'cmd> {
                     positional_count
                 } else {
                     pos_counter
-                }
+                };
+
+                self.skip_conflicting_positionals(pos_counter, matcher)
             };
 
             if let Some(arg) = self.cmd.get_keymap().get(&pos_counter) {
@@ -831,9 +833,7 @@ impl<'cmd> Parser<'cmd> {
                 debug!("Parser::parse_long_arg({long_arg:?}): Got invalid literal `{rest:?}`");
                 let mut used: Vec<Id> = matcher
                     .arg_ids()
-                    .filter(|arg_id| {
-                        matcher.check_explicit(arg_id, &crate::builder::ArgPredicate::IsPresent)
-                    })
+                    .filter(|arg_id| matcher.check_explicit(arg_id, &ArgPredicate::IsPresent))
                     .filter(|&n| {
                         self.cmd
                             .find(n)
@@ -1459,10 +1459,8 @@ impl<'cmd> Parser<'cmd> {
                 for (id, val, default) in arg.default_vals_ifs.iter() {
                     let add = if let Some(a) = matcher.get(id) {
                         match val {
-                            crate::builder::ArgPredicate::Equals(v) => {
-                                a.raw_vals_flatten().any(|value| v == value)
-                            }
-                            crate::builder::ArgPredicate::IsPresent => true,
+                            ArgPredicate::Equals(v) => a.raw_vals_flatten().any(|value| v == value),
+                            ArgPredicate::IsPresent => true,
                         }
                     } else {
                         false
@@ -1547,6 +1545,34 @@ impl<'cmd> Parser<'cmd> {
             }
         }
     }
+
+    fn skip_conflicting_positionals(&self, mut pos_counter: usize, matcher: &ArgMatcher) -> usize {
+        while let Some(arg) = self.cmd.get_keymap().get(&pos_counter) {
+            if self.cmd.get_keymap().get(&(pos_counter + 1)).is_none() {
+                break;
+            }
+            if !self.is_positional_blocked_by_group(arg, matcher) {
+                break;
+            }
+            debug!(
+                "Parser::skip_conflicting_positionals: skipping {}",
+                arg.get_id()
+            );
+            pos_counter += 1;
+        }
+        pos_counter
+    }
+
+    fn is_positional_blocked_by_group(&self, arg: &Arg, matcher: &ArgMatcher) -> bool {
+        self.cmd.groups_for_arg(arg.get_id()).any(|group_id| {
+            let group = self.cmd.find_group(&group_id).expect(INTERNAL_ERROR_MSG);
+            !group.multiple
+                && group.args.iter().any(|member_id| {
+                    member_id != arg.get_id()
+                        && matcher.check_explicit(member_id, &ArgPredicate::IsPresent)
+                })
+        })
+    }
 }
 
 // Error, Help, and Version Methods
@@ -1592,9 +1618,7 @@ impl Parser<'_> {
         let required = self.cmd.required_graph();
         let used: Vec<Id> = matcher
             .arg_ids()
-            .filter(|arg_id| {
-                matcher.check_explicit(arg_id, &crate::builder::ArgPredicate::IsPresent)
-            })
+            .filter(|arg_id| matcher.check_explicit(arg_id, &ArgPredicate::IsPresent))
             .filter(|n| self.cmd.find(n).map(|a| !a.is_hide_set()).unwrap_or(false))
             .cloned()
             .collect();
