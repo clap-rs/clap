@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Add `Command::get_overridden_usage`
+
 ## [4.6.5] - 2026-07-31
 
 ### Fixes

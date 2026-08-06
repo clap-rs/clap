@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Show `Command::override_usage` in synopsis
+
 ## [0.3.1] - 2026-08-05
 
 ### Features
