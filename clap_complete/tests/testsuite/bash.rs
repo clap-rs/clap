@@ -214,6 +214,35 @@ fn sources_under_posix_mode_bash() {
     );
 }
 
+#[test]
+#[cfg(unix)]
+fn completes_subcommand_options_for_hyphenated_binary_name() {
+    let name = "my-app";
+    let mut cmd = clap::Command::new(name).subcommand(
+        clap::Command::new("thunder").arg(
+            clap::Arg::new("lightning")
+                .long("lightning")
+                .action(clap::ArgAction::SetTrue),
+        ),
+    );
+
+    let mut script = vec![];
+    clap_complete::generate(clap_complete::shells::Bash, &mut cmd, name, &mut script);
+
+    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+    let script_path = testdir.path().unwrap().join("my-app.bash");
+    std::fs::write(&script_path, script).unwrap();
+
+    let Some(actual) = completions_for(&script_path, &["my-app", "thunder", "--"]) else {
+        return;
+    };
+
+    assert_data_eq!(actual, snapbox::str![[r#"
+
+
+"#]]);
+}
+
 /// Source `script` in POSIX-mode bash and report what it complained about.
 ///
 /// The file name and line number are stripped so the snapshot is about the
@@ -245,6 +274,52 @@ fn source_under_posix_mode(script: &std::path::Path) -> Option<String> {
         .map(|(_, message)| message)
         .unwrap_or(&stderr);
     Some(complaint.trim_end().to_owned())
+}
+
+/// Source `script` in bash and report what it completes for `words`.
+///
+/// Returns `None` when bash is not installed, matching how the other tests in
+/// this file skip rather than fail on a machine without the shell.
+#[cfg(unix)]
+fn completions_for(script: &std::path::Path, words: &[&str]) -> Option<String> {
+    let name = words[0];
+    let cursor = words.len() - 1;
+    let current = words[cursor];
+    let previous = words[cursor - 1];
+    let driver = format!(
+        r#"
+source "$1"
+COMP_WORDS=({words})
+COMP_CWORD={cursor}
+_{fn_name} {name} "{current}" "{previous}"
+printf '%s\n' "${{COMPREPLY[@]}}"
+"#,
+        words = words.join(" "),
+        fn_name = name.replace('-', "__"),
+    );
+
+    let probe = std::process::Command::new("bash")
+        .arg("--version")
+        .output()
+        .ok()?;
+    if !probe.status.success() {
+        return None;
+    }
+
+    let output = std::process::Command::new("bash")
+        .arg("-c")
+        .arg(&driver)
+        .arg("bash")
+        .arg(script)
+        .output()
+        .unwrap();
+    assert!(
+        output.status.success(),
+        "stderr:\n{}\nstdout:\n{}",
+        String::from_utf8_lossy(&output.stderr),
+        String::from_utf8_lossy(&output.stdout),
+    );
+    Some(String::from_utf8_lossy(&output.stdout).into_owned())
 }
 
 #[test]
