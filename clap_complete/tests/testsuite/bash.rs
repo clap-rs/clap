@@ -193,6 +193,62 @@ fn subcommand_last() {
 
 #[test]
 #[cfg(unix)]
+fn sources_under_posix_mode_bash() {
+    let name = "my-app";
+    let mut cmd = clap::Command::new(name);
+
+    let mut script = vec![];
+    clap_complete::generate(clap_complete::shells::Bash, &mut cmd, name, &mut script);
+
+    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+    let script_path = testdir.path().unwrap().join("my-app.bash");
+    std::fs::write(&script_path, script).unwrap();
+
+    let Some(complaint) = source_under_posix_mode(&script_path) else {
+        return;
+    };
+
+    assert_data_eq!(
+        complaint,
+        snapbox::str![""]
+    );
+}
+
+/// Source `script` in POSIX-mode bash and report what it complained about.
+///
+/// The file name and line number are stripped so the snapshot is about the
+/// complaint rather than the temp directory. Returns `None` when bash is not
+/// installed, matching how the other tests here skip rather than fail.
+#[cfg(unix)]
+fn source_under_posix_mode(script: &std::path::Path) -> Option<String> {
+    let probe = std::process::Command::new("bash")
+        .arg("--version")
+        .output()
+        .ok()?;
+    if !probe.status.success() {
+        return None;
+    }
+
+    let output = std::process::Command::new("bash")
+        .arg("--posix")
+        .arg("-c")
+        .arg(r#"source "$1""#)
+        .arg("bash")
+        .arg(script)
+        .output()
+        .unwrap();
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    let complaint = stderr
+        .rsplit_once("line ")
+        .and_then(|(_, rest)| rest.split_once(": "))
+        .map(|(_, message)| message)
+        .unwrap_or(&stderr);
+    Some(complaint.trim_end().to_owned())
+}
+
+#[test]
+#[cfg(unix)]
 #[cfg(feature = "unstable-shell-tests")]
 fn register_completion() {
     common::register_example::<RuntimeBuilder>("static", "exhaustive");
