@@ -13,7 +13,7 @@ include.workspace = true
 release = false
 
 [dev-dependencies]
-clap = { path = "../", version = "4.0.0", default-features = false, features = ["std", "help"] }
+clap = { path = "../", version = "4.6.6", default-features = false, features = ["std", "help"] }
 divan = "0.1.21"
 lazy_static = "1.5.0"
 
