@@ -72,6 +72,116 @@ fn double_hyphen_as_value() {
 }
 
 #[test]
+fn double_hyphen_not_a_value_when_disabled() {
+    let res = Command::new("prog")
+        .arg(
+            Arg::new("value")
+                .action(ArgAction::Set)
+                .allow_hyphen_values(true)
+                .allow_dash_dash_as_value(false)
+                .long("value"),
+        )
+        .try_get_matches_from(vec!["prog", "--value", "--"]);
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
+}
+
+#[test]
+fn double_hyphen_as_terminator_after_flag() {
+    let matches = Command::new("prog")
+        .arg(
+            Arg::new("flag")
+                .action(ArgAction::SetTrue)
+                .long("flag"),
+        )
+        .try_get_matches_from(vec!["prog", "--flag", "--"])
+        .unwrap();
+
+    assert_eq!(matches.get_one::<bool>("flag"), Some(&true));
+}
+
+#[test]
+fn double_hyphen_as_terminator_between_two_flags() {
+    let matches = Command::new("prog")
+        .arg(Arg::new("first").action(ArgAction::SetTrue).long("first"))
+        .arg(Arg::new("second").action(ArgAction::SetTrue).long("second"))
+        .try_get_matches_from(vec!["prog", "--first", "--", "--second"]);
+
+    assert!(matches.is_err());
+    assert_eq!(matches.unwrap_err().kind(), ErrorKind::UnknownArgument);
+}
+
+#[test]
+fn double_hyphen_as_terminator_between_two_flags_before_last_positional() {
+    let matches = Command::new("prog")
+        .arg(Arg::new("first").action(ArgAction::SetTrue).long("first"))
+        .arg(Arg::new("second").action(ArgAction::SetTrue).long("second"))
+        .arg(Arg::new("remaining").num_args(0..).last(true))
+        .try_get_matches_from(vec!["prog", "--first", "--", "--second"])
+        .unwrap();
+
+    assert_eq!(matches.get_one::<bool>("first"), Some(&true));
+    assert_eq!(matches.get_one::<bool>("second"), Some(&false));
+    let remaining: Vec<_> = matches
+        .get_many::<String>("remaining")
+        .into_iter()
+        .flatten()
+        .map(|s| s.as_str())
+        .collect();
+    assert_eq!(remaining, ["--second"]);
+}
+
+#[test]
+fn double_hyphen_as_terminator_between_two_flags_before_last_positional_reversed() {
+    let matches = Command::new("prog")
+        .arg(Arg::new("first").action(ArgAction::SetTrue).long("first"))
+        .arg(Arg::new("second").action(ArgAction::SetTrue).long("second"))
+        .arg(Arg::new("remaining").num_args(0..).last(true))
+        .try_get_matches_from(vec!["prog", "--second", "--", "--first"])
+        .unwrap();
+
+    assert_eq!(matches.get_one::<bool>("first"), Some(&false));
+    assert_eq!(matches.get_one::<bool>("second"), Some(&true));
+    let remaining: Vec<_> = matches
+        .get_many::<String>("remaining")
+        .into_iter()
+        .flatten()
+        .map(|s| s.as_str())
+        .collect();
+    assert_eq!(remaining, ["--first"]);
+}
+
+#[test]
+fn double_hyphen_as_terminator_between_two_opts_before_last_positional() {
+    let matches = Command::new("prog")
+        .arg(
+            Arg::new("first")
+                .action(ArgAction::Set)
+                .allow_hyphen_values(true)
+                .long("first"),
+        )
+        .arg(
+            Arg::new("second")
+                .action(ArgAction::Set)
+                .allow_hyphen_values(true)
+                .long("second"),
+        )
+        .arg(Arg::new("remaining").num_args(0..).last(true))
+        .try_get_matches_from(vec!["prog", "--second", "v2", "--", "--first", "v1"])
+        .unwrap();
+
+    assert_eq!(matches.get_one::<String>("first").map(|s| s.as_str()), None);
+    assert_eq!(matches.get_one::<String>("second").map(|s| s.as_str()), Some("v2"));
+    let remaining: Vec<_> = matches
+        .get_many::<String>("remaining")
+        .into_iter()
+        .flatten()
+        .map(|s| s.as_str())
+        .collect();
+    assert_eq!(remaining, ["--first", "v1"]);
+}
+
+#[test]
 fn require_equals_no_empty_values_fail() {
     let res = Command::new("prog")
         .arg(
