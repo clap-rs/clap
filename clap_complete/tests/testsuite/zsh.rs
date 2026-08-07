@@ -251,11 +251,11 @@ fn complete_dynamic_env_toplevel() {
     let input = "exhaustive \t\t";
     let expected = snapbox::str![[r#"
 % exhaustive
-help            -- Print this message or the help of the given subcommand(s)
 --generate      -- generate
 --help          -- Print help
-empty           action          value           last            hint            
-global          quote           pacman          alias           --empty-choice  
+help    -- Print this message or the help of the given subcommand(s)
+--empty-choice  empty           action          value           last            hint            
+                global          quote           pacman          alias           
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -275,16 +275,22 @@ fn complete_dynamic_env_quoted_help() {
     let input = "exhaustive quote \t\t";
     let expected = snapbox::str![[r#"
 % exhaustive quote
---help                              -- Print help (see more with '--help')                                            
-cmd-backslash      --backslash      -- Avoid '/n'                                                                     
-cmd-backticks      --backticks      -- For more information see `echo test`                                           
-cmd-brackets       --brackets       -- List packages [filter]                                                         
-cmd-double-quotes  --double-quotes  -- Can be "always", "auto", or "never"                                            
-cmd-expansions     --expansions     -- Execute the shell command with $SHELL                                          
-cmd-single-quotes  --single-quotes  -- Can be 'always', 'auto', or 'never'                                            
-escape-help                         -- /tab/t"'                                                                       
-help                                -- Print this message or the help of the given subcommand(s)                      
---choice
+--single-quotes  -- Can be 'always', 'auto', or 'never'
+--double-quotes  -- Can be "always", "auto", or "never"
+--backticks      -- For more information see `echo test`
+--backslash      -- Avoid '/n'
+--brackets       -- List packages [filter]
+--expansions     -- Execute the shell command with $SHELL
+--help           -- Print help (see more with '--help')
+cmd-single-quotes  -- Can be 'always', 'auto', or 'never'
+cmd-double-quotes  -- Can be "always", "auto", or "never"
+cmd-backticks      -- For more information see `echo test`
+cmd-backslash      -- Avoid '/n'
+cmd-brackets       -- List packages [filter]
+cmd-expansions     -- Execute the shell command with $SHELL
+escape-help        -- /tab      "'
+help               -- Print this message or the help of the given subcommand(s)
+--choice  
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -392,16 +398,22 @@ fn complete_dynamic_empty_space() {
     let input = "exhaustive quote  -\x1b[D\x1b[D\t\t";
     let expected = snapbox::str![[r#"
 % exhaustive quote  -
---help                              -- Print help (see more with '--help')                                            
-cmd-backslash      --backslash      -- Avoid '/n'                                                                     
-cmd-backticks      --backticks      -- For more information see `echo test`                                           
-cmd-brackets       --brackets       -- List packages [filter]                                                         
-cmd-double-quotes  --double-quotes  -- Can be "always", "auto", or "never"                                            
-cmd-expansions     --expansions     -- Execute the shell command with $SHELL                                          
-cmd-single-quotes  --single-quotes  -- Can be 'always', 'auto', or 'never'                                            
-escape-help                         -- /tab/t"'                                                                       
-help                                -- Print this message or the help of the given subcommand(s)                      
---choice
+--single-quotes  -- Can be 'always', 'auto', or 'never'
+--double-quotes  -- Can be "always", "auto", or "never"
+--backticks      -- For more information see `echo test`
+--backslash      -- Avoid '/n'
+--brackets       -- List packages [filter]
+--expansions     -- Execute the shell command with $SHELL
+--help           -- Print help (see more with '--help')
+cmd-single-quotes  -- Can be 'always', 'auto', or 'never'
+cmd-double-quotes  -- Can be "always", "auto", or "never"
+cmd-backticks      -- For more information see `echo test`
+cmd-backslash      -- Avoid '/n'
+cmd-brackets       -- List packages [filter]
+cmd-expansions     -- Execute the shell command with $SHELL
+escape-help        -- /tab      "'
+help               -- Print this message or the help of the given subcommand(s)
+--choice  
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -430,8 +442,37 @@ fn complete_dynamic_dir_no_trailing_space() {
     let input = "exhaustive hint --file tests/\t\t";
     let expected = snapbox::str![[r#"
 % exhaustive hint --file tests/
-tests/snapshots    tests/testsuite    tests/examples.rs
+tests/examples.rs  tests/snapshots    tests/testsuite
 "#]];
     let actual = runtime.complete(input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+fn complete_dynamic_tagged_options() {
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+
+    let input = [
+        "zstyle ':completion:*:descriptions' format '%d'",
+        "exhaustive -\t\t",
+    ]
+    .join("\n");
+
+    let expected = snapbox::str![[r#"
+% zstyle ':completion:*:descriptions' format '%d'
+% exhaustive -
+Options
+--generate      -- generate
+-h              -- Print help
+--empty-choice
+"#]];
+    let actual = runtime.complete(&input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
