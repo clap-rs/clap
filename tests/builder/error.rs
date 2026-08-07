@@ -344,3 +344,32 @@ For more information, try '--help'.
 "#]];
     assert_error(err, expected_kind, message, true);
 }
+
+#[test]
+#[cfg(feature = "error-context")]
+fn set_source_keeps_context_in_message() {
+    use clap::error::{ContextKind, ContextValue};
+
+    let cmd = Command::new("my-command");
+    let mut err = clap::Error::new(ErrorKind::ValueValidation)
+        .set_source("Decimals are not supported in durations".into())
+        .with_cmd(&cmd);
+    err.insert(
+        ContextKind::InvalidArg,
+        ContextValue::String("--duration".into()),
+    );
+    err.insert(
+        ContextKind::InvalidValue,
+        ContextValue::String("0.5sec".into()),
+    );
+
+    let message = err.to_string();
+    assert!(
+        message.contains("invalid value '0.5sec' for '--duration'"),
+        "{message}"
+    );
+    assert!(
+        message.contains("Decimals are not supported in durations"),
+        "{message}"
+    );
+}

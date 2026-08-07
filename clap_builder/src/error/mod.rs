@@ -311,7 +311,41 @@ impl<F: ErrorFormatter> Error<F> {
         self
     }
 
-    pub(crate) fn set_source(mut self, source: Box<dyn error::Error + Send + Sync>) -> Self {
+    /// Attach an underlying error that should be reported with this [`Error`].
+    ///
+    /// Unlike [`Error::raw`], a source participates in clap's normal error formatting when
+    /// context is present (argument name, invalid value, help hint, etc.). This is intended
+    /// for custom [`TypedValueParser`](crate::builder::TypedValueParser) implementations that
+    /// need the same diagnostics as clap's built-in parsers.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # #[cfg(feature = "error-context")] {
+    /// # use clap_builder as clap;
+    /// use clap::error::{ContextKind, ContextValue, ErrorKind};
+    /// use clap::Command;
+    ///
+    /// let cmd = Command::new("my-command");
+    ///
+    /// let mut err = clap::Error::new(ErrorKind::ValueValidation)
+    ///     .set_source("Decimals are not supported in durations".into())
+    ///     .with_cmd(&cmd);
+    /// err.insert(
+    ///     ContextKind::InvalidArg,
+    ///     ContextValue::String("--duration".into()),
+    /// );
+    /// err.insert(
+    ///     ContextKind::InvalidValue,
+    ///     ContextValue::String("0.5sec".into()),
+    /// );
+    ///
+    /// assert!(err.to_string().contains("invalid value '0.5sec' for '--duration'"));
+    /// assert!(err.to_string().contains("Decimals are not supported in durations"));
+    /// # }
+    /// ```
+    #[must_use]
+    pub fn set_source(mut self, source: Box<dyn error::Error + Send + Sync>) -> Self {
         self.inner.source = Some(source);
         self
     }
