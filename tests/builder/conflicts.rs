@@ -1002,3 +1002,68 @@ fn group_conrflicts_with_subcommands() {
     let err = res.err().unwrap();
     assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 }
+
+#[test]
+fn global_args_in_exclusive_group_conflict() {
+    let cmd = || {
+        Command::new("globals_conflict")
+            .group(ArgGroup::new("gr").arg("some").arg("other").multiple(false))
+            .arg(arg!(--some "some arg").global(true))
+            .arg(arg!(--other "other arg").global(true))
+            .subcommand(Command::new("cmd"))
+    };
+
+    // Baseline: exclusive group works without subcommand involvement
+    let result = cmd().try_get_matches_from(vec!["myprog", "--some", "--other"]);
+    assert_eq!(result.unwrap_err().kind(), ErrorKind::ArgumentConflict);
+
+    // Together before subcommand: currently correctly fails
+    let result = cmd().try_get_matches_from(vec!["myprog", "--some", "--other", "cmd"]);
+    assert_eq!(result.unwrap_err().kind(), ErrorKind::ArgumentConflict);
+
+    // Together after subcommand: MUST FAIL (bug: currently Ok)
+    let result = cmd().try_get_matches_from(vec!["myprog", "cmd", "--some", "--other"]);
+    assert!(
+        result.is_err(),
+        "expected ArgumentConflict when both exclusive globals appear after subcommand, got Ok: {result:?}"
+    );
+    assert_eq!(result.unwrap_err().kind(), ErrorKind::ArgumentConflict);
+
+    // Split across subcommand boundary: MUST FAIL (bug: currently Ok)
+    let result = cmd().try_get_matches_from(vec!["myprog", "--some", "cmd", "--other"]);
+    assert!(
+        result.is_err(),
+        "expected ArgumentConflict when exclusive globals are split around subcommand, got Ok: {result:?}"
+    );
+    assert_eq!(result.unwrap_err().kind(), ErrorKind::ArgumentConflict);
+}
+
+#[test]
+fn global_exclusive_arg_conflict_across_subcommand() {
+    let cmd = || {
+        Command::new("globals_exclusive")
+            .arg(arg!(--some "some arg").global(true).exclusive(true))
+            .arg(arg!(--other "other arg").global(true))
+            .subcommand(Command::new("cmd"))
+    };
+
+    let result = cmd().try_get_matches_from(vec!["myprog", "--some", "--other"]);
+    assert_eq!(result.unwrap_err().kind(), ErrorKind::ArgumentConflict);
+
+    let result = cmd().try_get_matches_from(vec!["myprog", "--some", "--other", "cmd"]);
+    assert_eq!(result.unwrap_err().kind(), ErrorKind::ArgumentConflict);
+
+    let result = cmd().try_get_matches_from(vec!["myprog", "cmd", "--some", "--other"]);
+    assert!(
+        result.is_err(),
+        "expected ArgumentConflict for exclusive global after subcommand, got Ok: {result:?}"
+    );
+    assert_eq!(result.unwrap_err().kind(), ErrorKind::ArgumentConflict);
+
+    let result = cmd().try_get_matches_from(vec!["myprog", "--some", "cmd", "--other"]);
+    assert!(
+        result.is_err(),
+        "expected ArgumentConflict for exclusive global split around subcommand, got Ok: {result:?}"
+    );
+    assert_eq!(result.unwrap_err().kind(), ErrorKind::ArgumentConflict);
+}

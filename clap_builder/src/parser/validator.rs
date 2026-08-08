@@ -59,6 +59,18 @@ impl<'cmd> Validator<'cmd> {
         Ok(())
     }
 
+    /// Re-check conflicts once global args have been merged across subcommand boundaries.
+    ///
+    /// Each command validates its own matcher before globals are propagated, so two conflicting
+    /// globals used on either side of a subcommand never meet during that pass. Only conflicts are
+    /// revisited here: requirements were already resolved against the pre-propagation matcher, and
+    /// propagation only ever adds args, so it cannot leave a requirement unmet.
+    pub(crate) fn validate_propagated_globals(&mut self, matcher: &mut ArgMatcher) -> ClapResult<()> {
+        debug!("Validator::validate_propagated_globals");
+        let conflicts = Conflicts::with_args(self.cmd, matcher);
+        self.validate_conflicts(matcher, &conflicts)
+    }
+
     fn validate_conflicts(
         &mut self,
         matcher: &ArgMatcher,
@@ -446,6 +458,9 @@ impl Conflicts {
             matcher
                 .args()
                 .filter(|(_, matched)| matched.check_explicit(&ArgPredicate::IsPresent))
+                // Once globals have been propagated a matcher can hold ids belonging to another
+                // command in the tree; those have no conflicts to contribute here.
+                .filter(|(id, _)| cmd.find(id).is_some() || cmd.find_group(id).is_some())
                 .map(|(id, _)| {
                     let conf = gather_direct_conflicts(cmd, id);
                     (id.clone(), conf)
