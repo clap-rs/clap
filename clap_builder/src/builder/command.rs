@@ -4378,6 +4378,19 @@ impl Command {
 
         matcher.propagate_globals(&global_arg_vec);
 
+        // Re-check conflicts now that globals are merged across the subcommand boundary.
+        // Per-command validation runs before propagate_globals, so exclusive global
+        // groups split around a subcommand would otherwise be missed (#6379).
+        if let Err(error) =
+            crate::parser::Validator::new(self).validate_propagated_globals(&mut matcher)
+        {
+            if self.is_set(AppSettings::IgnoreErrors) && error.use_stderr() {
+                debug!("Command::_do_parse: ignoring error: {error}");
+            } else {
+                return Err(error);
+            }
+        }
+
         Ok(matcher.into_inner())
     }
 
@@ -4770,6 +4783,29 @@ impl Command {
                     sc.get_name(),
                 );
                 sc.args.push(a.clone());
+            }
+
+            // Global args take their exclusive ArgGroups with them. Without this,
+            // two globals that share a non-multiple group conflict at the root but
+            // silently coexist once they only appear on a subcommand matcher (#6379).
+            for group in &self.groups {
+                let involves_global = group.args.iter().any(|id| {
+                    self.args
+                        .args()
+                        .any(|a| a.get_id() == id && a.is_global_set())
+                });
+                if !involves_global {
+                    continue;
+                }
+                if sc.find_group(&group.id).is_some() {
+                    continue;
+                }
+                debug!(
+                    "Command::_propagate pushing group {:?} to {}",
+                    group.id,
+                    sc.get_name(),
+                );
+                sc.groups.push(group.clone());
             }
         }
     }
