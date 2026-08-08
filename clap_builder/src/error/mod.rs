@@ -281,6 +281,12 @@ impl<F: ErrorFormatter> Error<F> {
 
     /// Render the error message to a [`StyledStr`].
     ///
+    /// The `Display` implementation of [`StyledStr`] is
+    /// color-unaware and strips any styling, so formatting it directly (e.g.
+    /// `println!("{err}")`) always emits plain text — even on a terminal. To
+    /// keep the styling that `render()` produced, render with [`StyledStr::ansi`]
+    /// instead, or call [`Error::print`], which is terminal-aware.
+    ///
     /// # Example
     /// ```no_run
     /// # use clap_builder as clap;
@@ -292,7 +298,7 @@ impl<F: ErrorFormatter> Error<F> {
     ///     },
     ///     Err(err) => {
     ///         let err = err.render();
-    ///         println!("{err}");
+    ///         println!("{}", err.ansi());
     ///         // do_something
     ///     },
     /// };
