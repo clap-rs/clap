@@ -181,6 +181,12 @@ fn gen_augment(
 
             Kind::Flatten(_) => match variant.fields {
                 Unnamed(FieldsUnnamed { ref unnamed, .. }) if unnamed.len() == 1 => {
+                    if let Some(prefix) = item.flatten_prefix() {
+                        abort!(
+                            prefix,
+                            "`flatten` prefixes are only supported on `Args` fields"
+                        );
+                    }
                     let ty = &unnamed[0].ty;
                     let deprecations = if !override_required {
                         item.deprecations()

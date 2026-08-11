@@ -534,6 +534,19 @@ impl From<&'_ ArgGroup> for ArgGroup {
     }
 }
 
+#[cfg(feature = "string")]
+impl ArgGroup {
+    /// Remaps this group onto `prefix`: the id, the membership, and the
+    /// requires/conflicts references, preserving every other setting.
+    pub(crate) fn prefixed(mut self, prefix: &str) -> Self {
+        self.id = self.id.prefixed(prefix);
+        self.args = self.args.iter().map(|a| a.prefixed(prefix)).collect();
+        self.requires = self.requires.iter().map(|r| r.prefixed(prefix)).collect();
+        self.conflicts = self.conflicts.iter().map(|c| c.prefixed(prefix)).collect();
+        self
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

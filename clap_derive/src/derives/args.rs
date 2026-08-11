@@ -235,7 +235,30 @@ pub(crate) fn gen_augment(
                 } else {
                     quote! {}
                 };
-                if override_required {
+                if let Some(prefix_lit) = item.flatten_prefix() {
+                    let augment_call = if override_required {
+                        quote_spanned! { kind.span()=>
+                            <#inner_type as clap::Args>::augment_args_for_update
+                        }
+                    } else {
+                        quote_spanned! { kind.span()=>
+                            <#inner_type as clap::Args>::augment_args
+                        }
+                    };
+                    Some(quote_spanned! { kind.span()=>
+                        #flatten_group_assert
+                        let #app_var = #app_var
+                            #next_help_heading
+                            #next_display_order;
+                        let #app_var = {
+                            let __clap_child = #augment_call(clap::Command::new("__flatten_prefix"))
+                                .prefix_args(#prefix_lit);
+                            #app_var
+                                .args(__clap_child.get_arguments().cloned())
+                                .groups(__clap_child.get_groups().cloned())
+                        };
+                    })
+                } else if override_required {
                     Some(quote_spanned! { kind.span()=>
                         #flatten_group_assert
                         let #app_var = #app_var
@@ -498,10 +521,38 @@ pub(crate) fn gen_constructor(fields: &[(&Field, Item)]) -> Result<TokenStream, 
                     (Ty::Option, Some(sub_type)) => sub_type,
                     _ => &field.ty,
                 };
+                let prefix_lit = item.flatten_prefix();
                 match **ty {
+                    Ty::Other if prefix_lit.is_some() => {
+                        let prefix_lit = prefix_lit.unwrap();
+                        quote_spanned! { kind.span()=>
+                            #field_name: {
+                                let mut __clap_prefixed = #arg_matches.remove_prefixed(#prefix_lit);
+                                <#inner_type as clap::FromArgMatches>::from_arg_matches_mut(&mut __clap_prefixed)?
+                            }
+                        }
+                    },
                     Ty::Other => {
                         quote_spanned! { kind.span()=>
                             #field_name: <#inner_type as clap::FromArgMatches>::from_arg_matches_mut(#arg_matches)?
+                        }
+                    },
+                    Ty::Option if prefix_lit.is_some() => {
+                        let prefix_lit = prefix_lit.unwrap();
+                        quote_spanned! { kind.span()=>
+                            #field_name: {
+                                let group_id = <#inner_type as clap::Args>::group_id()
+                                    .expect("asserted during `Arg` creation");
+                                let prefixed_group_id = format!("{}{}", #prefix_lit, group_id.as_str());
+                                if #arg_matches.contains_id(prefixed_group_id.as_str()) {
+                                    let mut __clap_prefixed = #arg_matches.remove_prefixed(#prefix_lit);
+                                    Some(
+                                        <#inner_type as clap::FromArgMatches>::from_arg_matches_mut(&mut __clap_prefixed)?
+                                    )
+                                } else {
+                                    None
+                                }
+                            }
                         }
                     },
                     Ty::Option => {
@@ -616,8 +667,30 @@ pub(crate) fn gen_updater(
                     _ => &field.ty,
                 };
 
-                let updater = quote_spanned! { ty.span()=>
-                    <#inner_type as clap::FromArgMatches>::update_from_arg_matches_mut(#field_name, #arg_matches)?;
+                let updater = if let Some(prefix_lit) = item.flatten_prefix() {
+                    quote_spanned! { ty.span()=>
+                        let mut __clap_prefixed = #arg_matches.remove_prefixed(#prefix_lit);
+                        <#inner_type as clap::FromArgMatches>::update_from_arg_matches_mut(#field_name, &mut __clap_prefixed)?;
+                    }
+                } else {
+                    quote_spanned! { ty.span()=>
+                        <#inner_type as clap::FromArgMatches>::update_from_arg_matches_mut(#field_name, #arg_matches)?;
+                    }
+                };
+
+                let constructor = if let Some(prefix_lit) = item.flatten_prefix() {
+                    quote_spanned! { kind.span()=>
+                        {
+                            let mut __clap_prefixed = #arg_matches.remove_prefixed(#prefix_lit);
+                            <#inner_type as clap::FromArgMatches>::from_arg_matches_mut(&mut __clap_prefixed)?
+                        }
+                    }
+                } else {
+                    quote_spanned! { kind.span()=>
+                        <#inner_type as clap::FromArgMatches>::from_arg_matches_mut(
+                            #arg_matches
+                        )?
+                    }
                 };
 
                 let updater = match **ty {
@@ -625,9 +698,7 @@ pub(crate) fn gen_updater(
                         if let Some(#field_name) = #field_name.as_mut() {
                             #updater
                         } else {
-                            *#field_name = Some(<#inner_type as clap::FromArgMatches>::from_arg_matches_mut(
-                                #arg_matches
-                            )?);
+                            *#field_name = Some(#constructor);
                         }
                     },
                     _ => quote_spanned! { kind.span()=>
