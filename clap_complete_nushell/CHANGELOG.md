@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.6.2] - 2026-08-11
+
 ### Features
 
 - Complete `ValueHint::Directory` as a directory and not just any path
@@ -88,7 +90,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [4.3.0] - 2023-05-24
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.6.1...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.6.2...HEAD
+[4.6.2]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.6.1...clap_complete_nushell-v4.6.2
 [4.6.1]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.6.0...clap_complete_nushell-v4.6.1
 [4.6.0]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.5.11...clap_complete_nushell-v4.6.0
 [4.5.11]: https://github.com/clap-rs/clap/compare/clap_complete_nushell-v4.5.10...clap_complete_nushell-v4.5.11
