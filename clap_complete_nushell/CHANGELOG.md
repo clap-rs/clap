@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+- Complete `ValueHint::Directory` as a directory and not just any path
+
 ## [4.6.1] - 2026-07-17
 
 ### Fixes
