@@ -79,7 +79,7 @@ fn append_value_completion_and_help(
             ValueHint::Other => "string",
             ValueHint::AnyPath => "path",
             ValueHint::FilePath => "path",
-            ValueHint::DirPath => "path",
+            ValueHint::DirPath => "directory",
             ValueHint::ExecutablePath => "path",
             ValueHint::CommandName => "string",
             ValueHint::CommandString => "string",

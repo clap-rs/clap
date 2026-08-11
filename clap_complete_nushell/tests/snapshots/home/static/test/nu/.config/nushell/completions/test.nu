@@ -190,7 +190,7 @@ module completions {
     --other: string
     --path(-p): path
     --file(-f): path
-    --dir(-d): path
+    --dir(-d): directory
     --exe(-e): path
     --cmd-name: string
     --cmd(-c): string
