@@ -70,6 +70,7 @@ pub(crate) fn gen_for_struct(
 
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
+    let action_type_assertions = gen_action_type_assertions(fields);
     let constructor = gen_constructor(fields)?;
     let updater = gen_updater(fields, true)?;
     let raw_deprecated = raw_deprecated();
@@ -114,6 +115,7 @@ pub(crate) fn gen_for_struct(
 
             fn from_arg_matches_mut(__clap_arg_matches: &mut clap::ArgMatches) -> ::std::result::Result<Self, clap::Error> {
                 #raw_deprecated
+                #action_type_assertions
                 let v = #item_name #constructor;
                 ::std::result::Result::Ok(v)
             }
@@ -438,6 +440,25 @@ pub(crate) fn gen_augment(
         #( #args )*
         #app_var #final_app_methods
     }})
+}
+
+fn gen_action_type_assertions(fields: &[(&Field, Item)]) -> TokenStream {
+    let assertions = fields
+        .iter()
+        .filter(|(_, item)| item.is_count_action())
+        .map(|(field, _)| {
+            let field_type = inner_type(&field.ty);
+            quote_spanned! { field.ty.span()=>
+                {
+                    trait __ClapCountActionRequiresU8 {}
+                    impl __ClapCountActionRequiresU8 for u8 {}
+                    fn __clap_assert_count_action_type<T: __ClapCountActionRequiresU8>() {}
+                    let _ = __clap_assert_count_action_type::<#field_type>;
+                }
+            }
+        });
+
+    quote!(#(#assertions)*)
 }
 
 pub(crate) fn gen_constructor(fields: &[(&Field, Item)]) -> Result<TokenStream, syn::Error> {
