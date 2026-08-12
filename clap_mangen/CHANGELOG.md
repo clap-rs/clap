@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [0.3.3] - 2026-08-12
+
 ### Fixes
 
 - Hide hidden positionals in the SYNOPSIS
@@ -204,7 +206,8 @@ MSRV changed to 1.64.0
 - Expanded the documentation
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.3.2...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.3.3...HEAD
+[0.3.3]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.3.2...clap_mangen-v0.3.3
 [0.3.2]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.3.1...clap_mangen-v0.3.2
 [0.3.1]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.3.0...clap_mangen-v0.3.1
 [0.3.0]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.2.33...clap_mangen-v0.3.0
