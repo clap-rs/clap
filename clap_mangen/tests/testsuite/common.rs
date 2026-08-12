@@ -261,6 +261,16 @@ pub(crate) fn hidden_option_command(name: &'static str) -> clap::Command {
         )
 }
 
+pub(crate) fn hidden_positional_command(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+        .arg(clap::Arg::new("visible").help("A visible positional"))
+        .arg(
+            clap::Arg::new("secret")
+                .hide(true)
+                .help("An internal positional"),
+        )
+}
+
 #[cfg(feature = "env")]
 pub(crate) fn env_value_command(name: &'static str) -> clap::Command {
     clap::Command::new(name).arg(

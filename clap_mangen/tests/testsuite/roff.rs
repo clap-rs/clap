@@ -63,6 +63,16 @@ fn hidden_options() {
 }
 
 #[test]
+fn hidden_positionals() {
+    let name = "my-app";
+    let cmd = common::hidden_positional_command(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/hidden_positional.bash.roff"],
+        cmd,
+    );
+}
+
+#[test]
 fn override_usage() {
     let name = "my-app";
     let cmd = common::override_usage_command(name);
