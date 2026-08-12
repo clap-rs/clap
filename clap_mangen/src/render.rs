@@ -78,7 +78,7 @@ pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
         line.push(roman(" "));
     }
 
-    for arg in cmd.get_positionals() {
+    for arg in cmd.get_positionals().filter(|arg| !arg.is_hide_set()) {
         if group_members.iter().any(|gm| gm.get_id() == arg.get_id()) {
             continue;
         }
