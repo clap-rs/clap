@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Hide hidden positionals in the SYNOPSIS
+
 ## [0.3.2] - 2026-08-06
 
 ### Fixes
