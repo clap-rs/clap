@@ -281,6 +281,12 @@ impl<F: ErrorFormatter> Error<F> {
 
     /// Render the error message to a [`StyledStr`].
     ///
+    /// The returned `StyledStr` carries any ANSI styling that was active
+    /// when the error was formatted. To print those styles to a terminal
+    /// (or any stream), use [`StyledStr::ansi`] — formatting via
+    /// `Display` (e.g. `println!("{err}")`) is documented as
+    /// color-unaware and will silently strip the styling. See #6471.
+    ///
     /// # Example
     /// ```no_run
     /// # use clap_builder as clap;
@@ -292,7 +298,7 @@ impl<F: ErrorFormatter> Error<F> {
     ///     },
     ///     Err(err) => {
     ///         let err = err.render();
-    ///         println!("{err}");
+    ///         print!("{}", err.ansi());
     ///         // do_something
     ///     },
     /// };
