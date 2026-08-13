@@ -252,12 +252,13 @@ impl Usage<'_> {
         false
     }
 
-    // Returns the required args in usage string form by fully unrolling all groups
-    pub(crate) fn write_args(&self, styled: &mut StyledStr, incls: &[Id], force_optional: bool) {
-        debug!("Usage::write_args: incls={incls:?}",);
-        use std::fmt::Write as _;
-        let literal = &self.styles.get_literal();
-
+    /// Shared by [`Usage::write_args`] and [`Usage::get_required_usage_from`]: fully unrolls all
+    /// required args/groups into the sets both renderers consume.
+    fn collect_required_groups(
+        &self,
+        incls: &[Id],
+        matcher: Option<&ArgMatcher>,
+    ) -> (Vec<Id>, FlatSet<StyledStr>, FlatSet<Id>) {
         let required_owned;
         let required = if let Some(required) = self.required {
             required
@@ -270,7 +271,13 @@ impl Usage<'_> {
         for a in required.iter() {
             let is_relevant = |(val, req_arg): &(ArgPredicate, Id)| -> Option<Id> {
                 let required = match val {
-                    ArgPredicate::Equals(_) => false,
+                    ArgPredicate::Equals(_) => {
+                        if let Some(matcher) = matcher {
+                            matcher.check_explicit(a, val)
+                        } else {
+                            false
+                        }
+                    }
                     ArgPredicate::IsPresent => true,
                 };
                 required.then(|| req_arg.clone())
@@ -285,20 +292,42 @@ impl Usage<'_> {
             // by unroll_requirements_for_arg.
             unrolled_reqs.push(a.clone());
         }
-        debug!("Usage::get_args: unrolled_reqs={unrolled_reqs:?}");
 
         let mut required_groups_members = FlatSet::new();
         let mut required_groups = FlatSet::new();
         for req in unrolled_reqs.iter().chain(incls.iter()) {
             if self.cmd.find_group(req).is_some() {
                 let group_members = self.cmd.unroll_args_in_group(req);
+                let is_present = matcher
+                    .map(|m| {
+                        group_members
+                            .iter()
+                            .any(|arg| m.check_explicit(arg, &ArgPredicate::IsPresent))
+                    })
+                    .unwrap_or(false);
+                if is_present {
+                    continue;
+                }
+
                 let elem = self.cmd.format_group(req);
                 required_groups.insert(elem);
                 required_groups_members.extend(group_members);
             } else {
-                debug_assert!(self.cmd.find(req).is_some());
+                debug_assert!(self.cmd.find(req).is_some(), "`{req}` must exist");
             }
         }
+
+        (unrolled_reqs, required_groups, required_groups_members)
+    }
+
+    // Returns the required args in usage string form by fully unrolling all groups
+    pub(crate) fn write_args(&self, styled: &mut StyledStr, incls: &[Id], force_optional: bool) {
+        debug!("Usage::write_args: incls={incls:?}",);
+        use std::fmt::Write as _;
+        let literal = &self.styles.get_literal();
+
+        let (unrolled_reqs, required_groups, required_groups_members) =
+            self.collect_required_groups(incls, None);
 
         let mut required_opts = FlatSet::new();
         let mut required_positionals = Vec::new();
@@ -390,65 +419,9 @@ impl Usage<'_> {
             incl_last
         );
 
-        let required_owned;
-        let required = if let Some(required) = self.required {
-            required
-        } else {
-            required_owned = self.cmd.required_graph();
-            &required_owned
-        };
-
-        let mut unrolled_reqs = Vec::new();
-        for a in required.iter() {
-            let is_relevant = |(val, req_arg): &(ArgPredicate, Id)| -> Option<Id> {
-                let required = match val {
-                    ArgPredicate::Equals(_) => {
-                        if let Some(matcher) = matcher {
-                            matcher.check_explicit(a, val)
-                        } else {
-                            false
-                        }
-                    }
-                    ArgPredicate::IsPresent => true,
-                };
-                required.then(|| req_arg.clone())
-            };
-
-            for aa in self.cmd.unroll_arg_requires(is_relevant, a) {
-                // if we don't check for duplicates here this causes duplicate error messages
-                // see https://github.com/clap-rs/clap/issues/2770
-                unrolled_reqs.push(aa);
-            }
-            // always include the required arg itself. it will not be enumerated
-            // by unroll_requirements_for_arg.
-            unrolled_reqs.push(a.clone());
-        }
+        let (unrolled_reqs, required_groups, required_groups_members) =
+            self.collect_required_groups(incls, matcher);
         debug!("Usage::get_required_usage_from: unrolled_reqs={unrolled_reqs:?}");
-
-        let mut required_groups_members = FlatSet::new();
-        let mut required_groups = FlatSet::new();
-        for req in unrolled_reqs.iter().chain(incls.iter()) {
-            if self.cmd.find_group(req).is_some() {
-                let group_members = self.cmd.unroll_args_in_group(req);
-                let is_present = matcher
-                    .map(|m| {
-                        group_members
-                            .iter()
-                            .any(|arg| m.check_explicit(arg, &ArgPredicate::IsPresent))
-                    })
-                    .unwrap_or(false);
-                debug!("Usage::get_required_usage_from:iter:{req:?} group is_present={is_present}");
-                if is_present {
-                    continue;
-                }
-
-                let elem = self.cmd.format_group(req);
-                required_groups.insert(elem);
-                required_groups_members.extend(group_members);
-            } else {
-                debug_assert!(self.cmd.find(req).is_some(), "`{req}` must exist");
-            }
-        }
 
         let mut required_opts = FlatSet::new();
         let mut required_positionals = Vec::new();
