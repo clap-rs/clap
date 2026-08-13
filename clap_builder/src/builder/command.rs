@@ -130,6 +130,7 @@ impl Command {
     /// Command::new("My Program")
     /// # ;
     /// ```
+    #[inline(never)]
     pub fn new(name: impl Into<Str>) -> Self {
         /// The actual implementation of `new`, non-generic to save code size.
         ///
@@ -168,6 +169,7 @@ impl Command {
     /// ```
     /// [argument]: Arg
     #[must_use]
+    #[inline(never)]
     pub fn arg(mut self, a: impl Into<Arg>) -> Self {
         let arg = a.into();
         self.arg_internal(arg);
@@ -463,7 +465,7 @@ impl Command {
     ///          .required(true))
     /// # ;
     /// ```
-    #[inline]
+    #[inline(never)]
     #[must_use]
     pub fn group(mut self, group: impl Into<ArgGroup>) -> Self {
         self.groups.push(group.into());
@@ -522,7 +524,7 @@ impl Command {
     ///         .arg(arg!(<config> "Required configuration file to use")))
     /// # ;
     /// ```
-    #[inline]
+    #[inline(never)]
     #[must_use]
     pub fn subcommand(self, subcmd: impl Into<Command>) -> Self {
         let subcmd = subcmd.into();
@@ -5194,6 +5196,7 @@ impl Command {
 }
 
 impl Default for Command {
+    #[inline(never)]
     fn default() -> Self {
         Self {
             name: Default::default(),

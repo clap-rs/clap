@@ -38,6 +38,7 @@ impl<'cmd> Usage<'cmd> {
 
     // Creates a usage string for display. This happens just after all arguments were parsed, but before
     // any subcommands have been parsed (so as to give subcommands their own usage recursively)
+    #[inline(never)]
     pub(crate) fn create_usage_with_title(&self, used: &[Id]) -> Option<StyledStr> {
         debug!("Usage::create_usage_with_title");
         use std::fmt::Write as _;
@@ -58,6 +59,7 @@ impl<'cmd> Usage<'cmd> {
     }
 
     // Creates a usage string (*without title*) if one was not provided by the user manually.
+    #[inline(never)]
     pub(crate) fn create_usage_no_title(&self, used: &[Id]) -> Option<StyledStr> {
         debug!("Usage::create_usage_no_title");
 

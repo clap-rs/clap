@@ -85,6 +85,7 @@ impl<F: ErrorFormatter> Error<F> {
     /// Prefer [`Command::error`] for generating errors.
     ///
     /// [`Command::error`]: crate::Command::error
+    #[cold]
     pub fn raw(kind: ErrorKind, message: impl Display) -> Self {
         Self::new(kind).set_message(message.to_string())
     }
@@ -125,6 +126,7 @@ impl<F: ErrorFormatter> Error<F> {
     /// err.print();
     /// # }
     /// ```
+    #[cold]
     pub fn new(kind: ErrorKind) -> Self {
         Self {
             inner: Box::new(ErrorInner {
@@ -146,6 +148,7 @@ impl<F: ErrorFormatter> Error<F> {
     /// Apply [`Command`]'s formatting to the error
     ///
     /// Generally, this is used with [`Error::new`]
+    #[cold]
     pub fn with_cmd(self, cmd: &Command) -> Self {
         self.set_styles(cmd.get_styles().clone())
             .set_color(cmd.get_color())
@@ -359,10 +362,12 @@ impl<F: ErrorFormatter> Error<F> {
         self
     }
 
+    #[cold]
     pub(crate) fn display_help(cmd: &Command, styled: StyledStr) -> Self {
         Self::for_app(ErrorKind::DisplayHelp, cmd, styled)
     }
 
+    #[cold]
     pub(crate) fn display_help_error(cmd: &Command, styled: StyledStr) -> Self {
         Self::for_app(
             ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand,
@@ -371,10 +376,12 @@ impl<F: ErrorFormatter> Error<F> {
         )
     }
 
+    #[cold]
     pub(crate) fn display_version(cmd: &Command, styled: StyledStr) -> Self {
         Self::for_app(ErrorKind::DisplayVersion, cmd, styled)
     }
 
+    #[cold]
     pub(crate) fn argument_conflict(
         cmd: &Command,
         arg: String,
@@ -403,6 +410,7 @@ impl<F: ErrorFormatter> Error<F> {
         err
     }
 
+    #[cold]
     pub(crate) fn subcommand_conflict(
         cmd: &Command,
         sub: String,
@@ -431,10 +439,12 @@ impl<F: ErrorFormatter> Error<F> {
         err
     }
 
+    #[cold]
     pub(crate) fn empty_value(cmd: &Command, good_vals: &[String], arg: String) -> Self {
         Self::invalid_value(cmd, "".to_owned(), good_vals, arg)
     }
 
+    #[cold]
     pub(crate) fn no_equals(cmd: &Command, arg: String, usage: Option<StyledStr>) -> Self {
         let mut err = Self::new(ErrorKind::NoEquals).with_cmd(cmd);
 
@@ -451,6 +461,7 @@ impl<F: ErrorFormatter> Error<F> {
         err
     }
 
+    #[cold]
     pub(crate) fn invalid_value(
         cmd: &Command,
         bad_val: String,
@@ -481,6 +492,7 @@ impl<F: ErrorFormatter> Error<F> {
         err
     }
 
+    #[cold]
     pub(crate) fn invalid_subcommand(
         cmd: &Command,
         subcmd: String,
@@ -527,6 +539,7 @@ impl<F: ErrorFormatter> Error<F> {
         err
     }
 
+    #[cold]
     pub(crate) fn unrecognized_subcommand(
         cmd: &Command,
         subcmd: String,
@@ -549,6 +562,7 @@ impl<F: ErrorFormatter> Error<F> {
         err
     }
 
+    #[cold]
     pub(crate) fn missing_required_argument(
         cmd: &Command,
         required: Vec<String>,
@@ -571,6 +585,7 @@ impl<F: ErrorFormatter> Error<F> {
         err
     }
 
+    #[cold]
     pub(crate) fn missing_subcommand(
         cmd: &Command,
         parent: String,
@@ -597,6 +612,7 @@ impl<F: ErrorFormatter> Error<F> {
         err
     }
 
+    #[cold]
     pub(crate) fn invalid_utf8(cmd: &Command, usage: Option<StyledStr>) -> Self {
         let mut err = Self::new(ErrorKind::InvalidUtf8).with_cmd(cmd);
 
@@ -611,6 +627,7 @@ impl<F: ErrorFormatter> Error<F> {
         err
     }
 
+    #[cold]
     pub(crate) fn too_many_values(
         cmd: &Command,
         val: String,
@@ -634,6 +651,7 @@ impl<F: ErrorFormatter> Error<F> {
         err
     }
 
+    #[cold]
     pub(crate) fn too_few_values(
         cmd: &Command,
         arg: String,
@@ -665,6 +683,7 @@ impl<F: ErrorFormatter> Error<F> {
         err
     }
 
+    #[cold]
     pub(crate) fn value_validation(
         arg: String,
         val: String,

@@ -119,6 +119,7 @@ impl Arg {
     /// # ;
     /// ```
     /// [`Arg::action(ArgAction::Set)`]: Arg::action()
+    #[inline(never)]
     pub fn new(id: impl Into<Id>) -> Self {
         Arg::default().id(id)
     }
