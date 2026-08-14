@@ -31,6 +31,12 @@ pub(crate) fn description(roff: &mut Roff, cmd: &clap::Command) {
 
 pub(crate) fn synopsis(roff: &mut Roff, cmd: &clap::Command) {
     let name = cmd.get_bin_name().unwrap_or_else(|| cmd.get_name());
+
+    if let Some(usage) = cmd.get_overridden_usage() {
+        override_synopsis(roff, name, &usage.to_string());
+        return;
+    }
+
     let mut line = vec![bold(name), roman(" ")];
 
     let required_groups: Vec<Vec<&Arg>> = cmd
@@ -176,6 +182,40 @@ fn render_synopsis_arg(arg: &Arg) -> Vec<Inline> {
     }
 
     inline
+}
+
+/// Render the usage set with [`clap::Command::override_usage`].
+///
+/// Such a usage may document several invocation forms, one per line, indented
+/// to line up under the `Usage: ` prefix of the help output. Each line is
+/// trimmed and given a line of its own, so that commands documenting more than
+/// one form keep them all visible instead of having them collapsed into the
+/// single line derived from the arguments. Empty lines are dropped.
+///
+/// A form starting with the name of the command has that name set in bold, to
+/// match the synopsis derived from the arguments.
+fn override_synopsis(roff: &mut Roff, name: &str, usage: &str) {
+    let mut first = true;
+
+    for form in usage.lines().map(str::trim).filter(|l| !l.is_empty()) {
+        // Each form is rendered as its own text line, separated by an explicit
+        // break, rather than as a single line holding `Inline::LineBreak`s: a
+        // form starting with a control character is only escaped by `roff` when
+        // it starts the line it is rendered on.
+        if !first {
+            roff.control("br", []);
+        }
+        first = false;
+
+        match form.strip_prefix(name) {
+            Some(rest) if rest.is_empty() || rest.starts_with(' ') => {
+                roff.text([bold(name), roman(rest)]);
+            }
+            _ => {
+                roff.text([roman(form)]);
+            }
+        }
+    }
 }
 
 pub(crate) fn options(roff: &mut Roff, items: &[&Arg]) {

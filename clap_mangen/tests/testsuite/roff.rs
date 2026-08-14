@@ -63,6 +63,23 @@ fn hidden_options() {
 }
 
 #[test]
+fn override_usage() {
+    let name = "my-app";
+    let cmd = common::override_usage_command(name);
+    common::assert_matches(snapbox::file!["../snapshots/override_usage.bash.roff"], cmd);
+}
+
+#[test]
+fn override_usage_single_form() {
+    let name = "my-app";
+    let cmd = common::override_usage_single_command(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/override_usage_single.bash.roff"],
+        cmd,
+    );
+}
+
+#[test]
 #[cfg(feature = "env")]
 fn value_env() {
     let name = "my-app";

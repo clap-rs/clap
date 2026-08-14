@@ -274,6 +274,31 @@ pub(crate) fn env_value_command(name: &'static str) -> clap::Command {
     )
 }
 
+pub(crate) fn override_usage_command(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+        .about("Check file types and compare values")
+        .override_usage(format!(
+            "{name} [OPTION]... EXPRESSION\n       \
+             {name}\n       \
+             [ EXPRESSION ]\n       \
+             [ ]\n       \
+             ./{name} EXPRESSION"
+        ))
+        .arg(
+            clap::Arg::new("all")
+                .short('a')
+                .long("all")
+                .help("Do not ignore entries starting with .")
+                .action(clap::ArgAction::SetTrue),
+        )
+}
+
+pub(crate) fn override_usage_single_command(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+        .about("Check file types and compare values")
+        .override_usage(format!("{name} [-clDas] <some_file>"))
+}
+
 pub(crate) fn assert_matches(expected: impl IntoData, cmd: clap::Command) {
     let mut buf = vec![];
     clap_mangen::Man::new(cmd).render(&mut buf).unwrap();
