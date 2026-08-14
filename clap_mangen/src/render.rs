@@ -150,6 +150,9 @@ fn unroll_group_args<'a>(cmd: &'a clap::Command, group: &clap::Id) -> Vec<&'a Ar
                 continue;
             }
             if let Some(arg) = cmd.get_arguments().find(|a| a.get_id() == n) {
+                if arg.is_hide_set() {
+                    continue;
+                }
                 args.push(arg);
             } else {
                 g_vec.push(n);
