@@ -239,6 +239,16 @@ fn required_group_with_required_option() {
 }
 
 #[test]
+fn required_group_with_hidden_arg() {
+    let name = "my-app";
+    let cmd = common::required_group_with_hidden_arg_command(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/required_group_with_hidden_arg.roff"],
+        cmd,
+    );
+}
+
+#[test]
 fn single_required_group() {
     let name = "my-app";
     let cmd = common::single_required_group_command(name);

@@ -556,6 +556,27 @@ pub(crate) fn required_group_with_required_option_command(name: &'static str) ->
         )
 }
 
+pub(crate) fn required_group_with_hidden_arg_command(name: &'static str) -> clap::Command {
+    clap::Command::new(name)
+        .arg(
+            clap::Arg::new("outfile")
+                .long("outfile")
+                .action(clap::ArgAction::Set),
+        )
+        .arg(
+            clap::Arg::new("secret")
+                .long("secret")
+                .hide(true)
+                .action(clap::ArgAction::Set),
+        )
+        .group(
+            clap::ArgGroup::new("output")
+                .required(true)
+                .arg("outfile")
+                .arg("secret"),
+        )
+}
+
 pub(crate) fn single_required_group_command(name: &'static str) -> clap::Command {
     clap::Command::new(name)
         .arg(
