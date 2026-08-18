@@ -231,6 +231,10 @@ required-features = ["cargo"]
 doc-scrape-examples = true
 
 [[example]]
+name = "git"
+doc-scrape-examples = true
+
+[[example]]
 name = "git-derive"
 required-features = ["derive"]
 doc-scrape-examples = true
