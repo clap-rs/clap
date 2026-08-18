@@ -31,6 +31,12 @@ impl StyledStr {
     }
 
     /// Display using [ANSI Escape Code](https://en.wikipedia.org/wiki/ANSI_escape_code) styling
+    ///
+    /// This always emits the escape codes, even when writing to a file or pipe. Only reach for it
+    /// once you've decided color is wanted, such as writing to a known terminal or a color-aware
+    /// stream like [`anstream`](https://docs.rs/anstream) that strips the codes when the
+    /// destination isn't a terminal. For color-unaware output, print the [`StyledStr`] directly
+    /// with `Display` instead.
     #[cfg(feature = "color")]
     pub fn ansi(&self) -> impl std::fmt::Display + '_ {
         self.0.as_str()

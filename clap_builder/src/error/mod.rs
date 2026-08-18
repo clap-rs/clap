@@ -291,6 +291,9 @@ impl<F: ErrorFormatter> Error<F> {
     ///         // do_something
     ///     },
     ///     Err(err) => {
+    ///         // `render` is color-unaware: printing the `StyledStr` through
+    ///         // `Display` (`println!`, `format!`, `to_string`) strips any styling.
+    ///         // Use `Error::print` for color-aware output to the terminal.
     ///         let err = err.render();
     ///         println!("{err}");
     ///         // do_something
