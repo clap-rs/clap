@@ -521,13 +521,16 @@ impl ArgGroup {
         &self.id
     }
 
-    /// Get the arguments and groups required when this group is present.
+    /// Get the argument and group IDs configured as requirements for this group.
     #[inline]
     pub fn get_requires(&self) -> impl Iterator<Item = &Id> {
         self.requires.iter()
     }
 
-    /// Get the arguments and groups that conflict with this group.
+    /// Get the argument and group IDs configured to conflict with this group.
+    ///
+    /// Conflict behavior is mutual at runtime, so this does not include relationships
+    /// configured only from the other side.
     #[inline]
     pub fn get_conflicts(&self) -> impl Iterator<Item = &Id> {
         self.conflicts.iter()

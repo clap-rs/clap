@@ -4424,24 +4424,27 @@ impl Arg {
     /// Get the conditional default-value rules in evaluation order.
     ///
     /// Each entry contains the argument to inspect, the predicate to match, and the
-    /// default values to apply. `None` clears any unconditional default value when
-    /// the predicate matches.
+    /// optional default values for a matching rule. `None` represents a matching rule
+    /// that suppresses the unconditional default.
     #[inline]
     pub fn get_default_values_ifs(&self) -> &[(Id, ArgPredicate, Option<Vec<OsStr>>)] {
         &self.default_vals_ifs
     }
 
-    /// Get the arguments overridden by this argument.
+    /// Get the argument and group IDs configured to be overridden by this argument.
+    ///
+    /// Override behavior is mutual at runtime, so this does not include relationships
+    /// configured only from the other side.
     #[inline]
     pub fn get_overrides(&self) -> &[Id] {
         &self.overrides
     }
 
-    /// Get the arguments conditionally required by this argument.
+    /// Get the direct requirement rules configured on this argument.
     ///
-    /// Each entry contains the predicate applied to this argument and the argument
-    /// that becomes required when the predicate matches. Unconditional requirements
-    /// are represented by [`ArgPredicate::IsPresent`].
+    /// Each entry contains the predicate applied to this argument and the argument or
+    /// group that becomes required when the predicate matches. Rules configured with
+    /// [`Arg::requires`] use [`ArgPredicate::IsPresent`].
     #[inline]
     pub fn get_requires(&self) -> &[(ArgPredicate, Id)] {
         &self.requires
@@ -4449,6 +4452,7 @@ impl Arg {
 
     /// Get the conditions that make this argument required when any condition matches.
     ///
+    /// Each entry contains the argument or group to inspect and the value it must equal.
     /// This includes conditions configured with [`Arg::required_if_eq`] and
     /// [`Arg::required_if_eq_any`].
     #[inline]
@@ -4457,12 +4461,14 @@ impl Arg {
     }
 
     /// Get the conditions that make this argument required when all conditions match.
+    ///
+    /// Each entry contains the argument or group to inspect and the value it must equal.
     #[inline]
     pub fn get_required_if_eq_all(&self) -> &[(Id, OsStr)] {
         &self.r_ifs_all
     }
 
-    /// Get the arguments whose presence makes this argument optional when any is present.
+    /// Get the argument and group IDs used by the "required unless any are present" rules.
     ///
     /// This includes rules configured with [`Arg::required_unless_present`] and
     /// [`Arg::required_unless_present_any`].
@@ -4471,7 +4477,7 @@ impl Arg {
         &self.r_unless
     }
 
-    /// Get the arguments whose presence makes this argument optional when all are present.
+    /// Get the argument and group IDs used by the "required unless all are present" rule.
     #[inline]
     pub fn get_required_unless_present_all(&self) -> &[Id] {
         &self.r_unless_all
