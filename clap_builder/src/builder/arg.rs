@@ -4415,6 +4415,68 @@ impl Arg {
         &self.default_vals
     }
 
+    /// Get the values used when the argument is present without an explicit value.
+    #[inline]
+    pub fn get_default_missing_values(&self) -> &[OsStr] {
+        &self.default_missing_vals
+    }
+
+    /// Get the conditional default-value rules in evaluation order.
+    ///
+    /// Each entry contains the argument to inspect, the predicate to match, and the
+    /// default values to apply. `None` clears any unconditional default value when
+    /// the predicate matches.
+    #[inline]
+    pub fn get_default_values_ifs(&self) -> &[(Id, ArgPredicate, Option<Vec<OsStr>>)] {
+        &self.default_vals_ifs
+    }
+
+    /// Get the arguments overridden by this argument.
+    #[inline]
+    pub fn get_overrides(&self) -> &[Id] {
+        &self.overrides
+    }
+
+    /// Get the arguments conditionally required by this argument.
+    ///
+    /// Each entry contains the predicate applied to this argument and the argument
+    /// that becomes required when the predicate matches. Unconditional requirements
+    /// are represented by [`ArgPredicate::IsPresent`].
+    #[inline]
+    pub fn get_requires(&self) -> &[(ArgPredicate, Id)] {
+        &self.requires
+    }
+
+    /// Get the conditions that make this argument required when any condition matches.
+    ///
+    /// This includes conditions configured with [`Arg::required_if_eq`] and
+    /// [`Arg::required_if_eq_any`].
+    #[inline]
+    pub fn get_required_if_eq_any(&self) -> &[(Id, OsStr)] {
+        &self.r_ifs
+    }
+
+    /// Get the conditions that make this argument required when all conditions match.
+    #[inline]
+    pub fn get_required_if_eq_all(&self) -> &[(Id, OsStr)] {
+        &self.r_ifs_all
+    }
+
+    /// Get the arguments whose presence makes this argument optional when any is present.
+    ///
+    /// This includes rules configured with [`Arg::required_unless_present`] and
+    /// [`Arg::required_unless_present_any`].
+    #[inline]
+    pub fn get_required_unless_present_any(&self) -> &[Id] {
+        &self.r_unless
+    }
+
+    /// Get the arguments whose presence makes this argument optional when all are present.
+    #[inline]
+    pub fn get_required_unless_present_all(&self) -> &[Id] {
+        &self.r_unless_all
+    }
+
     /// Checks whether this argument is a positional or not.
     ///
     /// # Examples
@@ -4846,6 +4908,47 @@ pub trait ArgExt: Extension {}
 mod test {
     use super::Arg;
     use super::ArgAction;
+    use super::Id;
+
+    #[test]
+    fn relationship_reflection() {
+        let arg = Arg::new("config")
+            .default_missing_value("default-missing")
+            .default_value_if("mode", "auto", Some("default"))
+            .overrides_with("old-config")
+            .requires_if("special", "input")
+            .required_if_eq_any([("format", "json"), ("mode", "strict")])
+            .required_if_eq_all([("source", "remote"), ("auth", "token")])
+            .required_unless_present_any(["stdin", "file"])
+            .required_unless_present_all(["host", "port"]);
+
+        assert_eq!(arg.get_default_missing_values(), &["default-missing"]);
+        assert_eq!(arg.get_default_values_ifs().len(), 1);
+        assert_eq!(
+            arg.get_overrides()
+                .iter()
+                .map(Id::as_str)
+                .collect::<Vec<_>>(),
+            ["old-config"]
+        );
+        assert_eq!(arg.get_requires().len(), 1);
+        assert_eq!(arg.get_required_if_eq_any().len(), 2);
+        assert_eq!(arg.get_required_if_eq_all().len(), 2);
+        assert_eq!(
+            arg.get_required_unless_present_any()
+                .iter()
+                .map(Id::as_str)
+                .collect::<Vec<_>>(),
+            ["stdin", "file"]
+        );
+        assert_eq!(
+            arg.get_required_unless_present_all()
+                .iter()
+                .map(Id::as_str)
+                .collect::<Vec<_>>(),
+            ["host", "port"]
+        );
+    }
 
     #[test]
     fn flag_display_long() {

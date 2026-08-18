@@ -521,6 +521,18 @@ impl ArgGroup {
         &self.id
     }
 
+    /// Get the arguments and groups required when this group is present.
+    #[inline]
+    pub fn get_requires(&self) -> impl Iterator<Item = &Id> {
+        self.requires.iter()
+    }
+
+    /// Get the arguments and groups that conflict with this group.
+    #[inline]
+    pub fn get_conflicts(&self) -> impl Iterator<Item = &Id> {
+        self.conflicts.iter()
+    }
+
     /// Reports whether [`ArgGroup::required`] is set
     #[inline]
     pub fn is_required_set(&self) -> bool {
@@ -611,5 +623,21 @@ mod test {
         for (pos, arg) in grp.get_args().enumerate() {
             assert_eq!(*arg, args[pos]);
         }
+    }
+
+    #[test]
+    fn arg_group_relationship_reflection() {
+        let grp = ArgGroup::new("program")
+            .requires_all(["input", "output"])
+            .conflicts_with_all(["quiet", "verbose"]);
+
+        assert_eq!(
+            grp.get_requires().map(Id::as_str).collect::<Vec<_>>(),
+            ["input", "output"]
+        );
+        assert_eq!(
+            grp.get_conflicts().map(Id::as_str).collect::<Vec<_>>(),
+            ["quiet", "verbose"]
+        );
     }
 }
