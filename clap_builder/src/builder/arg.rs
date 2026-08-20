@@ -68,6 +68,7 @@ pub struct Arg {
     pub(crate) overrides: Vec<Id>,
     pub(crate) groups: Vec<Id>,
     pub(crate) requires: Vec<(ArgPredicate, Id)>,
+    pub(crate) requires_any: Vec<Id>,
     pub(crate) r_ifs: Vec<(Id, OsStr)>,
     pub(crate) r_ifs_all: Vec<(Id, OsStr)>,
     pub(crate) r_unless: Vec<Id>,
@@ -828,6 +829,33 @@ impl Arg {
         } else {
             self.requires.clear();
         }
+        self
+    }
+
+    /// Sets arguments where at least one is required when this one is present.
+    ///
+    /// The requirement is satisfied when any listed argument or argument group is present.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use clap::{Arg, ArgAction, Command};
+    /// let result = Command::new("prog")
+    ///     .arg(
+    ///         Arg::new("config")
+    ///             .long("config")
+    ///             .action(ArgAction::SetTrue)
+    ///             .requires_any(["input", "stdin"]),
+    ///     )
+    ///     .arg(Arg::new("input").long("input").action(ArgAction::SetTrue))
+    ///     .arg(Arg::new("stdin").long("stdin").action(ArgAction::SetTrue))
+    ///     .try_get_matches_from(["prog", "--config", "--stdin"]);
+    /// assert!(result.is_ok());
+    /// ```
+    #[must_use]
+    pub fn requires_any(mut self, ids: impl IntoIterator<Item = impl Into<Id>>) -> Self {
+        self.requires_any.extend(ids.into_iter().map(Into::into));
         self
     }
 
@@ -4810,6 +4838,7 @@ impl fmt::Debug for Arg {
             .field("overrides", &self.overrides)
             .field("groups", &self.groups)
             .field("requires", &self.requires)
+            .field("requires_any", &self.requires_any)
             .field("r_ifs", &self.r_ifs)
             .field("r_unless", &self.r_unless)
             .field("short", &self.short)

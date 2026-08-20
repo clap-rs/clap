@@ -1486,3 +1486,130 @@ fn requires_self() {
         .arg(arg!(-f --flag "some flag").requires("flag"))
         .try_get_matches_from(vec![""]);
 }
+
+
+#[test]
+fn requires_any_group() {
+    fn cmd() -> Command {
+        Command::new("my-app")
+            .arg(
+                Arg::new("special")
+                    .long("special")
+                    .action(ArgAction::SetTrue)
+                    .requires_any(["special-and-opt-a", "special-and-opt-b"]),
+            )
+            .arg(Arg::new("opt-a1").long("opt-a1").action(ArgAction::SetTrue))
+            .arg(Arg::new("opt-a2").long("opt-a2").action(ArgAction::SetTrue))
+            .arg(Arg::new("opt-b1").long("opt-b1").action(ArgAction::SetTrue))
+            .arg(Arg::new("opt-b2").long("opt-b2").action(ArgAction::SetTrue))
+            .group(
+                ArgGroup::new("special-and-opt-a")
+                    .args(["opt-a1", "opt-a2"])
+                    .requires_all(["special", "opt-a1", "opt-a2"])
+                    .conflicts_with("special-and-opt-b")
+                    .multiple(true),
+            )
+            .group(
+                ArgGroup::new("special-and-opt-b")
+                    .args(["opt-b1", "opt-b2"])
+                    .requires_all(["special", "opt-b1", "opt-b2"])
+                    .conflicts_with("special-and-opt-a")
+                    .multiple(true),
+            )
+    }
+
+    for args in [
+        vec!["my-app"],
+        vec!["my-app", "--special", "--opt-a1", "--opt-a2"],
+        vec!["my-app", "--special", "--opt-b1", "--opt-b2"],
+    ] {
+        let result = cmd().try_get_matches_from(args.clone());
+        assert!(result.is_ok(), "expected {args:?} to be valid: {result:?}");
+    }
+
+    for args in [
+        vec!["my-app", "--opt-a1", "--opt-a2"],
+        vec!["my-app", "--opt-b1", "--opt-b2"],
+        vec!["my-app", "--special"],
+        vec!["my-app", "--special", "--opt-a1"],
+        vec!["my-app", "--special", "--opt-b1"],
+        vec!["my-app", "--special", "--opt-a1", "--opt-a2", "--opt-b1"],
+        vec!["my-app", "--special", "--opt-b1", "--opt-b2", "--opt-a1"],
+        vec![
+            "my-app",
+            "--special",
+            "--opt-a1",
+            "--opt-a2",
+            "--opt-b1",
+            "--opt-b2",
+        ],
+    ] {
+        let result = cmd().try_get_matches_from(args.clone());
+        assert!(result.is_err(), "expected {args:?} to be invalid");
+    }
+}
+
+#[test]
+fn requires_any_arg() {
+    let result = Command::new("prog")
+        .arg(
+            Arg::new("config")
+                .long("config")
+                .action(ArgAction::SetTrue)
+                .requires_any(["input", "stdin"]),
+        )
+        .arg(Arg::new("input").long("input").action(ArgAction::SetTrue))
+        .arg(Arg::new("stdin").long("stdin").action(ArgAction::SetTrue))
+        .try_get_matches_from(["prog", "--config", "--stdin"]);
+    assert!(result.is_ok());
+}
+
+
+#[test]
+#[cfg(feature = "error-context")]
+fn requires_any_error_output() {
+    let cmd = Command::new("prog")
+        .arg(
+            Arg::new("config")
+                .long("config")
+                .action(ArgAction::SetTrue)
+                .requires_any(["input", "stdin"]),
+        )
+        .arg(Arg::new("input").long("input").action(ArgAction::SetTrue))
+        .arg(Arg::new("stdin").long("stdin").action(ArgAction::SetTrue));
+    const EXPECTED: &str = "\
+error: the following required arguments were not provided:
+  <--input|--stdin>
+
+Usage: prog --config <--input|--stdin>
+
+For more information, try '--help'.
+";
+    utils::assert_output(cmd, "prog --config", EXPECTED, true);
+}
+
+#[test]
+#[should_panic = "Argument config cannot require itself"]
+fn requires_any_self() {
+    let _ = Command::new("prog")
+        .arg(
+            Arg::new("config")
+                .long("config")
+                .action(ArgAction::SetTrue)
+                .requires_any(["config"]),
+        )
+        .try_get_matches_from(["prog"]);
+}
+
+#[test]
+#[should_panic = "Argument or group 'missing' specified in 'requires_any' for 'config' does not exist"]
+fn requires_any_invalid_arg() {
+    let _ = Command::new("prog")
+        .arg(
+            Arg::new("config")
+                .long("config")
+                .action(ArgAction::SetTrue)
+                .requires_any(["missing"]),
+        )
+        .try_get_matches_from(["prog"]);
+}

@@ -168,6 +168,22 @@ pub(crate) fn assert_app(cmd: &Command) {
             );
         }
 
+        for req_id in &arg.requires_any {
+            assert!(
+                &arg.id != req_id,
+                "Argument {} cannot require itself",
+                arg.get_id()
+            );
+
+            assert!(
+                cmd.id_exists(req_id),
+                "Command {}: Argument or group '{}' specified in 'requires_any' for '{}' does not exist",
+                cmd.get_name(),
+                req_id,
+                arg.get_id(),
+            );
+        }
+
         for req in &arg.r_ifs {
             assert!(
                 !arg.is_required_set(),
