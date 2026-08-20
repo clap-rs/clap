@@ -218,9 +218,33 @@ impl<'cmd> Validator<'cmd> {
         }
     }
 
+    fn gather_requires_any(&self, matcher: &ArgMatcher) -> Vec<Vec<Id>> {
+        debug!("Validator::gather_requires_any");
+        let is_present = |id: &Id| {
+            if let Some(group) = self.cmd.find_group(id) {
+                self.cmd
+                    .unroll_args_in_group(group.get_id())
+                    .iter()
+                    .any(|arg| matcher.check_explicit(arg, &ArgPredicate::IsPresent))
+            } else {
+                matcher.check_explicit(id, &ArgPredicate::IsPresent)
+            }
+        };
+
+        matcher
+            .args()
+            .filter(|(_, matched)| matched.check_explicit(&ArgPredicate::IsPresent))
+            .filter_map(|(name, _)| self.cmd.find(name))
+            .filter(|arg| !arg.requires_any.is_empty())
+            .filter(|arg| !arg.requires_any.iter().any(&is_present))
+            .map(|arg| arg.requires_any.clone())
+            .collect()
+    }
+
     fn validate_required(&mut self, matcher: &ArgMatcher, conflicts: &Conflicts) -> ClapResult<()> {
         debug!("Validator::validate_required: required={:?}", self.required);
         self.gather_requires(matcher);
+        let missing_required_any = self.gather_requires_any(matcher);
 
         let mut missing_required = Vec::new();
         let mut highest_index = 0;
@@ -335,8 +359,8 @@ impl<'cmd> Validator<'cmd> {
             }
         }
 
-        if !missing_required.is_empty() {
-            ok!(self.missing_required_error(matcher, missing_required));
+        if !missing_required.is_empty() || !missing_required_any.is_empty() {
+            ok!(self.missing_required_error(matcher, missing_required, missing_required_any));
         }
 
         Ok(())
@@ -371,6 +395,7 @@ impl<'cmd> Validator<'cmd> {
         &self,
         matcher: &ArgMatcher,
         raw_req_args: Vec<Id>,
+        raw_req_any: Vec<Vec<Id>>,
     ) -> ClapResult<()> {
         debug!("Validator::missing_required_error; incl={raw_req_args:?}");
         debug!(
@@ -380,7 +405,7 @@ impl<'cmd> Validator<'cmd> {
 
         let usg = Usage::new(self.cmd).required(&self.required);
 
-        let req_args = {
+        let mut req_args = {
             #[cfg(feature = "usage")]
             {
                 usg.get_required_usage_from(&raw_req_args, Some(matcher), true)
@@ -408,6 +433,11 @@ impl<'cmd> Validator<'cmd> {
                     .collect::<Vec<_>>()
             }
         };
+        req_args.extend(
+            raw_req_any
+                .iter()
+                .map(|ids| self.format_required_any(ids).to_string()),
+        );
 
         debug!("Validator::missing_required_error: req_args={req_args:#?}");
 
@@ -426,11 +456,45 @@ impl<'cmd> Validator<'cmd> {
             .chain(raw_req_args)
             .collect();
 
-        Err(Error::missing_required_argument(
-            self.cmd,
-            req_args,
-            usg.create_usage_with_title(&used),
-        ))
+        let mut usage = usg.create_usage_with_title(&used);
+        if let Some(usage) = usage.as_mut() {
+            for ids in &raw_req_any {
+                usage.push_str(" ");
+                usage.push_styled(&self.format_required_any(ids));
+            }
+        }
+
+        Err(Error::missing_required_argument(self.cmd, req_args, usage))
+    }
+
+    fn format_required_any(&self, ids: &[Id]) -> StyledStr {
+        use std::fmt::Write as _;
+
+        let mut args = FlatSet::new();
+        for id in ids {
+            if let Some(group) = self.cmd.find_group(id) {
+                args.extend(self.cmd.unroll_args_in_group(group.get_id()));
+            } else {
+                args.insert(id.clone());
+            }
+        }
+
+        let group = args
+            .iter()
+            .filter_map(|id| self.cmd.find(id))
+            .map(|arg| {
+                if arg.is_positional() {
+                    arg.name_no_brackets()
+                } else {
+                    arg.to_string()
+                }
+            })
+            .collect::<Vec<_>>()
+            .join("|");
+        let placeholder = self.cmd.get_styles().get_placeholder();
+        let mut styled = StyledStr::new();
+        write!(&mut styled, "{placeholder}<{group}>{placeholder:#}").unwrap();
+        styled
     }
 }
 
