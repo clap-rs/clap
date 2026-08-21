@@ -3298,6 +3298,16 @@ impl Command {
     /// * `<cmd> <subcmd> [subcmd_args]`
     /// * `<cmd> [cmd_args]`
     ///
+    /// <div class="warning">
+    ///
+    /// **NOTE:** With the `unstable-v5` feature, providing a top-level argument
+    /// also satisfies [`Command::subcommand_required`] (so exclusive flags like
+    /// `--about` can stand in for a required subcommand). Without that feature
+    /// flag the historical behavior remains (still errors with
+    /// [`ErrorKind::MissingSubcommand`]).
+    ///
+    /// </div>
+    ///
     /// # Examples
     ///
     /// ```rust
