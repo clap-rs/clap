@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(derive)* Report incompatible `ArgAction::Count` field types at compile time
+
 ## [4.6.6] - 2026-08-06
 
 ### Features

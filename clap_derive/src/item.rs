@@ -1065,6 +1065,10 @@ impl Item {
             })
     }
 
+    pub(crate) fn is_count_action(&self) -> bool {
+        self.action.as_ref().is_some_and(Action::is_count)
+    }
+
     pub(crate) fn kind(&self) -> Sp<Kind> {
         self.kind.clone()
     }
@@ -1143,6 +1147,24 @@ impl Action {
             Self::Explicit(method) => method.name.span(),
             Self::Implicit(ident) => ident.span(),
         }
+    }
+
+    fn is_count(&self) -> bool {
+        let Self::Explicit(method) = self else {
+            return false;
+        };
+        let Ok(path) = syn::parse2::<syn::Path>(method.args.clone()) else {
+            return false;
+        };
+        let mut segments = path.segments.iter().rev();
+        let Some(variant) = segments.next() else {
+            return false;
+        };
+        let Some(action) = segments.next() else {
+            return false;
+        };
+
+        action.ident == "ArgAction" && variant.ident == "Count"
     }
 }
 
