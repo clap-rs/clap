@@ -17,6 +17,12 @@ pub(crate) fn basic_command(name: &'static str) -> Command {
                 .conflicts_with("config")
                 .action(ArgAction::SetTrue),
         )
+        .arg(Arg::new("nested.option").long("nested.option"))
+        .arg(
+            Arg::new("nested.short-option")
+                .short('n')
+                .long("nested.short-option"),
+        )
         .subcommand(
             Command::new("test")
                 .about("Subcommand\nwith a second line")
