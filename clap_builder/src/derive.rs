@@ -217,6 +217,12 @@ pub trait FromArgMatches: Sized {
 /// with:
 /// - `#[command(flatten)] args: ChildArgs`: Attribute can only be used with struct fields that impl
 ///   `Args`.
+/// - `#[command(flatten = "prefix-")] args: ChildArgs`: Like `flatten`, but prepends `"prefix-"`
+///   to each argument's id, `--long` name, and env name (as the prefix uppercased with `-` mapped
+///   to `_`), allowing the same `Args` type to be flattened multiple times with different prefixes
+///   (e.g. `--source-host` and `--dest-host` from one struct). Requires the `string` feature.
+///   Short flags and positional arguments cannot be prefixed and panic at command construction
+///   time.
 /// - `Variant(ChildArgs)`: No attribute is used with enum variants that impl `Args`.
 ///
 /// <div class="warning">
