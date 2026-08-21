@@ -44,6 +44,7 @@ pub(crate) struct Item {
     force_long_help: bool,
     next_display_order: Option<Method>,
     next_help_heading: Option<Method>,
+    next_env_prefix: Option<Method>,
     is_enum: bool,
     is_positional: bool,
     skip_group: bool,
@@ -273,6 +274,7 @@ impl Item {
             force_long_help: false,
             next_display_order: None,
             next_help_heading: None,
+            next_env_prefix: None,
             is_enum: false,
             is_positional: true,
             skip_group: false,
@@ -819,6 +821,13 @@ impl Item {
                     self.next_help_heading = Some(Method::new(attr.name.clone(), quote!(#expr)));
                 }
 
+                Some(MagicAttrName::NextEnvPrefix) => {
+                    assert_attr_kind(attr, &[AttrKind::Command])?;
+
+                    let expr = attr.value_or_abort()?;
+                    self.next_env_prefix = Some(Method::new(attr.name.clone(), quote!(#expr)));
+                }
+
                 Some(MagicAttrName::RenameAll) => {
                     let lit = attr.lit_str_or_abort()?;
                     self.casing = CasingStyle::from_lit(lit)?;
@@ -967,9 +976,11 @@ impl Item {
     pub(crate) fn initial_top_level_methods(&self) -> TokenStream {
         let next_display_order = self.next_display_order.as_ref().into_iter();
         let next_help_heading = self.next_help_heading.as_ref().into_iter();
+        let next_env_prefix = self.next_env_prefix.as_ref().into_iter();
         quote!(
             #(#next_display_order)*
             #(#next_help_heading)*
+            #(#next_env_prefix)*
         )
     }
 
@@ -1009,6 +1020,11 @@ impl Item {
     pub(crate) fn next_help_heading(&self) -> TokenStream {
         let next_help_heading = self.next_help_heading.as_ref().into_iter();
         quote!( #(#next_help_heading)* )
+    }
+
+    pub(crate) fn next_env_prefix(&self) -> TokenStream {
+        let next_env_prefix = self.next_env_prefix.as_ref().into_iter();
+        quote!( #(#next_env_prefix)* )
     }
 
     pub(crate) fn id(&self) -> &Name {
