@@ -526,6 +526,29 @@ impl<'cmd> Parser<'cmd> {
                     Usage::new(self.cmd).create_usage_with_title(&[]),
                 );
             }
+
+            // If the arg looks like a flag and matches a known option/flag,
+            // suggest removing `--`
+            if arg_os.is_long() || arg_os.is_short() {
+                let arg_str = arg_os.display().to_string();
+                let matches_known_arg = if let Some((Ok(long), _)) = arg_os.to_long() {
+                    self.cmd.get_keymap().get(long).is_some()
+                } else if let Some(mut shorts) = arg_os.to_short() {
+                    shorts
+                        .next_flag()
+                        .and_then(|c| c.ok())
+                        .is_some_and(|c| self.cmd.get_keymap().get(&c).is_some())
+                } else {
+                    false
+                };
+                if matches_known_arg {
+                    return ClapError::unnecessary_double_dash_flag(
+                        self.cmd,
+                        arg_str,
+                        Usage::new(self.cmd).create_usage_with_title(&[]),
+                    );
+                }
+            }
         }
 
         let suggested_trailing_arg = !trailing_values
