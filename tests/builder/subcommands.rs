@@ -119,13 +119,14 @@ For more information, try '--help'.
 #[cfg(feature = "suggestions")]
 #[cfg(feature = "error-context")]
 fn dym_help_suggestion_omits_subcommand_placeholder() {
-    // Current behaviour: the usage line asks for a subcommand next to `--help`.
+    // `--help` exits before a subcommand is reached, so the usage line must not
+    // ask for one alongside it.
     static EXPECTED: &str = "\
 error: unexpected argument '--hel' found
 
   tip: a similar argument exists: '--help'
 
-Usage: dym --help <COMMAND>
+Usage: dym --help
 
 For more information, try '--help'.
 ";
