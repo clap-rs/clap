@@ -724,9 +724,25 @@ impl<'cmd> Parser<'cmd> {
         debug!("Parser::parse_subcommand");
 
         let partial_parsing_enabled = self.cmd.is_ignore_errors_set();
+        if let Err(error) = self.resolve_pending(matcher) {
+            if partial_parsing_enabled && error.use_stderr() {
+                debug!(
+                    "Parser::parse_subcommand: ignored error before subcommand {sc_name}: {error:?}"
+                );
+            } else {
+                return Err(error);
+            }
+        }
+        let global_arg_ids = self
+            .cmd
+            .get_arguments()
+            .filter(|arg| arg.is_global_set())
+            .map(|arg| arg.get_id().clone())
+            .collect::<Vec<_>>();
 
         if let Some(sc) = self.cmd._build_subcommand(sc_name) {
             let mut sc_matcher = ArgMatcher::new(sc);
+            sc_matcher.propagate_globals_from(matcher, &global_arg_ids);
 
             debug!(
                 "Parser::parse_subcommand: About to parse sc={}",

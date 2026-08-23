@@ -50,6 +50,14 @@ impl ArgMatcher {
         self.fill_in_global_values(global_arg_vec, &mut vals_map);
     }
 
+    pub(crate) fn propagate_globals_from(&mut self, parent: &ArgMatcher, global_arg_vec: &[Id]) {
+        for id in global_arg_vec {
+            if let Some(matched_arg) = parent.get(id) {
+                self.matches.args.insert(id.clone(), matched_arg.clone());
+            }
+        }
+    }
+
     fn fill_in_global_values(
         &mut self,
         global_arg_vec: &[Id],

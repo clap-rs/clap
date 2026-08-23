@@ -1002,3 +1002,30 @@ fn group_conrflicts_with_subcommands() {
     let err = res.err().unwrap();
     assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 }
+
+#[test]
+fn global_arg_conflicts_with_subcommand_arg_regardless_of_order() {
+    let cmd = Command::new("app")
+        .arg(arg!(--root <PATH>).global(true))
+        .subcommand(Command::new("do").arg(arg!([PATH]).conflicts_with("root")));
+
+    for args in [
+        ["app", "--root", ".", "do", "."],
+        ["app", "do", "--root", ".", "."],
+    ] {
+        let error = cmd.clone().try_get_matches_from(args).unwrap_err();
+        assert_eq!(error.kind(), ErrorKind::ArgumentConflict);
+    }
+}
+
+#[test]
+fn invalid_global_arg_preserves_subcommand_with_ignore_errors() {
+    let matches = Command::new("app")
+        .ignore_errors(true)
+        .arg(arg!(--jobs <COUNT>).global(true).value_parser(clap::value_parser!(u64)))
+        .subcommand(Command::new("do"))
+        .try_get_matches_from(["app", "--jobs", "invalid", "do"])
+        .unwrap();
+
+    assert_eq!(matches.subcommand_name(), Some("do"));
+}
