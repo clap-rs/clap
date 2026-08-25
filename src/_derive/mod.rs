@@ -511,6 +511,27 @@
 #![doc = include_str!("../../examples/derive_ref/flatten_hand_args.rs")]
 //! ```
 //!
+//! ## What Does a Derive Expand To?
+//!
+//! If you want to understand exactly which builder methods the derive API
+//! calls behind the scenes, the example below shows a derive struct alongside
+//! its idiomatic builder equivalent.  Each section is annotated with a comment
+//! linking the derive attribute to the corresponding builder method.
+//!
+//! ```rust
+//! #![doc = include_str!("../../examples/derive_ref/expansion.rs")]
+//! ```
+//!
+//! Key mappings to keep in mind:
+//!
+//! - `#[command(version, about)]` → [`Command::version`][crate::Command::version], [`Command::about`][crate::Command::about]
+//! - `#[arg(short, long)]` → [`Arg::short`][crate::Arg::short], [`Arg::long`][crate::Arg::long]
+//! - `#[arg(default_value_t = 1)]` → [`Arg::default_value`][crate::Arg::default_value]
+//! - `#[arg(value_enum)]` → [`Arg::value_parser`][crate::Arg::value_parser]
+//! - `#[arg(action = ArgAction::Count)]` → [`Arg::action`][crate::Arg::action]
+//! - `#[command(flatten)]` → args inlined into the parent [`Command`][crate::Command]
+//! - `#[command(subcommand)]` → [`Command::subcommand`][crate::Command::subcommand]
+//!
 //! ## Tips
 //!
 //! - To get access to a [`Command`][crate::Command] call
