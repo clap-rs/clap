@@ -2965,14 +2965,13 @@ impl Arg {
     /// ```rust
     /// # use clap_builder as clap;
     /// # use clap::{Command, Arg, ArgAction};
-    /// # use clap::builder::{ArgPredicate};
     /// let m = Command::new("prog")
     ///     .arg(Arg::new("flag")
     ///         .long("flag")
     ///         .action(ArgAction::SetTrue))
     ///     .arg(Arg::new("other")
     ///         .long("other")
-    ///         .default_value_if("flag", ArgPredicate::IsPresent, Some("default")))
+    ///         .default_value_if("flag", "true", Some("default")))
     ///     .get_matches_from(vec![
     ///         "prog", "--flag"
     ///     ]);
