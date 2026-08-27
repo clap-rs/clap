@@ -62,7 +62,7 @@ fi
 }
 
 // Displays the commands of a subcommand
-// (( $+functions[_[bin_name_underscore]_commands] )) ||
+// (( ${+functions[_[bin_name_underscore]_commands]} )) ||
 // _[bin_name_underscore]_commands() {
 //     local commands; commands=(
 //         '[arg_name]:[arg_help]'
@@ -78,7 +78,7 @@ fi
 //
 // Here's a snippet from rustup:
 //
-// (( $+functions[_rustup_commands] )) ||
+// (( ${+functions[_rustup_commands]} )) ||
 // _rustup_commands() {
 //     local commands; commands=(
 //      'show:Show the active and installed toolchains'
@@ -100,7 +100,7 @@ fn subcommand_details(p: &Command) -> String {
     // First we do ourself
     let parent_text = format!(
         "\
-(( $+functions[_{bin_name_underscore}_commands] )) ||
+(( ${{+functions[_{bin_name_underscore}_commands]}} )) ||
 _{bin_name_underscore}_commands() {{
     local commands; commands=({subcommands_and_args})
     _describe -t commands '{bin_name} commands' commands \"$@\"
@@ -125,7 +125,7 @@ _{bin_name_underscore}_commands() {{
 
         ret.push(format!(
             "\
-(( $+functions[_{bin_name_underscore}_commands] )) ||
+(( ${{+functions[_{bin_name_underscore}_commands]}} )) ||
 _{bin_name_underscore}_commands() {{
     local commands; commands=({subcommands_and_args})
     _describe -t commands '{bin_name} commands' commands \"$@\"

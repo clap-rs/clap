@@ -83,6 +83,21 @@ fn sub_subcommands() {
 }
 
 #[test]
+fn function_existence_checks_work_with_ksharrays() {
+    let name = "my-app";
+    let mut cmd = common::sub_subcommands_command(name);
+
+    let mut script = vec![];
+    clap_complete::generate(clap_complete::shells::Zsh, &mut cmd, name, &mut script);
+    let script = String::from_utf8(script).unwrap();
+
+    assert!(
+        script.contains("(( ${+functions[_my-app_commands]} )) ||"),
+        "zsh function existence checks should use brace form for ksharrays:\n{script}"
+    );
+}
+
+#[test]
 fn external_subcommands() {
     let name = "my-app";
     let cmd = common::external_subcommand(name);

@@ -31,7 +31,7 @@ _my-app() {
 && ret=0
 }
 
-(( $+functions[_my-app_commands] )) ||
+(( ${+functions[_my-app_commands]} )) ||
 _my-app_commands() {
     local commands; commands=()
     _describe -t commands 'my-app commands' commands "$@"
