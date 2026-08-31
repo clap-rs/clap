@@ -103,15 +103,6 @@ fn gen_fish_inner(
             [] => unreachable!(),
             [command] => {
                 out.push_str(&format!(" {command}"));
-                if cmd.has_subcommands() {
-                    out.push_str("; and not __fish_seen_subcommand_from");
-                }
-                let subcommands = cmd
-                    .get_subcommands()
-                    .flat_map(Command::get_name_and_visible_aliases);
-                for name in subcommands {
-                    out.push_str(&format!(" {name}"));
-                }
             }
             [command, subcommand] => out.push_str(&format!(
                 " {command}; and __fish_seen_subcommand_from {subcommand}"
@@ -121,6 +112,17 @@ fn gen_fish_inner(
             // For example, `rustup toolchain help install` is the longest valid command line of `rustup`
             // that uses nested subcommands, and it cannot receive any flags to it.
             _ => return,
+        }
+        // Without this guard, these completions keep matching at every deeper position of
+        // the command line, re-offering subcommands that were already selected (#5975).
+        if cmd.has_subcommands() {
+            out.push_str("; and not __fish_seen_subcommand_from");
+            let subcommands = cmd
+                .get_subcommands()
+                .flat_map(Command::get_name_and_visible_aliases);
+            for name in subcommands {
+                out.push_str(&format!(" {name}"));
+            }
         }
         basic_template.push_str(format!(" -n \"{out}\"").as_str());
     }
