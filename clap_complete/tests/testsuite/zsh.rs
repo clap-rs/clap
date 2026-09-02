@@ -23,6 +23,26 @@ fn basic() {
 }
 
 #[test]
+fn group_conflicts() {
+    let name = "my-app";
+    let cmd = clap::Command::new(name)
+        .group(
+            clap::ArgGroup::new("group")
+                .args(["a", "b"])
+                .conflicts_with("c"),
+        )
+        .arg(clap::Arg::new("a").short('a'))
+        .arg(clap::Arg::new("b").short('b'))
+        .arg(clap::Arg::new("c").short('c'));
+    common::assert_matches(
+        snapbox::file!["../snapshots/group_conflicts.zsh"],
+        clap_complete::shells::Zsh,
+        cmd,
+        name,
+    );
+}
+
+#[test]
 fn feature_sample() {
     let name = "my-app";
     let cmd = common::feature_sample_command(name);

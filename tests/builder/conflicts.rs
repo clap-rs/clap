@@ -318,6 +318,22 @@ fn get_arg_conflicts_with_group() {
 }
 
 #[test]
+fn get_arg_conflicts_with_arg_in_group() {
+    let some = arg!(--some);
+    let mut cmd = Command::new("group_conflict")
+        .arg(&some)
+        .arg(arg!(--other))
+        .group(ArgGroup::new("gr").arg("some").conflicts_with("other"));
+
+    cmd.build();
+
+    let result = cmd.get_arg_conflicts_with(&some);
+
+    assert_eq!(result.len(), 1);
+    assert_eq!(result[0].get_id(), "other");
+}
+
+#[test]
 #[cfg(feature = "error-context")]
 fn conflict_output() {
     static CONFLICT_ERR: &str = "\

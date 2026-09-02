@@ -4042,7 +4042,13 @@ impl Command {
             self.get_global_arg_conflicts_with(arg)
         } else {
             let mut result = Vec::new();
-            for id in arg.conflicts.iter() {
+            let group_conflicts = self.groups_for_arg(arg.get_id()).flat_map(|group_id| {
+                self.find_group(&group_id)
+                    .expect(INTERNAL_ERROR_MSG)
+                    .conflicts
+                    .iter()
+            });
+            for id in arg.conflicts.iter().chain(group_conflicts) {
                 if let Some(arg) = self.find(id) {
                     result.push(arg);
                 } else if let Some(group) = self.find_group(id) {
