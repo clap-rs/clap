@@ -82,6 +82,34 @@ fn sub_subcommands() {
 }
 
 #[test]
+fn deeply_nested_subcommands() {
+    let name = "my-app";
+    let cmd = clap::Command::new(name).subcommand(
+        clap::Command::new("first").subcommand(
+            clap::Command::new("second")
+                .arg(
+                    clap::Arg::new("second-flag")
+                        .long("second-flag")
+                        .action(clap::ArgAction::SetTrue),
+                )
+                .subcommand(
+                    clap::Command::new("third").arg(
+                        clap::Arg::new("third-flag")
+                            .long("third-flag")
+                            .action(clap::ArgAction::SetTrue),
+                    ),
+                ),
+        ),
+    );
+    common::assert_matches(
+        snapbox::file!["../snapshots/deeply_nested_subcommands.fish"],
+        clap_complete::shells::Fish,
+        cmd,
+        name,
+    );
+}
+
+#[test]
 fn external_subcommands() {
     let name = "my-app";
     let cmd = common::external_subcommand(name);

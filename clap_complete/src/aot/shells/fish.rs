@@ -99,28 +99,19 @@ fn gen_fish_inner(
         }
     } else {
         let mut out = String::from(using_fn_name);
-        match parent_commands {
-            [] => unreachable!(),
-            [command] => {
-                out.push_str(&format!(" {command}"));
-                if cmd.has_subcommands() {
-                    out.push_str("; and not __fish_seen_subcommand_from");
-                }
-                let subcommands = cmd
-                    .get_subcommands()
-                    .flat_map(Command::get_name_and_visible_aliases);
-                for name in subcommands {
-                    out.push_str(&format!(" {name}"));
-                }
+        let (command, subcommands) = parent_commands.split_first().unwrap();
+        out.push_str(&format!(" {command}"));
+        for subcommand in subcommands {
+            out.push_str(&format!("; and __fish_seen_subcommand_from {subcommand}"));
+        }
+        if cmd.has_subcommands() {
+            out.push_str("; and not __fish_seen_subcommand_from");
+            for name in cmd
+                .get_subcommands()
+                .flat_map(Command::get_name_and_visible_aliases)
+            {
+                out.push_str(&format!(" {name}"));
             }
-            [command, subcommand] => out.push_str(&format!(
-                " {command}; and __fish_seen_subcommand_from {subcommand}"
-            )),
-            // HACK: Assuming subcommands are only nested less than 3 levels as more than that is
-            // unwieldy and takes more effort to support.
-            // For example, `rustup toolchain help install` is the longest valid command line of `rustup`
-            // that uses nested subcommands, and it cannot receive any flags to it.
-            _ => return,
         }
         basic_template.push_str(format!(" -n \"{out}\"").as_str());
     }
