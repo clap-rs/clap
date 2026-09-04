@@ -397,11 +397,23 @@ pub(crate) fn load_runtime<R: completest::RuntimeBuilder>(
 where
     <R as completest::RuntimeBuilder>::Runtime: 'static,
 {
+    load_runtime_for_example::<R>(context, name, name)
+}
+
+#[cfg(feature = "unstable-shell-tests")]
+fn load_runtime_for_example<R: completest::RuntimeBuilder>(
+    context: &str,
+    fixture: &str,
+    example: &str,
+) -> Box<dyn completest::Runtime>
+where
+    <R as completest::RuntimeBuilder>::Runtime: 'static,
+{
     let shell_name = R::name();
     let home = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests/snapshots/home")
         .join(context)
-        .join(name)
+        .join(fixture)
         .join(shell_name);
     let scratch = snapbox::dir::DirRoot::mutable_temp()
         .unwrap()
@@ -411,7 +423,7 @@ where
     println!("Compiling");
     let manifest_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("Cargo.toml");
     let bin_path = snapbox::cmd::compile_example(
-        name,
+        example,
         [
             "--manifest-path",
             manifest_path.to_str().unwrap(),
@@ -443,7 +455,7 @@ where
         return;
     }
 
-    let name = "my-app";
+    let name = "completion-derive";
     let mut cmd = clap::Command::new(name).subcommand(
         clap::Command::new("thunder").arg(
             clap::Arg::new("lightning")
@@ -454,13 +466,16 @@ where
     let mut registration = Vec::new();
     clap_complete::generate(generator, &mut cmd, name, &mut registration);
 
-    let mut runtime = load_runtime::<R>("static", "exhaustive");
+    let mut runtime = load_runtime_for_example::<R>("static", "exhaustive", name);
     runtime
         .register(name, std::str::from_utf8(&registration).unwrap())
         .unwrap();
 
     let actual = runtime
-        .complete("my-app thunder --l\t", &completest::Term::new())
+        .complete(
+            "completion-derive thunder --l\t",
+            &completest::Term::new(),
+        )
         .unwrap();
     assert!(actual.contains("--lightning"), "{actual}");
 }
