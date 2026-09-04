@@ -433,6 +433,39 @@ where
 }
 
 #[cfg(feature = "unstable-shell-tests")]
+pub(crate) fn assert_hyphenated_bin_completion<R, G>(command: &str, generator: G)
+where
+    R: completest::RuntimeBuilder,
+    R::Runtime: 'static,
+    G: clap_complete::Generator,
+{
+    if !has_command(command) {
+        return;
+    }
+
+    let name = "my-app";
+    let mut cmd = clap::Command::new(name).subcommand(
+        clap::Command::new("thunder").arg(
+            clap::Arg::new("lightning")
+                .long("lightning")
+                .action(clap::ArgAction::SetTrue),
+        ),
+    );
+    let mut registration = Vec::new();
+    clap_complete::generate(generator, &mut cmd, name, &mut registration);
+
+    let mut runtime = load_runtime::<R>("static", "exhaustive");
+    runtime
+        .register(name, std::str::from_utf8(&registration).unwrap())
+        .unwrap();
+
+    let actual = runtime
+        .complete("my-app thunder --l\t", &completest::Term::new())
+        .unwrap();
+    assert!(actual.contains("--lightning"), "{actual}");
+}
+
+#[cfg(feature = "unstable-shell-tests")]
 #[derive(Debug)]
 struct ScratchRuntime {
     _scratch: snapbox::dir::DirRoot,
