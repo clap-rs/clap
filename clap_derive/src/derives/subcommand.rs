@@ -188,13 +188,15 @@ fn gen_augment(
                         quote!()
                     };
                     let next_help_heading = item.next_help_heading();
+                    let next_env_prefix = item.next_env_prefix();
                     let next_display_order = item.next_display_order();
                     let subcommand = if override_required {
                         quote! {
                             #deprecations
                             let #app_var = #app_var
                                 #next_help_heading
-                                #next_display_order;
+                                #next_display_order
+                                #next_env_prefix;
                             let #app_var = <#ty as clap::Subcommand>::augment_subcommands_for_update(#app_var);
                         }
                     } else {
@@ -202,7 +204,8 @@ fn gen_augment(
                             #deprecations
                             let #app_var = #app_var
                                 #next_help_heading
-                                #next_display_order;
+                                #next_display_order
+                                #next_env_prefix;
                             let #app_var = <#ty as clap::Subcommand>::augment_subcommands(#app_var);
                         }
                     };
