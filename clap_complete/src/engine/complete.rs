@@ -167,6 +167,7 @@ fn complete_arg(
                     positional,
                     current_dir,
                     0,
+                    (!is_escaped).then_some(arg),
                 ));
             }
             if !is_escaped {
@@ -183,6 +184,7 @@ fn complete_arg(
                     positional,
                     current_dir,
                     num_arg.saturating_sub(1),
+                    (!is_escaped).then_some(arg),
                 ));
                 if !is_escaped
                     && positional
@@ -199,6 +201,7 @@ fn complete_arg(
                 opt,
                 current_dir,
                 count.saturating_sub(1),
+                None,
             ));
             let min = opt.get_num_args().map(|r| r.min_values()).unwrap_or(0);
             if count > min {
@@ -287,7 +290,7 @@ fn complete_option(
             if let Some(value) = value {
                 if let Some(arg) = cmd.get_arguments().find(|a| a.get_long() == Some(flag)) {
                     completions.extend(
-                        complete_arg_value(value.to_str().ok_or(value), arg, current_dir, 0)
+                        complete_arg_value(value.to_str().ok_or(value), arg, current_dir, 0, None)
                             .into_iter()
                             .map(|comp| comp.add_prefix(format!("--{flag}="))),
                     );
@@ -322,7 +325,7 @@ fn complete_option(
 
                 let value = short.next_value_os().unwrap_or(OsStr::new(""));
                 completions.extend(
-                    complete_arg_value(value.to_str().ok_or(value), opt, current_dir, 0)
+                    complete_arg_value(value.to_str().ok_or(value), opt, current_dir, 0, None)
                         .into_iter()
                         .map(|comp| {
                             let sep = if has_equal { "=" } else { "" };
@@ -346,12 +349,22 @@ fn complete_arg_value(
     arg: &clap::Arg,
     current_dir: Option<&std::path::Path>,
     arg_index: usize,
+    unescaped_positional: Option<&clap_lex::ParsedArg<'_>>,
 ) -> Vec<CompletionCandidate> {
     let mut values = Vec::new();
     debug!("complete_arg_value: arg={arg:?}, value={value:?}, arg_index={arg_index:?}");
 
-    let (prefix, value) =
-        rsplit_delimiter(value, arg.get_value_delimiter()).unwrap_or((None, value));
+    // Preserve the full token for positional matching when its leading hyphen
+    // cannot be treated as part of a value.
+    let delimiter = arg.get_value_delimiter().filter(|_| {
+        unescaped_positional.is_none_or(|raw| {
+            !raw.to_value_os().starts_with("-")
+                || raw.is_stdio()
+                || arg.is_allow_hyphen_values_set()
+                || (arg.is_allow_negative_numbers_set() && raw.is_negative_number())
+        })
+    });
+    let (prefix, value) = rsplit_delimiter(value, delimiter).unwrap_or((None, value));
 
     let value_os = match value {
         Ok(value) => OsStr::new(value),
