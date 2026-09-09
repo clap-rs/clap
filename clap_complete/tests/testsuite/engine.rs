@@ -1540,21 +1540,15 @@ fn suggest_require_equals_long() {
             .num_args(1..=1)
             .value_parser(["json", "yaml"]),
     );
-    assert_data_eq!(complete!(cmd, "--f[TAB]"), snapbox::str!["--format"]);
+    assert_data_eq!(complete!(cmd, "--f[TAB]"), snapbox::str!["--format="]);
     assert_data_eq!(
         complete!(cmd, "--format=j[TAB]"),
         snapbox::str!["--format=json"]
     );
-    assert_data_eq!(
-        complete!(cmd, "--format [TAB]"),
-        snapbox::str![[r#"
-json
-yaml
-"#]]
-    );
+    assert_data_eq!(complete!(cmd, "--format [TAB]"), snapbox::str!["--format="]);
     assert_data_eq!(
         complete!(cmd, "--format=json [TAB]"),
-        snapbox::str!["--format"]
+        snapbox::str!["--format="]
     );
 }
 
@@ -1567,24 +1561,18 @@ fn suggest_require_equals_short() {
             .num_args(1..=1)
             .value_parser(["json", "yaml"]),
     );
-    assert_data_eq!(complete!(cmd, "-[TAB]"), snapbox::str!["-f"]);
+    assert_data_eq!(complete!(cmd, "-[TAB]"), snapbox::str!["-f="]);
     assert_data_eq!(
         complete!(cmd, "-f[TAB]"),
         snapbox::str![[r#"
--fjson
--fyaml
+-f=json
+-f=yaml
 "#]]
     );
     assert_data_eq!(complete!(cmd, "-f=j[TAB]"), snapbox::str!["-f=json"]);
-    assert_data_eq!(complete!(cmd, "-fj[TAB]"), snapbox::str!["-fjson"]);
-    assert_data_eq!(
-        complete!(cmd, "-f [TAB]"),
-        snapbox::str![[r#"
-json
-yaml
-"#]]
-    );
-    assert_data_eq!(complete!(cmd, "-f=json [TAB]"), snapbox::str!["-f"]);
+    assert_data_eq!(complete!(cmd, "-fj[TAB]"), snapbox::str!["-f=json"]);
+    assert_data_eq!(complete!(cmd, "-f [TAB]"), snapbox::str!["-f="]);
+    assert_data_eq!(complete!(cmd, "-f=json [TAB]"), snapbox::str!["-f="]);
 }
 
 #[test]
@@ -1609,14 +1597,24 @@ fn suggest_require_equals_optional_short_flags() {
                 .value_parser(["alice", "bob"]),
         )
         .arg(clap::Arg::new("pos").value_parser(["position"]));
-    assert_data_eq!(complete!(cmd, "-fn a[TAB]"), snapbox::str![""]);
-    assert_data_eq!(complete!(cmd, "-fvn a[TAB]"), snapbox::str![""]);
-    assert_data_eq!(complete!(cmd, "-fv[TAB]"), snapbox::str![""]);
-    assert_data_eq!(complete!(cmd, "-fna[TAB]"), snapbox::str![""]);
+    assert_data_eq!(complete!(cmd, "-fn a[TAB]"), snapbox::str!["alice"]);
+    assert_data_eq!(complete!(cmd, "-fvn a[TAB]"), snapbox::str!["alice"]);
+    assert_data_eq!(
+        complete!(cmd, "-fv[TAB]"),
+        snapbox::str![[r#"
+-fvf=
+-fvv
+-fvn
+"#]]
+    );
+    assert_data_eq!(complete!(cmd, "-fna[TAB]"), snapbox::str!["-fnalice"]);
     assert_data_eq!(complete!(cmd, "-vf=j[TAB]"), snapbox::str!["-vf=json"]);
     assert_data_eq!(complete!(cmd, "-f p[TAB]"), snapbox::str!["position"]);
     assert_data_eq!(complete!(cmd, "-f=json p[TAB]"), snapbox::str!["position"]);
-    assert_data_eq!(complete!(cmd, "-vfn alice p[TAB]"), snapbox::str![""]);
+    assert_data_eq!(
+        complete!(cmd, "-vfn alice p[TAB]"),
+        snapbox::str!["position"]
+    );
 }
 
 #[test]
@@ -1642,7 +1640,7 @@ fn suggest_require_equals_optional_short_flags_allow_hyphen() {
         .arg(clap::Arg::new("positional_b").value_parser(["pos_b"]));
 
     assert_data_eq!(complete!(cmd, "-fv pos[TAB]"), snapbox::str!["pos_a"]);
-    assert_data_eq!(complete!(cmd, "-fx pos[TAB]"), snapbox::str!["pos_a"]);
+    assert_data_eq!(complete!(cmd, "-fx pos[TAB]"), snapbox::str!["pos_b"]);
 }
 
 fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>) -> String {

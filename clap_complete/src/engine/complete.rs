@@ -90,7 +90,11 @@ pub fn complete(
                 });
 
                 if let Some(opt) = opt {
-                    if opt.get_num_args().expect("built").takes_values() && value.is_none() {
+                    if opt.get_num_args().expect("built").takes_values()
+                        && value.is_none()
+                        // Equals-required options never consume a value from the next token.
+                        && !opt.is_require_equals_set()
+                    {
                         next_state = ParseState::Opt((opt, 1));
                     };
                 } else if pos_allows_hyphen(current_cmd, pos_index) {
@@ -99,14 +103,26 @@ pub fn complete(
                 }
             }
         } else if let Some(short) = arg.to_short() {
-            let (_, takes_value_opt, mut short) = parse_shortflags(current_cmd, short);
+            let (_, takes_value_opt, mut remaining) = parse_shortflags(current_cmd, short.clone());
             if let Some(opt) = takes_value_opt {
-                if short.next_value_os().is_none() {
+                if remaining.next_value_os().is_none()
+                    // Equals-required options never consume a value from the next token.
+                    && !opt.is_require_equals_set()
+                {
                     next_state = ParseState::Opt((opt, 1));
                 }
-            } else if pos_allows_hyphen(current_cmd, pos_index) {
-                (next_state, pos_index) =
-                    parse_positional(current_cmd, pos_index, is_escaped, current_state);
+            } else if let Some(positional) = current_cmd
+                .get_positionals()
+                .find(|p| p.get_index() == Some(pos_index))
+                .filter(|p| p.is_allow_hyphen_values_set())
+            {
+                if matches!(current_state, ParseState::Pos(..))
+                    || (positional.is_allow_negative_numbers_set() && short.is_negative_number())
+                    || contains_unknown_short(current_cmd, short)
+                {
+                    (next_state, pos_index) =
+                        parse_positional(current_cmd, pos_index, is_escaped, current_state);
+                }
             }
         } else {
             match current_state {
@@ -307,7 +323,6 @@ fn complete_option(
         }
     } else if let Some(short) = arg.to_short() {
         if !short.is_negative_number() {
-            // Find the first takes_values option.
             let (leading_flags, takes_value_opt, mut short) = parse_shortflags(cmd, short);
 
             // Clone `short` to `peek_short` to peek whether the next flag is a `=`.
@@ -325,7 +340,11 @@ fn complete_option(
                     complete_arg_value(value.to_str().ok_or(value), opt, current_dir, 0)
                         .into_iter()
                         .map(|comp| {
-                            let sep = if has_equal { "=" } else { "" };
+                            let sep = if has_equal || opt.is_require_equals_set() {
+                                "="
+                            } else {
+                                ""
+                            };
                             comp.add_prefix(format!("-{leading_flags}{sep}"))
                         }),
                 );
@@ -503,9 +522,12 @@ fn longs_and_visible_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
     p.get_arguments()
         .filter_map(|a| {
             a.get_long_and_visible_aliases().map(|longs| {
-                longs
-                    .into_iter()
-                    .map(|s| populate_arg_candidate(CompletionCandidate::new(format!("--{s}")), a))
+                longs.into_iter().map(|s| {
+                    populate_arg_candidate(
+                        CompletionCandidate::new(format!("--{s}{}", equals_suffix(a))),
+                        a,
+                    )
+                })
             })
         })
         .flatten()
@@ -520,7 +542,11 @@ fn hidden_longs_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
         .filter_map(|a| {
             a.get_aliases().map(|longs| {
                 longs.into_iter().map(|s| {
-                    populate_arg_candidate(CompletionCandidate::new(format!("--{s}")), a).hide(true)
+                    populate_arg_candidate(
+                        CompletionCandidate::new(format!("--{s}{}", equals_suffix(a))),
+                        a,
+                    )
+                    .hide(true)
                 })
             })
         })
@@ -537,7 +563,11 @@ fn shorts_and_visible_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
         .filter_map(|a| {
             a.get_short_and_visible_aliases().map(|shorts| {
                 shorts.into_iter().map(|s| {
-                    populate_arg_candidate(CompletionCandidate::new(s.to_string()), a).help(
+                    populate_arg_candidate(
+                        CompletionCandidate::new(format!("{s}{}", equals_suffix(a))),
+                        a,
+                    )
+                    .help(
                         a.get_help()
                             .cloned()
                             .or_else(|| a.get_long().map(|long| format!("--{long}").into())),
@@ -547,6 +577,10 @@ fn shorts_and_visible_aliases(p: &clap::Command) -> Vec<CompletionCandidate> {
         })
         .flatten()
         .collect()
+}
+
+fn equals_suffix(arg: &clap::Arg) -> &'static str {
+    if arg.is_require_equals_set() { "=" } else { "" }
 }
 
 fn populate_arg_candidate(candidate: CompletionCandidate, arg: &clap::Arg) -> CompletionCandidate {
@@ -613,13 +647,14 @@ fn populate_command_candidate(
 }
 
 /// Parse the short flags and find the first `takes_values` option.
+/// Options with optional values and `require_equals` are skipped when the
+/// token continues with more characters instead of `=`.
 fn parse_shortflags<'c, 's>(
     cmd: &'c clap::Command,
     mut short: clap_lex::ShortFlags<'s>,
 ) -> (String, Option<&'c clap::Arg>, clap_lex::ShortFlags<'s>) {
     let takes_value_opt;
     let mut leading_flags = String::new();
-    // Find the first takes_values option.
     loop {
         match short.next_flag() {
             Some(Ok(opt)) => {
@@ -633,11 +668,19 @@ fn parse_shortflags<'c, 's>(
                     });
                     is_find.unwrap_or(false)
                 });
-                if opt
-                    .map(|o| o.get_num_args().expect("built").takes_values())
-                    .unwrap_or(false)
-                {
-                    takes_value_opt = opt;
+                if let Some(opt) = opt.filter(|o| o.get_num_args().expect("built").takes_values()) {
+                    let remaining = short.clone().next_value_os().unwrap_or_default();
+                    if opt.is_require_equals_set()
+                        && opt.get_num_args().expect("built").min_values() == 0
+                        && !remaining.is_empty()
+                        && !remaining.starts_with("=")
+                    {
+                        // With `require_equals`, omitting an optional value leaves the
+                        // remaining characters available for short flags, e.g. `-fn alice`
+                        // for `-f[=<format>] -n <name>`.
+                        continue;
+                    }
+                    takes_value_opt = Some(opt);
                     break;
                 }
             }
@@ -711,6 +754,19 @@ fn parse_opt_value(opt: &clap::Arg, count: usize) -> ParseState<'_> {
     } else {
         ParseState::ValueDone
     }
+}
+
+fn contains_unknown_short(cmd: &clap::Command, mut short: clap_lex::ShortFlags<'_>) -> bool {
+    short.any(|flag| {
+        !flag.is_ok_and(|flag| {
+            cmd.get_arguments().any(|arg| {
+                arg.get_short() == Some(flag)
+                    || arg
+                        .get_all_short_aliases()
+                        .is_some_and(|aliases| aliases.contains(&flag))
+            })
+        })
+    })
 }
 
 fn pos_allows_hyphen(cmd: &clap::Command, pos_index: usize) -> bool {
