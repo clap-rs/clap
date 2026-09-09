@@ -1310,6 +1310,26 @@ a_pos,c_pos
 }
 
 #[test]
+fn suggest_delimiter_values_custom_positional() {
+    let inputs = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));
+    let captured = std::sync::Arc::clone(&inputs);
+    let mut cmd = Command::new("delimiter").disable_help_flag(true).arg(
+        clap::Arg::new("pos")
+            .value_delimiter(',')
+            .add(ArgValueCompleter::new(move |current: &std::ffi::OsStr| {
+                captured.lock().unwrap().push(current.to_owned());
+                Vec::<CompletionCandidate>::new()
+            })),
+    );
+
+    complete!(cmd, "--unknown=x,[TAB]");
+    assert_eq!(
+        inputs.lock().unwrap().as_slice(),
+        [std::ffi::OsString::from("")]
+    );
+}
+
+#[test]
 fn suggest_allow_hyphen() {
     let mut cmd = Command::new("exhaustive")
         .arg(
