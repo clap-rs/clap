@@ -1531,6 +1531,120 @@ pos-c
     );
 }
 
+#[test]
+fn suggest_require_equals_long() {
+    let mut cmd = Command::new("equals").disable_help_flag(true).arg(
+        clap::Arg::new("format")
+            .long("format")
+            .require_equals(true)
+            .num_args(1..=1)
+            .value_parser(["json", "yaml"]),
+    );
+    assert_data_eq!(complete!(cmd, "--f[TAB]"), snapbox::str!["--format"]);
+    assert_data_eq!(
+        complete!(cmd, "--format=j[TAB]"),
+        snapbox::str!["--format=json"]
+    );
+    assert_data_eq!(
+        complete!(cmd, "--format [TAB]"),
+        snapbox::str![[r#"
+json
+yaml
+"#]]
+    );
+    assert_data_eq!(
+        complete!(cmd, "--format=json [TAB]"),
+        snapbox::str!["--format"]
+    );
+}
+
+#[test]
+fn suggest_require_equals_short() {
+    let mut cmd = Command::new("equals").disable_help_flag(true).arg(
+        clap::Arg::new("format")
+            .short('f')
+            .require_equals(true)
+            .num_args(1..=1)
+            .value_parser(["json", "yaml"]),
+    );
+    assert_data_eq!(complete!(cmd, "-[TAB]"), snapbox::str!["-f"]);
+    assert_data_eq!(
+        complete!(cmd, "-f[TAB]"),
+        snapbox::str![[r#"
+-fjson
+-fyaml
+"#]]
+    );
+    assert_data_eq!(complete!(cmd, "-f=j[TAB]"), snapbox::str!["-f=json"]);
+    assert_data_eq!(complete!(cmd, "-fj[TAB]"), snapbox::str!["-fjson"]);
+    assert_data_eq!(
+        complete!(cmd, "-f [TAB]"),
+        snapbox::str![[r#"
+json
+yaml
+"#]]
+    );
+    assert_data_eq!(complete!(cmd, "-f=json [TAB]"), snapbox::str!["-f"]);
+}
+
+#[test]
+fn suggest_require_equals_optional_short_flags() {
+    let mut cmd = Command::new("equals")
+        .disable_help_flag(true)
+        .arg(
+            clap::Arg::new("format")
+                .short('f')
+                .require_equals(true)
+                .num_args(0..=1)
+                .value_parser(["json", "yaml"]),
+        )
+        .arg(
+            clap::Arg::new("verbose")
+                .short('v')
+                .action(clap::ArgAction::SetTrue),
+        )
+        .arg(
+            clap::Arg::new("name")
+                .short('n')
+                .value_parser(["alice", "bob"]),
+        )
+        .arg(clap::Arg::new("pos").value_parser(["position"]));
+    assert_data_eq!(complete!(cmd, "-fn a[TAB]"), snapbox::str![""]);
+    assert_data_eq!(complete!(cmd, "-fvn a[TAB]"), snapbox::str![""]);
+    assert_data_eq!(complete!(cmd, "-fv[TAB]"), snapbox::str![""]);
+    assert_data_eq!(complete!(cmd, "-fna[TAB]"), snapbox::str![""]);
+    assert_data_eq!(complete!(cmd, "-vf=j[TAB]"), snapbox::str!["-vf=json"]);
+    assert_data_eq!(complete!(cmd, "-f p[TAB]"), snapbox::str!["position"]);
+    assert_data_eq!(complete!(cmd, "-f=json p[TAB]"), snapbox::str!["position"]);
+    assert_data_eq!(complete!(cmd, "-vfn alice p[TAB]"), snapbox::str![""]);
+}
+
+#[test]
+fn suggest_require_equals_optional_short_flags_allow_hyphen() {
+    let mut cmd = Command::new("equals")
+        .disable_help_flag(true)
+        .arg(
+            clap::Arg::new("format")
+                .short('f')
+                .require_equals(true)
+                .num_args(0..=1),
+        )
+        .arg(
+            clap::Arg::new("verbose")
+                .short('v')
+                .action(clap::ArgAction::SetTrue),
+        )
+        .arg(
+            clap::Arg::new("positional_a")
+                .allow_hyphen_values(true)
+                .value_parser(["pos_a", "-fx"]),
+        )
+        .arg(clap::Arg::new("positional_b").value_parser(["pos_b"]));
+
+    assert_data_eq!(complete!(cmd, "-fv pos[TAB]"), snapbox::str!["pos_a"]);
+    assert_data_eq!(complete!(cmd, "-fx pos[TAB]"), snapbox::str!["pos_a"]);
+}
+
 fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>) -> String {
     let input = args.as_ref();
     let mut args = vec![std::ffi::OsString::from(cmd.get_name())];
