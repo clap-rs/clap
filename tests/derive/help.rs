@@ -139,6 +139,9 @@ fn app_help_heading_flattened() {
         .unwrap();
     assert_eq!(should_be_in_section_b.get_help_heading(), Some("HEADING B"));
 
+    let mut cmd = cmd;
+    cmd.build();
+
     let sub_a_two = cmd.find_subcommand("sub-a-two").unwrap();
 
     let should_be_in_sub_a = sub_a_two
@@ -376,7 +379,9 @@ fn derive_order_no_next_order() {
     let mut cmd = Args::command();
 
     let help = cmd.render_help().to_string();
-    assert_data_eq!(help, str![[r#"
+    assert_data_eq!(
+        help,
+        str![[r#"
 Usage: test [OPTIONS]
 
 Options:
@@ -387,7 +392,8 @@ Options:
       --option-b <OPTION_B>  second option
   -V, --version              Print version
 
-"#]]);
+"#]]
+    );
 }
 
 #[test]
