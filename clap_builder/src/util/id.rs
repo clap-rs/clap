@@ -27,6 +27,12 @@ impl Id {
     pub(crate) fn as_internal_str(&self) -> &Str {
         &self.0
     }
+
+    /// Returns a new `Id` with `prefix` prepended verbatim
+    #[cfg(feature = "string")]
+    pub(crate) fn prefixed(&self, prefix: &str) -> Self {
+        Self::from(format!("{prefix}{}", self.as_str()))
+    }
 }
 
 impl From<&'_ Id> for Id {

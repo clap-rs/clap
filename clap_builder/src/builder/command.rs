@@ -301,6 +301,47 @@ impl Command {
         self
     }
 
+    /// Prefixes every argument and group of this `Command` with `prefix`:
+    /// argument ids, `--long` names and aliases, and every id reference gain
+    /// the prefix verbatim, env names gain the prefix uppercased with `-`
+    /// mapped to `_`, and group ids and memberships are remapped to match.
+    ///
+    /// This namespaces a flattened child `Args` struct so the same struct can
+    /// be flattened more than once (derive: `#[command(flatten = "prefix-")]`).
+    ///
+    /// Requires the `string` feature.
+    ///
+    /// # Panics
+    ///
+    /// Panics if any argument carries a short flag or short alias, or is
+    /// positional: neither can be prefixed.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, Arg};
+    /// let cmd = Command::new("prog")
+    ///     .arg(Arg::new("host").long("host"))
+    ///     .prefix_args("source-");
+    ///
+    /// let matches = cmd.get_matches_from(["prog", "--source-host", "example.com"]);
+    /// assert_eq!(
+    ///     matches.get_one::<String>("source-host").map(String::as_str),
+    ///     Some("example.com")
+    /// );
+    /// ```
+    #[must_use]
+    #[cfg(feature = "string")]
+    pub fn prefix_args(self, prefix: &str) -> Self {
+        let mut cmd = self.mut_args(|arg| arg.prefix(prefix));
+        let group_ids: Vec<Id> = cmd.get_groups().map(|g| g.get_id().clone()).collect();
+        for group_id in group_ids {
+            cmd = cmd.mut_group(group_id.as_str(), |group| group.prefixed(prefix));
+        }
+        cmd
+    }
+
     /// Allows one to mutate an [`ArgGroup`] after it's been added to a [`Command`].
     ///
     /// # Panics

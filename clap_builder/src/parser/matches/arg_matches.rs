@@ -1235,6 +1235,76 @@ impl ArgMatches {
         ok!(self.verify_arg(id));
         Ok(self.args.remove_entry(id).is_some())
     }
+
+    /// Extracts all arguments whose ids start with `prefix` into a new
+    /// [`ArgMatches`], stripping the prefix from each id.
+    ///
+    /// This backs `#[command(flatten = "prefix")]` in the derive: a flattened
+    /// struct's [`FromArgMatches`][crate::FromArgMatches] implementation finds
+    /// its arguments under their unprefixed names.
+    ///
+    /// Entries are moved out of `self` into the returned [`ArgMatches`].
+    /// Matching is a plain string comparison on the id: every entry whose id
+    /// starts with `prefix` is moved, so overlapping prefixes are the
+    /// caller's responsibility.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use clap_builder as clap;
+    /// # use clap::{Command, Arg};
+    /// let mut matches = Command::new("prog")
+    ///     .arg(Arg::new("source-host").long("source-host"))
+    ///     .get_matches_from(["prog", "--source-host", "example.com"]);
+    ///
+    /// let child = matches.remove_prefixed("source-");
+    /// assert_eq!(
+    ///     child.get_one::<String>("host").map(String::as_str),
+    ///     Some("example.com")
+    /// );
+    /// ```
+    #[cfg(feature = "string")]
+    pub fn remove_prefixed(&mut self, prefix: &str) -> ArgMatches {
+        let mut new_args = FlatMap::new();
+        #[cfg(debug_assertions)]
+        let mut new_valid = Vec::new();
+
+        let matching_keys: Vec<Id> = self
+            .args
+            .keys()
+            .filter(|k| k.as_str().starts_with(prefix))
+            .cloned()
+            .collect();
+
+        for key in matching_keys {
+            if let Some((_id, matched)) = self.args.remove_entry(key.as_str()) {
+                let stripped = &key.as_str()[prefix.len()..];
+                new_args.insert(Id::from(stripped.to_owned()), matched);
+            }
+        }
+
+        #[cfg(debug_assertions)]
+        {
+            self.valid_args.retain(|id| {
+                if id.as_str().starts_with(prefix) {
+                    let stripped = &id.as_str()[prefix.len()..];
+                    new_valid.push(Id::from(stripped.to_owned()));
+                    false
+                } else {
+                    true
+                }
+            });
+        }
+
+        ArgMatches {
+            #[cfg(debug_assertions)]
+            valid_args: new_valid,
+            #[cfg(debug_assertions)]
+            valid_subcommands: Default::default(),
+            args: new_args,
+            subcommand: None,
+        }
+    }
 }
 
 // Private methods

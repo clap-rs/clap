@@ -303,3 +303,428 @@ fn flatten_skipped_group() {
 
     Cli::try_parse_from(["test"]).unwrap();
 }
+
+#[cfg(feature = "string")]
+mod flatten_prefix {
+    use clap::error::ErrorKind;
+    use snapbox::assert_data_eq;
+    use snapbox::str;
+
+    use super::*;
+    use crate::utils;
+
+    #[test]
+    fn basic_prefix() {
+        #[derive(Args, PartialEq, Debug)]
+        struct StorageOptions {
+            #[arg(long)]
+            host: String,
+            #[arg(long)]
+            username: String,
+        }
+
+        #[derive(Parser, PartialEq, Debug)]
+        struct Cli {
+            #[command(flatten = "source-")]
+            source: StorageOptions,
+        }
+
+        assert_eq!(
+            Cli {
+                source: StorageOptions {
+                    host: "localhost".into(),
+                    username: "admin".into(),
+                }
+            },
+            Cli::try_parse_from([
+                "test",
+                "--source-host",
+                "localhost",
+                "--source-username",
+                "admin"
+            ])
+            .unwrap()
+        );
+    }
+
+    #[test]
+    fn duplicate_flatten_with_different_prefixes() {
+        #[derive(Args, PartialEq, Debug)]
+        struct StorageOptions {
+            #[arg(long)]
+            host: String,
+            #[arg(long)]
+            username: String,
+        }
+
+        #[derive(Parser, PartialEq, Debug)]
+        struct Cli {
+            #[command(flatten = "source-")]
+            source: StorageOptions,
+            #[command(flatten = "dest-")]
+            dest: StorageOptions,
+        }
+
+        assert_eq!(
+            Cli {
+                source: StorageOptions {
+                    host: "src.example.com".into(),
+                    username: "reader".into(),
+                },
+                dest: StorageOptions {
+                    host: "dst.example.com".into(),
+                    username: "writer".into(),
+                },
+            },
+            Cli::try_parse_from([
+                "test",
+                "--source-host",
+                "src.example.com",
+                "--source-username",
+                "reader",
+                "--dest-host",
+                "dst.example.com",
+                "--dest-username",
+                "writer",
+            ])
+            .unwrap()
+        );
+    }
+
+    #[test]
+    #[should_panic(expected = "short flags cannot be prefixed")]
+    fn prefix_with_short_flag_panics() {
+        #[derive(Args, PartialEq, Debug)]
+        struct Opts {
+            #[arg(short, long)]
+            verbose: bool,
+        }
+
+        #[derive(Parser, PartialEq, Debug)]
+        struct Cli {
+            #[command(flatten = "src-")]
+            opts: Opts,
+        }
+
+        // The panic happens during command construction (augment_args).
+        let _ = Cli::try_parse_from(["test"]);
+    }
+
+    #[test]
+    #[should_panic(expected = "positional arguments cannot be prefixed")]
+    fn prefix_with_positional_panics() {
+        #[derive(Args, PartialEq, Debug)]
+        struct Opts {
+            path: String,
+        }
+
+        #[derive(Parser, PartialEq, Debug)]
+        struct Cli {
+            #[command(flatten = "src-")]
+            opts: Opts,
+        }
+
+        // The panic happens during command construction (augment_args).
+        let _ = Cli::try_parse_from(["test"]);
+    }
+
+    #[test]
+    fn prefix_help_shows_prefixed_flags() {
+        #[derive(Args, PartialEq, Debug)]
+        struct StorageOptions {
+            #[arg(long)]
+            host: String,
+        }
+
+        #[derive(Parser, PartialEq, Debug)]
+        struct Cli {
+            #[command(flatten = "source-")]
+            source: StorageOptions,
+        }
+
+        let help = utils::get_help::<Cli>();
+        assert_data_eq!(help, str![[r#"
+Usage: clap --source-host <HOST>
+
+Options:
+      --source-host <HOST>  
+  -h, --help                Print help
+
+"#]]);
+    }
+
+    #[test]
+    fn prefix_with_optional_flatten() {
+        #[derive(Args, PartialEq, Debug)]
+        struct StorageOptions {
+            #[arg(long)]
+            host: Option<String>,
+        }
+
+        #[derive(Parser, PartialEq, Debug)]
+        struct Cli {
+            #[command(flatten = "src-")]
+            source: Option<StorageOptions>,
+        }
+
+        // Without args, the optional should be None.
+        let cli = Cli::try_parse_from(["test"]).unwrap();
+        assert_eq!(cli.source, None);
+
+        // With args, the optional should be Some.
+        let cli = Cli::try_parse_from(["test", "--src-host", "localhost"]).unwrap();
+        assert_eq!(
+            cli.source,
+            Some(StorageOptions {
+                host: Some("localhost".into())
+            })
+        );
+    }
+
+    #[test]
+    fn prefix_preserves_groups() {
+        #[derive(Args, PartialEq, Debug)]
+        struct AuthOptions {
+            #[arg(long, group = "auth")]
+            token: Option<String>,
+            #[arg(long, group = "auth")]
+            api_key: Option<String>,
+        }
+
+        #[derive(Parser, PartialEq, Debug)]
+        struct Cli {
+            #[command(flatten = "source-")]
+            source: AuthOptions,
+            #[command(flatten = "dest-")]
+            dest: AuthOptions,
+        }
+
+        // One member of each group parses.
+        let cli =
+            Cli::try_parse_from(["test", "--source-token", "a", "--dest-api-key", "b"]).unwrap();
+        assert_eq!(cli.source.token.as_deref(), Some("a"));
+        assert_eq!(cli.dest.api_key.as_deref(), Some("b"));
+
+        // Group exclusivity survives the remapping: two members of one
+        // prefixed group still conflict.
+        let res = Cli::try_parse_from(["test", "--source-token", "a", "--source-api-key", "b"]);
+        assert_eq!(res.unwrap_err().kind(), ErrorKind::ArgumentConflict);
+    }
+
+    #[test]
+    fn prefix_remaps_conflicts() {
+        #[derive(Args, PartialEq, Debug)]
+        struct Opts {
+            #[arg(long)]
+            token: Option<String>,
+            #[arg(long, conflicts_with = "token")]
+            password: Option<String>,
+        }
+
+        #[derive(Parser, PartialEq, Debug)]
+        struct Cli {
+            #[command(flatten = "src-")]
+            src: Opts,
+            #[command(flatten = "dst-")]
+            dst: Opts,
+        }
+
+        // The remapped conflict still fires within one prefix.
+        let res = Cli::try_parse_from(["test", "--src-token", "a", "--src-password", "b"]);
+        assert_eq!(res.unwrap_err().kind(), ErrorKind::ArgumentConflict);
+
+        // No bleed across prefixes.
+        let cli =
+            Cli::try_parse_from(["test", "--src-token", "a", "--dst-password", "b"]).unwrap();
+        assert_eq!(cli.src.token.as_deref(), Some("a"));
+        assert_eq!(cli.dst.password.as_deref(), Some("b"));
+    }
+
+    #[test]
+    fn prefix_remaps_requires() {
+        #[derive(Args, PartialEq, Debug)]
+        struct Opts {
+            #[arg(long, requires = "cert")]
+            key: Option<String>,
+            #[arg(long)]
+            cert: Option<String>,
+        }
+
+        #[derive(Parser, PartialEq, Debug)]
+        struct Cli {
+            #[command(flatten = "src-")]
+            src: Opts,
+        }
+
+        let res = Cli::try_parse_from(["test", "--src-key", "k"]);
+        assert_eq!(res.unwrap_err().kind(), ErrorKind::MissingRequiredArgument);
+
+        let cli = Cli::try_parse_from(["test", "--src-key", "k", "--src-cert", "c"]).unwrap();
+        assert_eq!(cli.src.key.as_deref(), Some("k"));
+        assert_eq!(cli.src.cert.as_deref(), Some("c"));
+    }
+
+    #[test]
+    fn prefix_remaps_default_value_if() {
+        #[derive(Args, PartialEq, Debug)]
+        struct Opts {
+            #[arg(long)]
+            mode: Option<String>,
+            #[arg(long, default_value_if("mode", "fast", "8"))]
+            threads: Option<String>,
+        }
+
+        #[derive(Parser, PartialEq, Debug)]
+        struct Cli {
+            #[command(flatten = "src-")]
+            opts: Opts,
+        }
+
+        let cli = Cli::try_parse_from(["test", "--src-mode", "fast"]).unwrap();
+        assert_eq!(cli.opts.threads.as_deref(), Some("8"));
+
+        let cli = Cli::try_parse_from(["test"]).unwrap();
+        assert_eq!(cli.opts.threads, None);
+    }
+
+    #[test]
+    fn prefix_remaps_long_aliases() {
+        #[derive(Args, PartialEq, Debug)]
+        struct Opts {
+            #[arg(long, alias = "hostname")]
+            host: Option<String>,
+        }
+
+        #[derive(Parser, PartialEq, Debug)]
+        struct Cli {
+            #[command(flatten = "src-")]
+            src: Opts,
+        }
+
+        let cli = Cli::try_parse_from(["test", "--src-hostname", "h"]).unwrap();
+        assert_eq!(cli.src.host.as_deref(), Some("h"));
+    }
+
+    #[test]
+    fn prefix_update_from() {
+        #[derive(Args, PartialEq, Debug)]
+        struct StorageOptions {
+            #[arg(long)]
+            host: Option<String>,
+            #[arg(long)]
+            username: Option<String>,
+        }
+
+        #[derive(Parser, PartialEq, Debug)]
+        struct Cli {
+            #[command(flatten = "src-")]
+            source: StorageOptions,
+        }
+
+        let mut cli =
+            Cli::try_parse_from(["test", "--src-host", "a", "--src-username", "u"]).unwrap();
+        cli.try_update_from(["test", "--src-host", "b"]).unwrap();
+        assert_eq!(cli.source.host.as_deref(), Some("b"));
+        assert_eq!(cli.source.username.as_deref(), Some("u"));
+    }
+
+    #[test]
+    fn prefix_update_from_optional() {
+        #[derive(Args, PartialEq, Debug)]
+        struct StorageOptions {
+            #[arg(long)]
+            host: Option<String>,
+        }
+
+        #[derive(Parser, PartialEq, Debug)]
+        struct Cli {
+            #[command(flatten = "src-")]
+            source: Option<StorageOptions>,
+        }
+
+        // Updating a `None` constructs the child from the prefixed matches.
+        let mut cli = Cli::try_parse_from(["test"]).unwrap();
+        assert_eq!(cli.source, None);
+        cli.try_update_from(["test", "--src-host", "example.com"])
+            .unwrap();
+        assert_eq!(
+            cli.source,
+            Some(StorageOptions {
+                host: Some("example.com".into())
+            })
+        );
+
+        // Updating a `Some` updates it in place.
+        cli.try_update_from(["test", "--src-host", "other.example.com"])
+            .unwrap();
+        assert_eq!(
+            cli.source,
+            Some(StorageOptions {
+                host: Some("other.example.com".into())
+            })
+        );
+    }
+
+    #[test]
+    fn prefix_nested_flatten() {
+        #[derive(Args, PartialEq, Debug)]
+        struct Inner {
+            #[arg(long)]
+            value: Option<String>,
+        }
+
+        #[derive(Args, PartialEq, Debug)]
+        struct Middle {
+            #[command(flatten = "in-")]
+            inner: Inner,
+            #[arg(long)]
+            direct: Option<String>,
+        }
+
+        #[derive(Parser, PartialEq, Debug)]
+        struct Cli {
+            #[command(flatten = "out-")]
+            middle: Middle,
+        }
+
+        let cli =
+            Cli::try_parse_from(["test", "--out-in-value", "v", "--out-direct", "d"]).unwrap();
+        assert_eq!(cli.middle.inner.value.as_deref(), Some("v"));
+        assert_eq!(cli.middle.direct.as_deref(), Some("d"));
+    }
+
+    #[cfg(feature = "env")]
+    #[test]
+    fn prefix_env_variables() {
+        #[derive(Args, PartialEq, Debug)]
+        struct StorageOptions {
+            #[arg(long, env = "CLP_TEST_FLATTEN_PREFIX_HOST")]
+            host: Option<String>,
+        }
+
+        #[derive(Parser, PartialEq, Debug)]
+        struct Cli {
+            #[command(flatten = "source-")]
+            source: StorageOptions,
+        }
+
+        unsafe {
+            std::env::set_var("CLP_TEST_FLATTEN_PREFIX_HOST", "unprefixed");
+            std::env::set_var("SOURCE_CLP_TEST_FLATTEN_PREFIX_HOST", "prefixed");
+        }
+        // Only the prefixed name is consulted.
+        let cli = Cli::try_parse_from(["test"]).unwrap();
+        assert_eq!(cli.source.host.as_deref(), Some("prefixed"));
+
+        // The unprefixed name is ignored.
+        unsafe {
+            std::env::remove_var("SOURCE_CLP_TEST_FLATTEN_PREFIX_HOST");
+        }
+        let cli = Cli::try_parse_from(["test"]).unwrap();
+        assert_eq!(cli.source.host, None);
+
+        unsafe {
+            std::env::remove_var("CLP_TEST_FLATTEN_PREFIX_HOST");
+        }
+    }
+}

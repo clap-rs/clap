@@ -4841,7 +4841,80 @@ impl fmt::Debug for Arg {
 #[cfg(feature = "unstable-ext")]
 pub trait ArgExt: Extension {}
 
+#[cfg(feature = "string")]
+impl Arg {
+    /// Remaps this arg onto `prefix`: the id, the `--long` name and its
+    /// aliases, and every id reference (group membership, conflicts,
+    /// overrides, requires, conditional requirements and conditional
+    /// defaults) gain the prefix verbatim, and the env name gains the prefix
+    /// uppercased with `-` mapped to `_`.
+    ///
+    /// Panics if the arg carries a short flag or short alias, or is
+    /// positional: neither can be prefixed.
+    pub(crate) fn prefix(mut self, prefix: &str) -> Self {
+        if self.short.is_some() || !self.short_aliases.is_empty() {
+            panic!(
+                "cannot prefix argument `{}`: short flags cannot be prefixed",
+                self.id
+            );
+        }
+        if self.long.is_none() {
+            panic!(
+                "cannot prefix argument `{}`: positional arguments cannot be prefixed",
+                self.id
+            );
+        }
+        self.id = self.id.prefixed(prefix);
+        if let Some(long) = self.long.take() {
+            self.long = Some(format!("{prefix}{long}").into());
+        }
+        for (alias, _visible) in &mut self.aliases {
+            *alias = format!("{prefix}{alias}").into();
+        }
+        #[cfg(feature = "env")]
+        if let Some((env, value)) = &mut self.env {
+            let mut name = OsString::from(prefix.to_uppercase().replace('-', "_"));
+            name.push(env.as_os_str());
+            // `Arg::env` caches the looked-up value, so re-resolve it under
+            // the prefixed name.
+            *value = env::var_os(&name);
+            *env = name.into();
+        }
+        self.groups = self.groups.iter().map(|g| g.prefixed(prefix)).collect();
+        self.conflicts = self.conflicts.iter().map(|c| c.prefixed(prefix)).collect();
+        self.overrides = self.overrides.iter().map(|o| o.prefixed(prefix)).collect();
+        self.requires = self
+            .requires
+            .iter()
+            .map(|(predicate, id)| (predicate.clone(), id.prefixed(prefix)))
+            .collect();
+        self.r_ifs = self
+            .r_ifs
+            .iter()
+            .map(|(id, value)| (id.prefixed(prefix), value.clone()))
+            .collect();
+        self.r_ifs_all = self
+            .r_ifs_all
+            .iter()
+            .map(|(id, value)| (id.prefixed(prefix), value.clone()))
+            .collect();
+        self.r_unless = self.r_unless.iter().map(|id| id.prefixed(prefix)).collect();
+        self.r_unless_all = self
+            .r_unless_all
+            .iter()
+            .map(|id| id.prefixed(prefix))
+            .collect();
+        self.default_vals_ifs = self
+            .default_vals_ifs
+            .iter()
+            .map(|(id, predicate, value)| (id.prefixed(prefix), predicate.clone(), value.clone()))
+            .collect();
+        self
+    }
+}
+
 // Flags
+
 #[cfg(test)]
 mod test {
     use super::Arg;
