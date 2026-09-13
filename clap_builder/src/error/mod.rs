@@ -292,7 +292,9 @@ impl<F: ErrorFormatter> Error<F> {
     ///     },
     ///     Err(err) => {
     ///         let err = err.render();
-    ///         println!("{err}");
+    ///         // `StyledStr`'s `Display` impl is color-unaware and strips
+    ///         // styling; use `.ansi()` to preserve it (e.g. on a terminal)
+    ///         println!("{}", err.ansi());
     ///         // do_something
     ///     },
     /// };
