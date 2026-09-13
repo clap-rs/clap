@@ -384,10 +384,12 @@ For more information, try '--help'.
     );
 }
 
-/* This is used to be fixed in a hack, we need to find a better way to fix it.
+// Regression test for https://github.com/clap-rs/clap/issues/1794:
+// giving an option grouped with a positional must skip that positional,
+// so trailing values bind to the next positional instead of conflicting.
 #[test]
 fn issue_1794() {
-    let cmd = clap::Command::new("hello")
+    let cmd = Command::new("hello")
         .bin_name("deno")
         .arg(Arg::new("option1").long("option1").action(ArgAction::SetTrue))
         .arg(Arg::new("pos1").action(ArgAction::Set))
@@ -410,4 +412,3 @@ fn issue_1794() {
     assert_eq!(m.get_one::<String>("pos2").map(|v| v.as_str()), Some("positional"));
     assert!(*m.get_one::<bool>("option1").expect("defaulted by clap"));
 }
-*/

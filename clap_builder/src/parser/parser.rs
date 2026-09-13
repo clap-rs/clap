@@ -319,6 +319,23 @@ impl<'cmd> Parser<'cmd> {
 
             // Correct pos_counter.
             pos_counter = {
+                // Skip positionals that share a non-multiple group with an
+                // already-present argument: a value here could only conflict,
+                // so it belongs to the next positional (see issue #1794).
+                // Only skip when another positional can receive the value;
+                // otherwise preserve the existing conflict error.
+                let first_pos_counter = pos_counter;
+                let mut pos_counter = pos_counter;
+                while pos_counter <= positional_count
+                    && self.is_positional_grouped_with_present_arg(pos_counter, matcher)
+                {
+                    debug!("Parser::get_matches_with: Skipping group-blocked positional...");
+                    pos_counter += 1;
+                }
+                if self.cmd.get_keymap().get(&pos_counter).is_none() {
+                    pos_counter = first_pos_counter;
+                }
+
                 let is_second_to_last = pos_counter + 1 == positional_count;
 
                 // The last positional argument, or second to last positional
@@ -711,6 +728,28 @@ impl<'cmd> Parser<'cmd> {
             debug!("Parser::is_new_arg: value");
             false
         }
+    }
+
+    fn is_positional_grouped_with_present_arg(
+        &self,
+        pos_index: usize,
+        matcher: &ArgMatcher,
+    ) -> bool {
+        let Some(pos) = self
+            .cmd
+            .get_positionals()
+            .find(|a| a.get_index() == Some(pos_index))
+        else {
+            return false;
+        };
+        self.cmd.get_groups().any(|group| {
+            let mut group = group.clone();
+            !group.is_multiple()
+                && group.get_args().any(|id| id == pos.get_id())
+                && group
+                    .get_args()
+                    .any(|id| id != pos.get_id() && matcher.contains(id))
+        })
     }
 
     fn parse_subcommand(
