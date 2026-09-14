@@ -94,8 +94,8 @@ fn option_from_str() {
     impl std::str::FromStr for A {
         type Err = std::convert::Infallible;
 
-        fn from_str(_: &str) -> Result<A, Self::Err> {
-            Ok(A)
+        fn from_str(_: &str) -> Result<Self, Self::Err> {
+            Ok(Self)
         }
     }
 
@@ -120,8 +120,8 @@ fn vec_from_str() {
     impl std::str::FromStr for A {
         type Err = std::convert::Infallible;
 
-        fn from_str(_: &str) -> Result<A, Self::Err> {
-            Ok(A)
+        fn from_str(_: &str) -> Result<Self, Self::Err> {
+            Ok(Self)
         }
     }
 
@@ -149,8 +149,8 @@ fn option_vec_from_str() {
     impl std::str::FromStr for A {
         type Err = std::convert::Infallible;
 
-        fn from_str(_: &str) -> Result<A, Self::Err> {
-            Ok(A)
+        fn from_str(_: &str) -> Result<Self, Self::Err> {
+            Ok(Self)
         }
     }
 

@@ -490,7 +490,7 @@ mod expensive {
 
     impl ExpensiveValues {
         pub(crate) fn new() -> Self {
-            ExpensiveValues {
+            Self {
                 iterated: Arc::new(Mutex::new(false)),
             }
         }

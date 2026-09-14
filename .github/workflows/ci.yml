@@ -13,6 +13,8 @@ env:
   RUST_BACKTRACE: 1
   CARGO_TERM_COLOR: always
   CLICOLOR: 1
+  CARGO_INCREMENTAL: 0
+  RUST_TOOLCHAIN_STABLE: "1.98"  # STABLE
 
 concurrency:
   group: "${{ github.workflow }}-${{ github.ref }}"
@@ -67,12 +69,13 @@ jobs:
       CARGO_PROFILE_DEV_DEBUG: line-tables-only
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v7
-    - name: Install Rust
-      uses: dtolnay/rust-toolchain@stable
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
-        toolchain: ${{ matrix.rust }}
-    - uses: Swatinem/rust-cache@v2
+        persist-credentials: false
+    - name: Install Rust
+      run: rustup update --no-self-update ${{ matrix.rust }} && rustup default ${{ matrix.rust }}
+    - name: Initialize cache
+      uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
     - name: Build
       run: make build-${{matrix.features}}
     - name: Test
@@ -89,12 +92,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v7
-    - name: Install Rust
-      uses: dtolnay/rust-toolchain@stable
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
-        toolchain: stable
-    - uses: Swatinem/rust-cache@v2
+        persist-credentials: false
+    - name: Install Rust
+      run: rustup update --no-self-update $RUST_TOOLCHAIN_STABLE && rustup default $RUST_TOOLCHAIN_STABLE
+    - name: Initialize cache
+      uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
     - name: Install shells
       if: runner.os == 'Linux'
       run: sudo apt-get install -y elvish fish zsh
@@ -105,12 +109,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v7
-    - name: Install Rust
-      uses: dtolnay/rust-toolchain@stable
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
-        toolchain: stable
-    - uses: Swatinem/rust-cache@v2
+        persist-credentials: false
+    - name: Install Rust
+      run: rustup update --no-self-update $RUST_TOOLCHAIN_STABLE && rustup default $RUST_TOOLCHAIN_STABLE
+    - name: Initialize cache
+      uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
     - name: clap_complete_nu
       run: cargo test -p clap_complete_nushell -F unstable-shell-tests
   check:
@@ -142,18 +147,18 @@ jobs:
             target: x86_64-unknown-linux-gnu
             features: release
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-      - name: Install rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: ${{ matrix.rust }}
-          targets: ${{ matrix.target }}
-      - uses: Swatinem/rust-cache@v2
-      - name: Check
-        run: make check-${{ matrix.features }}
-        env:
-          TOOLCHAIN_TARGET: ${{ matrix.target }}
+    - name: Checkout repository
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+    - name: Install Rust
+      run: rustup toolchain install $RUST_TOOLCHAIN_STABLE --target ${{ matrix.target }} && rustup default $RUST_TOOLCHAIN_STABLE
+    - name: Initialize cache
+      uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+    - name: Check
+      run: make check-${{ matrix.features }}
+      env:
+        TOOLCHAIN_TARGET: ${{ matrix.target }}
   ui:
     name: UI Tests
     runs-on: ubuntu-latest
@@ -163,12 +168,13 @@ jobs:
         features: [default, next]
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v7
-    - name: Install Rust
-      uses: dtolnay/rust-toolchain@stable
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
-        toolchain: "1.98"  # STABLE
-    - uses: Swatinem/rust-cache@v2
+        persist-credentials: false
+    - name: Install Rust
+      run: rustup update --no-self-update $RUST_TOOLCHAIN_STABLE && rustup default $RUST_TOOLCHAIN_STABLE
+    - name: Initialize cache
+      uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
     - name: UI Tests
       run: make test-ui-${{ matrix.features }}
   minimal-versions:
@@ -179,15 +185,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v7
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
     - name: Install stable Rust
-      uses: dtolnay/rust-toolchain@stable
-      with:
-        toolchain: stable
+      run: rustup update --no-self-update stable && rustup default stable
     - name: Install nightly Rust
-      uses: dtolnay/rust-toolchain@stable
-      with:
-        toolchain: nightly
+      run: rustup update --no-self-update nightly && rustup default nightly
     - name: Downgrade dependencies to minimal versions
       run: cargo +nightly generate-lockfile -Z minimal-versions
     - name: Compile with minimal versions
@@ -196,12 +200,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v7
-    - name: Install Rust
-      uses: dtolnay/rust-toolchain@stable
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
-        toolchain: stable
-    - uses: Swatinem/rust-cache@v2
+        persist-credentials: false
+    - name: Install Rust
+      run: rustup update --no-self-update stable && rustup default stable
+    - name: Initialize cache
+      uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
     - name: "Is lockfile updated?"
       run: cargo update --workspace --locked
   docs:
@@ -209,28 +214,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v7
-    - name: Install Rust
-      uses: dtolnay/rust-toolchain@stable
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
-        toolchain: "1.98"  # STABLE
-    - uses: Swatinem/rust-cache@v2
+        persist-credentials: false
+    - name: Install Rust
+      run: rustup update --no-self-update $RUST_TOOLCHAIN_STABLE && rustup default $RUST_TOOLCHAIN_STABLE
+    - name: Initialize cache
+      uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
     - name: Check documentation
       env:
-        RUSTDOCFLAGS: -D warnings
+        CARGO_BUILD_WARNINGS: deny
       run: make doc
   rustfmt:
     name: rustfmt
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v7
-    - name: Install Rust
-      uses: dtolnay/rust-toolchain@stable
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
-        toolchain: "1.98"  # STABLE
-        components: rustfmt
-    - uses: Swatinem/rust-cache@v2
+        persist-credentials: false
+    - name: Install Rust
+      run: rustup update --no-self-update $RUST_TOOLCHAIN_STABLE && rustup default $RUST_TOOLCHAIN_STABLE
+    - name: Install rustfmt
+      run: rustup component add rustfmt
+    - name: Initialize cache
+      uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
     - name: Check formatting
       run: cargo fmt --check
   clippy:
@@ -238,13 +246,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v7
-    - name: Install Rust
-      uses: dtolnay/rust-toolchain@stable
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
-        toolchain: "1.98"  # STABLE
-        components: clippy
-    - uses: Swatinem/rust-cache@v2
+        persist-credentials: false
+    - name: Install Rust
+      run: rustup update --no-self-update $RUST_TOOLCHAIN_STABLE && rustup default $RUST_TOOLCHAIN_STABLE
+    - name: Install clippy
+      run: rustup component add clippy
+    - name: Initialize cache
+      uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
     - name: Lint (ultra-minimal)
       run: make clippy-minimal ARGS='--manifest-path Cargo.toml'
     - name: Lint (minimal)
@@ -253,6 +263,30 @@ jobs:
       run: make clippy-full
     - name: Lint (release)
       run: make clippy-release
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    permissions:
+      code-quality: write
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+    - name: Install Rust
+      run: rustup update --no-self-update stable && rustup default stable
+    - name: Initialize cache
+      uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+    - name: Install cargo-tarpaulin
+      run: cargo install cargo-tarpaulin
+    - name: Gather coverage
+      run: cargo tarpaulin --out xml
+    - name: Upload coverage report
+      if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+      uses: actions/upload-code-coverage@d8e329117199404bba6fc81efe8093dc7c015e34 # v1.4.2
+      with:
+        file: cobertura.xml
+        language: Rust
   cffconvert:
     name: cffconvert
     runs-on: ubuntu-latest

@@ -1,42 +1,55 @@
 name: post-release
+
+permissions:
+  contents: read
+
 on:
   push:
     tags:
     - "v*"
-permissions:
-  contents: read
 
 jobs:
   create-release:
     permissions:
-      contents: write  # for actions/create-release to create a release
+      contents: write
     name: create-release
     runs-on: ubuntu-latest
     outputs:
-      upload_url: ${{ steps.release.outputs.upload_url }}
-      release_version: ${{ env.RELEASE_VERSION }}
+      tag: ${{ env.TAG }}
     steps:
-    - name: Get the release version from the tag
-      shell: bash
-      if: env.RELEASE_VERSION == ''
-      run: |
-        # See: https://github.community/t5/GitHub-Actions/How-to-get-just-the-tag-name/m-p/32167/highlight/true#M1027
-        echo "RELEASE_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-        echo "version is: ${{ env.RELEASE_VERSION }}"
     - name: Checkout repository
-      uses: actions/checkout@v7
+      uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       with:
         fetch-depth: 1
+        persist-credentials: false
+    - name: Get the release version from the tag
+      if: env.TAG == ''
+      run: echo "TAG=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+    - name: Show the tag
+      run: |
+        echo "tag is: $TAG"
     - name: Generate Release Notes
       run: |
-        ./.github/workflows/release-notes.py --tag ${{ env.RELEASE_VERSION }} --output notes-${{ env.RELEASE_VERSION }}.md
-        cat notes-${{ env.RELEASE_VERSION }}.md
+        ./.github/workflows/release-notes.py --tag ${TAG} --output notes-${TAG}.md
+        cat notes-${TAG}.md
     - name: Create GitHub release
-      id: release
-      uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ github.token }}
+      run: gh release create $TAG --verify-tag --draft --title $TAG --notes-file notes-${TAG}.md
+  publish-release:
+    permissions:
+      contents: write
+    name: Publish Release
+    needs: [create-release]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       with:
-        tag_name: ${{ env.RELEASE_VERSION }}
-        release_name: ${{ env.RELEASE_VERSION }}
-        body_path: notes-${{ env.RELEASE_VERSION }}.md
+        fetch-depth: 1
+        persist-credentials: false
+    - name: Publish Release
+      env:
+        GH_TOKEN: ${{ github.token }}
+        NEEDS_CREATE_RELEASE_OUTPUTS_TAG: ${{ needs.create-release.outputs.tag }}
+      run: gh release edit "${NEEDS_CREATE_RELEASE_OUTPUTS_TAG}" --draft=false

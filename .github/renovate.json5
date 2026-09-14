@@ -1,7 +1,10 @@
 {
+  extends: ["helpers:pinGitHubActionDigests"],
   schedule: [
     'before 5am on the first day of the month',
   ],
+  minimumReleaseAge: "3 days",
+  internalChecksFilter: "strict",
   semanticCommits: 'enabled',
   commitMessageLowerCase: 'never',
   configMigration: true,
@@ -66,11 +69,19 @@
       matchDepNames: [
         'prek',
       ],
-      extractVersion: '^(?<version>\\d+\\.\\d+\\.\\d+)',
-      schedule: [
-        '* * * * *',
+      extractVersion: '^v(?<version>\\d+\\.\\d+\\.\\d+)',
+      automerge: true,
+    },
+    {
+      matchManagers: [
+        'github-actions',
+      ],
+      matchUpdateTypes: [
+        'minor',
+        'patch',
       ],
       automerge: true,
+      groupName: 'compatible (actions)',
     },
     // Goals:
     // - Keep version reqs low, ignoring compatible normal/build dependencies
