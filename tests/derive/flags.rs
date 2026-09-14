@@ -159,6 +159,22 @@ fn count() {
 }
 
 #[test]
+fn count_type_alias() {
+    type Count = u8;
+
+    #[derive(Parser, PartialEq, Eq, Debug)]
+    struct Opt {
+        #[arg(short, action = clap::ArgAction::Count)]
+        verbose: Count,
+    }
+
+    assert_eq!(
+        Opt { verbose: 2 },
+        Opt::try_parse_from(["test", "-vv"]).unwrap()
+    );
+}
+
+#[test]
 fn mixed_type_flags() {
     #[derive(Parser, PartialEq, Eq, Debug)]
     struct Opt {
