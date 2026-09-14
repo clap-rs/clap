@@ -37,18 +37,33 @@ impl<'cmd> Validator<'cmd> {
             }
         }
         if !has_subcmd && self.cmd.is_subcommand_required_set() {
-            let bn = self.cmd.get_bin_name_fallback();
-            return Err(Error::missing_subcommand(
-                self.cmd,
-                bn.to_owned(),
-                self.cmd
-                    .all_subcommand_names()
-                    .map(|s| s.to_owned())
-                    .collect::<Vec<_>>(),
-                Usage::new(self.cmd)
-                    .required(&self.required)
-                    .create_usage_with_title(&[]),
-            ));
+            // With `args_conflicts_with_subcommands`, a top-level argument is a
+            // valid alternative to a subcommand (see usage dual-line rendering).
+            // Until v5 this was still rejected by `subcommand_required`; gate the
+            // behavior change behind `unstable-v5` (#5358 / #3974).
+            #[cfg(feature = "unstable-v5")]
+            let skip_missing_subcommand = self.cmd.is_args_conflicts_with_subcommands_set()
+                && matcher
+                    .args()
+                    .filter(|(_, matched)| matched.check_explicit(&ArgPredicate::IsPresent))
+                    .any(|(id, _)| self.cmd.find(id).is_some());
+            #[cfg(not(feature = "unstable-v5"))]
+            let skip_missing_subcommand = false;
+
+            if !skip_missing_subcommand {
+                let bn = self.cmd.get_bin_name_fallback();
+                return Err(Error::missing_subcommand(
+                    self.cmd,
+                    bn.to_owned(),
+                    self.cmd
+                        .all_subcommand_names()
+                        .map(|s| s.to_owned())
+                        .collect::<Vec<_>>(),
+                    Usage::new(self.cmd)
+                        .required(&self.required)
+                        .create_usage_with_title(&[]),
+                ));
+            }
         }
 
         ok!(self.validate_conflicts(matcher, &conflicts));
