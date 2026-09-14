@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - *(help)* Change default `Command::max_term_width` to 100
 - *(derive)* `Vec<Vec<T>>` types are now assuming to capture occurrences
 - *(derive)* `ValueEnum` variants now use the full doc comment, not summary, for `PossibleValue::help`
+- *(derive)* Default for deferring changed to `#[command(defer = true)]`
 
 ### Features
 
@@ -22,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
+
+### Features
+
+- *(derive)* Add `#[command(defer = <bool>)]` attribute to opt-in to lazy initialisation of subcommands
 
 ## [4.6.6] - 2026-08-06
 
