@@ -319,6 +319,52 @@ impl<'cmd> Parser<'cmd> {
 
             // Correct pos_counter.
             pos_counter = {
+                let mut pos_counter = pos_counter;
+
+                // When missing positionals are allowed, an already-present conflicting
+                // argument should let us skip that positional and try the next one.
+                if self.cmd.is_allow_missing_positional_set() && !trailing_values {
+                    while let Some(arg) = self.cmd.get_keymap().get(&pos_counter) {
+                        let has_present_arg_conflict = self
+                            .cmd
+                            .get_arg_conflicts_with(arg)
+                            .iter()
+                            .any(|conflicting| {
+                                matcher.check_explicit(
+                                    conflicting.get_id(),
+                                    &crate::builder::ArgPredicate::IsPresent,
+                                )
+                            });
+
+                        // Members of the same non-multiple group also conflict, even if that
+                        // conflict isn't explicitly listed on the argument itself.
+                        let has_present_group_conflict = self
+                            .cmd
+                            .get_groups()
+                            .filter(|group| !group.multiple)
+                            .filter(|group| group.args.contains(arg.get_id()))
+                            .any(|group| {
+                                group.args.iter().any(|member| {
+                                    member != arg.get_id()
+                                        && matcher.check_explicit(
+                                            member,
+                                            &crate::builder::ArgPredicate::IsPresent,
+                                        )
+                                })
+                            });
+
+                        if !(has_present_arg_conflict || has_present_group_conflict) {
+                            break;
+                        }
+
+                        debug!(
+                            "Parser::get_matches_with: skipping positional {:?} due to present conflict",
+                            arg.get_id()
+                        );
+                        pos_counter += 1;
+                    }
+                }
+
                 let is_second_to_last = pos_counter + 1 == positional_count;
 
                 // The last positional argument, or second to last positional
