@@ -223,7 +223,7 @@ fn ignore_qualified_bool_type() {
             type Err = String;
 
             fn from_str(s: &str) -> Result<Self, Self::Err> {
-                Ok(bool(s.into()))
+                Ok(Self(s.into()))
             }
         }
     }

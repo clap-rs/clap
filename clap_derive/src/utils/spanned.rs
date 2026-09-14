@@ -13,7 +13,7 @@ pub(crate) struct Sp<T> {
 
 impl<T> Sp<T> {
     pub(crate) fn new(val: T, span: Span) -> Self {
-        Sp { val, span }
+        Self { val, span }
     }
 
     pub(crate) fn get(&self) -> &T {
@@ -41,7 +41,7 @@ impl<T> DerefMut for Sp<T> {
 
 impl From<Ident> for Sp<String> {
     fn from(ident: Ident) -> Self {
-        Sp {
+        Self {
             val: ident.to_string(),
             span: ident.span(),
         }
@@ -50,7 +50,7 @@ impl From<Ident> for Sp<String> {
 
 impl From<LitStr> for Sp<String> {
     fn from(lit: LitStr) -> Self {
-        Sp {
+        Self {
             val: lit.value(),
             span: lit.span(),
         }
@@ -59,7 +59,7 @@ impl From<LitStr> for Sp<String> {
 
 impl<'a> From<Sp<&'a str>> for Sp<String> {
     fn from(sp: Sp<&'a str>) -> Self {
-        Sp::new(sp.val.into(), sp.span)
+        Self::new(sp.val.into(), sp.span)
     }
 }
 
