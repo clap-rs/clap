@@ -63,7 +63,8 @@ fn cli() -> clap::Command {
                 clap::Arg::new("set-true")
                     .long("set-true")
                     .action(clap::ArgAction::SetTrue)
-                    .help("bool"),
+                    .help("bool")
+                    .help_heading("Advanced"),
                 clap::Arg::new("set")
                     .long("set")
                     .action(clap::ArgAction::Set)
@@ -71,7 +72,8 @@ fn cli() -> clap::Command {
                 clap::Arg::new("count")
                     .long("count")
                     .action(clap::ArgAction::Count)
-                    .help("number"),
+                    .help("number")
+                    .help_heading("Advanced"),
                 clap::Arg::new("choice")
                     .long("choice")
                     .value_parser(["first", "second"])
@@ -155,7 +157,7 @@ fn cli() -> clap::Command {
                     .visible_alias("opt")
                     .help("cmd option")
                     .action(clap::ArgAction::Set),
-                clap::Arg::new("positional"),
+                clap::Arg::new("positional").value_parser(["pos1", "pos2"]),
             ]),
             clap::Command::new("hint").args([
                 clap::Arg::new("choice")

@@ -56,6 +56,7 @@ default = []
 unstable-doc = ["unstable-dynamic"] # for docs.rs
 unstable-dynamic = ["dep:clap_lex", "dep:shlex", "dep:is_executable", "clap/unstable-ext"]
 unstable-shell-tests = ["dep:completest", "dep:completest-pty"]
+color = ["clap/color"]
 debug = ["clap/debug"]
 
 [lints]
