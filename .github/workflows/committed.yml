@@ -20,9 +20,11 @@ jobs:
     name: Lint Commits
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout Actions Repository
-      uses: actions/checkout@v7
+    - name: Checkout repository
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         fetch-depth: 0
+        filter: "tree:0"
+        persist-credentials: false
     - name: Lint Commits
-      uses: crate-ci/committed@master
+      uses: crate-ci/committed@faeed42f2e10c244533a01525f13c4d8b6ce383f # v1.1.11
