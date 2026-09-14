@@ -1,0 +1,5 @@
+error: attribute `defer` can only accept bool literals
+ --> tests/derive_ui/defer_value.rs:2:11
+  |
+2 | #[command(defer = "true")]
+  |           ^^^^^

@@ -1,0 +1,5 @@
+error: `defer` is only supported on `Parser` and `Subcommand` enums
+ --> tests/derive_ui/defer_variant.rs:3:15
+  |
+3 |     #[command(defer = true)]
+  |               ^^^^^

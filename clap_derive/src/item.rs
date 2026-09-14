@@ -50,6 +50,7 @@ pub(crate) struct Item {
     group_id: Name,
     group_methods: Vec<Method>,
     kind: Sp<Kind>,
+    defer: Option<Sp<bool>>,
 }
 
 impl Item {
@@ -65,6 +66,7 @@ impl Item {
         let parsed_attrs = ClapAttr::parse_all(attrs)?;
         res.infer_kind(&parsed_attrs)?;
         res.push_attrs(&parsed_attrs)?;
+        res.assert_no_defer()?;
         res.push_doc_comment(attrs, "about", Some("long_about"));
 
         Ok(res)
@@ -102,6 +104,7 @@ impl Item {
         let parsed_attrs = ClapAttr::parse_all(attrs)?;
         res.infer_kind(&parsed_attrs)?;
         res.push_attrs(&parsed_attrs)?;
+        res.assert_no_defer()?;
         // Ignoring `push_doc_comment` as there is no top-level clap builder to add documentation
         // to
 
@@ -144,6 +147,7 @@ impl Item {
         let parsed_attrs = ClapAttr::parse_all(&variant.attrs)?;
         res.infer_kind(&parsed_attrs)?;
         res.push_attrs(&parsed_attrs)?;
+        res.assert_no_defer()?;
         if matches!(&*res.kind, Kind::Command(_) | Kind::Subcommand(_)) {
             res.push_doc_comment(&variant.attrs, "about", Some("long_about"));
         }
@@ -189,6 +193,7 @@ impl Item {
         let parsed_attrs = ClapAttr::parse_all(&variant.attrs)?;
         res.infer_kind(&parsed_attrs)?;
         res.push_attrs(&parsed_attrs)?;
+        res.assert_no_defer()?;
         if matches!(&*res.kind, Kind::Value) {
             res.push_doc_comment(&variant.attrs, "help", None);
         }
@@ -217,6 +222,7 @@ impl Item {
         let parsed_attrs = ClapAttr::parse_all(&field.attrs)?;
         res.infer_kind(&parsed_attrs)?;
         res.push_attrs(&parsed_attrs)?;
+        res.assert_no_defer()?;
         if matches!(&*res.kind, Kind::Arg(_)) {
             res.push_doc_comment(&field.attrs, "help", Some("long_help"));
         }
@@ -279,6 +285,7 @@ impl Item {
             group_id,
             group_methods: vec![],
             kind,
+            defer: None,
         }
     }
 
@@ -835,6 +842,11 @@ impl Item {
                     self.skip_group = true;
                 }
 
+                Some(MagicAttrName::Defer) => {
+                    assert_attr_kind(attr, &[AttrKind::Command])?;
+                    self.defer = Some(Sp::new(attr.lit_bool_or_abort()?, attr.name.span()));
+                }
+
                 None
                 // Magic only for the default, otherwise just forward to the builder
                 | Some(MagicAttrName::Short)
@@ -1089,6 +1101,23 @@ impl Item {
 
     pub(crate) fn skip_group(&self) -> bool {
         self.skip_group
+    }
+
+    pub(crate) fn defer(&self) -> bool {
+        self.defer
+            .as_ref()
+            .map(|defer| **defer)
+            .unwrap_or(cfg!(feature = "unstable-v5"))
+    }
+
+    fn assert_no_defer(&self) -> Result<(), syn::Error> {
+        if let Some(defer) = &self.defer {
+            abort!(
+                defer.span(),
+                "`defer` is only supported on `Parser` and `Subcommand` enums"
+            );
+        }
+        Ok(())
     }
 }
 

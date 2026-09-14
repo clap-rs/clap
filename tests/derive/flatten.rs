@@ -257,6 +257,44 @@ Options:
 }
 
 #[test]
+fn flattened_enum_parent_doc_comments() {
+    use clap::CommandFactory;
+
+    /// Parent summary
+    ///
+    /// Parent details.
+    #[derive(Parser)]
+    enum Parent {
+        #[command(flatten)]
+        Child(Child),
+    }
+
+    /// Child summary
+    ///
+    /// Child details.
+    #[derive(Subcommand)]
+    enum Child {
+        Run {
+            #[arg(long)]
+            flag: bool,
+        },
+    }
+
+    for mut cmd in [Parent::command(), Parent::command_for_update()] {
+        for build in [false, true] {
+            if build {
+                cmd.build();
+            }
+            assert_eq!(cmd.get_about().unwrap().to_string(), "Parent summary");
+            assert_eq!(
+                cmd.get_long_about().unwrap().to_string(),
+                "Parent summary\n\nParent details."
+            );
+        }
+    }
+}
+
+#[test]
 fn docstrings_ordering_with_multiple_clap_partial() {
     /// This is the docstring for Flattened
     #[derive(Args)]

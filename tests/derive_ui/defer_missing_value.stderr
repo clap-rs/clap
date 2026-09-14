@@ -1,0 +1,5 @@
+error: attribute `defer` requires a value
+ --> tests/derive_ui/defer_missing_value.rs:2:11
+  |
+2 | #[command(defer)]
+  |           ^^^^^

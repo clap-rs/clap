@@ -1,0 +1,5 @@
+error: unknown `#[arg(defer)]` attribute (`#[command(defer)]` exists)
+ --> tests/derive_ui/defer_field.rs:3:11
+  |
+3 |     #[arg(defer = true)]
+  |           ^^^^^

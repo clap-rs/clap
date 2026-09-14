@@ -1,0 +1,5 @@
+error: `defer` is only supported on `Parser` and `Subcommand` enums
+ --> tests/derive_ui/defer_flatten.rs:3:24
+  |
+3 |     #[command(flatten, defer = true)]
+  |                        ^^^^^

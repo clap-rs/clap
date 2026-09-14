@@ -82,6 +82,21 @@ impl ClapAttr {
             }
         }
     }
+
+    pub(crate) fn lit_bool_or_abort(&self) -> Result<bool, syn::Error> {
+        let value = self.value_or_abort()?;
+        match value {
+            AttrValue::Expr(Expr::Lit(syn::ExprLit {
+                lit: syn::Lit::Bool(lit),
+                ..
+            })) => Ok(lit.value()),
+            _ => abort!(
+                self.name,
+                "attribute `{}` can only accept bool literals",
+                self.name
+            ),
+        }
+    }
 }
 
 impl Parse for ClapAttr {
@@ -115,6 +130,7 @@ impl Parse for ClapAttr {
             "long_help" => Some(MagicAttrName::LongHelp),
             "author" => Some(MagicAttrName::Author),
             "version" => Some(MagicAttrName::Version),
+            "defer" => Some(MagicAttrName::Defer),
             _ => None,
         };
 
@@ -176,6 +192,7 @@ pub(crate) enum MagicAttrName {
     DefaultValuesOsT,
     NextDisplayOrder,
     NextHelpHeading,
+    Defer,
 }
 
 #[derive(Clone)]
