@@ -53,6 +53,21 @@ impl ClapAttr {
             .ok_or_else(|| format_err!(self.name, "attribute `{}` requires a value", self.name))
     }
 
+    /// Like [`Self::value_or_abort`], but for attributes that forward to a builder method.
+    ///
+    /// A bare attribute here is a builder method called without a value, and the usual cause is a
+    /// boolean setter written without `= true`, which clap does not imply.
+    pub(crate) fn value_or_method_abort(&self) -> Result<&AttrValue, syn::Error> {
+        self.value.as_ref().ok_or_else(|| {
+            format_err!(
+                self.name,
+                "attribute `{}` requires a value, e.g. `{} = true` for a boolean builder method",
+                self.name,
+                self.name
+            )
+        })
+    }
+
     pub(crate) fn lit_str_or_abort(&self) -> Result<&LitStr, syn::Error> {
         let value = self.value_or_abort()?;
         match value {
