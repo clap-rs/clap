@@ -685,6 +685,101 @@ fn exclusive_with_required() {
 }
 
 #[test]
+fn exclusive_with_required_group() {
+    let cmd = Command::new("bug")
+        .arg(
+            Arg::new("excl")
+                .long("excl")
+                .action(ArgAction::SetTrue)
+                .exclusive(true),
+        )
+        .arg(Arg::new("a").long("a").action(ArgAction::SetTrue))
+        .arg(Arg::new("b").long("b").action(ArgAction::SetTrue))
+        .group(ArgGroup::new("ab").args(["a", "b"]).required(true));
+
+    // exclusive flag alone should waive the required group, matching how a
+    // required arg is waived by `exclusive_with_required`.
+    cmd.clone().try_get_matches_from(["bug", "--excl"]).unwrap();
+
+    // group members alone still satisfy the group.
+    cmd.clone().try_get_matches_from(["bug", "--a"]).unwrap();
+
+    // exclusive plus a group member is still a conflict.
+    cmd.clone()
+        .try_get_matches_from(["bug", "--excl", "--a"])
+        .unwrap_err();
+
+    // and the group is still required when neither exclusive nor a member is
+    // present.
+    cmd.try_get_matches_from(["bug"]).unwrap_err();
+}
+
+#[test]
+fn arg_conflicts_with_required_group_alone() {
+    // Regression for issue #5041: an arg that conflicts with a required group
+    // must waive that group's requirement when the arg is present alone.
+    let cmd = Command::new("bug")
+        .arg(Arg::new("a").long("arg_a").action(ArgAction::SetTrue))
+        .arg(Arg::new("b").long("arg_b").action(ArgAction::SetTrue))
+        .group(ArgGroup::new("g").args(["a", "b"]).required(true))
+        .arg(
+            Arg::new("other")
+                .long("other")
+                .action(ArgAction::SetTrue)
+                .conflicts_with_all(["a", "b", "g"]),
+        );
+
+    cmd.clone()
+        .try_get_matches_from(["bug", "--other"])
+        .unwrap();
+
+    // group members alone still satisfy the group.
+    cmd.clone()
+        .try_get_matches_from(["bug", "--arg_a"])
+        .unwrap();
+
+    // combining the conflicting arg with a group member remains a conflict.
+    cmd.clone()
+        .try_get_matches_from(["bug", "--other", "--arg_a"])
+        .unwrap_err();
+
+    // the group is still required when nothing that conflicts with it is
+    // present.
+    cmd.try_get_matches_from(["bug"]).unwrap_err();
+}
+
+#[test]
+fn required_group_conflicts_with_arg_alone() {
+    // Symmetric to the above: the conflict may be declared on the group with
+    // `ArgGroup::conflicts_with` and still waive the group when the other arg
+    // is present alone.
+    let cmd = Command::new("bug")
+        .arg(Arg::new("a").long("arg_a").action(ArgAction::SetTrue))
+        .arg(Arg::new("b").long("arg_b").action(ArgAction::SetTrue))
+        .arg(Arg::new("other").long("other").action(ArgAction::SetTrue))
+        .group(
+            ArgGroup::new("g")
+                .args(["a", "b"])
+                .required(true)
+                .conflicts_with("other"),
+        );
+
+    cmd.clone()
+        .try_get_matches_from(["bug", "--other"])
+        .unwrap();
+
+    cmd.clone()
+        .try_get_matches_from(["bug", "--arg_a"])
+        .unwrap();
+
+    cmd.clone()
+        .try_get_matches_from(["bug", "--other", "--arg_a"])
+        .unwrap_err();
+
+    cmd.try_get_matches_from(["bug"]).unwrap_err();
+}
+
+#[test]
 fn exclusive_with_required_unless_present() {
     let cmd = Command::new("bug")
         .arg(

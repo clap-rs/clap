@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Waive a required `ArgGroup` when an `exclusive` arg is present, or when a present arg's `conflicts_with` covers the group, matching the behavior already used for required individual args
+
 ## [4.6.6] - 2026-08-06
 
 ### Features
