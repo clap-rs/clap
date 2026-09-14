@@ -200,6 +200,16 @@ fn register_completion() {
 #[test]
 #[cfg(unix)]
 #[cfg(feature = "unstable-shell-tests")]
+fn completes_hyphenated_binary_subcommand_options() {
+    common::assert_hyphenated_bin_completion::<RuntimeBuilder, _>(
+        CMD,
+        clap_complete::shells::Elvish,
+    );
+}
+
+#[test]
+#[cfg(unix)]
+#[cfg(feature = "unstable-shell-tests")]
 fn complete() {
     if !common::has_command(CMD) {
         return;
