@@ -63,7 +63,7 @@ _arguments "${_arguments_options[@]}" : \
 _arguments "${_arguments_options[@]}" : \
 '--config=[the other case to test]: :((Lest\ quotes,\ aren'\''t\ escaped.\:"help,with,comma"
 Second\ to\ trigger\ display\ of\ options\:""))' \
-'--flag=[Another arg to test]: :(Test quotes ', without help. Second to trigger display of options)' \
+'--flag=[Another arg to test]: :(Test\ quotes\ '\'',\ without\ help. Second\ to\ trigger\ display\ of\ options)' \
 '-h[Print help (see more with '\''--help'\'')]' \
 '--help[Print help (see more with '\''--help'\'')]' \
 '-V[Print version]' \
@@ -118,7 +118,7 @@ _arguments "${_arguments_options[@]}" : \
 _arguments "${_arguments_options[@]}" : \
 '--config=[the other case to test]: :((Lest\ quotes,\ aren'\''t\ escaped.\:"help,with,comma"
 Second\ to\ trigger\ display\ of\ options\:""))' \
-'--flag=[Another arg to test]: :(Test quotes ', without help. Second to trigger display of options)' \
+'--flag=[Another arg to test]: :(Test\ quotes\ '\'',\ without\ help. Second\ to\ trigger\ display\ of\ options)' \
 '-h[Print help (see more with '\''--help'\'')]' \
 '--help[Print help (see more with '\''--help'\'')]' \
 '-V[Print version]' \
