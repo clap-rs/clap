@@ -175,6 +175,14 @@ pub(crate) fn sub_subcommands_command(name: &'static str) -> clap::Command {
                             PossibleValue::new("Second to trigger display of options"),
                         ])
                         .help("the other case to test"),
+                ).arg(
+                    clap::Arg::new("flag")
+                        .long("flag")
+                        .action(clap::ArgAction::Set)
+                        .value_parser([
+                            PossibleValue::new("Test quotes ', without help."),
+                            PossibleValue::new("Second to trigger display of options"),
+                        ]).help("Another arg to test"),
                 ),
             ),
     )
