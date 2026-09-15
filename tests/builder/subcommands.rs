@@ -140,6 +140,28 @@ For more information, try '--help'.
 #[test]
 #[cfg(feature = "suggestions")]
 #[cfg(feature = "error-context")]
+fn dym_version_suggestion_omits_subcommand_placeholder() {
+    // `--version` terminates the same way `--help` does.
+    static EXPECTED: &str = "\
+error: unexpected argument '--versio' found
+
+  tip: a similar argument exists: '--version'
+
+Usage: dym --version
+
+For more information, try '--help'.
+";
+
+    let cmd = Command::new("dym")
+        .version("1.0")
+        .subcommand_required(true)
+        .subcommand(Command::new("subcmd"));
+    utils::assert_output(cmd, "dym --versio", EXPECTED, true);
+}
+
+#[test]
+#[cfg(feature = "suggestions")]
+#[cfg(feature = "error-context")]
 fn dym_non_help_arg_keeps_subcommand_placeholder() {
     // A regular argument does not terminate, so the required subcommand must
     // still be shown.
