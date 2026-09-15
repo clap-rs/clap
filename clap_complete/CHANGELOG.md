@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(aot/zsh)* Fix escaping of possible values without a help message
+
 ## [4.6.10] - 2026-09-14
 
 ## [4.6.9] - 2026-08-06
