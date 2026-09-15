@@ -63,6 +63,7 @@ Register-ArgumentCompleter -Native -CommandName 'my-app' -ScriptBlock {
         }
         'my-app;some_cmd;sub_cmd' {
             [CompletionResult]::new('--config', '--config', [CompletionResultType]::ParameterName, 'the other case to test')
+            [CompletionResult]::new('--flag', '--flag', [CompletionResultType]::ParameterName, 'Another arg to test')
             [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
             [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
             [CompletionResult]::new('-V', '-V ', [CompletionResultType]::ParameterName, 'Print version')
@@ -71,6 +72,7 @@ Register-ArgumentCompleter -Native -CommandName 'my-app' -ScriptBlock {
         }
         'my-app;some_cmd_alias;sub_cmd' {
             [CompletionResult]::new('--config', '--config', [CompletionResultType]::ParameterName, 'the other case to test')
+            [CompletionResult]::new('--flag', '--flag', [CompletionResultType]::ParameterName, 'Another arg to test')
             [CompletionResult]::new('-h', '-h', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
             [CompletionResult]::new('--help', '--help', [CompletionResultType]::ParameterName, 'Print help (see more with ''--help'')')
             [CompletionResult]::new('-V', '-V ', [CompletionResultType]::ParameterName, 'Print version')

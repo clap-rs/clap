@@ -395,7 +395,7 @@ fn value_completion(arg: &Arg) -> Option<String> {
                 values
                     .iter()
                     .filter(|pv| !pv.is_hide_set())
-                    .map(|n| n.get_name())
+                    .map(|n| escape_value(n.get_name()))
                     .collect::<Vec<_>>()
                     .join(" ")
             ))

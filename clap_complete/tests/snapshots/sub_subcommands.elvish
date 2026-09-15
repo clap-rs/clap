@@ -56,6 +56,7 @@ set edit:completion:arg-completer[my-app] = {|@words|
         }
         &'my-app;some_cmd;sub_cmd'= {
             cand --config 'the other case to test'
+            cand --flag 'Another arg to test'
             cand -h 'Print help (see more with ''--help'')'
             cand --help 'Print help (see more with ''--help'')'
             cand -V 'Print version'
@@ -63,6 +64,7 @@ set edit:completion:arg-completer[my-app] = {|@words|
         }
         &'my-app;some_cmd_alias;sub_cmd'= {
             cand --config 'the other case to test'
+            cand --flag 'Another arg to test'
             cand -h 'Print help (see more with ''--help'')'
             cand --help 'Print help (see more with ''--help'')'
             cand -V 'Print version'

@@ -199,7 +199,7 @@ _my__app() {
             return 0
             ;;
         my__subcmd__app__subcmd__some_cmd__subcmd__sub_cmd)
-            opts="-h -V --config --help --version"
+            opts="-h -V --config --flag --help --version"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -207,6 +207,10 @@ _my__app() {
             case "${prev}" in
                 --config)
                     COMPREPLY=($(compgen -W "Lest quotes, aren't escaped. Second to trigger display of options" -- "${cur}"))
+                    return 0
+                    ;;
+                --flag)
+                    COMPREPLY=($(compgen -W "Test quotes ', without help. Second to trigger display of options" -- "${cur}"))
                     return 0
                     ;;
                 *)
