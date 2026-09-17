@@ -22,16 +22,8 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     steps:
-<<<<<<< HEAD
-    - uses: actions/checkout@v7
-    - uses: j178/prek-action@v3.0.0
-||||||| 6d0d36b0
-    - uses: actions/checkout@v6
-    - uses: j178/prek-action@v1
-=======
     - name: Checkout repository
       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
->>>>>>> _rust/main
       with:
         persist-credentials: false
     - name: prek
