@@ -8,7 +8,7 @@ repository:
   has_projects: false
   has_wiki: false
   has_downloads: true
-  default_branch: master
+  default_branch: main
 
   # Preference: people do clean commits
   allow_merge_commit: true
@@ -106,7 +106,7 @@ repository:
 # See https://github.com/repository-settings/app/issues/825
 #
 # branches:
-#   - name: master
+#   - name: main
 #     protection:
 #       required_pull_request_reviews: null
 #       required_conversation_resolution: true

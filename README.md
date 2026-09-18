@@ -6,8 +6,8 @@
 [![Crates.io](https://img.shields.io/crates/d/clap?style=flat-square)](https://crates.io/crates/clap)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square)](LICENSE-APACHE)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE-MIT)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/clap-rs/clap/ci.yml?branch=master&style=flat-square)](https://github.com/clap-rs/clap/actions/workflows/ci.yml?query=branch%3Amaster)
-[![Coverage Status](https://img.shields.io/coveralls/github/clap-rs/clap/master?style=flat-square)](https://coveralls.io/github/clap-rs/clap?branch=master)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/clap-rs/clap/ci.yml?branch=main&style=flat-square)](https://github.com/clap-rs/clap/actions/workflows/ci.yml?query=branch%3Amain)
+[![Coverage Status](https://img.shields.io/coveralls/github/clap-rs/clap/main?style=flat-square)](https://coveralls.io/github/clap-rs/clap?branch=main)
 [![Contributors](https://img.shields.io/github/contributors/clap-rs/clap?style=flat-square)](https://github.com/clap-rs/clap/graphs/contributors)
 
 Dual-licensed under [Apache 2.0](LICENSE-APACHE) or [MIT](LICENSE-MIT).

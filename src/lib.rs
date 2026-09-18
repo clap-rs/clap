@@ -18,7 +18,7 @@
 //! ## Aspirations
 //!
 //! - Out of the box, users get a polished CLI experience
-//!   - Including common argument behavior, help generation, suggested fixes for users, colored output, [shell completions](https://github.com/clap-rs/clap/tree/master/clap_complete), etc
+//!   - Including common argument behavior, help generation, suggested fixes for users, colored output, [shell completions](https://github.com/clap-rs/clap/tree/main/clap_complete), etc
 //! - Flexible enough to port your existing CLI interface
 //!   - However, we won't necessarily streamline support for each use case
 //! - Reasonable parse performance
@@ -80,7 +80,7 @@
 //! - [Command-line Apps for Rust](https://rust-cli.github.io/book/index.html) book
 //!
 
-#![doc(html_logo_url = "https://raw.githubusercontent.com/clap-rs/clap/master/assets/clap.png")]
+#![doc(html_logo_url = "https://raw.githubusercontent.com/clap-rs/clap/main/assets/clap.png")]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]

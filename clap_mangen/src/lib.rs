@@ -1,5 +1,5 @@
 #![doc = include_str!("../README.md")]
-#![doc(html_logo_url = "https://raw.githubusercontent.com/clap-rs/clap/master/assets/clap.png")]
+#![doc(html_logo_url = "https://raw.githubusercontent.com/clap-rs/clap/main/assets/clap.png")]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]
@@ -11,7 +11,7 @@ mod render;
 pub use roff;
 
 use render::subcommand_heading;
-use roff::{Roff, roman};
+use roff::{roman, Roff};
 use std::io::Write;
 
 /// A manpage writer

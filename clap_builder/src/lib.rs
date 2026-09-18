@@ -4,7 +4,7 @@
 // notice may not be copied, modified, or distributed except according to those terms.
 
 #![doc = include_str!("../README.md")]
-#![doc(html_logo_url = "https://raw.githubusercontent.com/clap-rs/clap/master/assets/clap.png")]
+#![doc(html_logo_url = "https://raw.githubusercontent.com/clap-rs/clap/main/assets/clap.png")]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]
@@ -19,8 +19,8 @@ pub use crate::builder::Command;
 pub use crate::builder::ValueHint;
 pub use crate::builder::{Arg, ArgGroup};
 pub use crate::parser::ArgMatches;
-pub use crate::util::Id;
 pub use crate::util::color::ColorChoice;
+pub use crate::util::Id;
 
 /// Command Line Argument Parser Error
 ///

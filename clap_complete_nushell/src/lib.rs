@@ -15,16 +15,16 @@
 //! generate(Nushell, &mut cmd, "myapp", &mut io::stdout());
 //! ```
 
-#![doc(html_logo_url = "https://raw.githubusercontent.com/clap-rs/clap/master/assets/clap.png")]
+#![doc(html_logo_url = "https://raw.githubusercontent.com/clap-rs/clap/main/assets/clap.png")]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]
 #![warn(clippy::print_stderr)]
 #![warn(clippy::print_stdout)]
 
-use clap::ValueHint;
 use clap::builder::StyledStr;
-use clap::{Arg, ArgAction, Command, builder::PossibleValue};
+use clap::ValueHint;
+use clap::{builder::PossibleValue, Arg, ArgAction, Command};
 use clap_complete::Generator;
 
 /// Generate Nushell complete file
