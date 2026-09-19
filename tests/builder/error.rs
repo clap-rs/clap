@@ -310,6 +310,32 @@ For more information, try '--help'.
 
 #[test]
 #[cfg(feature = "error-context")]
+fn flag_used_after_double_dash() {
+    let cmd = Command::new("app").arg(
+        Arg::new("dev")
+            .long("dev")
+            .action(ArgAction::SetTrue),
+    );
+
+    let res = cmd.try_get_matches_from(["app", "--", "--dev"]);
+    assert!(res.is_err());
+    let err = res.unwrap_err();
+    let expected_kind = ErrorKind::UnknownArgument;
+    let message = str![[r#"
+error: unexpected argument '--dev' found
+
+  tip: flag '--dev' exists; to use it, remove the '--' before it
+
+Usage: app [OPTIONS]
+
+For more information, try '--help'.
+
+"#]];
+    assert_error(err, expected_kind, message, true);
+}
+
+#[test]
+#[cfg(feature = "error-context")]
 #[cfg(feature = "suggestions")]
 fn unknown_argument_flag() {
     let cmd = Command::new("test").args([

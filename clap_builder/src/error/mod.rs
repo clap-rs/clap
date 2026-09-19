@@ -805,6 +805,41 @@ impl<F: ErrorFormatter> Error<F> {
         err
     }
 
+    pub(crate) fn unnecessary_double_dash_flag(
+        cmd: &Command,
+        arg: String,
+        usage: Option<StyledStr>,
+    ) -> Self {
+        use std::fmt::Write as _;
+        let styles = cmd.get_styles();
+        let invalid = &styles.get_invalid();
+        let valid = &styles.get_valid();
+        let mut err = Self::new(ErrorKind::UnknownArgument).with_cmd(cmd);
+
+        #[cfg(feature = "error-context")]
+        {
+            let mut styled_suggestion = StyledStr::new();
+            let _ = write!(
+                styled_suggestion,
+                "flag '{valid}{arg}{valid:#}' exists; to use it, remove the '{invalid}--{invalid:#}' before it",
+            );
+
+            err = err.extend_context_unchecked([
+                (ContextKind::InvalidArg, ContextValue::String(arg)),
+                (
+                    ContextKind::Suggested,
+                    ContextValue::StyledStrs(vec![styled_suggestion]),
+                ),
+            ]);
+            if let Some(usage) = usage {
+                err = err
+                    .insert_context_unchecked(ContextKind::Usage, ContextValue::StyledStr(usage));
+            }
+        }
+
+        err
+    }
+
     fn formatted(&self) -> Cow<'_, StyledStr> {
         if let Some(message) = self.inner.message.as_ref() {
             message.formatted(&self.inner.styles)
