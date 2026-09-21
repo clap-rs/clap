@@ -292,7 +292,8 @@ impl<F: ErrorFormatter> Error<F> {
     ///     },
     ///     Err(err) => {
     ///         let err = err.render();
-    ///         println!("{err}");
+    ///         // `Display` strips ANSI styling; use `.ansi()` to keep colors.
+    ///         println!("{}", err.ansi());
     ///         // do_something
     ///     },
     /// };
