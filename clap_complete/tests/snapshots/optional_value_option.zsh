@@ -19,6 +19,8 @@ _my-app() {
 '-h[Print help]' \
 '--help[Print help]' \
 && ret=0
+
+    return $ret
 }
 
 (( $+functions[_my-app_commands] )) ||
