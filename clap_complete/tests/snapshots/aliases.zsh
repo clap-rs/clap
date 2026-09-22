@@ -29,6 +29,8 @@ _my-app() {
 '--version[Print version]' \
 '::positional:_default' \
 && ret=0
+
+    return $ret
 }
 
 (( $+functions[_my-app_commands] )) ||

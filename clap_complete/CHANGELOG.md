@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(aot/zsh)* Propagate `_arguments` exit status so zsh completer chains work
+
 ## [4.6.11] - 2026-09-15
 
 ### Fixes
