@@ -376,7 +376,7 @@ _arguments "${_arguments_options[@]}" : \
 '--flg[cmd flag]' \
 '-h[Print help]' \
 '--help[Print help]' \
-'::positional:_default' \
+'::positional:(pos1 pos2)' \
 && ret=0
 ;;
 (hint)

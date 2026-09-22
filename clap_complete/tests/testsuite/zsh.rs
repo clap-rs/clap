@@ -248,16 +248,23 @@ fn complete_dynamic_env_toplevel() {
     let term = completest::Term::new();
     let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
-    let input = "exhaustive \t\t";
+    let input = [
+        "zstyle ':completion:*:descriptions' format '%d'",
+        "exhaustive \t\t",
+    ]
+    .join("\n");
     let expected = snapbox::str![[r#"
+% zstyle ':completion:*:descriptions' format '%d'
 % exhaustive
-help            -- Print this message or the help of the given subcommand(s)
+Options
+Commands
 --generate      -- generate
 --help          -- Print help
-empty           action          value           last            hint            
-global          quote           pacman          alias           --empty-choice  
+help    -- Print this message or the help of the given subcommand(s)
+                action          empty           hint            pacman          value           
+--empty-choice  alias           global          last            quote           
 "#]];
-    let actual = runtime.complete(input, &term).unwrap();
+    let actual = runtime.complete(&input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
 
@@ -272,21 +279,34 @@ fn complete_dynamic_env_quoted_help() {
     let term = completest::Term::new();
     let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
-    let input = "exhaustive quote \t\t";
+    let input = [
+        "zstyle ':completion:*:descriptions' format '%d'",
+        "exhaustive quote \t\t",
+    ]
+    .join("\n");
     let expected = snapbox::str![[r#"
+% zstyle ':completion:*:descriptions' format '%d'
 % exhaustive quote
---help                              -- Print help (see more with '--help')                                            
-cmd-backslash      --backslash      -- Avoid '/n'                                                                     
-cmd-backticks      --backticks      -- For more information see `echo test`                                           
-cmd-brackets       --brackets       -- List packages [filter]                                                         
-cmd-double-quotes  --double-quotes  -- Can be "always", "auto", or "never"                                            
-cmd-expansions     --expansions     -- Execute the shell command with $SHELL                                          
-cmd-single-quotes  --single-quotes  -- Can be 'always', 'auto', or 'never'                                            
-escape-help                         -- /tab/t"'                                                                       
-help                                -- Print this message or the help of the given subcommand(s)                      
---choice
+Options
+Commands
+--backslash      -- Avoid '/n'
+--backticks      -- For more information see `echo test`
+--brackets       -- List packages [filter]
+--double-quotes  -- Can be "always", "auto", or "never"
+--expansions     -- Execute the shell command with $SHELL
+--help           -- Print help (see more with '--help')
+--single-quotes  -- Can be 'always', 'auto', or 'never'
+cmd-backslash      -- Avoid '/n'
+cmd-backticks      -- For more information see `echo test`
+cmd-brackets       -- List packages [filter]
+cmd-double-quotes  -- Can be "always", "auto", or "never"
+cmd-expansions     -- Execute the shell command with $SHELL
+cmd-single-quotes  -- Can be 'always', 'auto', or 'never'
+escape-help        -- /tab      "'
+help               -- Print this message or the help of the given subcommand(s)
+          --choice
 "#]];
-    let actual = runtime.complete(input, &term).unwrap();
+    let actual = runtime.complete(&input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
 
@@ -301,17 +321,30 @@ fn complete_dynamic_env_option_value() {
     let term = completest::Term::new();
     let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
-    let input = "exhaustive action --choice=\t\t";
+    let input = [
+        "zstyle ':completion:*:descriptions' format '%d'",
+        "exhaustive action --choice=\t\t",
+    ]
+    .join("\n");
     let expected = snapbox::str![[r#"
+% zstyle ':completion:*:descriptions' format '%d'
 % exhaustive action --choice=
+choice <choice>
 --choice=first   --choice=second
 "#]];
-    let actual = runtime.complete(input, &term).unwrap();
+    let actual = runtime.complete(&input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
-    let input = "exhaustive action --choice=f\t\t";
-    let expected = snapbox::str!["% exhaustive action --choice=first "];
-    let actual = runtime.complete(input, &term).unwrap();
+    let input = [
+        "zstyle ':completion:*:descriptions' format '%d'",
+        "exhaustive action --choice=f\t\t",
+    ]
+    .join("\n");
+    let expected = snapbox::str![[r#"
+% zstyle ':completion:*:descriptions' format '%d'
+% exhaustive action --choice=first 
+"#]];
+    let actual = runtime.complete(&input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
 
@@ -326,20 +359,32 @@ fn complete_dynamic_env_quoted_value() {
     let term = completest::Term::new();
     let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
-    let input = "exhaustive quote --choice \t\t";
+    let input = [
+        "zstyle ':completion:*:descriptions' format '%d'",
+        "exhaustive quote --choice \t\t",
+    ]
+    .join("\n");
     let expected = snapbox::str![[r#"
+% zstyle ':completion:*:descriptions' format '%d'
 % exhaustive quote --choice
+choice <choice>
 another shell  -- something with a space
 bash           -- bash (shell)
 fish           -- fish shell
 zsh            -- zsh shell
 "#]];
-    let actual = runtime.complete(input, &term).unwrap();
+    let actual = runtime.complete(&input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
-    let input = "exhaustive quote --choice an\t\t";
-    let expected = snapbox::str!["% exhaustive quote --choice another/ shell "];
-    let actual = runtime.complete(input, &term).unwrap();
+    let input = [
+        "zstyle ':completion:*:descriptions' format '%d'",
+        "exhaustive quote --choice an\t\t",
+    ]
+    .join("\n");
+    let expected = snapbox::str![
+        "% zstyle ':completion:*:descriptions' format '%d'\n% exhaustive quote --choice another/ shell "
+    ];
+    let actual = runtime.complete(&input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
 
@@ -354,9 +399,14 @@ fn complete_dynamic_empty_subcommand() {
     let term = completest::Term::new();
     let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
-    let input = "exhaustive empty \t\t";
-    let expected = snapbox::str!["% exhaustive empty "];
-    let actual = runtime.complete(input, &term).unwrap();
+    let input = [
+        "zstyle ':completion:*:descriptions' format '%d'",
+        "exhaustive empty \t\t",
+    ]
+    .join("\n");
+    let expected =
+        snapbox::str!["% zstyle ':completion:*:descriptions' format '%d'\n% exhaustive empty "];
+    let actual = runtime.complete(&input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
 
@@ -371,9 +421,14 @@ fn complete_dynamic_empty_option_value() {
     let term = completest::Term::new();
     let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
-    let input = "exhaustive --empty=\t";
-    let expected = snapbox::str!["% exhaustive --empty="];
-    let actual = runtime.complete(input, &term).unwrap();
+    let input = [
+        "zstyle ':completion:*:descriptions' format '%d'",
+        "exhaustive --empty=\t",
+    ]
+    .join("\n");
+    let expected =
+        snapbox::str!["% zstyle ':completion:*:descriptions' format '%d'\n% exhaustive --empty="];
+    let actual = runtime.complete(&input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
 
@@ -389,21 +444,34 @@ fn complete_dynamic_empty_space() {
     let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
     // Press left arrow twice to place cursor between the two spaces
-    let input = "exhaustive quote  -\x1b[D\x1b[D\t\t";
+    let input = [
+        "zstyle ':completion:*:descriptions' format '%d'",
+        "exhaustive quote  -\x1b[D\x1b[D\t\t",
+    ]
+    .join("\n");
     let expected = snapbox::str![[r#"
+% zstyle ':completion:*:descriptions' format '%d'
 % exhaustive quote  -
---help                              -- Print help (see more with '--help')                                            
-cmd-backslash      --backslash      -- Avoid '/n'                                                                     
-cmd-backticks      --backticks      -- For more information see `echo test`                                           
-cmd-brackets       --brackets       -- List packages [filter]                                                         
-cmd-double-quotes  --double-quotes  -- Can be "always", "auto", or "never"                                            
-cmd-expansions     --expansions     -- Execute the shell command with $SHELL                                          
-cmd-single-quotes  --single-quotes  -- Can be 'always', 'auto', or 'never'                                            
-escape-help                         -- /tab/t"'                                                                       
-help                                -- Print this message or the help of the given subcommand(s)                      
---choice
+Options
+Commands
+--backslash      -- Avoid '/n'
+--backticks      -- For more information see `echo test`
+--brackets       -- List packages [filter]
+--double-quotes  -- Can be "always", "auto", or "never"
+--expansions     -- Execute the shell command with $SHELL
+--help           -- Print help (see more with '--help')
+--single-quotes  -- Can be 'always', 'auto', or 'never'
+cmd-backslash      -- Avoid '/n'
+cmd-backticks      -- For more information see `echo test`
+cmd-brackets       -- List packages [filter]
+cmd-double-quotes  -- Can be "always", "auto", or "never"
+cmd-expansions     -- Execute the shell command with $SHELL
+cmd-single-quotes  -- Can be 'always', 'auto', or 'never'
+escape-help        -- /tab      "'
+help               -- Print this message or the help of the given subcommand(s)
+          --choice
 "#]];
-    let actual = runtime.complete(input, &term).unwrap();
+    let actual = runtime.complete(&input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
 
@@ -420,18 +488,225 @@ fn complete_dynamic_dir_no_trailing_space() {
 
     // First, complete to the directory name with slash.
     // A trailing slash should not be added after the slash.
-    let input = "exhaustive hint --file tes\t\t";
-    let expected = snapbox::str!["% exhaustive hint --file tests/"];
-    let actual = runtime.complete(input, &term).unwrap();
+    let input = [
+        "zstyle ':completion:*:descriptions' format '%d'",
+        "exhaustive hint --file tes\t\t",
+    ]
+    .join("\n");
+    let expected = snapbox::str![
+        "% zstyle ':completion:*:descriptions' format '%d'\n% exhaustive hint --file tests/"
+    ];
+    let actual = runtime.complete(&input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
     // Verify hitting tab again shows the directory contents.
     // This only works if there is no trailing space after the slash.
-    let input = "exhaustive hint --file tests/\t\t";
+    let input = [
+        "zstyle ':completion:*:descriptions' format '%d'",
+        "exhaustive hint --file tests/\t\t",
+    ]
+    .join("\n");
     let expected = snapbox::str![[r#"
+% zstyle ':completion:*:descriptions' format '%d'
 % exhaustive hint --file tests/
-tests/snapshots    tests/testsuite    tests/examples.rs
+file <file>
+tests/examples.rs  tests/snapshots    tests/testsuite
 "#]];
-    let actual = runtime.complete(input, &term).unwrap();
+    let actual = runtime.complete(&input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+fn complete_dynamic_tag_with_file_hint() {
+    if !common::has_command(CMD) {
+        //return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+
+    // Regression: path completions were tagged with arg.to_string() ("--file <FILE>"),
+    // which contains spaces and angle brackets. zsh's _describe uses the tag name in
+    // zstyle context strings where those characters are invalid, causing "_describe: bad option" errors.
+    let input = [
+        "zstyle ':completion:*:descriptions' format '%d'",
+        "exhaustive hint --file tests/\t\t",
+    ]
+    .join("\n");
+    let expected = snapbox::str![[r#"
+% zstyle ':completion:*:descriptions' format '%d'
+% exhaustive hint --file tests/
+file <file>
+tests/examples.rs  tests/snapshots    tests/testsuite
+"#]];
+    let actual = runtime.complete(&input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+fn complete_dynamic_tagged_options() {
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+
+    let input = [
+        "zstyle ':completion:*:descriptions' format '%d'",
+        "exhaustive -\t\t",
+    ]
+    .join("\n");
+
+    let expected = snapbox::str![[r#"
+% zstyle ':completion:*:descriptions' format '%d'
+% exhaustive -
+Options
+--generate      -- generate
+-h              -- Print help
+--empty-choice
+"#]];
+    let actual = runtime.complete(&input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+fn complete_dynamic_tagged_positionals_and_flags() {
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+
+    // `alias` has both named flags and a positional with possible values,
+    // so we can assert that positionals appear in their own tagged group alongside flags.
+    let input = [
+        "zstyle ':completion:*:descriptions' format '%d'",
+        "exhaustive alias \t\t",
+    ]
+    .join("\n");
+
+    let expected = snapbox::str![[r#"
+% zstyle ':completion:*:descriptions' format '%d'
+% exhaustive alias
+[positional]
+Options
+--flag    -- cmd flag
+--help    -- Print help
+--option  -- cmd option
+      pos1  pos2
+"#]];
+    let actual = runtime.complete(&input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+fn complete_dynamic_tagged_subcommands_and_flags() {
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+
+    // `global` has both flags (--global) and subcommands (one, two),
+    // to test that they appear in different tagged groups.
+    let input = [
+        "zstyle ':completion:*:descriptions' format '%d'",
+        "exhaustive global \t\t",
+    ]
+    .join("\n");
+
+    let expected = snapbox::str![[r#"
+% zstyle ':completion:*:descriptions' format '%d'
+% exhaustive global
+Options
+Commands
+--global   -- everywhere
+--help     -- Print help
+--version  -- Print version
+help  -- Print this message or the help of the given subcommand(s)
+     one  two
+"#]];
+    let actual = runtime.complete(&input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+fn complete_dynamic_tagged_help_heading() {
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+
+    // `action` has some flags under the default "Options" heading and some
+    // under "Advanced", to tesst that help_headings end up in distinct tag groups.
+    let input = [
+        "zstyle ':completion:*:descriptions' format '%d'",
+        "exhaustive action -\t\t",
+    ]
+    .join("\n");
+
+    let expected = snapbox::str![[r#"
+% zstyle ':completion:*:descriptions' format '%d'
+% exhaustive action -
+Options
+Advanced
+--choice  -- enum
+--count     -- number
+--set     -- value
+--set-true  -- bool
+-h        -- Print help
+"#]];
+    let actual = runtime.complete(&input, &term).unwrap();
+    assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+fn register_dynamic_env_untagged() {
+    common::register_example::<RuntimeBuilder>("dynamic-env", "untagged");
+}
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+fn complete_dynamic_untagged_candidates() {
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "untagged");
+
+    // `ext` is a subcommand that returns candidates with no tag set,
+    // to test how the completion code handles no-tags.
+    let input = [
+        "zstyle ':completion:*:descriptions' format '%d'",
+        "untagged ext \t\t",
+    ]
+    .join("\n");
+
+    let expected = snapbox::str![[r#"
+% zstyle ':completion:*:descriptions' format '%d'
+% untagged ext
+Options
+--help  -- Print help
+"#]];
+    let actual = runtime.complete(&input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
