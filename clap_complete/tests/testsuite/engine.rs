@@ -1529,6 +1529,35 @@ pos-c
 --help	Print help
 "#]]
     );
+
+    // Shared display_order must not place flags between subcommand names.
+    let mut cmd = Command::new("exhaustive")
+        .args([
+            clap::Arg::new("mid-flag")
+                .long("mid-flag")
+                .display_order(5),
+        ])
+        .subcommands([
+            Command::new("early").display_order(1),
+            Command::new("late").display_order(10),
+        ]);
+    let completions = complete!(cmd, " [TAB]");
+    let lines: Vec<&str> = completions.lines().collect();
+    let is_flag = |line: &str| line.starts_with('-');
+    let is_subcommand = |line: &str| !line.is_empty() && !is_flag(line);
+    let mut seen_subcommand = false;
+    let mut seen_flag_after_subcommand = false;
+    for line in lines {
+        if is_subcommand(line) {
+            assert!(
+                !seen_flag_after_subcommand,
+                "flag appeared between subcommands:\n{completions}"
+            );
+            seen_subcommand = true;
+        } else if is_flag(line) && seen_subcommand {
+            seen_flag_after_subcommand = true;
+        }
+    }
 }
 
 fn complete(cmd: &mut Command, args: impl AsRef<str>, current_dir: Option<&Path>) -> String {

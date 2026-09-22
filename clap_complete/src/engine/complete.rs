@@ -226,21 +226,26 @@ fn complete_arg(
         }
     });
 
-    let mut tags = Vec::new();
-    for candidate in &completions {
-        let tag = candidate.get_tag().cloned();
-        if !tags.contains(&tag) {
-            tags.push(tag);
-        }
-    }
-    completions.sort_by_key(|c| {
-        (
-            tags.iter().position(|t| c.get_tag() == t.as_ref()),
-            c.get_display_order(),
-        )
-    });
+    // Group by kind so shared `display_order` (one counter for args and
+    // subcommands) cannot interleave flags with subcommand names. Prefer clap
+    // help-style blocks: commands, then value/positional groups, then options.
+    // Within a group, keep `display_order` (and stable relative order when unset).
+    completions.sort_by_key(|c| (completion_group_rank(c), c.get_display_order()));
 
     Ok(completions)
+}
+
+/// Sort rank so each candidate kind stays contiguous.
+///
+/// `display_order` is assigned from a single counter shared by args and
+/// subcommands; ranking by kind first prevents flags from sorting into the
+/// middle of subcommand names.
+fn completion_group_rank(candidate: &CompletionCandidate) -> u8 {
+    match candidate.get_id().map(String::as_str) {
+        Some(id) if id.starts_with("command::") => 0,
+        Some(id) if id.starts_with("arg::") => 2,
+        _ => 1,
+    }
 }
 
 fn complete_option(
