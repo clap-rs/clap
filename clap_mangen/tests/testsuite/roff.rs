@@ -189,6 +189,26 @@ fn variadic_values() {
 }
 
 #[test]
+fn fixed_values_with_multiple_names() {
+    let name = "my-app";
+    let cmd = common::fixed_values_with_multiple_names(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/fixed_values_with_multiple_names.bash.roff"],
+        cmd,
+    );
+}
+
+#[test]
+fn fixed_values_with_one_name() {
+    let name = "my-app";
+    let cmd = common::fixed_values_with_one_name(name);
+    common::assert_matches(
+        snapbox::file!["../snapshots/fixed_values_with_one_name.bash.roff"],
+        cmd,
+    );
+}
+
+#[test]
 fn configured_display_order_args() {
     let name = "my-app";
     let cmd = common::configured_display_order_args(name);
