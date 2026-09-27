@@ -81,10 +81,10 @@ pub use env::CompleteEnv;
 
 /// Deprecated, see [`aot`]
 pub mod generator {
+    pub use crate::aot::Generator;
     pub use crate::aot::generate;
     pub use crate::aot::generate_to;
     pub use crate::aot::utils;
-    pub use crate::aot::Generator;
 }
 /// Deprecated, see [`aot`]
 pub mod shells {
@@ -95,14 +95,14 @@ pub mod shells {
     pub use crate::aot::Shell;
     pub use crate::aot::Zsh;
 }
-/// Deprecated, see [`aot::generate`]
-pub use aot::generate;
-/// Deprecated, see [`aot::generate_to`]
-pub use aot::generate_to;
 /// Deprecated, see [`aot::Generator`]
 pub use aot::Generator;
 /// Deprecated, see [`aot::Shell`]
 pub use aot::Shell;
+/// Deprecated, see [`aot::generate`]
+pub use aot::generate;
+/// Deprecated, see [`aot::generate_to`]
+pub use aot::generate_to;
 
 #[doc = include_str!("../README.md")]
 #[cfg(doctest)]

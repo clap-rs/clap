@@ -11,7 +11,7 @@ mod render;
 pub use roff;
 
 use render::subcommand_heading;
-use roff::{roman, Roff};
+use roff::{Roff, roman};
 use std::io::Write;
 
 /// A manpage writer
