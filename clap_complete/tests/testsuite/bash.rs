@@ -376,6 +376,24 @@ another  shell    bash     fish     zsh
         assert!(!actual.contains("foo"), "Actual output:\n{actual}");
     }
 
+    {
+        use std::fs::File;
+        use std::path::Path;
+
+        let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+        let testdir_path = testdir.path().unwrap();
+
+        File::create(Path::new(testdir_path).join("foo bar.txt")).unwrap();
+        File::create(Path::new(testdir_path).join("foo baz.txt")).unwrap();
+
+        let input = format!(
+            "exhaustive hint --path {}/\t\t",
+            testdir_path.to_string_lossy()
+        );
+        let actual = runtime.complete(input.as_str(), &term).unwrap();
+        assert!(!actual.contains("foo bar.txt"), "Actual output:\n{actual}");
+    }
+
     let input = "exhaustive hint --other \t";
     let expected = snapbox::str!["exhaustive hint --other         % exhaustive hint --other "];
     let actual = runtime.complete(input, &term).unwrap();
