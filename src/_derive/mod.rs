@@ -11,7 +11,8 @@
 //! 3. [Field Types](#field-types)
 //! 4. [Doc Comments](#doc-comments)
 //! 5. [Mixing Builder and Derive APIs](#mixing-builder-and-derive-apis)
-//! 6. [Tips](#tips)
+//! 6. [What Does a Derive Expand To?](#what-does-a-derive-expand-to)
+//! 7. [Tips](#tips)
 //!
 //! ## Overview
 //!
@@ -524,6 +525,27 @@
 //! ```rust
 #![doc = include_str!("../../examples/derive_ref/flatten_hand_args.rs")]
 //! ```
+//!
+//! ## What Does a Derive Expand To?
+//!
+//! The derive API is a thin wrapper over the builder API.  Showing an
+//! idiomatic builder equivalent (not raw `cargo expand` output) makes the
+//! mapping concrete: Command methods, Arg methods, subcommands, and
+//! [`PossibleValue`][crate::builder::PossibleValue] entries from
+//! [`ValueEnum`][crate::ValueEnum].
+//!
+//! ```rust
+#![doc = include_str!("../../examples/derive_ref/expansion.rs")]
+//! ```
+//!
+//! Useful correspondences:
+//!
+//! - `#[command(version, about)]` → [`Command::version`][crate::Command::version], [`Command::about`][crate::Command::about]
+//! - `#[arg(short, long)]` → [`Arg::short`][crate::Arg::short], [`Arg::long`][crate::Arg::long]
+//! - `#[arg(default_value_t = ...)]` → [`Arg::default_value`][crate::Arg::default_value]
+//! - `#[arg(value_enum)]` → [`Arg::value_parser`][crate::Arg::value_parser] over a [`ValueEnum`][crate::ValueEnum]
+//! - `#[command(subcommand)]` → [`Command::subcommand`][crate::Command::subcommand]
+//! - `ValueEnum` variant docs → [`PossibleValue::help`][crate::builder::PossibleValue::help]
 //!
 //! ## Tips
 //!

@@ -556,5 +556,11 @@ path = "examples/derive_ref/flatten_hand_args.rs"
 required-features = ["derive"]
 doc-scrape-examples = true
 
+[[example]]
+name = "derive_ref_expansion"
+path = "examples/derive_ref/expansion.rs"
+required-features = ["derive"]
+doc-scrape-examples = true
+
 [lints]
 workspace = true
