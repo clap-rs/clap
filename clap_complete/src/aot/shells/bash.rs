@@ -134,10 +134,17 @@ fn all_subcommands(cmd: &Command, parent_fn_name: &str) -> String {
 fn subcommand_details(cmd: &Command) -> String {
     debug!("subcommand_details");
 
+    let bin_name = cmd
+        .get_bin_name()
+        .expect("crate::generate should have set the bin_name");
+    let fn_name = bin_name.replace('-', "__");
     let mut subcmd_dets = vec![String::new()];
     let mut scs = utils::all_subcommands(cmd)
         .iter()
-        .map(|x| x.1.replace(' ', CMD_SEP))
+        .map(|x| {
+            let path = x.1.strip_prefix(bin_name).unwrap();
+            format!("{}{}", fn_name, path.replace(' ', CMD_SEP))
+        })
         .collect::<Vec<_>>();
 
     scs.sort();

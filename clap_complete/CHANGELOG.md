@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(bash)* Generate correct subcommand completion handlers when the binary name contains a hyphen
+
 ## [4.6.11] - 2026-09-15
 
 ### Fixes
