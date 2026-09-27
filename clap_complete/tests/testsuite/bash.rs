@@ -384,7 +384,7 @@ another  shell    bash     fish     zsh
         let testdir_path = testdir.path().unwrap();
 
         File::create(Path::new(testdir_path).join("foo bar.txt")).unwrap();
-        File::create(Path::new(testdir_path).join("foo baz.txt")).unwrap();
+        File::create(Path::new(testdir_path).join("baz qux.txt")).unwrap();
 
         let input = format!(
             "exhaustive hint --path {}/\t\t",
