@@ -391,7 +391,7 @@ another  shell    bash     fish     zsh
             testdir_path.to_string_lossy()
         );
         let actual = runtime.complete(input.as_str(), &term).unwrap();
-        assert!(!actual.contains("foo bar.txt"), "Actual output:\n{actual}");
+        assert!(actual.contains("foo bar.txt"), "Actual output:\n{actual}");
     }
 
     let input = "exhaustive hint --other \t";
