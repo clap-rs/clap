@@ -19,6 +19,8 @@ _my-app() {
 '--help[Print help]' \
 '*::first -- first multi-valued argument:_default' \
 && ret=0
+
+    return $ret
 }
 
 (( $+functions[_my-app_commands] )) ||

@@ -117,6 +117,8 @@ esac
         esac
     ;;
 esac
+
+    return $ret
 }
 
 (( $+functions[_my-app_commands] )) ||
