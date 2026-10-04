@@ -14,7 +14,7 @@ env:
   CARGO_TERM_COLOR: always
   CLICOLOR: 1
   CARGO_INCREMENTAL: 0
-  RUST_TOOLCHAIN_STABLE: "1.98"  # STABLE
+  RUST_TOOLCHAIN_STABLE: "1.99"  # STABLE
 
 concurrency:
   group: "${{ github.workflow }}-${{ github.ref }}"
