@@ -3,6 +3,7 @@ module completions {
   export extern my-app [
     -c
     -v
+    -n: string
     --help(-h)                # Print help
   ]
 
