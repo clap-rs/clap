@@ -33,7 +33,7 @@
 //!
 //! ## Configuring the Parser
 //!
-//! You use [`Command`][crate::Command] to start building a parser.
+//! You use [`Command`] to start building a parser.
 //!
 //! ```rust
 #![doc = include_str!("../examples/tutorial_builder/02_apps.rs")]
@@ -49,7 +49,7 @@
 //! ```
 #![doc = include_str!("../examples/tutorial_builder/02_crate.md")]
 //!
-//! You can use [`Command`][crate::Command] methods to change the application level behavior of
+//! You can use [`Command`] methods to change the application level behavior of
 //! clap, like [`Command::next_line_help`].
 //!
 //! ```rust
@@ -76,7 +76,7 @@
 //! ```
 #![doc = include_str!("../examples/tutorial_builder/03_03_positional.md")]
 //!
-//! Note that the default [`ArgAction`][crate::ArgAction] is [`Set`][crate::ArgAction::Set].  To
+//! Note that the default [`ArgAction`] is [`Set`][crate::ArgAction::Set].  To
 //! accept multiple values, override the [action][Arg::action] with [`Append`][crate::ArgAction::Append]:
 //! ```rust
 #![doc = include_str!("../examples/tutorial_builder/03_03_positional_mult.rs")]
@@ -94,7 +94,7 @@
 //! ```
 #![doc = include_str!("../examples/tutorial_builder/03_02_option.md")]
 //!
-//! Note that the default [`ArgAction`][crate::ArgAction] is [`Set`][crate::ArgAction::Set].  To
+//! Note that the default [`ArgAction`] is [`Set`][crate::ArgAction::Set].  To
 //! accept multiple occurrences, override the [action][Arg::action] with [`Append`][crate::ArgAction::Append]:
 //! ```rust
 #![doc = include_str!("../examples/tutorial_builder/03_02_option_mult.rs")]
@@ -139,7 +139,7 @@
 //!
 //! ### Subcommands
 //!
-//! Subcommands are defined as [`Command`][crate::Command]s that get added via
+//! Subcommands are defined as [`Command`]s that get added via
 //! [`Command::subcommand`][crate::Command::subcommand]. Each instance of a Subcommand can have its
 //! own version, author(s), Args, and even its own subcommands.
 //!
@@ -202,13 +202,13 @@
 //!
 //! ### Argument Relations
 //!
-//! You can declare dependencies or conflicts between [`Arg`][crate::Arg]s or even
-//! [`ArgGroup`][crate::ArgGroup]s.
+//! You can declare dependencies or conflicts between [`Arg`]s or even
+//! [`ArgGroup`]s.
 //!
-//! [`ArgGroup`][crate::ArgGroup]s  make it easier to declare relations instead of having to list
+//! [`ArgGroup`]s  make it easier to declare relations instead of having to list
 //! each individually, or when you want a rule to apply "any but not all" arguments.
 //!
-//! Perhaps the most common use of [`ArgGroup`][crate::ArgGroup]s is to require one and *only* one
+//! Perhaps the most common use of [`ArgGroup`]s is to require one and *only* one
 //! argument to be present out of a given set. Imagine that you had multiple arguments, and you
 //! want one of them to be required, but making all of them required isn't feasible because perhaps
 //! they conflict with each other.

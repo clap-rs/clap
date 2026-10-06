@@ -49,7 +49,7 @@
 //! ```
 #![doc = include_str!("../../examples/tutorial_derive/02_crate.md")]
 //!
-//! You can use `#[command]` attributes on the struct to change the application level behavior of clap.  Any [`Command`][crate::Command] builder function can be used as an attribute, like [`Command::next_line_help`].
+//! You can use `#[command]` attributes on the struct to change the application level behavior of clap.  Any [`Command`] builder function can be used as an attribute, like [`Command::next_line_help`].
 //!
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/02_app_settings.rs")]
@@ -123,7 +123,7 @@
 //! ```
 #![doc = include_str!("../../examples/tutorial_derive/03_01_flag_count.md")]
 //!
-//! This also shows that any[`Arg`][crate::Args] method may be used as an attribute.
+//! This also shows that any[`Arg`] method may be used as an attribute.
 //!
 //! ### Optional
 //!
@@ -208,19 +208,19 @@
 //!
 //! ### Argument Relations
 //!
-//! You can declare dependencies or conflicts between [`Arg`][crate::Arg]s or even
-//! [`ArgGroup`][crate::ArgGroup]s.
+//! You can declare dependencies or conflicts between [`Arg`]s or even
+//! [`ArgGroup`]s.
 //!
-//! [`ArgGroup`][crate::ArgGroup]s  make it easier to declare relations instead of having to list
+//! [`ArgGroup`]s  make it easier to declare relations instead of having to list
 //! each individually, or when you want a rule to apply "any but not all" arguments.
 //!
-//! Perhaps the most common use of [`ArgGroup`][crate::ArgGroup]s is to require one and *only* one
+//! Perhaps the most common use of [`ArgGroup`]s is to require one and *only* one
 //! argument to be present out of a given set. Imagine that you had multiple arguments, and you
 //! want one of them to be required, but making all of them required isn't feasible because perhaps
 //! they conflict with each other.
 //!
-//! [`ArgGroup`][crate::ArgGroup]s are automatically created for a `struct` with its
-//! [`ArgGroup::id`][crate::ArgGroup::id] being the struct's name.
+//! [`ArgGroup`]s are automatically created for a `struct` with its
+//! [`ArgGroup::id`] being the struct's name.
 //!
 //! ```rust
 #![doc = include_str!("../../examples/tutorial_derive/04_03_relations.rs")]
