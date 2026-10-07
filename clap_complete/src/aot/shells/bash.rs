@@ -176,10 +176,12 @@ fn option_details_for_path(cmd: &Command, path: &str) -> String {
     let mut opts = vec![String::new()];
 
     for o in p.get_opts() {
+        let (val_expr, needs_ifs_guard) = vals_for(o);
         let compopt = match o.get_value_hint() {
             ValueHint::FilePath => Some("compopt -o filenames"),
             ValueHint::DirPath => Some("compopt -o plusdirs"),
             ValueHint::Other => Some("compopt -o nospace"),
+            _ if needs_ifs_guard => Some("compopt -o filenames"),
             _ => None,
         };
 
@@ -187,20 +189,20 @@ fn option_details_for_path(cmd: &Command, path: &str) -> String {
             opts.extend(longs.iter().map(|long| {
                 let mut v = vec![format!("--{})", long)];
 
-                if o.get_value_hint() == ValueHint::FilePath {
+                if needs_ifs_guard {
                     v.extend([
                         "local oldifs".to_owned(),
                         r#"if [ -n "${IFS+x}" ]; then"#.to_owned(),
                         r#"    oldifs="$IFS""#.to_owned(),
                         "fi".to_owned(),
                         r#"IFS=$'\n'"#.to_owned(),
-                        format!("COMPREPLY=({})", vals_for(o)),
+                        format!("COMPREPLY=({val_expr})"),
                         r#"if [ -n "${oldifs+x}" ]; then"#.to_owned(),
                         r#"    IFS="$oldifs""#.to_owned(),
                         "fi".to_owned(),
                     ]);
                 } else {
-                    v.push(format!("COMPREPLY=({})", vals_for(o)));
+                    v.push(format!("COMPREPLY=({val_expr})"));
                 }
 
                 if let Some(copt) = compopt {
@@ -220,20 +222,20 @@ fn option_details_for_path(cmd: &Command, path: &str) -> String {
             opts.extend(shorts.iter().map(|short| {
                 let mut v = vec![format!("-{})", short)];
 
-                if o.get_value_hint() == ValueHint::FilePath {
+                if needs_ifs_guard {
                     v.extend([
                         "local oldifs".to_owned(),
                         r#"if [ -n "${IFS+x}" ]; then"#.to_owned(),
                         r#"    oldifs="$IFS""#.to_owned(),
                         "fi".to_owned(),
                         r#"IFS=$'\n'"#.to_owned(),
-                        format!("COMPREPLY=({})", vals_for(o)),
+                        format!("COMPREPLY=({val_expr})"),
                         r#"if [ -n "${oldifs+x}" ]; then"#.to_owned(),
                         r#"    IFS="$oldifs""#.to_owned(),
                         "fi".to_owned(),
                     ]);
                 } else {
-                    v.push(format!("COMPREPLY=({})", vals_for(o)));
+                    v.push(format!("COMPREPLY=({val_expr})"));
                 }
 
                 if let Some(copt) = compopt {
@@ -253,24 +255,27 @@ fn option_details_for_path(cmd: &Command, path: &str) -> String {
     opts.join("\n                ")
 }
 
-fn vals_for(o: &Arg) -> String {
+fn vals_for(o: &Arg) -> (String, bool) {
     debug!("vals_for: o={}", o.get_id());
 
     if let Some(vals) = utils::possible_values(o) {
-        format!(
-            "$(compgen -W \"{}\" -- \"${{cur}}\")",
-            vals.iter()
-                .filter(|pv| !pv.is_hide_set())
-                .map(|n| n.get_name())
-                .collect::<Vec<_>>()
-                .join(" ")
+        (
+            format!(
+                "$(compgen -W \"{}\" -- \"${{cur}}\")",
+                vals.iter()
+                    .filter(|pv| !pv.is_hide_set())
+                    .map(|n| n.get_name())
+                    .collect::<Vec<_>>()
+                    .join(" ")
+            ),
+            false,
         )
     } else if o.get_value_hint() == ValueHint::DirPath {
-        String::from("") // should be empty to avoid duplicate candidates
+        (String::from(""), false) // should be empty to avoid duplicate candidates
     } else if o.get_value_hint() == ValueHint::Other {
-        String::from("\"${cur}\"")
+        (String::from("\"${cur}\""), false)
     } else {
-        String::from("$(compgen -f \"${cur}\")")
+        (String::from("$(compgen -f \"${cur}\")"), true)
     }
 }
 
