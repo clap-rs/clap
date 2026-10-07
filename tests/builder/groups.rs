@@ -384,10 +384,9 @@ For more information, try '--help'.
     );
 }
 
-/* This is used to be fixed in a hack, we need to find a better way to fix it.
 #[test]
 fn issue_1794() {
-    let cmd = clap::Command::new("hello")
+    let cmd = Command::new("hello")
         .bin_name("deno")
         .arg(Arg::new("option1").long("option1").action(ArgAction::SetTrue))
         .arg(Arg::new("pos1").action(ArgAction::Set))
@@ -405,9 +404,33 @@ fn issue_1794() {
 
     let m = cmd
         .clone()
-        .try_get_matches_from(["cmd", "--option1", "positional"]).unwrap();
+        .try_get_matches_from(["cmd", "--option1", "positional"])
+        .unwrap();
     assert_eq!(m.get_one::<String>("pos1").map(|v| v.as_str()), None);
     assert_eq!(m.get_one::<String>("pos2").map(|v| v.as_str()), Some("positional"));
     assert!(*m.get_one::<bool>("option1").expect("defaulted by clap"));
 }
-*/
+
+#[test]
+fn issue_1794_skips_only_grouped_positionals() {
+    let cmd = Command::new("hello")
+        .bin_name("deno")
+        .arg(Arg::new("pos1").action(ArgAction::Set))
+        .arg(Arg::new("option2").long("option2").action(ArgAction::SetTrue))
+        .arg(Arg::new("pos2").action(ArgAction::Set))
+        .group(
+            ArgGroup::new("arg2")
+                .args(["pos2", "option2"])
+                .required(true),
+        );
+
+    let m = cmd
+        .try_get_matches_from(["cmd", "--option2", "positional"])
+        .unwrap();
+    assert_eq!(
+        m.get_one::<String>("pos1").map(|v| v.as_str()),
+        Some("positional")
+    );
+    assert_eq!(m.get_one::<String>("pos2").map(|v| v.as_str()), None);
+    assert!(*m.get_one::<bool>("option2").expect("defaulted by clap"));
+}
