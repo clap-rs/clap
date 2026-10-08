@@ -160,7 +160,10 @@ set edit:completion:arg-completer[BIN] = { |@words|
     var index = (count $words)
     set index = (- $index 1)
 
-    put (env _CLAP_IFS="\n" _CLAP_COMPLETE_INDEX=(to-string $index) VAR="elvish" COMPLETER -- $@words) | to-lines
+    tmp E:_CLAP_IFS = "\n"
+    tmp E:_CLAP_COMPLETE_INDEX = (to-string $index)
+    tmp E:VAR = "elvish"
+    put (COMPLETER -- $@words) | to-lines
 }
 "#
         .replace("COMPLETER", &completer)
