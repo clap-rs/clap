@@ -435,3 +435,23 @@ tests/snapshots    tests/testsuite    tests/examples.rs
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 }
+
+#[test]
+#[cfg(all(unix, feature = "unstable-dynamic"))]
+#[cfg(feature = "unstable-shell-tests")]
+fn complete_dynamic_dir_tilde() {
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let term = completest::Term::new();
+    let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
+
+    // Completing `~/` should not backslash-escape the tilde on insertion (#6365).
+    let input = "exhaustive hint --file ~/\t\t";
+    let actual = runtime.complete(input, &term).unwrap();
+    assert!(
+        !actual.contains(r#"\~"#),
+        "actual output should not escape tilde to '\\~':\n{actual}"
+    );
+}
