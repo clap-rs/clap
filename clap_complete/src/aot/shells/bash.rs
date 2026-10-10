@@ -26,7 +26,7 @@ impl Generator for Bash {
             .get_bin_name()
             .expect("crate::generate should have set the bin_name");
 
-        let fn_name = bin_name.replace('-', "__");
+        let fn_name = bin_name.replace('-', HYPHEN_REP);
 
         write!(
             buf,
@@ -99,7 +99,7 @@ fn all_subcommands(cmd: &Command, parent_fn_name: &str) -> String {
         let fn_name = format!(
             "{parent_fn_name}{CMD_SEP}{cmd_name}",
             parent_fn_name = parent_fn_name,
-            cmd_name = cmd.get_name().to_owned().replace('-', CMD_SEP)
+            cmd_name = cmd.get_name().to_owned().replace('-', HYPHEN_REP)
         );
         subcmds.push((
             parent_fn_name.to_owned(),
@@ -159,7 +159,7 @@ fn subcommand_details(cmd: &Command) -> String {
             COMPREPLY=( $(compgen -W \"${{opts}}\" -- \"${{cur}}\") )
             return 0
             ;;",
-            subcmd = sc.replace('-', CMD_SEP),
+            subcmd = sc.replace('-', HYPHEN_REP),
             sc_opts = all_options_for_path(cmd, sc),
             level = sc.split(CMD_SEP).map(|_| 1).sum::<u64>(),
             opts_details = option_details_for_path(cmd, sc)
@@ -307,3 +307,4 @@ fn all_options_for_path(cmd: &Command, path: &str) -> String {
 }
 
 const CMD_SEP: &str = "__subcmd__";
+const HYPHEN_REP: &str = "__";
