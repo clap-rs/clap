@@ -342,7 +342,11 @@ Register-ArgumentCompleter -Native -CommandName {bin} -ScriptBlock {{
     $args = $commandAst.Extent.Text
     $args = $args.Substring(0, [math]::Min($cursorPosition, $args.Length));
     if ($wordToComplete -eq "") {{
-        $args += " ''";
+        if ($null -eq $PSNativeCommandArgumentPassing -or $PSNativeCommandArgumentPassing -eq 'Legacy') {{
+            $args += ' ""';
+        }} else {{
+            $args += " ''";
+        }}
     }}
 
     $results = Invoke-Expression @"
