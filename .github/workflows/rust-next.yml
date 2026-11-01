@@ -69,7 +69,7 @@ jobs:
     - name: Install Rust
       run: rustup update --no-self-update ${{ matrix.rust }} && rustup default ${{ matrix.rust }}
     - name: Initialize cache
-      uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
     - name: Install shells
       if: runner.os == 'Linux'
       run: sudo apt-get install -y elvish fish zsh
@@ -105,9 +105,9 @@ jobs:
     - name: Install Rust
       run: rustup update --no-self-update stable && rustup default stable
     - name: Initialize cache
-      uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
     - name: Install cargo-hack
-      uses: taiki-e/install-action@4cef1412cce204788f482e778a0b9187f9626a29  # v2.87.21
+      uses: taiki-e/install-action@86f7a0ffb25f40114606501a311ebcfaf882ea32  # v2.88.0
       with:
         tool: cargo-hack
     - name: Install shells

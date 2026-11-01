@@ -75,7 +75,7 @@ jobs:
     - name: Install Rust
       run: rustup update --no-self-update ${{ matrix.rust }} && rustup default ${{ matrix.rust }}
     - name: Initialize cache
-      uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
     - name: Build
       run: make build-${{matrix.features}}
     - name: Test
@@ -98,7 +98,7 @@ jobs:
     - name: Install Rust
       run: rustup update --no-self-update $RUST_TOOLCHAIN_STABLE && rustup default $RUST_TOOLCHAIN_STABLE
     - name: Initialize cache
-      uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
     - name: Install shells
       if: runner.os == 'Linux'
       run: sudo apt-get install -y elvish fish zsh
@@ -115,7 +115,7 @@ jobs:
     - name: Install Rust
       run: rustup update --no-self-update $RUST_TOOLCHAIN_STABLE && rustup default $RUST_TOOLCHAIN_STABLE
     - name: Initialize cache
-      uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
     - name: clap_complete_nu
       run: cargo test -p clap_complete_nushell -F unstable-shell-tests
   check:
@@ -154,7 +154,7 @@ jobs:
     - name: Install Rust
       run: rustup toolchain install $RUST_TOOLCHAIN_STABLE --target ${{ matrix.target }} && rustup default $RUST_TOOLCHAIN_STABLE
     - name: Initialize cache
-      uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
     - name: Check
       run: make check-${{ matrix.features }}
       env:
@@ -174,7 +174,7 @@ jobs:
     - name: Install Rust
       run: rustup update --no-self-update $RUST_TOOLCHAIN_STABLE && rustup default $RUST_TOOLCHAIN_STABLE
     - name: Initialize cache
-      uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
     - name: UI Tests
       run: make test-ui-${{ matrix.features }}
   minimal-versions:
@@ -206,7 +206,7 @@ jobs:
     - name: Install Rust
       run: rustup update --no-self-update stable && rustup default stable
     - name: Initialize cache
-      uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
     - name: "Is lockfile updated?"
       run: cargo update --workspace --locked
   docs:
@@ -220,7 +220,7 @@ jobs:
     - name: Install Rust
       run: rustup update --no-self-update $RUST_TOOLCHAIN_STABLE && rustup default $RUST_TOOLCHAIN_STABLE
     - name: Initialize cache
-      uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
     - name: Check documentation
       env:
         CARGO_BUILD_WARNINGS: deny
@@ -238,7 +238,7 @@ jobs:
     - name: Install rustfmt
       run: rustup component add rustfmt
     - name: Initialize cache
-      uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
     - name: Check formatting
       run: cargo fmt --check
   clippy:
@@ -254,7 +254,7 @@ jobs:
     - name: Install clippy
       run: rustup component add clippy
     - name: Initialize cache
-      uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
     - name: Lint (ultra-minimal)
       run: make clippy-minimal ARGS='--manifest-path Cargo.toml'
     - name: Lint (minimal)
@@ -276,14 +276,14 @@ jobs:
     - name: Install Rust
       run: rustup update --no-self-update stable && rustup default stable
     - name: Initialize cache
-      uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
     - name: Install cargo-tarpaulin
       run: cargo install cargo-tarpaulin
     - name: Gather coverage
       run: cargo tarpaulin --out xml
     - name: Upload coverage report
       if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-      uses: actions/upload-code-coverage@d8e329117199404bba6fc81efe8093dc7c015e34 # v1.4.2
+      uses: actions/upload-code-coverage@2b21a77928be8d5168c2b9581a67f2adbebacc52 # v1.4.4
       with:
         file: cobertura.xml
         language: Rust
