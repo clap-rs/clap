@@ -350,3 +350,42 @@ fn ignore_hyphen_values_on_last() {
         Some("foo")
     );
 }
+
+#[test]
+fn double_dash_splits_when_not_allowed_as_value() {
+    let cmd = Command::new("prog")
+        .arg(
+            Arg::new("before")
+                .action(ArgAction::Set)
+                .num_args(0..)
+                .allow_hyphen_values(true)
+                .allow_dash_dash_as_value(false),
+        )
+        .arg(
+            Arg::new("after")
+                .action(ArgAction::Set)
+                .num_args(0..)
+                .last(true)
+                .allow_hyphen_values(true),
+        );
+
+    let matches = cmd
+        .try_get_matches_from(["prog", "--release", "--", "--expand-errors", "--rlimit=100"])
+        .unwrap();
+
+    let before: Vec<_> = matches
+        .get_many::<String>("before")
+        .into_iter()
+        .flatten()
+        .map(|s| s.as_str())
+        .collect();
+    assert_eq!(before, vec!["--release"]);
+
+    let after: Vec<_> = matches
+        .get_many::<String>("after")
+        .into_iter()
+        .flatten()
+        .map(|s| s.as_str())
+        .collect();
+    assert_eq!(after, vec!["--expand-errors", "--rlimit=100"]);
+}
