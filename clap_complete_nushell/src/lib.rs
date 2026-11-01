@@ -157,7 +157,11 @@ fn append_argument(arg: &Arg, name: &str, s: &mut String) {
     }
 
     let shorts = arg.get_short_and_visible_aliases();
-    let longs = arg.get_long_and_visible_aliases();
+    let longs = arg.get_long_and_visible_aliases().and_then(|mut longs| {
+        // Nushell extern signatures cannot represent long options containing dots.
+        longs.retain(|long| !long.contains('.'));
+        (!longs.is_empty()).then_some(longs)
+    });
 
     match shorts {
         Some(shorts) => match longs {
@@ -193,16 +197,15 @@ fn append_argument(arg: &Arg, name: &str, s: &mut String) {
                 }
             }
         },
-        None => match longs {
-            Some(longs) => {
+        None => {
+            if let Some(longs) = longs {
                 // long options only
                 for long in longs {
                     s.push_str(format!("    --{long}").as_str());
                     append_value_completion_and_help(arg, name, &possible_values, s);
                 }
             }
-            None => unreachable!("No short or long options found"),
-        },
+        }
     }
 }
 
