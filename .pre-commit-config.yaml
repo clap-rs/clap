@@ -23,6 +23,6 @@ repos:
     hooks:
     - id: committed
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
-    rev: v1.28.0
+    rev: v1.31.1
     hooks:
     - id: zizmor
