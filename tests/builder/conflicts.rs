@@ -1002,3 +1002,27 @@ fn group_conrflicts_with_subcommands() {
     let err = res.err().unwrap();
     assert_eq!(err.kind(), ErrorKind::ArgumentConflict);
 }
+
+#[test]
+fn exclusive_with_required_group() {
+    let cmd = Command::new("bug")
+        .arg(
+            Arg::new("test")
+                .long("test")
+                .action(ArgAction::SetTrue)
+                .exclusive(true),
+        )
+        .arg(Arg::new("a").long("a").action(ArgAction::SetTrue))
+        .arg(Arg::new("b").long("b").action(ArgAction::SetTrue))
+        .group(ArgGroup::new("ab").args(["a", "b"]).required(true));
+
+    cmd.clone().try_get_matches_from(["bug", "--test"]).unwrap();
+
+    cmd.clone().try_get_matches_from(["bug", "--a"]).unwrap();
+
+    cmd.clone()
+        .try_get_matches_from(["bug", "--test", "--a"])
+        .unwrap_err();
+
+    cmd.clone().try_get_matches_from(["bug"]).unwrap_err();
+}

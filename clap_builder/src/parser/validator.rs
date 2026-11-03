@@ -256,11 +256,12 @@ impl<'cmd> Validator<'cmd> {
                 }
             } else if let Some(group) = self.cmd.find_group(arg_or_group) {
                 debug!("Validator::validate_required:iter: This is a group");
-                if !self
-                    .cmd
-                    .unroll_args_in_group(&group.id)
-                    .iter()
-                    .any(|a| matcher.check_explicit(a, &ArgPredicate::IsPresent))
+                if !is_exclusive_present
+                    && !self
+                        .cmd
+                        .unroll_args_in_group(&group.id)
+                        .iter()
+                        .any(|a| matcher.check_explicit(a, &ArgPredicate::IsPresent))
                 {
                     debug!(
                         "Validator::validate_required:iter: Missing {:?}",
