@@ -191,6 +191,48 @@ fn subcommand_last() {
 }
 
 #[test]
+fn nested_subcommands() {
+    let name = "my-app";
+    let cmd = clap::Command::new(name).subcommand(
+        clap::Command::new("level1").subcommand(
+            clap::Command::new("level2").subcommand(
+                clap::Command::new("level3")
+                    .arg(
+                        clap::Arg::new("opt3")
+                            .long("opt3")
+                            .action(clap::ArgAction::Set),
+                    )
+                    .subcommand(
+                        clap::Command::new("level4").arg(
+                            clap::Arg::new("opt4")
+                                .long("opt4")
+                                .action(clap::ArgAction::Set),
+                        ),
+                    ),
+            ),
+        ),
+    );
+    let mut buf = Vec::new();
+    clap_complete::generate(
+        clap_complete::shells::Fish,
+        &mut cmd.clone(),
+        name,
+        &mut buf,
+    );
+    let output = String::from_utf8(buf).unwrap();
+
+    assert!(output.contains(
+        "__fish_my_app_using_subcommand level1; and __fish_seen_subcommand_from level2; and __fish_seen_subcommand_from level3; and not __fish_seen_subcommand_from level4 help"
+    ));
+    assert!(output.contains(
+        "__fish_my_app_using_subcommand level1; and __fish_seen_subcommand_from level2; and __fish_seen_subcommand_from level3; and __fish_seen_subcommand_from level4"
+    ));
+    assert!(output.contains("-l opt3"));
+    assert!(output.contains("-l opt4"));
+    assert!(output.contains("-a \"level4\""));
+}
+
+#[test]
 #[cfg(unix)]
 #[cfg(feature = "unstable-shell-tests")]
 fn register_completion() {
