@@ -43,6 +43,8 @@ _{name}() {{
 
     local context curcontext=\"$curcontext\" state line
     {initial_args}{subcommands}
+
+    return $ret
 }}
 
 {subcommand_details}

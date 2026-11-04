@@ -561,6 +561,8 @@ esac
         esac
     ;;
 esac
+
+    return $ret
 }
 
 (( $+functions[_exhaustive_commands] )) ||

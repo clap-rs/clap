@@ -19,6 +19,8 @@ _my-app() {
 '--help[Print help]' \
 '*;::arguments -- multi-valued argument with a value terminator:_default' \
 && ret=0
+
+    return $ret
 }
 
 (( $+functions[_my-app_commands] )) ||
