@@ -242,6 +242,47 @@ fn default_if_arg_present_no_arg_with_default() {
 }
 
 #[test]
+fn default_if_arg_present_ignores_defaulted_flag() {
+    // Regression test for https://github.com/clap-rs/clap/issues/4918:
+    // an absent `SetTrue` flag still holds its default `false`, but that
+    // must not satisfy `IsPresent`.  The result must not depend on whether
+    // the flag is declared before or after the conditional arg.
+    for trigger_first in [true, false] {
+        let trigger = Arg::new("flag")
+            .long("flag")
+            .action(ArgAction::SetTrue);
+        let other = Arg::new("other")
+            .long("other")
+            .default_value_if("flag", ArgPredicate::IsPresent, Some("default"));
+        let cmd = if trigger_first {
+            Command::new("prog").arg(trigger).arg(other)
+        } else {
+            Command::new("prog").arg(other).arg(trigger)
+        };
+        let m = cmd.try_get_matches_from(vec!["prog"]).unwrap();
+        assert_eq!(m.get_one::<String>("other"), None);
+
+        // The conditional default still fires when the flag is really given.
+        let trigger = Arg::new("flag")
+            .long("flag")
+            .action(ArgAction::SetTrue);
+        let other = Arg::new("other")
+            .long("other")
+            .default_value_if("flag", ArgPredicate::IsPresent, Some("default"));
+        let cmd = if trigger_first {
+            Command::new("prog").arg(trigger).arg(other)
+        } else {
+            Command::new("prog").arg(other).arg(trigger)
+        };
+        let m = cmd.try_get_matches_from(vec!["prog", "--flag"]).unwrap();
+        assert_eq!(
+            m.get_one::<String>("other").map(|v| v.as_str()),
+            Some("default")
+        );
+    }
+}
+
+#[test]
 fn default_if_arg_present_with_default() {
     let r = Command::new("df")
         .arg(arg!(--opt <FILE> "some arg"))

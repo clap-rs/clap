@@ -1457,16 +1457,18 @@ impl<'cmd> Parser<'cmd> {
             debug!("Parser::add_default_value: has conditional defaults");
             if !matcher.contains(arg.get_id()) {
                 for (id, val, default) in arg.default_vals_ifs.iter() {
-                    let add = if let Some(a) = matcher.get(id) {
-                        match val {
-                            crate::builder::ArgPredicate::Equals(v) => {
-                                a.raw_vals_flatten().any(|value| v == value)
-                            }
-                            crate::builder::ArgPredicate::IsPresent => true,
-                        }
-                    } else {
-                        false
-                    };
+                    // Use the same explicitness check as the rest of the
+                    // validator: a trigger that only holds its default value
+                    // (e.g. an absent `SetTrue` flag, which defaults to
+                    // `false`) must not count as present.  Checking the raw
+                    // matcher entry instead made the result depend on whether
+                    // the trigger was declared before the conditional arg,
+                    // since `add_defaults` processes args in declaration
+                    // order and fills in defaults as it goes.
+                    let add = matcher
+                        .get(id)
+                        .map(|a| a.check_explicit(val))
+                        .unwrap_or(false);
 
                     if add {
                         if let Some(default) = default {
