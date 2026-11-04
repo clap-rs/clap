@@ -131,6 +131,18 @@ fn all_subcommands(cmd: &Command, parent_fn_name: &str) -> String {
     cases.join("\n            ")
 }
 
+/// Both halves turn a `-` in a subcommand name into `CMD_SEP`, but the
+/// leading binary name is mangled with `__` there, so it has to be here
+/// too. A hyphen in it would otherwise make every label unreachable.
+fn case_label(path: &str) -> String {
+    let mut segments = path.split(CMD_SEP);
+    let bin_name = segments.next().unwrap_or_default().replace('-', "__");
+    std::iter::once(bin_name)
+        .chain(segments.map(|segment| segment.replace('-', CMD_SEP)))
+        .collect::<Vec<_>>()
+        .join(CMD_SEP)
+}
+
 fn subcommand_details(cmd: &Command) -> String {
     debug!("subcommand_details");
 
@@ -159,7 +171,7 @@ fn subcommand_details(cmd: &Command) -> String {
             COMPREPLY=( $(compgen -W \"${{opts}}\" -- \"${{cur}}\") )
             return 0
             ;;",
-            subcmd = sc.replace('-', CMD_SEP),
+            subcmd = case_label(sc),
             sc_opts = all_options_for_path(cmd, sc),
             level = sc.split(CMD_SEP).map(|_| 1).sum::<u64>(),
             opts_details = option_details_for_path(cmd, sc)
