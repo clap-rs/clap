@@ -67,19 +67,19 @@ _exhaustive() {
                 cmd="exhaustive__subcmd__global__subcmd__help__subcmd__two"
                 ;;
             exhaustive__subcmd__global__subcmd__help__subcmd__one,one-one)
-                cmd="exhaustive__subcmd__global__subcmd__help__subcmd__one__subcmd__one__subcmd__one"
+                cmd="exhaustive__subcmd__global__subcmd__help__subcmd__one__subcmd__one__one"
                 ;;
             exhaustive__subcmd__global__subcmd__one,help)
                 cmd="exhaustive__subcmd__global__subcmd__one__subcmd__help"
                 ;;
             exhaustive__subcmd__global__subcmd__one,one-one)
-                cmd="exhaustive__subcmd__global__subcmd__one__subcmd__one__subcmd__one"
+                cmd="exhaustive__subcmd__global__subcmd__one__subcmd__one__one"
                 ;;
             exhaustive__subcmd__global__subcmd__one__subcmd__help,help)
                 cmd="exhaustive__subcmd__global__subcmd__one__subcmd__help__subcmd__help"
                 ;;
             exhaustive__subcmd__global__subcmd__one__subcmd__help,one-one)
-                cmd="exhaustive__subcmd__global__subcmd__one__subcmd__help__subcmd__one__subcmd__one"
+                cmd="exhaustive__subcmd__global__subcmd__one__subcmd__help__subcmd__one__one"
                 ;;
             exhaustive__subcmd__help,action)
                 cmd="exhaustive__subcmd__help__subcmd__action"
@@ -118,7 +118,7 @@ _exhaustive() {
                 cmd="exhaustive__subcmd__help__subcmd__global__subcmd__two"
                 ;;
             exhaustive__subcmd__help__subcmd__global__subcmd__one,one-one)
-                cmd="exhaustive__subcmd__help__subcmd__global__subcmd__one__subcmd__one__subcmd__one"
+                cmd="exhaustive__subcmd__help__subcmd__global__subcmd__one__subcmd__one__one"
                 ;;
             exhaustive__subcmd__help__subcmd__pacman,one)
                 cmd="exhaustive__subcmd__help__subcmd__pacman__subcmd__one"
@@ -127,25 +127,25 @@ _exhaustive() {
                 cmd="exhaustive__subcmd__help__subcmd__pacman__subcmd__two"
                 ;;
             exhaustive__subcmd__help__subcmd__quote,cmd-backslash)
-                cmd="exhaustive__subcmd__help__subcmd__quote__subcmd__cmd__subcmd__backslash"
+                cmd="exhaustive__subcmd__help__subcmd__quote__subcmd__cmd__backslash"
                 ;;
             exhaustive__subcmd__help__subcmd__quote,cmd-backticks)
-                cmd="exhaustive__subcmd__help__subcmd__quote__subcmd__cmd__subcmd__backticks"
+                cmd="exhaustive__subcmd__help__subcmd__quote__subcmd__cmd__backticks"
                 ;;
             exhaustive__subcmd__help__subcmd__quote,cmd-brackets)
-                cmd="exhaustive__subcmd__help__subcmd__quote__subcmd__cmd__subcmd__brackets"
+                cmd="exhaustive__subcmd__help__subcmd__quote__subcmd__cmd__brackets"
                 ;;
             exhaustive__subcmd__help__subcmd__quote,cmd-double-quotes)
-                cmd="exhaustive__subcmd__help__subcmd__quote__subcmd__cmd__subcmd__double__subcmd__quotes"
+                cmd="exhaustive__subcmd__help__subcmd__quote__subcmd__cmd__double__quotes"
                 ;;
             exhaustive__subcmd__help__subcmd__quote,cmd-expansions)
-                cmd="exhaustive__subcmd__help__subcmd__quote__subcmd__cmd__subcmd__expansions"
+                cmd="exhaustive__subcmd__help__subcmd__quote__subcmd__cmd__expansions"
                 ;;
             exhaustive__subcmd__help__subcmd__quote,cmd-single-quotes)
-                cmd="exhaustive__subcmd__help__subcmd__quote__subcmd__cmd__subcmd__single__subcmd__quotes"
+                cmd="exhaustive__subcmd__help__subcmd__quote__subcmd__cmd__single__quotes"
                 ;;
             exhaustive__subcmd__help__subcmd__quote,escape-help)
-                cmd="exhaustive__subcmd__help__subcmd__quote__subcmd__escape__subcmd__help"
+                cmd="exhaustive__subcmd__help__subcmd__quote__subcmd__escape__help"
                 ;;
             exhaustive__subcmd__pacman,help)
                 cmd="exhaustive__subcmd__pacman__subcmd__help"
@@ -166,49 +166,49 @@ _exhaustive() {
                 cmd="exhaustive__subcmd__pacman__subcmd__help__subcmd__two"
                 ;;
             exhaustive__subcmd__quote,cmd-backslash)
-                cmd="exhaustive__subcmd__quote__subcmd__cmd__subcmd__backslash"
+                cmd="exhaustive__subcmd__quote__subcmd__cmd__backslash"
                 ;;
             exhaustive__subcmd__quote,cmd-backticks)
-                cmd="exhaustive__subcmd__quote__subcmd__cmd__subcmd__backticks"
+                cmd="exhaustive__subcmd__quote__subcmd__cmd__backticks"
                 ;;
             exhaustive__subcmd__quote,cmd-brackets)
-                cmd="exhaustive__subcmd__quote__subcmd__cmd__subcmd__brackets"
+                cmd="exhaustive__subcmd__quote__subcmd__cmd__brackets"
                 ;;
             exhaustive__subcmd__quote,cmd-double-quotes)
-                cmd="exhaustive__subcmd__quote__subcmd__cmd__subcmd__double__subcmd__quotes"
+                cmd="exhaustive__subcmd__quote__subcmd__cmd__double__quotes"
                 ;;
             exhaustive__subcmd__quote,cmd-expansions)
-                cmd="exhaustive__subcmd__quote__subcmd__cmd__subcmd__expansions"
+                cmd="exhaustive__subcmd__quote__subcmd__cmd__expansions"
                 ;;
             exhaustive__subcmd__quote,cmd-single-quotes)
-                cmd="exhaustive__subcmd__quote__subcmd__cmd__subcmd__single__subcmd__quotes"
+                cmd="exhaustive__subcmd__quote__subcmd__cmd__single__quotes"
                 ;;
             exhaustive__subcmd__quote,escape-help)
-                cmd="exhaustive__subcmd__quote__subcmd__escape__subcmd__help"
+                cmd="exhaustive__subcmd__quote__subcmd__escape__help"
                 ;;
             exhaustive__subcmd__quote,help)
                 cmd="exhaustive__subcmd__quote__subcmd__help"
                 ;;
             exhaustive__subcmd__quote__subcmd__help,cmd-backslash)
-                cmd="exhaustive__subcmd__quote__subcmd__help__subcmd__cmd__subcmd__backslash"
+                cmd="exhaustive__subcmd__quote__subcmd__help__subcmd__cmd__backslash"
                 ;;
             exhaustive__subcmd__quote__subcmd__help,cmd-backticks)
-                cmd="exhaustive__subcmd__quote__subcmd__help__subcmd__cmd__subcmd__backticks"
+                cmd="exhaustive__subcmd__quote__subcmd__help__subcmd__cmd__backticks"
                 ;;
             exhaustive__subcmd__quote__subcmd__help,cmd-brackets)
-                cmd="exhaustive__subcmd__quote__subcmd__help__subcmd__cmd__subcmd__brackets"
+                cmd="exhaustive__subcmd__quote__subcmd__help__subcmd__cmd__brackets"
                 ;;
             exhaustive__subcmd__quote__subcmd__help,cmd-double-quotes)
-                cmd="exhaustive__subcmd__quote__subcmd__help__subcmd__cmd__subcmd__double__subcmd__quotes"
+                cmd="exhaustive__subcmd__quote__subcmd__help__subcmd__cmd__double__quotes"
                 ;;
             exhaustive__subcmd__quote__subcmd__help,cmd-expansions)
-                cmd="exhaustive__subcmd__quote__subcmd__help__subcmd__cmd__subcmd__expansions"
+                cmd="exhaustive__subcmd__quote__subcmd__help__subcmd__cmd__expansions"
                 ;;
             exhaustive__subcmd__quote__subcmd__help,cmd-single-quotes)
-                cmd="exhaustive__subcmd__quote__subcmd__help__subcmd__cmd__subcmd__single__subcmd__quotes"
+                cmd="exhaustive__subcmd__quote__subcmd__help__subcmd__cmd__single__quotes"
                 ;;
             exhaustive__subcmd__quote__subcmd__help,escape-help)
-                cmd="exhaustive__subcmd__quote__subcmd__help__subcmd__escape__subcmd__help"
+                cmd="exhaustive__subcmd__quote__subcmd__help__subcmd__escape__help"
                 ;;
             exhaustive__subcmd__quote__subcmd__help,help)
                 cmd="exhaustive__subcmd__quote__subcmd__help__subcmd__help"
@@ -363,7 +363,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__global__subcmd__help__subcmd__one__subcmd__one__subcmd__one)
+        exhaustive__subcmd__global__subcmd__help__subcmd__one__subcmd__one__one)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 5 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -433,7 +433,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__global__subcmd__one__subcmd__help__subcmd__one__subcmd__one)
+        exhaustive__subcmd__global__subcmd__one__subcmd__help__subcmd__one__one)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 5 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -447,7 +447,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__global__subcmd__one__subcmd__one__subcmd__one)
+        exhaustive__subcmd__global__subcmd__one__subcmd__one__one)
             opts="-h -V --global --help --version"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -559,7 +559,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__help__subcmd__global__subcmd__one__subcmd__one__subcmd__one)
+        exhaustive__subcmd__help__subcmd__global__subcmd__one__subcmd__one__one)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 5 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -685,7 +685,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__help__subcmd__quote__subcmd__cmd__subcmd__backslash)
+        exhaustive__subcmd__help__subcmd__quote__subcmd__cmd__backslash)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -699,7 +699,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__help__subcmd__quote__subcmd__cmd__subcmd__backticks)
+        exhaustive__subcmd__help__subcmd__quote__subcmd__cmd__backticks)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -713,7 +713,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__help__subcmd__quote__subcmd__cmd__subcmd__brackets)
+        exhaustive__subcmd__help__subcmd__quote__subcmd__cmd__brackets)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -727,7 +727,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__help__subcmd__quote__subcmd__cmd__subcmd__double__subcmd__quotes)
+        exhaustive__subcmd__help__subcmd__quote__subcmd__cmd__double__quotes)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -741,7 +741,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__help__subcmd__quote__subcmd__cmd__subcmd__expansions)
+        exhaustive__subcmd__help__subcmd__quote__subcmd__cmd__expansions)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -755,7 +755,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__help__subcmd__quote__subcmd__cmd__subcmd__single__subcmd__quotes)
+        exhaustive__subcmd__help__subcmd__quote__subcmd__cmd__single__quotes)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -769,7 +769,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__help__subcmd__quote__subcmd__escape__subcmd__help)
+        exhaustive__subcmd__help__subcmd__quote__subcmd__escape__help)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -1052,7 +1052,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__quote__subcmd__cmd__subcmd__backslash)
+        exhaustive__subcmd__quote__subcmd__cmd__backslash)
             opts="-h --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -1066,7 +1066,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__quote__subcmd__cmd__subcmd__backticks)
+        exhaustive__subcmd__quote__subcmd__cmd__backticks)
             opts="-h --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -1080,7 +1080,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__quote__subcmd__cmd__subcmd__brackets)
+        exhaustive__subcmd__quote__subcmd__cmd__brackets)
             opts="-h --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -1094,7 +1094,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__quote__subcmd__cmd__subcmd__double__subcmd__quotes)
+        exhaustive__subcmd__quote__subcmd__cmd__double__quotes)
             opts="-h --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -1108,7 +1108,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__quote__subcmd__cmd__subcmd__expansions)
+        exhaustive__subcmd__quote__subcmd__cmd__expansions)
             opts="-h --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -1122,7 +1122,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__quote__subcmd__cmd__subcmd__single__subcmd__quotes)
+        exhaustive__subcmd__quote__subcmd__cmd__single__quotes)
             opts="-h --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -1136,7 +1136,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__quote__subcmd__escape__subcmd__help)
+        exhaustive__subcmd__quote__subcmd__escape__help)
             opts="-h --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -1164,7 +1164,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__quote__subcmd__help__subcmd__cmd__subcmd__backslash)
+        exhaustive__subcmd__quote__subcmd__help__subcmd__cmd__backslash)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -1178,7 +1178,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__quote__subcmd__help__subcmd__cmd__subcmd__backticks)
+        exhaustive__subcmd__quote__subcmd__help__subcmd__cmd__backticks)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -1192,7 +1192,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__quote__subcmd__help__subcmd__cmd__subcmd__brackets)
+        exhaustive__subcmd__quote__subcmd__help__subcmd__cmd__brackets)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -1206,7 +1206,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__quote__subcmd__help__subcmd__cmd__subcmd__double__subcmd__quotes)
+        exhaustive__subcmd__quote__subcmd__help__subcmd__cmd__double__quotes)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -1220,7 +1220,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__quote__subcmd__help__subcmd__cmd__subcmd__expansions)
+        exhaustive__subcmd__quote__subcmd__help__subcmd__cmd__expansions)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -1234,7 +1234,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__quote__subcmd__help__subcmd__cmd__subcmd__single__subcmd__quotes)
+        exhaustive__subcmd__quote__subcmd__help__subcmd__cmd__single__quotes)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -1248,7 +1248,7 @@ _exhaustive() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        exhaustive__subcmd__quote__subcmd__help__subcmd__escape__subcmd__help)
+        exhaustive__subcmd__quote__subcmd__help__subcmd__escape__help)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
