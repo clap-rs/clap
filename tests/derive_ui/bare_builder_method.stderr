@@ -1,0 +1,5 @@
+error: attribute `hide_env_values` requires a value, e.g. `hide_env_values = true` for a boolean builder method
+ --> tests/derive_ui/bare_builder_method.rs:5:50
+  |
+5 |     #[arg(short, long, env = "PROGRAM_PASSWORD", hide_env_values)]
+  |                                                  ^^^^^^^^^^^^^^^
