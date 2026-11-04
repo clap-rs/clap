@@ -264,7 +264,7 @@ _exhaustive() {
             return 0
             ;;
         exhaustive__subcmd__alias)
-            opts="-F -f -O -o -h --flg --flag --opt --option --help"
+            opts="-F -f -O -o -h --flg --flag --opt --option --help pos1 pos2"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
