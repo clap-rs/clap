@@ -88,6 +88,40 @@ fn option_mixed() {
 }
 
 #[test]
+fn option_attached_value_then_separate_values() {
+    let cmd = Command::new("multiple_values").arg(
+        Arg::new("option")
+            .long("option")
+            .short('o')
+            .help("multiple options")
+            .num_args(1..)
+            .action(ArgAction::Append),
+    );
+
+    for args in [
+        vec!["", "--option", "val1", "val2"],
+        vec!["", "--option=val1", "val2"],
+        vec!["", "-o", "val1", "val2"],
+        vec!["", "-o=val1", "val2"],
+        vec!["", "-oval1", "val2"],
+    ] {
+        let m = cmd.clone().try_get_matches_from(args);
+
+        assert!(m.is_ok(), "{}", m.unwrap_err());
+        let m = m.unwrap();
+
+        assert!(m.contains_id("option"));
+        assert_eq!(
+            m.get_many::<String>("option")
+                .unwrap()
+                .map(|v| v.as_str())
+                .collect::<Vec<_>>(),
+            ["val1", "val2"]
+        );
+    }
+}
+
+#[test]
 fn option_exact_exact() {
     let m = Command::new("multiple_values")
         .arg(

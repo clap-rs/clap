@@ -1059,6 +1059,28 @@ impl<'cmd> Parser<'cmd> {
                 })
             }
         } else if let Some(v) = attached_value {
+            let accepts_more = arg
+                .get_num_args()
+                .map(|range| 1 < range.max_values())
+                .unwrap_or(false);
+            if accepts_more {
+                // An attached value (`--opt=value`, `-o=value`, `-ovalue`) is
+                // only the first value of this occurrence; remaining values
+                // may follow as separate arguments, just like when the first
+                // value is given separately (`--opt value ...`).  Seed the
+                // pending values and stay in the `Opt` state while more
+                // values are accepted.
+                ok!(self.resolve_pending(matcher));
+                let trailing_values = false;
+                let arg_values =
+                    matcher.pending_values_mut(arg.get_id(), Some(ident), trailing_values);
+                arg_values.push(v.to_owned());
+                if matcher.needs_more_vals(arg) {
+                    return Ok(ParseResult::Opt(arg.get_id().clone()));
+                }
+                ok!(self.resolve_pending(matcher));
+                return Ok(ParseResult::ValuesDone);
+            }
             let arg_values = vec![v.to_owned()];
             let trailing_idx = None;
             let react_result = ok!(self.react(
