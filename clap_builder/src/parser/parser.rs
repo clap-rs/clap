@@ -924,6 +924,10 @@ impl<'cmd> Parser<'cmd> {
 
         let skip = self.flag_subcmd_skip;
         self.flag_subcmd_skip = 0;
+        if skip == 0 {
+            // Reset any previous flag subcommand starting position when beginning a new flag argument
+            self.flag_subcmd_at = None;
+        }
         let res = short_arg.advance_by(skip);
         debug_assert_eq!(
             res,
