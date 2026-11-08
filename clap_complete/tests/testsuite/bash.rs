@@ -401,6 +401,45 @@ another  shell    bash     fish     zsh
 }
 
 #[test]
+#[cfg(unix)]
+#[cfg(feature = "unstable-shell-tests")]
+fn complete_file_with_unset_ifs() {
+    use snapbox::IntoData as _;
+
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let name = "my-app";
+    let mut cmd = common::value_hint_command(name);
+
+    let mut script = vec![];
+    clap_complete::generate(clap_complete::shells::Bash, &mut cmd, name, &mut script);
+
+    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+    let script_path = testdir.path().unwrap().join("my-app.bash");
+    std::fs::write(&script_path, script).unwrap();
+
+    let output = std::process::Command::new(CMD)
+        .arg("-c")
+        .arg(
+            r#"source "$1"
+unset IFS
+COMP_WORDS=(my-app --file "")
+COMP_CWORD=2
+_my__app my-app "" --file 2>/dev/null
+if [ -n "${IFS+x}" ]; then printf 'IFS=%q' "$IFS"; else printf 'IFS unset'; fi"#,
+        )
+        .arg(CMD)
+        .arg(&script_path)
+        .output()
+        .unwrap();
+
+    let actual = String::from_utf8_lossy(&output.stdout).into_owned();
+    assert_data_eq!(actual, snapbox::str![[r#"IFS=$'\n'"#]].raw());
+}
+
+#[test]
 #[cfg(all(unix, feature = "unstable-dynamic"))]
 #[cfg(feature = "unstable-shell-tests")]
 fn register_dynamic_env() {
