@@ -436,7 +436,7 @@ if [ -n "${IFS+x}" ]; then printf 'IFS=%q' "$IFS"; else printf 'IFS unset'; fi"#
         .unwrap();
 
     let actual = String::from_utf8_lossy(&output.stdout).into_owned();
-    assert_data_eq!(actual, snapbox::str![[r#"IFS=$'\n'"#]].raw());
+    assert_data_eq!(actual, snapbox::str!["IFS unset"].raw());
 }
 
 #[test]

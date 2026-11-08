@@ -191,15 +191,8 @@ fn option_details_for_path(cmd: &Command, path: &str) -> String {
 
                 if needs_ifs_guard {
                     v.extend([
-                        "local oldifs".to_owned(),
-                        r#"if [ -n "${IFS+x}" ]; then"#.to_owned(),
-                        r#"    oldifs="$IFS""#.to_owned(),
-                        "fi".to_owned(),
-                        r#"IFS=$'\n'"#.to_owned(),
+                        r#"local IFS=$'\n'"#.to_owned(),
                         format!("COMPREPLY=({val_expr})"),
-                        r#"if [ -n "${oldifs+x}" ]; then"#.to_owned(),
-                        r#"    IFS="$oldifs""#.to_owned(),
-                        "fi".to_owned(),
                     ]);
                 } else {
                     v.push(format!("COMPREPLY=({val_expr})"));
@@ -224,15 +217,8 @@ fn option_details_for_path(cmd: &Command, path: &str) -> String {
 
                 if needs_ifs_guard {
                     v.extend([
-                        "local oldifs".to_owned(),
-                        r#"if [ -n "${IFS+x}" ]; then"#.to_owned(),
-                        r#"    oldifs="$IFS""#.to_owned(),
-                        "fi".to_owned(),
-                        r#"IFS=$'\n'"#.to_owned(),
+                        r#"local IFS=$'\n'"#.to_owned(),
                         format!("COMPREPLY=({val_expr})"),
-                        r#"if [ -n "${oldifs+x}" ]; then"#.to_owned(),
-                        r#"    IFS="$oldifs""#.to_owned(),
-                        "fi".to_owned(),
                     ]);
                 } else {
                     v.push(format!("COMPREPLY=({val_expr})"));
