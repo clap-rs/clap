@@ -728,3 +728,28 @@ fn flag_subcommand_short_normal_usage_string() {
         false,
     );
 }
+
+#[test]
+fn nested_flag_subcommands_chained_short_flags() {
+    let cmd = Command::new("prog")
+        .arg(Arg::new("name").action(ArgAction::Set))
+        .subcommand(
+            Command::new("add")
+                .short_flag('a')
+                .arg(Arg::new("option").short('o').action(ArgAction::Set))
+                .subcommand(
+                    Command::new("config")
+                        .short_flag('c')
+                        .arg(Arg::new("save").short('s').action(ArgAction::SetTrue)),
+                ),
+        );
+
+    let m = cmd.try_get_matches_from(["prog", "somename", "-aoa", "-cs"]).unwrap();
+    assert_eq!(m.get_one::<String>("name").map(|s| s.as_str()), Some("somename"));
+    let (sub_name, sub_m) = m.subcommand().unwrap();
+    assert_eq!(sub_name, "add");
+    assert_eq!(sub_m.get_one::<String>("option").map(|s| s.as_str()), Some("a"));
+    let (nested_name, nested_m) = sub_m.subcommand().unwrap();
+    assert_eq!(nested_name, "config");
+    assert!(nested_m.get_flag("save"));
+}
