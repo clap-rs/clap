@@ -249,7 +249,11 @@ _exhaustive() {
             fi
             case "${prev}" in
                 --set)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 --choice)
@@ -271,19 +275,35 @@ _exhaustive() {
             fi
             case "${prev}" in
                 --option)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 --opt)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 -o)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 -O)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 *)
@@ -809,7 +829,11 @@ _exhaustive() {
                     return 0
                     ;;
                 --unknown)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 --other)
@@ -820,38 +844,32 @@ _exhaustive() {
                     return 0
                     ;;
                 --path)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 -p)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 --file)
-                    local oldifs
-                    if [ -n "${IFS+x}" ]; then
-                        oldifs="$IFS"
-                    fi
-                    IFS=$'\n'
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
-                    if [ -n "${oldifs+x}" ]; then
-                        IFS="$oldifs"
-                    fi
                     if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
                         compopt -o filenames
                     fi
                     return 0
                     ;;
                 -f)
-                    local oldifs
-                    if [ -n "${IFS+x}" ]; then
-                        oldifs="$IFS"
-                    fi
-                    IFS=$'\n'
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
-                    if [ -n "${oldifs+x}" ]; then
-                        IFS="$oldifs"
-                    fi
                     if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
                         compopt -o filenames
                     fi
@@ -872,47 +890,91 @@ _exhaustive() {
                     return 0
                     ;;
                 --exe)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 -e)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 --cmd-name)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 --cmd)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 -c)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 --user)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 -u)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 --host)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 -H)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 --url)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 --email)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 *)
@@ -1284,15 +1346,27 @@ _exhaustive() {
             fi
             case "${prev}" in
                 --delim)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 --tuple)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 --require-eq)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 *)

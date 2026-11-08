@@ -30,19 +30,35 @@ _my__app() {
             fi
             case "${prev}" in
                 --option)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 --opt)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 -o)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 -O)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 *)
