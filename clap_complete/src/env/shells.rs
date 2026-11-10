@@ -330,6 +330,9 @@ impl EnvCompleter for Powershell {
         // `completer` may or may not be surrounded by double quotes, enclosing
         // the expression in a here-string ensures the whole thing is
         // interpreted as the first argument to the call operator
+        // Windows PowerShell 5.1 and PowerShell 7.0 to 7.2 drop an empty
+        // string argument under legacy native argument passing, so the
+        // empty word is passed as `""` there (see #6548).
         writeln!(
             buf,
             r#"
@@ -596,64 +599,6 @@ complete --keep-order --exclusive --command /ignored/bin --arguments "(V=fish '/
             snapbox::str![[r#"
 complete --keep-order --exclusive --command 'dyn\\amic' --arguments "(V=fish /p/completer -- (commandline --current-process --tokenize --cut-at-cursor) (commandline --current-token))"
 
-"#]]
-            .raw()
-        );
-    }
-
-    // Windows PowerShell 5.1 and PowerShell 7.0 to 7.2 drop an empty string
-    // argument under legacy native argument passing, so the empty word
-    // must be passed as `""` there.
-    // See https://github.com/clap-rs/clap/issues/6548
-    #[test]
-    #[cfg(feature = "unstable-dynamic")]
-    fn powershell_env_registration_empty_word() {
-        let mut buf = Vec::new();
-        Powershell
-            .write_registration("V", "n", "/ignored/bin", "/p/completer", &mut buf)
-            .expect("write_registration failed");
-        let script = String::from_utf8(buf).expect("Invalid UTF-8");
-        assert_data_eq!(
-            script.trim(),
-            snapbox::str![[r#"
-Register-ArgumentCompleter -Native -CommandName /ignored/bin -ScriptBlock {
-    param($wordToComplete, $commandAst, $cursorPosition)
-
-    $prev = $env:V;
-    $env:V = "powershell";
-
-    $args = $commandAst.Extent.Text
-    $args = $args.Substring(0, [math]::Min($cursorPosition, $args.Length));
-    if ($wordToComplete -eq "") {
-        if ($null -eq $PSNativeCommandArgumentPassing -or $PSNativeCommandArgumentPassing -eq 'Legacy') {
-            $args += ' ''""''';
-        } else {
-            $args += " ''";
-        }
-    }
-
-    $results = Invoke-Expression @"
-& /p/completer -- $args
-"@;
-    if ($null -eq $prev) {
-        Remove-Item Env:\V;
-    } else {
-        $env:V = $prev;
-    }
-    $results | ForEach-Object {
-        $split = $_.Split("`t");
-        $cmd = $split[0];
-
-        if ($split.Length -eq 2) {
-            $help = $split[1];
-        }
-        else {
-            $help = $split[0];
-        }
-
-        [System.Management.Automation.CompletionResult]::new($cmd, $cmd, 'ParameterValue', $help)
-    }
-};
 "#]]
             .raw()
         );

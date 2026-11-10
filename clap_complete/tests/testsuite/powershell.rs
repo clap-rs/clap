@@ -1,3 +1,12 @@
+#[allow(unused_imports)]
+use clap_complete::env::EnvCompleter;
+#[allow(unused_imports)]
+use clap_complete::env::Powershell;
+#[allow(unused_imports)]
+use snapbox::IntoData as _;
+#[allow(unused_imports)]
+use snapbox::assert_data_eq;
+
 use crate::common;
 
 #[test]
@@ -180,3 +189,60 @@ fn subcommand_last() {
         name,
     );
 }
+
+// Snapshot of the generated PowerShell registration script, not a test
+// of completion behaviour: it pins the `""` empty-word handling under
+// legacy native argument passing (see #6548).
+    #[test]
+    #[cfg(feature = "unstable-dynamic")]
+    fn powershell_env_registration_snapshot() {
+        let mut buf = Vec::new();
+        Powershell
+            .write_registration("V", "n", "/ignored/bin", "/p/completer", &mut buf)
+            .expect("write_registration failed");
+        let script = String::from_utf8(buf).expect("Invalid UTF-8");
+        assert_data_eq!(
+            script.trim(),
+            snapbox::str![[r#"
+Register-ArgumentCompleter -Native -CommandName /ignored/bin -ScriptBlock {
+    param($wordToComplete, $commandAst, $cursorPosition)
+
+    $prev = $env:V;
+    $env:V = "powershell";
+
+    $args = $commandAst.Extent.Text
+    $args = $args.Substring(0, [math]::Min($cursorPosition, $args.Length));
+    if ($wordToComplete -eq "") {
+        if ($null -eq $PSNativeCommandArgumentPassing -or $PSNativeCommandArgumentPassing -eq 'Legacy') {
+            $args += ' ''""''';
+        } else {
+            $args += " ''";
+        }
+    }
+
+    $results = Invoke-Expression @"
+& /p/completer -- $args
+"@;
+    if ($null -eq $prev) {
+        Remove-Item Env:\V;
+    } else {
+        $env:V = $prev;
+    }
+    $results | ForEach-Object {
+        $split = $_.Split("`t");
+        $cmd = $split[0];
+
+        if ($split.Length -eq 2) {
+            $help = $split[1];
+        }
+        else {
+            $help = $split[0];
+        }
+
+        [System.Management.Automation.CompletionResult]::new($cmd, $cmd, 'ParameterValue', $help)
+    }
+};
+"#]]
+            .raw()
+        );
+    }

@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
-### Fixes
-
-- *(env/powershell)* Pass the empty word as `""` under legacy native argument passing (Windows PowerShell 5.1, PowerShell 7.0 to 7.2)
-
 ## [4.6.11] - 2026-09-15
 
 ### Fixes
