@@ -330,6 +330,9 @@ impl EnvCompleter for Powershell {
         // `completer` may or may not be surrounded by double quotes, enclosing
         // the expression in a here-string ensures the whole thing is
         // interpreted as the first argument to the call operator
+        // Windows PowerShell 5.1 and PowerShell 7.0 to 7.2 drop an empty
+        // string argument under legacy native argument passing, so the
+        // empty word is passed as `""` there (see #6548).
         writeln!(
             buf,
             r#"
@@ -342,7 +345,11 @@ Register-ArgumentCompleter -Native -CommandName {bin} -ScriptBlock {{
     $args = $commandAst.Extent.Text
     $args = $args.Substring(0, [math]::Min($cursorPosition, $args.Length));
     if ($wordToComplete -eq "") {{
-        $args += " ''";
+        if ($null -eq $PSNativeCommandArgumentPassing -or $PSNativeCommandArgumentPassing -eq 'Legacy') {{
+            $args += ' ''""''';
+        }} else {{
+            $args += " ''";
+        }}
     }}
 
     $results = Invoke-Expression @"
