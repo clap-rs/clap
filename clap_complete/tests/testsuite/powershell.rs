@@ -1,5 +1,7 @@
+#[cfg(feature = "unstable-dynamic")]
 #[allow(unused_imports)]
 use clap_complete::env::EnvCompleter;
+#[cfg(feature = "unstable-dynamic")]
 #[allow(unused_imports)]
 use clap_complete::env::Powershell;
 #[allow(unused_imports)]
