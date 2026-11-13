@@ -238,6 +238,74 @@ fn register_dynamic_env() {
 }
 
 #[test]
+#[cfg(all(unix, feature = "unstable-dynamic", feature = "unstable-shell-tests"))]
+fn dynamic_env_registration_survives_compinit() {
+    use clap_complete::env::EnvCompleter as _;
+
+    // This does not use a PTY, so it also works with macOS's system zsh.
+    for bin in ["myprog", "my-prog", "custom-bin"] {
+        for mode in ["autoload", "source"] {
+            let scratch = snapbox::dir::DirRoot::mutable_temp().unwrap();
+            let root = scratch.path().unwrap();
+            let mut registration = Vec::new();
+            clap_complete::env::Zsh
+                .write_registration("COMPLETE", "myprog", bin, "completer", &mut registration)
+                .unwrap();
+            std::fs::write(root.join(format!("_{bin}")), registration).unwrap();
+
+            let script = r#"
+if [[ $2 != source ]]; then
+    fpath=("$PWD" $fpath)
+fi
+autoload -Uz compinit
+compinit -u -d "$PWD/.zcompdump"
+
+# Exercise the generated adapter without needing an interactive completion widget.
+bin_name=$1
+completer() {
+    [[ $COMPLETE == zsh && $_CLAP_COMPLETE_INDEX == 2 ]] || return 1
+    [[ $# == 4 && $1 == -- && $2 == $bin_name && $3 == --format && -z $4 ]] || return 1
+    print -r -- 'json:JSON'
+}
+_describe() { print -rl -- "${(@P)3}"; }
+words=("$1" --format '')
+CURRENT=3
+if [[ $2 == source ]]; then
+    # Sourcing must register the command even when its file is not on fpath.
+    source "$PWD/_$1"
+    fpath=("$PWD" $fpath)
+fi
+print -r -- "${_comps[$1]}"
+${_comps[$1]}
+${_comps[$1]}
+print -r -- "${_comps[$1]}"
+
+# A rescan must not cache a function that has no corresponding file in fpath.
+rm -f "$PWD/.zcompdump"
+compinit -u -d "$PWD/.zcompdump"
+"#;
+            // The second process must load the dump produced by the first, without sourcing.
+            for startup in [mode, "cached"] {
+                let output = std::process::Command::new(CMD)
+                    .args(["-f", "-c", script, "zsh", bin, startup])
+                    .env("ZDOTDIR", root)
+                    .current_dir(root)
+                    .output()
+                    .unwrap();
+                assert!(output.status.success(), "{bin}: {mode}: {startup}");
+                assert_data_eq!(String::from_utf8(output.stderr).unwrap(), "");
+                assert_data_eq!(
+                    String::from_utf8(output.stdout).unwrap(),
+                    format!("_{bin}\njson:JSON\njson:JSON\n_{bin}\n")
+                );
+                assert!(root.join(".zcompdump").exists());
+            }
+            scratch.close().unwrap();
+        }
+    }
+}
+
+#[test]
 #[cfg(all(unix, feature = "unstable-dynamic"))]
 #[cfg(feature = "unstable-shell-tests")]
 fn complete_dynamic_env_toplevel() {
@@ -248,7 +316,7 @@ fn complete_dynamic_env_toplevel() {
     let term = completest::Term::new();
     let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
-    let input = "exhaustive \t\t";
+    let input = "exhaustive \t";
     let expected = snapbox::str![[r#"
 % exhaustive
 help            -- Print this message or the help of the given subcommand(s)
@@ -272,7 +340,7 @@ fn complete_dynamic_env_quoted_help() {
     let term = completest::Term::new();
     let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
-    let input = "exhaustive quote \t\t";
+    let input = "exhaustive quote \t";
     let expected = snapbox::str![[r#"
 % exhaustive quote
 --help                              -- Print help (see more with '--help')                                            
@@ -301,7 +369,7 @@ fn complete_dynamic_env_option_value() {
     let term = completest::Term::new();
     let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
-    let input = "exhaustive action --choice=\t\t";
+    let input = "exhaustive action --choice=\t";
     let expected = snapbox::str![[r#"
 % exhaustive action --choice=
 --choice=first   --choice=second
@@ -309,7 +377,7 @@ fn complete_dynamic_env_option_value() {
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
-    let input = "exhaustive action --choice=f\t\t";
+    let input = "exhaustive action --choice=f\t";
     let expected = snapbox::str!["% exhaustive action --choice=first "];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -326,7 +394,7 @@ fn complete_dynamic_env_quoted_value() {
     let term = completest::Term::new();
     let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
-    let input = "exhaustive quote --choice \t\t";
+    let input = "exhaustive quote --choice \t";
     let expected = snapbox::str![[r#"
 % exhaustive quote --choice
 another shell  -- something with a space
@@ -337,7 +405,7 @@ zsh            -- zsh shell
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
-    let input = "exhaustive quote --choice an\t\t";
+    let input = "exhaustive quote --choice an\t";
     let expected = snapbox::str!["% exhaustive quote --choice another/ shell "];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -354,7 +422,7 @@ fn complete_dynamic_empty_subcommand() {
     let term = completest::Term::new();
     let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
-    let input = "exhaustive empty \t\t";
+    let input = "exhaustive empty \t";
     let expected = snapbox::str!["% exhaustive empty "];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
@@ -389,7 +457,7 @@ fn complete_dynamic_empty_space() {
     let mut runtime = common::load_runtime::<RuntimeBuilder>("dynamic-env", "exhaustive");
 
     // Press left arrow twice to place cursor between the two spaces
-    let input = "exhaustive quote  -\x1b[D\x1b[D\t\t";
+    let input = "exhaustive quote  -\x1b[D\x1b[D\t";
     let expected = snapbox::str![[r#"
 % exhaustive quote  -
 --help                              -- Print help (see more with '--help')                                            
@@ -420,14 +488,14 @@ fn complete_dynamic_dir_no_trailing_space() {
 
     // First, complete to the directory name with slash.
     // A trailing slash should not be added after the slash.
-    let input = "exhaustive hint --file tes\t\t";
+    let input = "exhaustive hint --file tes\t";
     let expected = snapbox::str!["% exhaustive hint --file tests/"];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
 
     // Verify hitting tab again shows the directory contents.
     // This only works if there is no trailing space after the slash.
-    let input = "exhaustive hint --file tests/\t\t";
+    let input = "exhaustive hint --file tests/\t";
     let expected = snapbox::str![[r#"
 % exhaustive hint --file tests/
 tests/snapshots    tests/testsuite    tests/examples.rs

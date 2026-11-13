@@ -1,5 +1,5 @@
 #compdef exhaustive
-function _clap_dynamic_completer_exhaustive() {
+function _exhaustive() {
     local _CLAP_COMPLETE_INDEX=$(expr $CURRENT - 1)
     local _CLAP_IFS=$'\n'
 
@@ -33,4 +33,8 @@ function _clap_dynamic_completer_exhaustive() {
     fi
 }
 
-compdef _clap_dynamic_completer_exhaustive exhaustive
+if [ "$funcstack[1]" = _exhaustive ]; then
+    _exhaustive "$@"
+else
+    compdef _exhaustive exhaustive
+fi
