@@ -92,13 +92,13 @@ mod tests {
 
     #[test]
     fn emojis_have_correct_width() {
-        use unic_emoji_char::is_emoji;
+        use unicode_properties::UnicodeEmoji as _;
 
         // Emojis in the Basic Latin (ASCII) and Latin-1 Supplement
         // blocks all have a width of 1 column. This includes
         // characters such as '#' and '©'.
         for ch in '\u{1}'..'\u{FF}' {
-            if is_emoji(ch) {
+            if ch.is_emoji_char() {
                 let desc = format!("{:?} U+{:04X}", ch, ch as u32);
 
                 #[cfg(feature = "unicode")]
@@ -116,7 +116,7 @@ mod tests {
         // columns wide otherwise. This includes all of our favorite
         // emojis such as 😊.
         for ch in '\u{FF}'..'\u{2FFFF}' {
-            if is_emoji(ch) {
+            if ch.is_emoji_char() {
                 let desc = format!("{:?} U+{:04X}", ch, ch as u32);
 
                 #[cfg(feature = "unicode")]

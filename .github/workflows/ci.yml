@@ -103,6 +103,9 @@ jobs:
       if: runner.os == 'Linux'
       run: sudo apt-get install -y elvish fish zsh
     - name: clap_complete
+      env:
+        # completest-pty does not answer Fish 4's terminal capability queries.
+        fish_features: no-query-term
       run: cargo test -p clap_complete -F unstable-dynamic -F unstable-shell-tests
   shell-integration-nu:
     name: Nushell Integration
@@ -277,10 +280,12 @@ jobs:
       run: rustup update --no-self-update stable && rustup default stable
     - name: Initialize cache
       uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
-    - name: Install cargo-tarpaulin
-      run: cargo install cargo-tarpaulin
+    - name: Install coverage tools
+      run: |
+        rustup component add llvm-tools-preview
+        cargo install cargo-llvm-cov --locked
     - name: Gather coverage
-      run: cargo tarpaulin --out xml
+      run: cargo llvm-cov --workspace --cobertura --output-path cobertura.xml
     - name: Upload coverage report
       if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
       uses: actions/upload-code-coverage@2b21a77928be8d5168c2b9581a67f2adbebacc52 # v1.4.4
