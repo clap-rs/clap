@@ -196,7 +196,9 @@ jobs:
     - name: Initialize cache
       uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
     - name: Install cargo-tarpaulin
-      run: cargo install cargo-tarpaulin
+      uses: taiki-e/install-action@37f7c5781271959fb65b6b35224e28652ff2b63d  # v2.87.0
+      with:
+        tool: cargo-tarpaulin
     - name: Gather coverage
       run: cargo tarpaulin --out xml
     - name: Upload coverage report
