@@ -15,7 +15,7 @@ release = false
 [dev-dependencies]
 clap = { path = "../", version = "4.6.6", default-features = false, features = ["std", "help"] }
 divan = "0.1.21"
-lazy_static = "1.5.0"
+lazy_static = "1.5.1"
 
 [[bench]]
 harness = false
