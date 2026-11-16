@@ -24,5 +24,5 @@ help: the following other types implement trait `Subcommand`
   | ^^^^^^^^^^^^^^^^^^^^^^ `()`
 ...
   | impl Subcommand for Infallible {
-  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `Infallible`
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `!`
   = note: this error originates in the derive macro `clap::Parser` (in Nightly builds, run with -Z macro-backtrace for more info)
