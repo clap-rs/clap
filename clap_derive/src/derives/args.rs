@@ -150,20 +150,21 @@ pub(crate) fn gen_for_struct(
             clippy::suspicious_else_formatting,
             clippy::almost_swapped,
             clippy::redundant_locals,
+            clippy::self_assignment,
         )]
         #[automatically_derived]
         impl #impl_generics clap::Args for #item_name #ty_generics #where_clause {
             fn group_id() -> Option<clap::Id> {
                 #group_id
             }
-            fn augment_args<'b>(#app_var: clap::Command) -> clap::Command {
-                let #app_var = #app_var #initial_app_methods;
-                let #app_var = #augmentation;
+            fn augment_args<'b>(mut #app_var: clap::Command) -> clap::Command {
+                #app_var = #app_var #initial_app_methods;
+                #app_var = #augmentation;
                 #app_var #final_app_methods
             }
-            fn augment_args_for_update<'b>(#app_var: clap::Command) -> clap::Command {
-                let #app_var = #app_var #initial_app_methods;
-                let #app_var = #augmentation_update;
+            fn augment_args_for_update<'b>(mut #app_var: clap::Command) -> clap::Command {
+                #app_var = #app_var #initial_app_methods;
+                #app_var = #augmentation_update;
                 #app_var #final_app_methods
             }
         }
@@ -220,8 +221,8 @@ pub(crate) fn gen_augment(
                 };
 
                 Some(quote! {
-                    let #app_var = <#subcmd_type as clap::Subcommand>::augment_subcommands( #app_var );
-                    let #app_var = #app_var
+                    #app_var = <#subcmd_type as clap::Subcommand>::augment_subcommands( #app_var );
+                    #app_var = #app_var
                         #implicit_methods
                         #override_methods;
                 })
@@ -244,18 +245,18 @@ pub(crate) fn gen_augment(
                 if override_required {
                     Some(quote_spanned! { kind.span()=>
                         #flatten_group_assert
-                        let #app_var = #app_var
+                        #app_var = #app_var
                             #next_help_heading
                             #next_display_order;
-                        let #app_var = <#inner_type as clap::Args>::augment_args_for_update(#app_var);
+                        #app_var = <#inner_type as clap::Args>::augment_args_for_update(#app_var);
                     })
                 } else {
                     Some(quote_spanned! { kind.span()=>
                         #flatten_group_assert
-                        let #app_var = #app_var
+                        #app_var = #app_var
                             #next_help_heading
                             #next_display_order;
-                        let #app_var = <#inner_type as clap::Args>::augment_args(#app_var);
+                        #app_var = <#inner_type as clap::Args>::augment_args(#app_var);
                     })
                 }
             }
@@ -360,17 +361,17 @@ pub(crate) fn gen_augment(
                 };
 
                 Some(quote_spanned! { field.span()=>
-                    let #app_var = #app_var.arg({
+                    #app_var = #app_var.arg({
                         #deprecations
 
                         #[allow(deprecated)]
-                        let arg = clap::Arg::new(#id)
+                        let mut arg = clap::Arg::new(#id)
                             #implicit_methods;
 
-                        let arg = arg
+                        arg = arg
                             #explicit_methods;
 
-                        let arg = arg
+                        arg = arg
                             #override_methods;
 
                         arg
@@ -435,7 +436,7 @@ pub(crate) fn gen_augment(
     };
     Ok(quote! {{
         #deprecations
-        let #app_var = #app_var
+        #app_var = #app_var
             #group_app_methods
             ;
         #( #args )*

@@ -121,17 +121,18 @@ pub(crate) fn gen_for_enum(
             clippy::suspicious_else_formatting,
             clippy::almost_swapped,
             clippy::redundant_locals,
+            clippy::self_assignment,
         )]
         #[automatically_derived]
         impl #impl_generics clap::Subcommand for #item_name #ty_generics #where_clause {
-            fn augment_subcommands <'b>(__clap_app: clap::Command) -> clap::Command {
-                let __clap_app = __clap_app #initial_app_methods;
-                let __clap_app = #augmentation;
+            fn augment_subcommands <'b>(mut __clap_app: clap::Command) -> clap::Command {
+                __clap_app = __clap_app #initial_app_methods;
+                __clap_app = #augmentation;
                 __clap_app #final_app_methods
             }
-            fn augment_subcommands_for_update <'b>(__clap_app: clap::Command) -> clap::Command {
-                let __clap_app = __clap_app #initial_app_methods;
-                let __clap_app = #augmentation_update;
+            fn augment_subcommands_for_update <'b>(mut __clap_app: clap::Command) -> clap::Command {
+                __clap_app = __clap_app #initial_app_methods;
+                __clap_app = #augmentation_update;
                 __clap_app #final_app_methods
             }
             fn has_subcommand(__clap_name: &str) -> bool {
@@ -179,7 +180,7 @@ fn gen_augment(
                 })?;
                 let subcommand = quote_spanned! { kind.span()=>
                     #deprecations
-                    let #app_var = #app_var
+                    #app_var = #app_var
                         .external_subcommand_value_parser(clap::value_parser!(#subty));
                 };
                 Some(subcommand)
@@ -198,18 +199,18 @@ fn gen_augment(
                     let subcommand = if override_required {
                         quote! {
                             #deprecations
-                            let #app_var = #app_var
+                            #app_var = #app_var
                                 #next_help_heading
                                 #next_display_order;
-                            let #app_var = <#ty as clap::Subcommand>::augment_subcommands_for_update(#app_var);
+                            #app_var = <#ty as clap::Subcommand>::augment_subcommands_for_update(#app_var);
                         }
                     } else {
                         quote! {
                             #deprecations
-                            let #app_var = #app_var
+                            #app_var = #app_var
                                 #next_help_heading
                                 #next_display_order;
-                            let #app_var = <#ty as clap::Subcommand>::augment_subcommands(#app_var);
+                            #app_var = <#ty as clap::Subcommand>::augment_subcommands(#app_var);
                         }
                     };
                     Some(subcommand)
@@ -271,14 +272,14 @@ fn gen_augment(
                     quote!()
                 };
                 let subcommand = quote! {
-                    let #app_var = #app_var.subcommand({
+                    #app_var = #app_var.subcommand({
                         #deprecations;
-                        let #subcommand_var = clap::Command::new(#name);
-                        let #subcommand_var = #subcommand_var
+                        let mut #subcommand_var = clap::Command::new(#name);
+                        #subcommand_var = #subcommand_var
                             .subcommand_required(true)
                             .arg_required_else_help(true);
-                        let #subcommand_var = #subcommand_var #initial_app_methods;
-                        let #subcommand_var = #arg_block;
+                        #subcommand_var = #subcommand_var #initial_app_methods;
+                        #subcommand_var = #arg_block;
                         #subcommand_var #final_from_attrs #override_methods
                     });
                 };
@@ -334,7 +335,7 @@ fn gen_augment(
 
                 let sub_augment = if parent_item.defer() {
                     quote! {
-                        #subcommand_var.defer(|#subcommand_var| { #sub_augment })
+                        #subcommand_var.defer(|mut #subcommand_var| { #sub_augment })
                     }
                 } else {
                     sub_augment
@@ -347,11 +348,11 @@ fn gen_augment(
                 };
                 let name = item.cased_name();
                 let subcommand = quote! {
-                    let #app_var = #app_var.subcommand({
+                    #app_var = #app_var.subcommand({
                         #deprecations
-                        let #subcommand_var = clap::Command::new(#name)
+                        let mut #subcommand_var = clap::Command::new(#name)
                             #initial_app_methods;
-                        let #subcommand_var = #sub_augment;
+                        #subcommand_var = #sub_augment;
                         #subcommand_var #final_from_attrs
                     });
                 };
