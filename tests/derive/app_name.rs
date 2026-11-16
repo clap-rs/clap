@@ -15,13 +15,17 @@ fn app_name_in_short_help_from_struct() {
 
     let help = get_help::<MyApp>();
 
-    assert_data_eq!(help, str![[r#"
+    assert_data_eq!(
+        help,
+        str![[r#"
 Usage: my-cmd
 
 Options:
   -h, --help  Print help
 
-"#]].raw());
+"#]]
+        .raw()
+    );
 }
 
 #[test]
@@ -32,48 +36,72 @@ fn app_name_in_long_help_from_struct() {
 
     let help = get_help::<MyApp>();
 
-    assert_data_eq!(help, str![[r#"
+    assert_data_eq!(
+        help,
+        str![[r#"
 Usage: my-cmd
 
 Options:
   -h, --help  Print help
 
-"#]].raw());
+"#]]
+        .raw()
+    );
 }
 
 #[test]
 fn app_name_in_short_help_from_enum() {
     #[derive(Parser)]
     #[command(name = "my-cmd")]
-    enum MyApp {}
+    enum MyApp {
+        Foo,
+    }
 
     let help = get_help::<MyApp>();
 
-    assert_data_eq!(help, str![[r#"
-Usage: my-cmd
+    assert_data_eq!(
+        help,
+        str![[r#"
+Usage: my-cmd <COMMAND>
+
+Commands:
+  foo   
+  help  Print this message or the help of the given subcommand(s)
 
 Options:
   -h, --help  Print help
 
-"#]].raw());
+"#]]
+        .raw()
+    );
 }
 
 #[test]
 fn app_name_in_long_help_from_enum() {
     #[derive(Parser)]
     #[command(name = "my-cmd")]
-    enum MyApp {}
+    enum MyApp {
+        Foo,
+    }
 
     let help = get_long_help::<MyApp>();
 
-    assert_data_eq!(help, str![[r#"
-Usage: my-cmd
+    assert_data_eq!(
+        help,
+        str![[r#"
+Usage: my-cmd <COMMAND>
+
+Commands:
+  foo   
+  help  Print this message or the help of the given subcommand(s)
 
 Options:
   -h, --help
           Print help
 
-"#]].raw());
+"#]]
+        .raw()
+    );
 }
 
 #[test]
@@ -84,10 +112,14 @@ fn app_name_in_short_version_from_struct() {
 
     let version = MyApp::command().render_version();
 
-    assert_data_eq!(version, str![[r#"
+    assert_data_eq!(
+        version,
+        str![[r#"
 my-cmd 
 
-"#]].raw());
+"#]]
+        .raw()
+    );
 }
 
 #[test]
@@ -98,36 +130,52 @@ fn app_name_in_long_version_from_struct() {
 
     let version = MyApp::command().render_long_version();
 
-    assert_data_eq!(version, str![[r#"
+    assert_data_eq!(
+        version,
+        str![[r#"
 my-cmd 
 
-"#]].raw());
+"#]]
+        .raw()
+    );
 }
 
 #[test]
 fn app_name_in_short_version_from_enum() {
     #[derive(Parser)]
     #[command(name = "my-cmd")]
-    enum MyApp {}
+    enum MyApp {
+        Foo,
+    }
 
     let version = MyApp::command().render_version();
 
-    assert_data_eq!(version, str![[r#"
+    assert_data_eq!(
+        version,
+        str![[r#"
 my-cmd 
 
-"#]].raw());
+"#]]
+        .raw()
+    );
 }
 
 #[test]
 fn app_name_in_long_version_from_enum() {
     #[derive(Parser)]
     #[command(name = "my-cmd")]
-    enum MyApp {}
+    enum MyApp {
+        Foo,
+    }
 
     let version = MyApp::command().render_long_version();
 
-    assert_data_eq!(version, str![[r#"
+    assert_data_eq!(
+        version,
+        str![[r#"
 my-cmd 
 
-"#]].raw());
+"#]]
+        .raw()
+    );
 }
