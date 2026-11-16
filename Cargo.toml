@@ -128,7 +128,7 @@ debug = "line-tables-only"
 
 [package]
 name = "clap"
-version = "4.6.7"
+version = "4.6.8"
 description = "A simple to use, efficient, and full-featured Command Line Argument Parser"
 categories = ["command-line-interface"]
 keywords = [
@@ -206,7 +206,7 @@ bench = false
 
 [dependencies]
 clap_builder = { path = "./clap_builder", version = "=4.6.7", default-features = false }
-clap_derive = { path = "./clap_derive", version = "=4.6.7", optional = true }
+clap_derive = { path = "./clap_derive", version = "=4.6.8", optional = true }
 
 [dev-dependencies]
 trybuild = "1.0.119"

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [0.3.4] - 2026-11-16
+
 ## [0.3.3] - 2026-08-12
 
 ### Fixes
@@ -206,7 +208,8 @@ MSRV changed to 1.64.0
 - Expanded the documentation
 
 <!-- next-url -->
-[Unreleased]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.3.3...HEAD
+[Unreleased]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.3.4...HEAD
+[0.3.4]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.3.3...clap_mangen-v0.3.4
 [0.3.3]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.3.2...clap_mangen-v0.3.3
 [0.3.2]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.3.1...clap_mangen-v0.3.2
 [0.3.1]: https://github.com/clap-rs/clap/compare/clap_mangen-v0.3.0...clap_mangen-v0.3.1

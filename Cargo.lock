@@ -449,7 +449,7 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.6.7"
+version = "4.6.8"
 dependencies = [
  "automod",
  "clap-cargo",
@@ -477,7 +477,7 @@ dependencies = [
 name = "clap_bench"
 version = "0.0.0"
 dependencies = [
- "clap 4.6.7",
+ "clap 4.6.8",
  "divan",
  "lazy_static",
 ]
@@ -502,7 +502,7 @@ dependencies = [
  "anstream",
  "anstyle",
  "backtrace",
- "clap_lex 1.1.1",
+ "clap_lex 1.1.2",
  "color-print",
  "snapbox",
  "static_assertions",
@@ -515,11 +515,11 @@ dependencies = [
 
 [[package]]
 name = "clap_complete"
-version = "4.6.11"
+version = "4.6.12"
 dependencies = [
  "automod",
- "clap 4.6.7",
- "clap_lex 1.1.1",
+ "clap 4.6.8",
+ "clap_lex 1.1.2",
  "completest",
  "completest-pty",
  "is_executable",
@@ -530,9 +530,9 @@ dependencies = [
 
 [[package]]
 name = "clap_complete_nushell"
-version = "4.6.2"
+version = "4.6.3"
 dependencies = [
- "clap 4.6.7",
+ "clap 4.6.8",
  "clap_complete",
  "completest",
  "completest-nu",
@@ -541,7 +541,7 @@ dependencies = [
 
 [[package]]
 name = "clap_derive"
-version = "4.6.7"
+version = "4.6.8"
 dependencies = [
  "anstyle",
  "heck 0.5.0",
@@ -559,17 +559,17 @@ checksum = "3a822ea5bc7590f9d40f1ba12c0dc3c2760f3482c6984db1573ad11031420831"
 
 [[package]]
 name = "clap_lex"
-version = "1.1.1"
+version = "1.1.2"
 dependencies = [
  "automod",
 ]
 
 [[package]]
 name = "clap_mangen"
-version = "0.3.3"
+version = "0.3.4"
 dependencies = [
  "automod",
- "clap 4.6.7",
+ "clap 4.6.8",
  "roff",
  "snapbox",
 ]
