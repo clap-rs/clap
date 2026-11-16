@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Performance
+
+- *(derive)* Reudce stack usage in `dev` profile
+
 ## [4.6.7] - 2026-09-14
 
 ### Features
