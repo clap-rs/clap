@@ -120,7 +120,6 @@ impl<'cmd> Parser<'cmd> {
                     if let Some(sc_name) = sc_name {
                         if sc_name == "help" && !self.cmd.is_disable_help_subcommand_set() {
                             ok!(self.parse_help_subcommand(raw_args.remaining(&mut args_cursor)));
-                            unreachable!("`parse_help_subcommand` always errors");
                         } else {
                             subcmd_name = Some(sc_name.to_owned());
                         }

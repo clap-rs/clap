@@ -4108,14 +4108,10 @@ impl Command {
     /// </div>
     fn get_subcommands_containing(&self, arg: &Arg) -> Vec<&Self> {
         let mut vec = Vec::new();
-        for idx in 0..self.subcommands.len() {
-            if self.subcommands[idx]
-                .args
-                .args()
-                .any(|ar| ar.get_id() == arg.get_id())
-            {
-                vec.push(&self.subcommands[idx]);
-                vec.append(&mut self.subcommands[idx].get_subcommands_containing(arg));
+        for sub in &self.subcommands {
+            if sub.args.args().any(|ar| ar.get_id() == arg.get_id()) {
+                vec.push(sub);
+                vec.append(&mut sub.get_subcommands_containing(arg));
             }
         }
         vec
