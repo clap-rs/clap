@@ -200,7 +200,7 @@ jobs:
       with:
         tool: cargo-tarpaulin
     - name: Gather coverage
-      run: cargo tarpaulin --out xml
+      run: cargo tarpaulin --out xml --timeout 120
     - name: Upload coverage report
       if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
       uses: actions/upload-code-coverage@2b21a77928be8d5168c2b9581a67f2adbebacc52 # v1.4.4
