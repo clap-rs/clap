@@ -4339,6 +4339,9 @@ impl Arg {
     }
 
     /// Get the number of values for this argument.
+    ///
+    /// Before [`Command::build()`][crate::Command::build], there is no definitive
+    /// interpretation; it is just unset.  After building, it will never be `None`.
     #[inline]
     pub fn get_num_args(&self) -> Option<ValueRange> {
         self.num_vals
