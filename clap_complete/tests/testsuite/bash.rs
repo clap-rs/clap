@@ -376,10 +376,67 @@ another  shell    bash     fish     zsh
         assert!(!actual.contains("foo"), "Actual output:\n{actual}");
     }
 
+    {
+        use std::fs::File;
+        use std::path::Path;
+
+        let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+        let testdir_path = testdir.path().unwrap();
+
+        File::create(Path::new(testdir_path).join("foo bar.txt")).unwrap();
+        File::create(Path::new(testdir_path).join("baz qux.txt")).unwrap();
+
+        let input = format!(
+            "exhaustive hint --path {}/\t\t",
+            testdir_path.to_string_lossy()
+        );
+        let actual = runtime.complete(input.as_str(), &term).unwrap();
+        assert!(actual.contains("foo bar.txt"), "Actual output:\n{actual}");
+    }
+
     let input = "exhaustive hint --other \t";
     let expected = snapbox::str!["exhaustive hint --other         % exhaustive hint --other "];
     let actual = runtime.complete(input, &term).unwrap();
     assert_data_eq!(actual, expected);
+}
+
+#[test]
+#[cfg(unix)]
+#[cfg(feature = "unstable-shell-tests")]
+fn complete_file_with_unset_ifs() {
+    use snapbox::IntoData as _;
+
+    if !common::has_command(CMD) {
+        return;
+    }
+
+    let name = "my-app";
+    let mut cmd = common::value_hint_command(name);
+
+    let mut script = vec![];
+    clap_complete::generate(clap_complete::shells::Bash, &mut cmd, name, &mut script);
+
+    let testdir = snapbox::dir::DirRoot::mutable_temp().unwrap();
+    let script_path = testdir.path().unwrap().join("my-app.bash");
+    std::fs::write(&script_path, script).unwrap();
+
+    let output = std::process::Command::new(CMD)
+        .arg("-c")
+        .arg(
+            r#"source "$1"
+unset IFS
+COMP_WORDS=(my-app --file "")
+COMP_CWORD=2
+_my__app my-app "" --file 2>/dev/null
+if [ -n "${IFS+x}" ]; then printf 'IFS=%q' "$IFS"; else printf 'IFS unset'; fi"#,
+        )
+        .arg(CMD)
+        .arg(&script_path)
+        .output()
+        .unwrap();
+
+    let actual = String::from_utf8_lossy(&output.stdout).into_owned();
+    assert_data_eq!(actual, snapbox::str!["IFS unset"].raw());
 }
 
 #[test]
