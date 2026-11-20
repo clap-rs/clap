@@ -1,0 +1,72 @@
+#compdef untagged
+function _clap_dynamic_completer_untagged() {
+    local _CLAP_COMPLETE_INDEX=$(expr $CURRENT - 1)
+    local _CLAP_IFS=$'\n'
+
+    local completions=("${(@f)$( \
+        _CLAP_IFS="$_CLAP_IFS" \
+        _CLAP_COMPLETE_INDEX="$_CLAP_COMPLETE_INDEX" \
+        COMPLETE="zsh" \
+        untagged -- "${words[@]}" 2>/dev/null \
+    )}")
+
+    if [[ -n $completions ]]; then
+        local -A tag_map tag_map_dirs
+        local completion
+        local tag
+        local value
+        local to_add
+
+        for completion in $completions; do
+            IFS=: read -r tag value <<< "$completion"
+
+            if [[ "$value" == */ ]]; then
+                local dir_no_slash="${value%/}"
+
+                if [[ "$value" == *:* ]]; then
+                    local desc="${value#*:}"
+                    to_add="$dir_no_slash:$desc"
+                else
+                    to_add="$dir_no_slash"
+                fi
+
+                tag_map_dirs[$tag]+=${tag_map_dirs[$tag]:+$'\n'}"$to_add"
+            else
+                tag_map[$tag]+=${tag_map[$tag]:+$'\n'}"$value"
+            fi
+        done
+
+        local -A tags
+        for k in ${(k)tag_map} ${(k)tag_map_dirs}; do
+            tags[$k]=1
+        done
+
+        local extglob=${options[extendedglob]}
+        setopt extendedglob
+        for tag in ${(Ok)tags}; do
+            # _describe -t tag cannot begin with a `-`
+            local desc_tag=${tag##-##}
+            local values=("${(@f)tag_map[$tag]}") # split on newline
+
+            if (( $#values )); then
+                if [[ -n "$desc_tag" ]]; then
+                    _describe -J -t "$desc_tag" "$desc_tag" values
+                else
+                    _describe -J 'options' values
+                fi
+            fi
+
+            values=("${(@f)tag_map_dirs[$tag]}")
+            if (( $#values )); then
+                if [[ -n "$desc_tag" ]]; then
+                    _describe -J -t "${desc_tag}-dirs" "$desc_tag" values -S '/' -r '/'
+                else
+                    _describe -J 'options' values -S '/' -r '/'
+                fi
+            fi
+        done
+        [[ $extglob == on ]] || unsetopt extendedglob
+    fi
+}
+
+compdef _clap_dynamic_completer_untagged untagged
