@@ -1396,11 +1396,9 @@ impl<'cmd> Parser<'cmd> {
 
         // Override anything that can override us
         let mut transitive = Vec::new();
-        for arg_id in matcher.arg_ids() {
-            if let Some(overrider) = self.cmd.find(arg_id) {
-                if overrider.overrides.contains(arg.get_id()) {
-                    transitive.push(overrider.get_id());
-                }
+        for overrider in self.cmd.get_arguments() {
+            if overrider.overrides.contains(arg.get_id()) && matcher.contains(overrider.get_id()) {
+                transitive.push(overrider.get_id());
             }
         }
         for overrider_id in transitive {
