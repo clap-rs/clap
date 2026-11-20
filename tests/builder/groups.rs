@@ -384,11 +384,11 @@ For more information, try '--help'.
     );
 }
 
-/* This is used to be fixed in a hack, we need to find a better way to fix it.
 #[test]
 fn issue_1794() {
-    let cmd = clap::Command::new("hello")
+    let cmd = Command::new("hello")
         .bin_name("deno")
+        .allow_missing_positional(true)
         .arg(Arg::new("option1").long("option1").action(ArgAction::SetTrue))
         .arg(Arg::new("pos1").action(ArgAction::Set))
         .arg(Arg::new("pos2").action(ArgAction::Set))
@@ -410,4 +410,28 @@ fn issue_1794() {
     assert_eq!(m.get_one::<String>("pos2").map(|v| v.as_str()), Some("positional"));
     assert!(*m.get_one::<bool>("option1").expect("defaulted by clap"));
 }
-*/
+
+#[test]
+fn issue_1794_with_multiple_conflicting_positionals() {
+    let cmd = Command::new("hello")
+        .bin_name("deno")
+        .allow_missing_positional(true)
+        .arg(Arg::new("option1").long("option1").action(ArgAction::SetTrue))
+        .arg(Arg::new("pos1").action(ArgAction::Set))
+        .arg(Arg::new("pos2").action(ArgAction::Set))
+        .arg(Arg::new("pos3").action(ArgAction::Set))
+        .group(
+            ArgGroup::new("arg1")
+                .args(["pos1", "pos2", "option1"])
+                .required(true),
+        );
+
+    let m = cmd
+        .clone()
+        .try_get_matches_from(["cmd", "--option1", "value"])
+        .unwrap();
+    assert!(*m.get_one::<bool>("option1").expect("defaulted by clap"));
+    assert_eq!(m.get_one::<String>("pos1").map(|v| v.as_str()), None);
+    assert_eq!(m.get_one::<String>("pos2").map(|v| v.as_str()), None);
+    assert_eq!(m.get_one::<String>("pos3").map(|v| v.as_str()), Some("value"));
+}
