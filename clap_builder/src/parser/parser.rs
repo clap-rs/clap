@@ -128,11 +128,22 @@ impl<'cmd> Parser<'cmd> {
                 }
 
                 if arg_os.is_escape() {
-                    if matches!(&parse_state, ParseState::Opt(opt) | ParseState::Pos(opt) if
-                        self.cmd[opt].is_allow_hyphen_values_set())
+                    if matches!(&parse_state, ParseState::Opt(opt) | ParseState::Pos(opt)
+                        if self.cmd[opt].is_allow_hyphen_values_set()
+                            && self.cmd[opt].is_allow_dash_dash_as_value_set())
                     {
                         // ParseResult::MaybeHyphenValue, do nothing
                     } else {
+                        if let ParseState::Opt(ref opt) = parse_state {
+                            let arg = &self.cmd[opt];
+                            if arg.get_num_args().expect(INTERNAL_ERROR_MSG).min_values() > 0 {
+                                return Err(ClapError::missing_required_argument(
+                                    self.cmd,
+                                    vec![arg.to_string()],
+                                    Usage::new(self.cmd).create_usage_with_title(&[]),
+                                ));
+                            }
+                        }
                         debug!("Parser::get_matches_with: setting TrailingVals=true");
                         if self.cmd.get_keymap().get(&pos_counter).is_some_and(|arg| {
                             self.check_terminator(arg, arg_os.to_value_os()).is_some()
