@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- *(derive)* Avoid `unused_result`
+
 ## [4.6.8] - 2026-11-16
 
 ### Performance
