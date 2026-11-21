@@ -39,11 +39,7 @@ fn main() -> std::io::Result<()> {
         .arg(clap::arg!(-n --name <NAME>))
         .arg(clap::arg!(-c --count <NUM>));
 
-    let man = clap_mangen::Man::new(cmd);
-    let mut buffer: Vec<u8> = Default::default();
-    man.render(&mut buffer)?;
-
-    std::fs::write(out_dir.join("mybin.1"), buffer)?;
+    clap_mangen::generate_to(cmd, out_dir)?;
 
     Ok(())
 }
