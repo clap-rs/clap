@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Performance
+
+- Reduce per-argument parse overhead
+
 ## [4.6.9] - 2026-11-20
 
 ### Fixes
