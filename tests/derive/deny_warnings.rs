@@ -13,6 +13,7 @@
 // MIT/Apache 2.0 license.
 
 #![deny(unused_qualifications)]
+#![deny(unused_results)]
 #![deny(warnings)]
 
 use clap::Parser;
@@ -64,4 +65,22 @@ fn warning_unused_qualifications() {
         #[command(flatten)]
         pub(crate) left: L,
     }
+}
+
+#[test]
+fn warning_unused_results_for_option_flatten() {
+    #[derive(clap::Args)]
+    struct Inner {
+        #[arg(long)]
+        name: String,
+    }
+
+    #[derive(clap::Parser)]
+    struct Cli {
+        #[command(flatten)]
+        inner: Option<Inner>,
+    }
+
+    let parsed = Cli::try_parse_from(["test", "--name", "value"]).unwrap();
+    assert_eq!(parsed.inner.unwrap().name, "value");
 }
