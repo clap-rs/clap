@@ -186,7 +186,11 @@ _my__app() {
             fi
             case "${prev}" in
                 --config)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 *)
@@ -204,7 +208,11 @@ _my__app() {
             fi
             case "${prev}" in
                 --case)
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -f "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
                     return 0
                     ;;
                 *)
