@@ -122,6 +122,10 @@ Register-ArgumentCompleter -Native -CommandName 'my-app' -ScriptBlock {
         }
     })
 
+    if ($wordToComplete -notlike "-*") {
+        $completions = $completions.Where{ $_.CompletionText -notlike "-*" }
+    }
+
     $completions.Where{ $_.CompletionText -like "$wordToComplete*" } |
         Sort-Object -Property ListItemText
 }
