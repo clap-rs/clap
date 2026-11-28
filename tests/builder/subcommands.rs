@@ -139,6 +139,24 @@ For more information, try '--help'.
 #[test]
 #[cfg(feature = "suggestions")]
 #[cfg(feature = "error-context")]
+fn subcmd_did_you_mean_hidden_not_suggested() {
+    static DYM_SUBCMD_HIDDEN: &str = "\
+error: unrecognized subcommand 'tes'
+
+Usage: dym [COMMAND]
+
+For more information, try '--help'.
+";
+
+    let cmd = Command::new("dym")
+        .subcommand(Command::new("test").hide(true))
+        .subcommand(Command::new("other"));
+    utils::assert_output(cmd, "dym tes", DYM_SUBCMD_HIDDEN, true);
+}
+
+#[test]
+#[cfg(feature = "suggestions")]
+#[cfg(feature = "error-context")]
 fn subcmd_did_you_mean_output_arg() {
     static EXPECTED: &str = "\
 error: unexpected argument '--subcmarg' found
@@ -502,7 +520,10 @@ For more information, try 'help'.
     #[cfg(feature = "suggestions")]
     {
         let err = cmd.clone().try_get_matches_from(["baz"]).unwrap_err();
-        utils::assert_error(err, ErrorKind::InvalidSubcommand, str![[r#"
+        utils::assert_error(
+            err,
+            ErrorKind::InvalidSubcommand,
+            str![[r#"
 error: unrecognized subcommand 'baz'
 
   tip: a similar subcommand exists: 'bar'
@@ -511,7 +532,9 @@ Usage: <COMMAND>
 
 For more information, try 'help'.
 
-"#]], true);
+"#]],
+            true,
+        );
     }
 
     // Verify whatever we did to get the above to work didn't disable `--help` and `--version`.
