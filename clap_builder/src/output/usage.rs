@@ -139,7 +139,23 @@ impl Usage<'_> {
 
         self.write_arg_usage(styled, used, true);
 
-        if self.cmd.is_subcommand_required_set() {
+        // `--help` and `--version` exit before a subcommand is ever reached, so
+        // pairing them with `<COMMAND>` tells the user to supply something the
+        // command they typed will never ask for.
+        let only_terminating_flags = !used.is_empty()
+            && used.iter().all(|id| {
+                self.cmd.find(id).is_some_and(|arg| {
+                    matches!(
+                        arg.get_action(),
+                        ArgAction::Help
+                            | ArgAction::HelpShort
+                            | ArgAction::HelpLong
+                            | ArgAction::Version
+                    )
+                })
+            });
+
+        if self.cmd.is_subcommand_required_set() && !only_terminating_flags {
             let value_name = self
                 .cmd
                 .get_subcommand_value_name()
