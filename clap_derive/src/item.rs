@@ -858,7 +858,9 @@ impl Item {
                 | Some(MagicAttrName::Author)
                 | Some(MagicAttrName::Version)
                  => {
-                    let expr = attr.value_or_abort()?;
+                    // Every magic name above has its own valueless arm earlier, so a missing value
+                    // here is a plain builder method rather than one of those.
+                    let expr = attr.value_or_method_abort()?;
                     self.push_method(*attr.kind.get(), attr.name.clone(), expr);
                 }
 
